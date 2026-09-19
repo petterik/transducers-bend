@@ -17,9 +17,15 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--bend-main', type=Path, default=ROOT.parent / 'bend/bend2/main.ts')
 p.add_argument('--samples', type=int, default=7)
 p.add_argument('--output', type=Path, help='Optional raw JSON report; otherwise print only')
+p.add_argument('--cases', nargs='+', choices=['cheap_full', 'cheap_early', 'huge_early', 'expensive_early'],
+               help='Run only these cases; default: all')
+p.add_argument('--threshold', type=int, default=1,
+               help='U32 filter threshold; high values can make early-stop cases very slow')
 a = p.parse_args()
 if a.samples < 1:
     p.error('samples must be positive')
+if not 0 <= a.threshold <= 4294967295:
+    p.error('threshold must fit U32')
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1', 'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 report = {'timing': 'IO.now milliseconds per batch; excludes process startup; one warmup per process',
           'scope': 'Sequential generated U32 ranges; CPU threads=1, GPU off; no prebuilt lists',
@@ -30,11 +36,14 @@ cases = [('cheap_full', 0, 2000000, 2000000, 0, 32),
          ('cheap_early', 0, 2000000, 32, 0, 1000000),
          ('huge_early', 0, 4294967295, 32, 0, 1000000),
          ('expensive_early', 0, 2000000, 32, 256, 1000)]
+if a.cases:
+    cases = [case for case in cases if case[0] in a.cases]
 with tempfile.TemporaryDirectory(prefix='transduce-range-') as directory:
     out = Path(directory).resolve()
     source = (ROOT / 'bench/range.bend').read_text().split('def main()')[0]
     source = source.replace('import ../transduce.bend as T',
                             'import ./' + os.path.relpath(ROOT / 'transduce.bend', out) + ' as T')
+    source = source.replace('U32.is_gt(x, 1)', f'U32.is_gt(x, {a.threshold})')
     for label, begin, end, take, work, repeats in cases:
         # Vary early-range starts to prevent folding a repeated constant answer.
         varying = label != 'cheap_full'
@@ -50,15 +59,16 @@ with tempfile.TemporaryDirectory(prefix='transduce-range-') as directory:
                         x = ((((x * 1664525) & 0xffffffff) ^ (x >> 13)) + 1013904223) & 0xffffffff
                 else:
                     x = ((x ^ (x >> 13)) + 1) & 0xffffffff
-                if x > 1:
+                if x > a.threshold:
                     total = (total + x) & 0xffffffff
                     accepted += 1
             expected = (expected + total * multiplicity) & 0xffffffff
         code = source.replace('  cheap(x)\n',
                               f'  work({work}n, x)\n', 1) if work else source
-        bodies = {'library': f'T.transduce(~T.over_range(~U32, ~pipeline()), (1, ({take}n, 0)), T.range_between(offset, {end}))',
+        bodies = {'library': f'T.transduce(~T.over_range(~U32, ~pipeline()), ({a.threshold}, ({take}n, 0)), T.range_between(offset, {end}))',
                   'direct': f'direct(U32.to_nat(({end} - offset : U32)), offset, Running{{{take}n, 0}})'}
         row = {'case': label, 'begin': begin, 'end': end, 'take': take, 'work_rounds': work,
+               'threshold': a.threshold,
                'starts': 'descending repetition index modulo 65536' if varying else 'constant begin',
                'repeats_per_sample': repeats, 'expected_batch_sum': expected, 'builds': {},
                'samples_ms': {name: [] for name in bodies}}

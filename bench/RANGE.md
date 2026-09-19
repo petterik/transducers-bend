@@ -1,5 +1,7 @@
 # Generated range measurements
 
+Follow-up: [control-flow confidence review](CONTROL.md) reproduces the gap, rejects two ineffective rewrites, and shows that a more selective filter removes the measured gap. Use `--cases cheap_full --threshold 1048576` to reproduce that workload; defaults retain the original workload below.
+
 Measured on the local M3 Max, using the sibling Bend fork's compiler and the open static reduction API. [Raw samples](range-results.json) include the compiler hash, build times, emitted code sizes, and every retained timing. No new compiler change was made.
 
 ```sh

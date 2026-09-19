@@ -1,0 +1,464 @@
+{
+  "description": "2026-09-19 control-flow confidence experiments; variants and methodology in CONTROL.md. No experimental library rewrite retained.",
+  "reports": [
+    {
+      "variant": "baseline",
+      "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "results": [
+        {
+          "case": "cheap_full",
+          "threshold": 1,
+          "expected_batch_sum": 724846560,
+          "samples_ms": {
+            "library": [
+              50,
+              48,
+              48,
+              49,
+              48,
+              50
+            ],
+            "direct": [
+              33,
+              34,
+              33,
+              34,
+              33,
+              33
+            ]
+          },
+          "median_batch_ms": {
+            "library": 48.5,
+            "direct": 33
+          }
+        },
+        {
+          "case": "cheap_early",
+          "threshold": 1,
+          "expected_batch_sum": 819314240,
+          "samples_ms": {
+            "library": [
+              24,
+              24,
+              25,
+              24,
+              25,
+              24
+            ],
+            "direct": [
+              17,
+              16,
+              16,
+              17,
+              16,
+              16
+            ]
+          },
+          "median_batch_ms": {
+            "library": 24,
+            "direct": 16
+          }
+        },
+        {
+          "case": "huge_early",
+          "threshold": 1,
+          "expected_batch_sum": 819314240,
+          "samples_ms": {
+            "library": [
+              24,
+              25,
+              24,
+              25,
+              24,
+              25
+            ],
+            "direct": [
+              18,
+              19,
+              18,
+              19,
+              19,
+              19
+            ]
+          },
+          "median_batch_ms": {
+            "library": 24.5,
+            "direct": 19
+          }
+        },
+        {
+          "case": "expensive_early",
+          "threshold": 1,
+          "expected_batch_sum": 4014221255,
+          "samples_ms": {
+            "library": [
+              10,
+              12,
+              10,
+              11,
+              11,
+              11
+            ],
+            "direct": [
+              11,
+              12,
+              11,
+              11,
+              11,
+              11
+            ]
+          },
+          "median_batch_ms": {
+            "library": 11,
+            "direct": 11
+          }
+        }
+      ]
+    },
+    {
+      "variant": "take_zero_test",
+      "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "results": [
+        {
+          "case": "cheap_full",
+          "threshold": 1,
+          "expected_batch_sum": 724846560,
+          "samples_ms": {
+            "library": [
+              63,
+              63,
+              65,
+              64,
+              64,
+              64,
+              64,
+              64,
+              63,
+              63,
+              67,
+              65,
+              65,
+              66
+            ],
+            "direct": [
+              34,
+              33,
+              33,
+              34,
+              33,
+              33,
+              34,
+              33,
+              34,
+              33,
+              33,
+              33,
+              33,
+              33
+            ]
+          },
+          "median_batch_ms": {
+            "library": 64,
+            "direct": 33
+          }
+        },
+        {
+          "case": "cheap_early",
+          "threshold": 1,
+          "expected_batch_sum": 819314240,
+          "samples_ms": {
+            "library": [
+              31,
+              32,
+              32,
+              32,
+              32,
+              32,
+              32,
+              31,
+              31,
+              32,
+              32,
+              32,
+              31,
+              31
+            ],
+            "direct": [
+              16,
+              17,
+              16,
+              17,
+              17,
+              17,
+              18,
+              16,
+              17,
+              17,
+              17,
+              16,
+              17,
+              17
+            ]
+          },
+          "median_batch_ms": {
+            "library": 32,
+            "direct": 17
+          }
+        },
+        {
+          "case": "huge_early",
+          "threshold": 1,
+          "expected_batch_sum": 819314240,
+          "samples_ms": {
+            "library": [
+              31,
+              33,
+              33,
+              33,
+              33,
+              33,
+              33,
+              31,
+              32,
+              33,
+              33,
+              33,
+              33,
+              33
+            ],
+            "direct": [
+              19,
+              19,
+              19,
+              20,
+              19,
+              19,
+              18,
+              19,
+              19,
+              18,
+              19,
+              19,
+              19,
+              19
+            ]
+          },
+          "median_batch_ms": {
+            "library": 33,
+            "direct": 19
+          }
+        },
+        {
+          "case": "expensive_early",
+          "threshold": 1,
+          "expected_batch_sum": 4014221255,
+          "samples_ms": {
+            "library": [
+              11,
+              11,
+              12,
+              11,
+              11,
+              11,
+              11,
+              11,
+              11,
+              11,
+              11,
+              11,
+              11,
+              11
+            ],
+            "direct": [
+              11,
+              11,
+              12,
+              11,
+              11,
+              11,
+              11,
+              11,
+              12,
+              11,
+              11,
+              11,
+              11,
+              11
+            ]
+          },
+          "median_batch_ms": {
+            "library": 11,
+            "direct": 11
+          }
+        }
+      ]
+    },
+    {
+      "variant": "take_downstream_first",
+      "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "results": [
+        {
+          "case": "cheap_full",
+          "threshold": 1,
+          "expected_batch_sum": 724846560,
+          "samples_ms": {
+            "library": [
+              49,
+              49,
+              48,
+              49,
+              48,
+              50
+            ],
+            "direct": [
+              33,
+              34,
+              33,
+              33,
+              34,
+              33
+            ]
+          },
+          "median_batch_ms": {
+            "library": 49,
+            "direct": 33
+          }
+        },
+        {
+          "case": "cheap_early",
+          "threshold": 1,
+          "expected_batch_sum": 819314240,
+          "samples_ms": {
+            "library": [
+              25,
+              26,
+              27,
+              25,
+              26,
+              25
+            ],
+            "direct": [
+              17,
+              17,
+              18,
+              18,
+              17,
+              17
+            ]
+          },
+          "median_batch_ms": {
+            "library": 25.5,
+            "direct": 17
+          }
+        },
+        {
+          "case": "huge_early",
+          "threshold": 1,
+          "expected_batch_sum": 819314240,
+          "samples_ms": {
+            "library": [
+              25,
+              24,
+              26,
+              25,
+              25,
+              26
+            ],
+            "direct": [
+              19,
+              19,
+              20,
+              19,
+              20,
+              19
+            ]
+          },
+          "median_batch_ms": {
+            "library": 25,
+            "direct": 19
+          }
+        },
+        {
+          "case": "expensive_early",
+          "threshold": 1,
+          "expected_batch_sum": 4014221255,
+          "samples_ms": {
+            "library": [
+              11,
+              11,
+              11,
+              11,
+              11,
+              12
+            ],
+            "direct": [
+              11,
+              12,
+              11,
+              11,
+              11,
+              11
+            ]
+          },
+          "median_batch_ms": {
+            "library": 11,
+            "direct": 11
+          }
+        }
+      ]
+    },
+    {
+      "variant": "selective_baseline",
+      "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "results": [
+        {
+          "case": "cheap_full",
+          "threshold": 1048576,
+          "expected_batch_sum": 708069376,
+          "samples_ms": {
+            "library": [
+              36,
+              36,
+              35,
+              36,
+              36,
+              36,
+              37,
+              35,
+              36,
+              36,
+              36,
+              36,
+              36,
+              35
+            ],
+            "direct": [
+              37,
+              36,
+              36,
+              37,
+              36,
+              37,
+              38,
+              37,
+              36,
+              36,
+              36,
+              37,
+              37,
+              36
+            ]
+          },
+          "median_batch_ms": {
+            "library": 36,
+            "direct": 36.5
+          }
+        }
+      ]
+    }
+  ]
+}

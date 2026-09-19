@@ -1,5 +1,11 @@
 # Confidence review
 
+## Range-overhead follow-up
+
+The confidence pass challenged treating the cheap-range gap as a general protocol cost. Native inspection found scalarized state, not per-element wrapper allocation in this measured loop. A more selective filter measured 36 ms library versus 36.5 ms handwritten, while the original workload still exposes overhead. Two semantics-preserving take-control experiments passed the full library suite but were reverted because they regressed or failed to improve performance. The library and compiler are unchanged. See [the experiment report and retained samples](bench/CONTROL.md).
+
+This review therefore changed the strategy: retain the representation and broaden workload evidence before attempting further optimization. It does not establish 100% confidence or a formal proof.
+
 Current implementation: priorities #1–#3 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md). The original review below is historical; its open items and compiler-scope restriction are superseded by later authorized work.
 
 ## Priority #3 confidence follow-up
