@@ -1,0 +1,31 @@
+--- a/bend2/comp.ts
++++ b/bend2/comp.ts
+@@ -2548,6 +2548,28 @@
+       }
+       const o = term_open(x);
+       const v = val_hold(fl, val_to(fl, args[0], lay_of(fl.book, all.A)), x.k);
++      // Experimental scalar case split, not an invariant assumption.
++      // Split a small unboxed record once per segment; both arms execute
++      // the original body, with a known zero in the zero arm.
++      const at = v.lay.ks.indexOf("w64");
++      const split = fl.decl === "Term" && v.lay.arms?.length === 1
++        && v.lay.ks.length > 1 && v.lay.ks.length <= 4
++        && !v.lay.ks.includes("box") && at >= 0
++        && !(fl.seg as any).scalarSplit;
++      if (split) {
++        (fl.seg as any).scalarSplit = true;
++        const saved = new Map(fl.uses);
++        const spares = fl.spares.slice();
++        emit_chain(fl, () => `__builtin_expect(${v.ws[at]} == 0, 0)`, [true, false].map(zero => () => {
++          fl.uses = new Map(saved);
++          fl.spares = spares.slice();
++          const ws = v.ws.slice();
++          if (zero) ws[at] = "0";
++          bind_uses(fl, o.ps[0], val_new(ws, v.lay), [o.b], all.A);
++          emit_body(fl, o.b, all.B(DUMMY), ers, args.slice(1), dst);
++        }));
++        return;
++      }
+       bind_uses(fl, o.ps[0], v, [o.b], all.A);
+       return emit_body(fl, o.b, all.B(DUMMY), ers, args.slice(1), dst);
+     }

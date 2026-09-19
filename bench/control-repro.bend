@@ -72,6 +72,19 @@ def guarded(n: Nat, +x: U32, c: Control, +threshold: U32) -> U32:
     case 1n+p Continue{State{1n+k, sum}}:
       guarded(p, (x + 1 : U32), tagged_step(threshold, State{1n+k, sum}, mapped(x)), threshold)
 
+# Unlike guarded, this also preserves a step for an arbitrary Continue/zero.
+# It models a case split that does not assume a reachable-state invariant.
+def preserving(n: Nat, +x: U32, c: Control, +threshold: U32) -> U32:
+  match n c:
+    case n Stop{State{left, sum}}:
+      sum
+    case 0n Continue{State{left, sum}}:
+      sum
+    case 1n+p Continue{State{0n, sum}}:
+      preserving(p, (x + 1 : U32), tagged_step(threshold, State{0n, sum}, mapped(x)), threshold)
+    case 1n+p Continue{State{1n+k, sum}}:
+      preserving(p, (x + 1 : U32), tagged_step(threshold, State{1n+k, sum}, mapped(x)), threshold)
+
 # Same reachable states, but normalize control only in the accepted arm.
 def split_feed(yes: Bool, left: Nat, sum: U32, x: U32) -> Control:
   match yes left:

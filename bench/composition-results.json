@@ -1,0 +1,287 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a",
+  "prototype_sha256": "b6983d884a79214649894f3453db4e0512f877ecacd9c60e59b1780cc68473e9",
+  "scope": "Sequential lists, construction and cleanup included; literal threshold in every variant; three_maps uses actual Base.List.map; filter cases use equivalent recursive map returning List<&2,U32> because Base.List.map returns List<&1,U32>, incompatible with Base.List.filter; actual Base.List.filter/take/foldl; early staged pipeline eagerly maps/filters all inputs",
+  "timing": "IO.now milliseconds; CPU threads=1 GPU off; warmup discarded per process; reversed second round",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-composition-lw9sm65c",
+  "results": [
+    {
+      "case": "three_maps",
+      "count": 200000,
+      "take": 200000,
+      "repeats": 32,
+      "expected": 85072896,
+      "samples_ms": {
+        "transducers": [
+          12,
+          14,
+          13,
+          13,
+          13,
+          13,
+          13,
+          13,
+          14,
+          13
+        ],
+        "single_map": [
+          13,
+          13,
+          13,
+          12,
+          14,
+          13,
+          13,
+          13,
+          13,
+          13
+        ],
+        "handwritten": [
+          12,
+          12,
+          14,
+          13,
+          13,
+          13,
+          14,
+          13,
+          15,
+          14
+        ],
+        "base_list": [
+          118,
+          117,
+          118,
+          117,
+          118,
+          118,
+          119,
+          117,
+          119,
+          117
+        ]
+      },
+      "program_sha256": {
+        "transducers": "699980d6cdb664933a33726420e59c0fbb305b2dc05351c7b61a5878ad62d41c",
+        "single_map": "c348a47ad0846a4f04c2ddc7c79b8c79e40f4b1b354babd427d50d1a6cecc39e",
+        "handwritten": "72b3ac997384b55971d5c322e5cef47e999ad23e039f8cad7e25f4c4015003a5",
+        "base_list": "dff6f6e0779cf70c3fe547ba3063468868097010b02e158a8a7b300dc05dbaa8"
+      },
+      "medians_ms": {
+        "transducers": 13.0,
+        "single_map": 13.0,
+        "handwritten": 13.0,
+        "base_list": 118.0
+      }
+    },
+    {
+      "case": "cheap_full",
+      "count": 200000,
+      "take": 200000,
+      "repeats": 32,
+      "expected": 53072864,
+      "samples_ms": {
+        "transducers": [
+          10,
+          11,
+          10,
+          11,
+          10,
+          11,
+          10,
+          11,
+          11,
+          10
+        ],
+        "scalar_prototype": [
+          11,
+          11,
+          12,
+          11,
+          11,
+          12,
+          11,
+          12,
+          11,
+          11
+        ],
+        "handwritten": [
+          10,
+          10,
+          10,
+          10,
+          9,
+          10,
+          10,
+          10,
+          10,
+          9
+        ],
+        "base_compatible": [
+          120,
+          118,
+          120,
+          115,
+          118,
+          118,
+          116,
+          118,
+          118,
+          117
+        ]
+      },
+      "program_sha256": {
+        "transducers": "6a4924263a3ace8650d97ccbd586f40b50fd7744d79e4f892f2d3242477b7e97",
+        "scalar_prototype": "179274af7241a8b66e58763c88468b05f686cd5053e16b932142acf0527d6c57",
+        "handwritten": "9902208931ccfea290bfa67da8f1a88c8b241be0c753b254bca371795477a48c",
+        "base_compatible": "9a88edcc8f094f2cea18b5c12a79e541520c7fd17cebc1d0756013c43f8f0e52"
+      },
+      "medians_ms": {
+        "transducers": 10.5,
+        "scalar_prototype": 11.0,
+        "handwritten": 10.0,
+        "base_compatible": 118.0
+      }
+    },
+    {
+      "case": "mixed_full",
+      "count": 200000,
+      "take": 200000,
+      "repeats": 32,
+      "expected": 3285922656,
+      "samples_ms": {
+        "transducers": [
+          44,
+          43,
+          44,
+          44,
+          44,
+          44,
+          43,
+          44,
+          44,
+          45
+        ],
+        "scalar_prototype": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "handwritten": [
+          14,
+          14,
+          14,
+          14,
+          14,
+          15,
+          14,
+          14,
+          15,
+          14
+        ],
+        "base_compatible": [
+          129,
+          128,
+          128,
+          129,
+          129,
+          129,
+          130,
+          131,
+          128,
+          127
+        ]
+      },
+      "program_sha256": {
+        "transducers": "dfb34215159aba57ff3ec73094195a5170f971bca5198bab2e692cd049263066",
+        "scalar_prototype": "11ba2ca56f6c504a69f7a1ba19d366246a13e286a102e95a4a624274355a002b",
+        "handwritten": "4ce5e237682b4bdab432030e18db9aa2476d51392ead6ff12e7dad5d37bda497",
+        "base_compatible": "70da62b98f255d4e7b31d4791beb00b4d6c58f25348095324f865b0a33529270"
+      },
+      "medians_ms": {
+        "transducers": 44.0,
+        "scalar_prototype": 16.0,
+        "handwritten": 14.0,
+        "base_compatible": 129.0
+      }
+    },
+    {
+      "case": "mixed_early",
+      "count": 200000,
+      "take": 32,
+      "repeats": 32,
+      "expected": 35360,
+      "samples_ms": {
+        "transducers": [
+          39,
+          41,
+          40,
+          40,
+          41,
+          40,
+          40,
+          41,
+          41,
+          41
+        ],
+        "scalar_prototype": [
+          44,
+          44,
+          44,
+          44,
+          44,
+          40,
+          40,
+          40,
+          41,
+          40
+        ],
+        "handwritten": [
+          40,
+          40,
+          39,
+          41,
+          41,
+          40,
+          41,
+          40,
+          41,
+          40
+        ],
+        "base_compatible": [
+          128,
+          128,
+          132,
+          125,
+          129,
+          128,
+          128,
+          127,
+          127,
+          123
+        ]
+      },
+      "program_sha256": {
+        "transducers": "a0a141031055dbaf699f6469a3ec236ddf3e2de5b261b7ab519874c7bddfbaa4",
+        "scalar_prototype": "6a18b188de87e463951ea93466016f8c73dbbcfbae76da30156f1e12bf0f6e61",
+        "handwritten": "cf8bfe0ef9efaa2239e66e64b602f502a1acb573ede0d052e8363f06dc943f58",
+        "base_compatible": "597328f14f0738399cde12cd3d728d8c567c1883ec624938b47b0a7003d52663"
+      },
+      "medians_ms": {
+        "transducers": 40.5,
+        "scalar_prototype": 42.5,
+        "handwritten": 40.0,
+        "base_compatible": 128.0
+      }
+    }
+  ]
+}

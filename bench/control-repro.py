@@ -39,6 +39,7 @@ def oracle(end, left, threshold):
 
 variants = {'direct': 'State{left, 0}', 'tagged': 'control(State{left, 0})',
             'guarded': 'control(State{left, 0})',
+            'preserving': 'control(State{left, 0})',
             'split': 'control(State{left, 0})'}
 checks = [(0, 0, 0), (0, 4, 0), (8, 0, 0), (8, 1, 0),
           (32, 3, 2147483647), (32, 64, 2147483647), (32, 64, 4294967295)]

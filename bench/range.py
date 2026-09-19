@@ -16,6 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--bend-main', type=Path, default=ROOT.parent / 'bend/bend2/main.ts')
 p.add_argument('--samples', type=int, default=7)
+p.add_argument('--source', type=Path, default=ROOT / 'bench/range.bend',
+               help='Benchmark definitions; defaults to the public pipeline')
 p.add_argument('--output', type=Path, help='Optional raw JSON report; otherwise print only')
 p.add_argument('--cases', nargs='+', choices=['cheap_full', 'cheap_early', 'huge_early', 'expensive_early'],
                help='Run only these cases; default: all')
@@ -35,6 +37,8 @@ report = {'timing': 'IO.now milliseconds per batch; excludes process startup; on
           'scope': 'Sequential generated U32 ranges; CPU threads=1, GPU off; no prebuilt lists',
           'platform': platform.platform(),
           'compiler_sha256': hashlib.sha256((a.bend_main.resolve().parent / 'comp.ts').read_bytes()).hexdigest(),
+          'benchmark_source_sha256': hashlib.sha256(a.source.read_bytes()).hexdigest(),
+          'library_sha256': hashlib.sha256((ROOT / 'transduce.bend').read_bytes()).hexdigest(),
           'results': []}
 cases = [('cheap_full', 0, 2000000, 2000000, 0, 32),
          ('cheap_early', 0, 2000000, 32, 0, 1000000),
@@ -44,7 +48,7 @@ if a.cases:
     cases = [case for case in cases if case[0] in a.cases]
 with tempfile.TemporaryDirectory(prefix='transduce-range-') as directory:
     out = Path(directory).resolve()
-    source = (ROOT / 'bench/range.bend').read_text().split('def main()')[0]
+    source = a.source.read_text().split('def main()')[0]
     source = source.replace('import ../transduce.bend as T',
                             'import ./' + os.path.relpath(ROOT / 'transduce.bend', out) + ' as T')
     if a.predicate == 'mixed':

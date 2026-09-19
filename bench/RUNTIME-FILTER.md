@@ -1,5 +1,7 @@
 # Runtime thresholds and irregular filtering
 
+Historical check: [the old/new API comparison](API-REGRESSION.md) reproduces the mixed-list overhead before ranges existed and finds identical timed-loop assembly across the API change. This is a pre-existing limitation, not a demonstrated source-API regression.
+
 Follow-up to [the control-flow review](CONTROL.md), measured on the same M3 Max and sibling compiler. No library or compiler code changed. [Raw reports](runtime-filter-results.json) preserve every retained sample, checksums, compiler hash, and generated benchmark-source hashes.
 
 ## Method
