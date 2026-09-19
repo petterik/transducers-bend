@@ -1,0 +1,56 @@
+{
+  "elements": 2000000,
+  "expected": "4000000",
+  "includes": "process startup, source construction, traversal, cleanup",
+  "small_probe": "JS and native returned 9",
+  "compiler_diagnostics": {
+    "record": "All terms check, with 3 unsafe annotations.",
+    "direct": "All terms check, with 1 unsafe annotation.",
+    "callbacks": "All terms check, with 2 unsafe annotations.",
+    "template": "All terms check, with 2 unsafe annotations."
+  },
+  "medians_seconds": {
+    "record": 0.0653219580417499,
+    "direct": 0.032457708963193,
+    "callbacks": 0.03440991695970297,
+    "template": 0.033155250013805926
+  },
+  "samples_seconds": {
+    "record": [
+      0.06277129193767905,
+      0.0653219580417499,
+      0.06724941695574671,
+      0.06631566700525582,
+      0.06390179204754531,
+      0.06510708294808865,
+      0.0661472911015153
+    ],
+    "direct": [
+      0.032283624983392656,
+      0.031140416976995766,
+      0.03341966704465449,
+      0.03402083402033895,
+      0.03621770802419633,
+      0.030861874925903976,
+      0.032457708963193
+    ],
+    "callbacks": [
+      0.03635008295532316,
+      0.030857999925501645,
+      0.03754000004846603,
+      0.03075266699306667,
+      0.03440991695970297,
+      0.03212237497791648,
+      0.035813917056657374
+    ],
+    "template": [
+      0.03657658293377608,
+      0.030836625024676323,
+      0.03647074999753386,
+      0.03191204206086695,
+      0.03781200002413243,
+      0.032497707987204194,
+      0.033155250013805926
+    ]
+  }
+}

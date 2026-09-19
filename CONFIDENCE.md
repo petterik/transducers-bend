@@ -1,5 +1,7 @@
 # Confidence review
 
+Current implementation: priorities #1 and #2 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md). This document records the original design/review.
+
 Performed before drafting DESIGN.md, against the current Bend checkout and installed CLI (both reporting 2.0.16). This is an adversarial design review, not a claim of exhaustive proof or 100% certainty.
 
 ## Findings and resolutions
