@@ -2,11 +2,11 @@
 
 ## Priority #3 follow-up
 
-The library now includes range, string, and list reduction implementations plus `into_list` and `count`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.
+The library now includes balanced-array, range, string, and list reduction implementations plus `into_list`, `count`, and streaming `cat`/`mapcat`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_array`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.
 
 The range is ascending with unit step, empty for reversed/equal bounds. It checks bounds before subtraction and structurally decreases a Nat budget. A source value is computed as `end - remaining` only after checking control; there is no source list or overflowing endpoint increment. Strings traverse Char elements directly. `into_list` accepts affine values and reverses its prepended accumulator once; both new consumers use Unit configuration and start fresh. `count` returns checked Nat. List data is passed directly through `over_list`.
 
-Twelve test files cover emitted JS and native CPU execution, including affine-filter rejection. Seven completion fixtures run through list and range. Boundary tests cover maximum U32 bounds, reversed/empty ranges, a near-full-domain range stopped at zero/one output, and consumer-originated Stop. JS instrumentation observes 16 source-value calls and 13 mapper calls in the range fixture, and nine mapper calls in the list fixture. The source fixture checks the map/inc/sum/range example returns 55 and string character traversal. Reusable conformance checks exercise all four sources; a lifecycle fixture observes exactly 12 starts, 8 steps, and 12 finishes. The external tree supports affine elements and accumulators.
+The test suite covers emitted JS and native CPU execution, including affine-filter rejection and the array/mapcat fixture. Seven completion fixtures run through list and range. Boundary tests cover maximum U32 bounds, reversed/empty ranges, a near-full-domain range stopped at zero/one output, and consumer-originated Stop. JS instrumentation observes 16 source-value calls and 13 mapper calls in the range fixture, and nine mapper calls in the list fixture. The source fixture checks the map/inc/sum/range example returns 55 and string character traversal. Reusable conformance checks exercise the list, range, string, and external tree sources; a lifecycle fixture observes exactly 12 starts, 8 steps, and 12 finishes. The external tree supports affine elements and accumulators.
 
 `tests/laws.bend` executes 18,750 bounded assertions per backend over 3,125 small parameter tuples. [LAWS.md](LAWS.md) states their scope, intended laws, the mathematical no-wrap/termination argument, and outstanding formal proof work. These checks are not mechanized proofs and do not establish compiler correctness. No compiler changes or explicit library `@unsafe` were added in this follow-up; the compiler still reports generated templates as unsafe annotations.
 
@@ -68,6 +68,28 @@ The expensive map uses 256 rounds of a nonlinear U32 recurrence. All benchmark v
 The historical single-map experiment was also rerun with specialization: its median was 31.7 ms versus 32.2 ms direct and 30.2 ms for direct template callbacks in that run, compared with the previously recorded 65.3 ms for the record implementation. See [specialized samples](experiments/static_reducer/specialized-results.json).
 
 Allocation traffic and peak live heap were not measured. Absence of intermediate stage collections does not imply absence of per-element wrapper allocation, especially in JS. Native compiler specialization and these timing results do not justify a zero-allocation claim.
+
+## Array and mapcat follow-up
+
+The library now has an ordered `over_array` source for Bend's balanced array
+tree, plus streaming `cat` and `mapcat` reducer adapters. `tests/array.bend`
+checks structural order, an empty fragment, and stopping in the middle of a
+fragment. The [wordscan benchmark](bench/wordscan/README.md) compares a
+transduced `Array<Quad>` mapcat/filter/map/reduce pipeline with a materialized
+Core Bend list path, a direct fused Bend traversal, and handwritten C,
+TypeScript, and Lean twins. Its default report is in
+[bench/wordscan/REPORT.md](bench/wordscan/REPORT.md).
+
+The measured local CPU-1 medians were 62 ms transduced, 68 ms Core Bend
+materialized, and 50 ms direct fused Bend; CPU-16 medians were 7, 9, and 6 ms
+respectively. All variants matched the independent checksum. This supports
+the expected benefit over materialization for a map-reduce-shaped workload,
+while the direct loop remains a lower-level reference. The host had no
+available GPU device, and Lean was not installed, so those columns are marked
+unavailable rather than inferred. The benchmark also records five retained
+static reducer/source records in generated JS for the richer mapcat composition;
+this is a current compiler code-shape observation and not an allocation-free
+claim.
 
 ## CPU threads and GPU follow-up
 

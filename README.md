@@ -1,6 +1,6 @@
 # transduce-bend
 
-An experimental Bend library for composing pure data transformations without intermediate stage collections. It provides an owned reducer protocol, extensible source-owned reduction, map/filter/take, and sum/count/ordered-list consumers. Built-in sources are lists, finite ranges, and strings; other modules can add sources without changing this library.
+An experimental Bend library for composing pure data transformations without intermediate stage collections. It provides an owned reducer protocol, extensible source-owned reduction, map/filter/take/mapcat, and sum/count/ordered-list consumers. Built-in sources are lists, balanced arrays, finite ranges, and strings; other modules can add sources without changing this library.
 
 ## Example
 
@@ -22,11 +22,14 @@ def main() -> U32:
 
 `range(10)` describes `[0, 10)` without building a list. `over_range` binds a source reduction implementation to the pipeline at compile time. `transduce` takes that description, runtime configuration, and source data; it derives their types from the description. Sum is a consumer (`sum()`), with its initial accumulator supplied as configuration (`0`). Each call supplies its pipeline once.
 
-Source selection is explicit and static, because Bend has no traits or automatic instance resolution. The source data remains an ordinary runtime value. Lists pass directly through `over_list`; strings pass directly through `over_string`:
+Source selection is explicit and static, because Bend has no traits or automatic instance resolution. The source data remains an ordinary runtime value. Lists and arrays pass directly through `over_list` and `over_array`; strings pass directly through `over_string`:
 
 ```python
 T.transduce(~T.over_list(~U32, ~U32, ~T.sum()), 0, [1, 2, 3])  # 6
 T.transduce(~T.over_string(~Nat, ~T.count(~Char)), Unit{}, "abc")  # 3n
+T.transduce(~T.over_array(~U32, ~U32,
+  ~T.mapcat(~U32, ~U32, ~U32, ~(x => [x]), ~T.sum())),
+  0, [1 : U32*4n])  # 4
 ```
 
 A reusable pipeline can add filtering and stopping:
@@ -78,11 +81,14 @@ These examples execute in [tests/range.bend](tests/range.bend). `into_list` is a
 | `reducing(~A, ~S, ~R, ~step, ~finish)` | Adapt an ordinary reduction and finalizer | Initial state S |
 | `identity(~A, ~R, ~down)` | Use downstream unchanged | Downstream configuration |
 | `map(~A, ~B, ~R, ~f, ~down)` | Transform A to B | Downstream configuration |
+| `cat(~B, ~R, ~down)` | Flatten each list-valued input into downstream B values | Downstream configuration |
+| `mapcat(~A, ~B, ~R, ~f, ~down)` | Map each A to a list of B values and flatten it | Downstream configuration |
 | `map_with(~A, ~B, ~R, ~C, ~f, ~down)` | Transform using runtime Data configuration C | `(local, downstream)` |
 | `filter(~A, ~R, ~C, ~predicate, ~down)` | Retain Data elements satisfying `predicate(config, element)` | `(local, downstream)` |
 | `take(~A, ~R, ~down)` | Limit values reaching this stage | `(Nat count, downstream)` |
 | `transduce(~reduction, config, source)` | Initialize, run the bound source fold, complete once | Consumer/pipeline configuration |
 | `over_list(~A, ~R, ~recipe)` | Bind a pipeline to owned `List<A>` traversal | Passed to transduce |
+| `over_array(~A, ~R, ~recipe)` | Bind a pipeline to ordered balanced `Array<A>` traversal | Passed to transduce |
 | `over_range(~R, ~recipe)` | Bind a U32 pipeline to Range traversal | Passed to transduce |
 | `over_string(~R, ~recipe)` | Bind a Char pipeline to String traversal | Passed to transduce |
 | `range(end)` | Describe U32 values in `[0, end)`, step 1 | End bound |
@@ -90,7 +96,7 @@ These examples execute in [tests/range.bend](tests/range.bend). `into_list` is a
 
 Ranges are ascending and half-open; `begin >= end` is empty. Both bounds are U32, so the largest possible end is 4294967295 and that value itself cannot be emitted. Bounds never wrap. No input list is built: the driver maintains a decreasing Nat budget and produces a value only while the reducer is continuing. Steps other than 1 and descending ranges are not supported. `count` uses checked Nat arithmetic, not U32 wrapping; the current compiler's maximum Nat is 281474976710655, with overflow reported as a runtime error.
 
-String traversal yields Bend `Char` elements, not UTF-8 bytes or grapheme clusters. It does not build an intermediate character list.
+Array traversal follows the leaves of Bend's balanced array tree from left to right. It reads the source structurally, so it does not repeatedly descend with `Array.get` or build an intermediate list. String traversal yields Bend `Char` elements, not UTF-8 bytes or grapheme clusters. It does not build an intermediate character list.
 
 A predicate without configuration can use `Unit` for C. Mapping may change types and produce affine elements. Conventional filtering requires Data elements because it inspects and retains them. Accumulators may be affine.
 
@@ -98,7 +104,7 @@ Composition is nesting reducer adapters or declaring a reusable template, as abo
 
 Custom consumers can construct `Reducer{C, S, start, step, finish}` directly. Both start and step return `Continue{state}` or `Stop{state}`. Completion runs once even when initialization stops. `reducing` supplies Continue automatically; construct a reducer directly when the consumer must stop early. See [the tests](tests/) for consumer stopping, affine state, type changes, and custom completion adapters.
 
-The sequential driver stops transformation immediately when it observes Stop. This includes `take(0)` at initialization. Releasing an unused owned list tail may still take time. Future strategies may permit bounded speculative pure work; that does not change the ordering or values of results.
+The sequential list and array drivers stop transformation immediately when they observe Stop. This includes `take(0)` at initialization. Releasing unused owned source data may still take time. Future strategies may permit bounded speculative pure work; that does not change the ordering or values of results.
 
 ## Adding a source
 
@@ -127,7 +133,7 @@ The test runner compares emitted JS and native output against each Bend file's `
 
 ## Current limits
 
-Public buffered/flattening operations, parallel collection drivers, and IO drivers are not implemented. Existing sequential pipelines can run inside caller-defined parallel batches; see [CPU/GPU measurements](bench/PARALLEL.md). The completion suite contains test-only buffering adapters to validate the protocol. No allocation-free guarantee is made: JS still constructs state/control objects, and native layout/reuse depends on the compiler.
+Public buffered operations, parallel collection drivers, and IO drivers are not implemented. `cat` and `mapcat` are streaming list-fragment reducers; they do not provide arbitrary buffered grouping or a parallel collection driver. Existing sequential pipelines can run inside caller-defined parallel batches; see [CPU/GPU measurements](bench/PARALLEL.md) and the [array mapcat benchmark](bench/wordscan/README.md). The completion suite contains test-only buffering adapters to validate the protocol. No allocation-free guarantee is made: JS still constructs state/control objects, and native layout/reuse depends on the compiler.
 
 - [CPU threads and Metal GPU performance](bench/PARALLEL.md)
 - [Generated range performance](bench/RANGE.md)

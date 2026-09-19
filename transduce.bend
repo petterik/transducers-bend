@@ -50,6 +50,23 @@ def map(~A: Type, ~B: Type, ~R: Type, ~f: A -> B, ~down: Reducer<B, R>) -> Reduc
     s => x => step(B, R, down, s, f(x)),
     s => finish(B, R, down, s)}
 
+# Flatten one list-valued input into the downstream reducer. The nested fold
+# checks downstream control before every element, so take/consumer stopping can
+# happen in the middle of one fragment without evaluating the rest of it.
+def cat(~B: Type, ~R: Type, ~down: Reducer<B, R>) -> Reducer<List<B>, R>:
+  Reducer{Config(B, R, down), State(B, R, down),
+    c => start(B, R, down, c),
+    s => xs => reduce_list(~B, ~State(B, R, down),
+      ~(inner => x => step(B, R, down, inner, x)), xs, Continue{s}),
+    s => finish(B, R, down, s)}
+
+# One-to-many mapping is ordinary map followed by list flattening. Keeping the
+# two pieces separate makes cat useful on its own and gives both operations the
+# same lifecycle and stopping semantics.
+def mapcat(~A: Type, ~B: Type, ~R: Type, ~f: A -> List<B>,
+  ~down: Reducer<B, R>) -> Reducer<A, R>:
+  map(~A, ~List<B>, ~R, ~f, ~cat(~B, ~R, ~down))
+
 # A consumer with an ordinary reducing callback and a separate completion.
 def reducing(~A: Type, ~S: Type, ~R: Type, ~f: S -> A -> S, ~done: S -> R) -> Reducer<A, R>:
   Reducer{S, S, s => Continue{s}, s => x => Continue{f(s, x)}, done}
@@ -213,6 +230,23 @@ def reduce_string(~S: Type, ~advance: S -> Char -> Control<S>, xs: String, c: Co
     case SCon{h, t} Continue{s}:
       reduce_string(~S, ~advance, t, advance(s, h))
 
+# Ordered depth-first traversal of Bend's balanced array tree. The source is
+# consumed structurally, so this avoids Array.get's repeated indexed descent
+# and does not build an intermediate list. Array nodes check Control before
+# entering the right child, preserving immediate downstream stopping.
+def reduce_array(~A: Type, ~S: Type, ~advance: S -> A -> Control<S>,
+  xs: Array<A>, c: Control<S>) -> Control<S>:
+  match xs c:
+    case ALeaf{x} Stop{s}:
+      Stop{s}
+    case ALeaf{x} Continue{s}:
+      advance(s, x)
+    case ANode{left, right} Stop{s}:
+      Stop{s}
+    case ANode{left, right} Continue{s}:
+      reduce_array(~A, ~S, ~advance, right,
+        reduce_array(~A, ~S, ~advance, left, Continue{s}))
+
 # Static binding of a source-owned stopping fold to a reducer. This is open:
 # third-party adapters construct it with reducible; no source registry exists.
 # Type metadata is delayed so specialization need not evaluate type expressions
@@ -264,3 +298,7 @@ def over_range(~R: Type, ~r: Reducer<U32, R>) -> Reduction:
 def over_string(~R: Type, ~r: Reducer<Char, R>) -> Reduction:
   reducible(~String, ~Char, ~R, ~(u => r),
     ~(xs => c => reduce_string(~State(Char, R, r), ~(s => x => step(Char, R, r, s, x)), xs, c)))
+
+def over_array(~A: Type, ~R: Type, ~r: Reducer<A, R>) -> Reduction:
+  reducible(~Array<A>, ~A, ~R, ~(u => r),
+    ~(xs => c => reduce_array(~A, ~State(A, R, r), ~(s => x => step(A, R, r, s, x)), xs, c)))

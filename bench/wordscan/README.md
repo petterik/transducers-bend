@@ -1,0 +1,36 @@
+# Array mapcat benchmark
+
+This benchmark is a map-reduce-shaped workload for the public source and
+reducer APIs. Each balanced `Array<Quad>` supplies four U32 lanes per record.
+The pipeline expands those lanes with `mapcat`, applies a wrapping U32
+normalization, filters normalized lanes whose low two bits are zero, and sums
+the result.
+
+The variants have distinct meanings:
+
+- **Transduced** uses `over_array`, `mapcat`, `filter`, `map`, and `sum`.
+- **Core Bend** uses `Array.to_list`, list flattening, `Base.List.map`, a
+  list-kind-compatible filter adapter, and `List.foldl`.
+- **Direct Bend** is a user-authored structural array traversal that performs
+  the whole operation in one fused function.
+- **C**, **TypeScript**, and **Lean** are handwritten scalar twins of the
+  direct loop. They are CPU-1 reference languages; they are not Bend GPU or
+  16-thread implementations.
+
+The Bend runner keeps a persistent process and times each computation with
+`IO.now`. It checks every checksum against an independent Python oracle and
+records CPU-1, CPU-16, and GPU modes. GPU availability is reported as an
+unavailable mode when the host has no device. External language timings include
+process startup and are therefore reported separately.
+
+Run the default sweep with:
+
+```sh
+python3 bench/wordscan/run.py --output bench/wordscan/results.json
+```
+
+Useful knobs are `--array-depth`, `--batch-depth`, `--repeats`, and
+`--normalize-rounds`. The default workload is intentionally compute-heavy
+enough for the millisecond clock while retaining a real four-lane allocation
+and flattening boundary. `build` and the direct twins use the same seed order,
+so a checksum mismatch catches ordering, wrapping, or batch-partition errors.

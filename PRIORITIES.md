@@ -41,7 +41,7 @@ Impact means contribution to efficient composition, correctness, or a usable API
 | Formal equivalence laws | High: strengthens semantic confidence | Medium–high: useful statements and template trust boundary need investigation | High after representation stabilizes | State laws early; prove tractable laws after the core gates |
 | Broader performance suite | High: tests whether gains generalize | Medium–high: workload selection and reliable measurement | Medium initially; high before performance claims | After the small benchmark exposes basic costs |
 | Buffered transformations such as partitioning | Medium: expands supported workflows | High: flushing, ownership, and nested stopping | Medium later | Defer public feature; validate its lifecycle requirements now |
-| Flattening / `mapcat` | Medium: enables one-to-many transformations | High: nested traversal and immediate stop propagation | Medium later | Defer |
+| Flattening / `mapcat` | Medium: enables one-to-many transformations | Medium: nested traversal and immediate stop propagation | High now | Implemented as `cat`/`mapcat`; array map-reduce benchmark added |
 | Batched and parallel drivers | Potentially high: fits Bend's strengths | Very high: ordering, global state, partitioning, and valid combination | Uncertain until measured | Defer implementation; preserve compatible semantics |
 | IO sources and effectful consumers | Medium: expands integration | High: cleanup, handles, effects, and cancellation | Low for the initial pure-data goal | Defer |
 | Runtime-selected pipeline structures or universal iterator abstraction | Uncertain for current use cases | Very high: closure restrictions, termination, and dispatch overhead | Low now | Defer until a concrete use case justifies them |
@@ -75,6 +75,6 @@ Exit condition: the documented initial scope works on JS and native backends, li
 
 The initial implementation includes the reducer lifecycle, practical static composition, identity/map/filter/take, sequential list and finite range drivers, transduce, into_list, sum/count consumers, focused validation, and a small performance comparison.
 
-It excludes public buffering/flattening features, batching, parallelism, IO, runtime pipeline construction, compiler changes, and promises of allocation-free execution. Bounded speculative pure work remains an allowed future strategy; exact sequential stopping must not accidentally become a universal restriction on all drivers.
+It excludes public buffered transformations, batching, parallelism, IO, runtime pipeline construction, compiler changes, and promises of allocation-free execution. Streaming `cat`/`mapcat` and ordered array traversal are now included. Bounded speculative pure work remains an allowed future strategy; exact sequential stopping must not accidentally become a universal restriction on all drivers.
 
 The most valuable first deliverable is evidence that the abstraction is both usable and efficient. Feature breadth follows that evidence.

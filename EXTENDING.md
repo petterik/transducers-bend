@@ -49,7 +49,7 @@ def main() -> U32:
 # 3
 ```
 
-Built-in bindings follow exactly this pattern: `over_list`, `over_range`, and `over_string`. For a non-generic source, fix its element type inside the adapter. Strings use Char, ranges use U32. The `Reduction` description supplies the configuration/input/output types, so callers do not repeat them as separate arguments to `transduce`.
+Built-in bindings follow exactly this pattern: `over_list`, `over_array`, `over_range`, and `over_string`. For a non-generic source, fix its element type inside the adapter. Arrays traverse balanced leaves left to right, strings use Char, and ranges use U32. The `Reduction` description supplies the configuration/input/output types, so callers do not repeat them as separate arguments to `transduce`.
 
 This is explicit static dispatch, not automatic trait resolution. Runtime selection between different source representations needs a user-defined wrapper and its own fold, or a branch selecting the appropriate call. No new language or compiler change is required for an extension.
 

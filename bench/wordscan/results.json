@@ -1,0 +1,174 @@
+{
+  "benchmark": "wordscan",
+  "scope": "Array<Quad> mapcat/filter/map/reduce; balanced independent batches",
+  "timing": "Bend IO.now milliseconds exclude process/compiler startup; external wall times include startup",
+  "semantics": "Each Quad expands to four lanes; normalize with wrapping U32 work; retain normalized lanes with x&3 != 0; sum",
+  "baseline_terminology": {
+    "transduced": "Public over_array + mapcat + filter + map + sum",
+    "staged": "Core Bend Array.to_list plus list flatten/Base.List.map/filter/fold",
+    "direct": "User-authored fused Bend traversal",
+    "c": "Handwritten C fused loop",
+    "typescript": "Handwritten TypeScript fused loop",
+    "lean": "Handwritten Lean fused loop"
+  },
+  "parameters": {
+    "ARRAY_DEPTH": 8,
+    "BATCH_DEPTH": 10,
+    "REPEATS": 2,
+    "SAMPLES": 6,
+    "NORMALIZE_ROUNDS": 32,
+    "samples": 5,
+    "threads": 16,
+    "expected_checksum": 1287990074
+  },
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "library_sha256": "a6247a33b938d9274170a4ac8c007455613b2717419b700b58070bde7f8061c3",
+  "results": [
+    {
+      "variant": "transduced",
+      "build": {
+        "js_records": 5,
+        "c_bytes": 149137
+      },
+      "modes": {
+        "cpu_1": {
+          "status": "ok",
+          "samples_ms": [
+            62,
+            62,
+            65,
+            63,
+            62
+          ],
+          "median_ms": 62,
+          "checksum": 1287990074
+        },
+        "cpu_16": {
+          "status": "ok",
+          "samples_ms": [
+            7,
+            8,
+            9,
+            7,
+            7
+          ],
+          "median_ms": 7,
+          "checksum": 1287990074
+        },
+        "gpu": {
+          "status": "unavailable",
+          "reason": "bend: --gpu on, but this binary found no GPU device"
+        }
+      }
+    },
+    {
+      "variant": "staged",
+      "build": {
+        "js_records": 0,
+        "c_bytes": 107797
+      },
+      "modes": {
+        "cpu_1": {
+          "status": "ok",
+          "samples_ms": [
+            67,
+            68,
+            68,
+            68,
+            68
+          ],
+          "median_ms": 68,
+          "checksum": 1287990074
+        },
+        "cpu_16": {
+          "status": "ok",
+          "samples_ms": [
+            9,
+            9,
+            8,
+            9,
+            9
+          ],
+          "median_ms": 9,
+          "checksum": 1287990074
+        },
+        "gpu": {
+          "status": "unavailable",
+          "reason": "bend: --gpu on, but this binary found no GPU device"
+        }
+      }
+    },
+    {
+      "variant": "direct",
+      "build": {
+        "js_records": 0,
+        "c_bytes": 100454
+      },
+      "modes": {
+        "cpu_1": {
+          "status": "ok",
+          "samples_ms": [
+            51,
+            50,
+            50,
+            51,
+            50
+          ],
+          "median_ms": 50,
+          "checksum": 1287990074
+        },
+        "cpu_16": {
+          "status": "ok",
+          "samples_ms": [
+            6,
+            6,
+            7,
+            6,
+            6
+          ],
+          "median_ms": 6,
+          "checksum": 1287990074
+        },
+        "gpu": {
+          "status": "unavailable",
+          "reason": "bend: --gpu on, but this binary found no GPU device"
+        }
+      }
+    }
+  ],
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-wordscan-woskx1d7",
+  "external": {
+    "c": {
+      "status": "ok",
+      "samples_ms": [
+        3.2162920106202364,
+        2.8925840742886066,
+        2.832625061273575,
+        2.7759160147979856,
+        2.761124982498586
+      ],
+      "median_ms": 2.832625061273575,
+      "checksum": 1287990074,
+      "timing_note": "process wall time, including startup"
+    },
+    "typescript": {
+      "status": "ok",
+      "samples_ms": [
+        93.09629199560732,
+        93.4832920320332,
+        92.99541695509106,
+        93.25212507974356,
+        95.65287502482533
+      ],
+      "median_ms": 93.25212507974356,
+      "checksum": 1287990074,
+      "timing_note": "process wall time, including startup"
+    },
+    "lean": {
+      "status": "unavailable",
+      "reason": "lean not found"
+    }
+  }
+}
