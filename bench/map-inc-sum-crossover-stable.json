@@ -1,0 +1,1779 @@
+{
+  "scope": "Sequential dynamic U32 lists; map inc benchmark; input construction and checksum included",
+  "mode": "sum",
+  "timing": "IO.now milliseconds inside persistent native process; one warmup; alternating variant order",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a",
+  "samples": 7,
+  "target_calls": 4194304,
+  "variants": [
+    "transducer",
+    "handwritten",
+    "base_list"
+  ],
+  "results": [
+    {
+      "size": 0,
+      "repeats": 4194304,
+      "expected": 0,
+      "samples_ms": {
+        "transducer": [
+          18,
+          18,
+          19,
+          18,
+          18,
+          19,
+          18,
+          18,
+          18,
+          19,
+          18,
+          18,
+          19,
+          18
+        ],
+        "handwritten": [
+          18,
+          19,
+          18,
+          19,
+          18,
+          18,
+          19,
+          18,
+          18,
+          19,
+          18,
+          18,
+          19,
+          18
+        ],
+        "base_list": [
+          71,
+          70,
+          71,
+          71,
+          70,
+          71,
+          71,
+          70,
+          70,
+          71,
+          70,
+          71,
+          70,
+          71
+        ]
+      },
+      "median_ms": {
+        "transducer": 18.0,
+        "handwritten": 18.0,
+        "base_list": 71.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 3.9444444444444446
+      }
+    },
+    {
+      "size": 1,
+      "repeats": 4194304,
+      "expected": 2097152,
+      "samples_ms": {
+        "transducer": [
+          47,
+          47,
+          49,
+          48,
+          49,
+          48,
+          47,
+          47,
+          47,
+          47,
+          47,
+          47,
+          47,
+          47
+        ],
+        "handwritten": [
+          47,
+          47,
+          47,
+          47,
+          46,
+          47,
+          47,
+          47,
+          47,
+          47,
+          47,
+          47,
+          47,
+          47
+        ],
+        "base_list": [
+          124,
+          124,
+          124,
+          126,
+          124,
+          123,
+          124,
+          126,
+          126,
+          125,
+          126,
+          125,
+          127,
+          126
+        ]
+      },
+      "median_ms": {
+        "transducer": 47.0,
+        "handwritten": 47.0,
+        "base_list": 125.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.6595744680851063
+      }
+    },
+    {
+      "size": 2,
+      "repeats": 2097152,
+      "expected": 4194304,
+      "samples_ms": {
+        "transducer": [
+          37,
+          36,
+          37,
+          37,
+          37,
+          36,
+          37,
+          36,
+          37,
+          37,
+          37,
+          37,
+          36,
+          38
+        ],
+        "handwritten": [
+          36,
+          36,
+          37,
+          37,
+          36,
+          37,
+          36,
+          38,
+          37,
+          38,
+          37,
+          37,
+          38,
+          37
+        ],
+        "base_list": [
+          96,
+          96,
+          96,
+          97,
+          95,
+          95,
+          95,
+          96,
+          95,
+          95,
+          95,
+          95,
+          95,
+          95
+        ]
+      },
+      "median_ms": {
+        "transducer": 37.0,
+        "handwritten": 37.0,
+        "base_list": 95.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.5675675675675675
+      }
+    },
+    {
+      "size": 3,
+      "repeats": 1398101,
+      "expected": 2868204884,
+      "samples_ms": {
+        "transducer": [
+          32,
+          32,
+          33,
+          33,
+          34,
+          34,
+          34,
+          31,
+          32,
+          32,
+          31,
+          32,
+          32,
+          31
+        ],
+        "handwritten": [
+          31,
+          32,
+          32,
+          31,
+          32,
+          32,
+          32,
+          31,
+          32,
+          32,
+          31,
+          32,
+          31,
+          31
+        ],
+        "base_list": [
+          80,
+          79,
+          81,
+          81,
+          82,
+          82,
+          81,
+          80,
+          80,
+          79,
+          80,
+          80,
+          80,
+          79
+        ]
+      },
+      "median_ms": {
+        "transducer": 32.0,
+        "handwritten": 32.0,
+        "base_list": 80.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.5
+      }
+    },
+    {
+      "size": 4,
+      "repeats": 1048576,
+      "expected": 8388608,
+      "samples_ms": {
+        "transducer": [
+          30,
+          30,
+          29,
+          30,
+          29,
+          30,
+          29,
+          30,
+          30,
+          29,
+          29,
+          30,
+          30,
+          30
+        ],
+        "handwritten": [
+          30,
+          29,
+          29,
+          30,
+          30,
+          29,
+          30,
+          29,
+          30,
+          29,
+          30,
+          29,
+          30,
+          30
+        ],
+        "base_list": [
+          71,
+          72,
+          72,
+          72,
+          73,
+          71,
+          74,
+          71,
+          71,
+          71,
+          71,
+          70,
+          71,
+          71
+        ]
+      },
+      "median_ms": {
+        "transducer": 30.0,
+        "handwritten": 30.0,
+        "base_list": 71.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.3666666666666667
+      }
+    },
+    {
+      "size": 5,
+      "repeats": 838860,
+      "expected": 2584110686,
+      "samples_ms": {
+        "transducer": [
+          29,
+          29,
+          29,
+          30,
+          29,
+          29,
+          29,
+          28,
+          29,
+          29,
+          29,
+          29,
+          28,
+          29
+        ],
+        "handwritten": [
+          29,
+          30,
+          29,
+          29,
+          29,
+          29,
+          29,
+          29,
+          29,
+          29,
+          28,
+          29,
+          29,
+          29
+        ],
+        "base_list": [
+          65,
+          66,
+          66,
+          66,
+          66,
+          66,
+          66,
+          65,
+          65,
+          65,
+          65,
+          65,
+          65,
+          64
+        ]
+      },
+      "median_ms": {
+        "transducer": 29.0,
+        "handwritten": 29.0,
+        "base_list": 65.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.2413793103448274
+      }
+    },
+    {
+      "size": 6,
+      "repeats": 699050,
+      "expected": 1441442464,
+      "samples_ms": {
+        "transducer": [
+          33,
+          34,
+          34,
+          33,
+          35,
+          34,
+          35,
+          34,
+          34,
+          34,
+          33,
+          33,
+          32,
+          33
+        ],
+        "handwritten": [
+          34,
+          33,
+          32,
+          34,
+          33,
+          34,
+          33,
+          33,
+          34,
+          34,
+          33,
+          34,
+          33,
+          34
+        ],
+        "base_list": [
+          63,
+          64,
+          63,
+          64,
+          63,
+          63,
+          64,
+          63,
+          62,
+          62,
+          63,
+          62,
+          62,
+          62
+        ]
+      },
+      "median_ms": {
+        "transducer": 34.0,
+        "handwritten": 33.5,
+        "base_list": 63.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0149253731343284,
+        "handwritten": 1.0,
+        "base_list": 1.8805970149253732
+      }
+    },
+    {
+      "size": 7,
+      "repeats": 599186,
+      "expected": 2467748711,
+      "samples_ms": {
+        "transducer": [
+          32,
+          32,
+          33,
+          32,
+          32,
+          32,
+          32,
+          32,
+          33,
+          33,
+          33,
+          32,
+          33,
+          33
+        ],
+        "handwritten": [
+          32,
+          32,
+          32,
+          33,
+          32,
+          32,
+          32,
+          32,
+          32,
+          33,
+          32,
+          32,
+          33,
+          34
+        ],
+        "base_list": [
+          62,
+          62,
+          62,
+          62,
+          61,
+          63,
+          61,
+          62,
+          62,
+          62,
+          62,
+          61,
+          63,
+          62
+        ]
+      },
+      "median_ms": {
+        "transducer": 32.0,
+        "handwritten": 32.0,
+        "base_list": 62.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.9375
+      }
+    },
+    {
+      "size": 8,
+      "repeats": 524288,
+      "expected": 16777216,
+      "samples_ms": {
+        "transducer": [
+          31,
+          32,
+          31,
+          32,
+          31,
+          31,
+          32,
+          31,
+          31,
+          32,
+          31,
+          31,
+          32,
+          31
+        ],
+        "handwritten": [
+          31,
+          31,
+          31,
+          31,
+          32,
+          32,
+          31,
+          31,
+          31,
+          31,
+          31,
+          32,
+          31,
+          31
+        ],
+        "base_list": [
+          61,
+          60,
+          61,
+          61,
+          60,
+          61,
+          61,
+          62,
+          61,
+          60,
+          61,
+          61,
+          61,
+          60
+        ]
+      },
+      "median_ms": {
+        "transducer": 31.0,
+        "handwritten": 31.0,
+        "base_list": 61.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.967741935483871
+      }
+    },
+    {
+      "size": 9,
+      "repeats": 466033,
+      "expected": 2401705045,
+      "samples_ms": {
+        "transducer": [
+          30,
+          31,
+          30,
+          30,
+          31,
+          32,
+          31,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31
+        ],
+        "handwritten": [
+          31,
+          31,
+          31,
+          31,
+          30,
+          30,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+          30,
+          31
+        ],
+        "base_list": [
+          60,
+          61,
+          60,
+          60,
+          61,
+          60,
+          61,
+          62,
+          61,
+          58,
+          61,
+          60,
+          61,
+          60
+        ]
+      },
+      "median_ms": {
+        "transducer": 31.0,
+        "handwritten": 31.0,
+        "base_list": 60.5
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.9516129032258065
+      }
+    },
+    {
+      "size": 10,
+      "repeats": 419430,
+      "expected": 3455267616,
+      "samples_ms": {
+        "transducer": [
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          31,
+          30,
+          30,
+          30,
+          30
+        ],
+        "handwritten": [
+          30,
+          29,
+          30,
+          29,
+          30,
+          29,
+          29,
+          30,
+          30,
+          29,
+          30,
+          29,
+          30,
+          29
+        ],
+        "base_list": [
+          60,
+          61,
+          60,
+          60,
+          60,
+          60,
+          61,
+          60,
+          60,
+          60,
+          59,
+          59,
+          60,
+          59
+        ]
+      },
+      "median_ms": {
+        "transducer": 30.0,
+        "handwritten": 29.5,
+        "base_list": 60.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0169491525423728,
+        "handwritten": 1.0,
+        "base_list": 2.0338983050847457
+      }
+    },
+    {
+      "size": 11,
+      "repeats": 381300,
+      "expected": 802446594,
+      "samples_ms": {
+        "transducer": [
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31,
+          31,
+          30,
+          31,
+          31,
+          30,
+          31,
+          31
+        ],
+        "handwritten": [
+          30,
+          29,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          29
+        ],
+        "base_list": [
+          61,
+          60,
+          61,
+          60,
+          61,
+          60,
+          61,
+          60,
+          60,
+          59,
+          59,
+          60,
+          59,
+          59
+        ]
+      },
+      "median_ms": {
+        "transducer": 31.0,
+        "handwritten": 30.0,
+        "base_list": 60.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0333333333333334,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 12,
+      "repeats": 349525,
+      "expected": 2887079230,
+      "samples_ms": {
+        "transducer": [
+          30,
+          31,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          31,
+          30,
+          31,
+          30,
+          31,
+          30
+        ],
+        "handwritten": [
+          32,
+          32,
+          32,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+          30
+        ],
+        "base_list": [
+          61,
+          60,
+          60,
+          62,
+          60,
+          61,
+          61,
+          62,
+          60,
+          61,
+          61,
+          60,
+          60,
+          60
+        ]
+      },
+      "median_ms": {
+        "transducer": 30.0,
+        "handwritten": 31.0,
+        "base_list": 60.5
+      },
+      "ratio_to_handwritten": {
+        "transducer": 0.967741935483871,
+        "handwritten": 1.0,
+        "base_list": 1.9516129032258065
+      }
+    },
+    {
+      "size": 13,
+      "repeats": 322638,
+      "expected": 2336711225,
+      "samples_ms": {
+        "transducer": [
+          31,
+          30,
+          30,
+          31,
+          30,
+          30,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31,
+          30
+        ],
+        "handwritten": [
+          31,
+          30,
+          31,
+          30,
+          31,
+          30,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31,
+          30,
+          31
+        ],
+        "base_list": [
+          60,
+          61,
+          59,
+          60,
+          60,
+          60,
+          61,
+          62,
+          61,
+          60,
+          60,
+          60,
+          61,
+          60
+        ]
+      },
+      "median_ms": {
+        "transducer": 30.5,
+        "handwritten": 31.0,
+        "base_list": 60.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 0.9838709677419355,
+        "handwritten": 1.0,
+        "base_list": 1.935483870967742
+      }
+    },
+    {
+      "size": 14,
+      "repeats": 299593,
+      "expected": 1255894441,
+      "samples_ms": {
+        "transducer": [
+          30,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31
+        ],
+        "handwritten": [
+          30,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31,
+          31,
+          30,
+          31,
+          31,
+          30,
+          31,
+          31
+        ],
+        "base_list": [
+          60,
+          60,
+          59,
+          60,
+          60,
+          60,
+          60,
+          61,
+          61,
+          60,
+          60,
+          60,
+          60,
+          60
+        ]
+      },
+      "median_ms": {
+        "transducer": 31.0,
+        "handwritten": 31.0,
+        "base_list": 60.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.935483870967742
+      }
+    },
+    {
+      "size": 15,
+      "repeats": 279620,
+      "expected": 2320987994,
+      "samples_ms": {
+        "transducer": [
+          32,
+          31,
+          31,
+          31,
+          33,
+          31,
+          32,
+          30,
+          30,
+          31,
+          30,
+          30,
+          30,
+          30
+        ],
+        "handwritten": [
+          31,
+          32,
+          32,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31
+        ],
+        "base_list": [
+          60,
+          59,
+          59,
+          58,
+          59,
+          59,
+          60,
+          61,
+          60,
+          60,
+          59,
+          60,
+          60,
+          60
+        ]
+      },
+      "median_ms": {
+        "transducer": 31.0,
+        "handwritten": 31.0,
+        "base_list": 60.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.935483870967742
+      }
+    },
+    {
+      "size": 16,
+      "repeats": 262144,
+      "expected": 33554432,
+      "samples_ms": {
+        "transducer": [
+          31,
+          30,
+          30,
+          30,
+          31,
+          30,
+          30,
+          30,
+          30,
+          31,
+          30,
+          30,
+          30,
+          31
+        ],
+        "handwritten": [
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          32,
+          31,
+          31,
+          31,
+          31,
+          31
+        ],
+        "base_list": [
+          60,
+          60,
+          60,
+          60,
+          60,
+          61,
+          61,
+          61,
+          62,
+          60,
+          60,
+          60,
+          60,
+          60
+        ]
+      },
+      "median_ms": {
+        "transducer": 30.0,
+        "handwritten": 31.0,
+        "base_list": 60.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 0.967741935483871,
+        "handwritten": 1.0,
+        "base_list": 1.935483870967742
+      }
+    },
+    {
+      "size": 24,
+      "repeats": 174762,
+      "expected": 1479191024,
+      "samples_ms": {
+        "transducer": [
+          31,
+          30,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31,
+          31,
+          32,
+          31,
+          31,
+          31,
+          31
+        ],
+        "handwritten": [
+          31,
+          31,
+          31,
+          31,
+          32,
+          33,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+          30,
+          30
+        ],
+        "base_list": [
+          59,
+          59,
+          59,
+          60,
+          60,
+          59,
+          60,
+          61,
+          61,
+          61,
+          60,
+          60,
+          61,
+          60
+        ]
+      },
+      "median_ms": {
+        "transducer": 31.0,
+        "handwritten": 31.0,
+        "base_list": 60.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.935483870967742
+      }
+    },
+    {
+      "size": 32,
+      "repeats": 131072,
+      "expected": 67108864,
+      "samples_ms": {
+        "transducer": [
+          32,
+          32,
+          32,
+          31,
+          32,
+          32,
+          32,
+          32,
+          32,
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        "handwritten": [
+          31,
+          32,
+          31,
+          31,
+          32,
+          31,
+          31,
+          31,
+          32,
+          32,
+          31,
+          32,
+          31,
+          32
+        ],
+        "base_list": [
+          60,
+          60,
+          60,
+          60,
+          60,
+          60,
+          61,
+          61,
+          61,
+          61,
+          60,
+          61,
+          60,
+          61
+        ]
+      },
+      "median_ms": {
+        "transducer": 32.0,
+        "handwritten": 31.0,
+        "base_list": 60.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.032258064516129,
+        "handwritten": 1.0,
+        "base_list": 1.935483870967742
+      }
+    },
+    {
+      "size": 48,
+      "repeats": 87381,
+      "expected": 2962576344,
+      "samples_ms": {
+        "transducer": [
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          33
+        ],
+        "handwritten": [
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          33,
+          32,
+          33,
+          33,
+          33,
+          32,
+          33,
+          33
+        ],
+        "base_list": [
+          62,
+          63,
+          62,
+          63,
+          62,
+          63,
+          63,
+          64,
+          62,
+          63,
+          62,
+          62,
+          63,
+          62
+        ]
+      },
+      "median_ms": {
+        "transducer": 33.0,
+        "handwritten": 33.0,
+        "base_list": 62.5
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.893939393939394
+      }
+    },
+    {
+      "size": 64,
+      "repeats": 65536,
+      "expected": 134217728,
+      "samples_ms": {
+        "transducer": [
+          32,
+          32,
+          32,
+          33,
+          32,
+          32,
+          33,
+          32,
+          33,
+          32,
+          32,
+          33,
+          32,
+          32
+        ],
+        "handwritten": [
+          32,
+          33,
+          32,
+          33,
+          33,
+          32,
+          33,
+          33,
+          32,
+          32,
+          32,
+          32,
+          32,
+          33
+        ],
+        "base_list": [
+          62,
+          63,
+          62,
+          62,
+          63,
+          64,
+          63,
+          64,
+          62,
+          62,
+          62,
+          63,
+          62,
+          63
+        ]
+      },
+      "median_ms": {
+        "transducer": 32.0,
+        "handwritten": 32.0,
+        "base_list": 62.5
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.953125
+      }
+    },
+    {
+      "size": 96,
+      "repeats": 43690,
+      "expected": 1630183104,
+      "samples_ms": {
+        "transducer": [
+          32,
+          32,
+          33,
+          32,
+          32,
+          34,
+          33,
+          33,
+          32,
+          32,
+          32,
+          32,
+          33,
+          32
+        ],
+        "handwritten": [
+          33,
+          33,
+          32,
+          33,
+          32,
+          32,
+          32,
+          32,
+          32,
+          32,
+          32,
+          31,
+          32,
+          33
+        ],
+        "base_list": [
+          61,
+          62,
+          61,
+          63,
+          62,
+          61,
+          62,
+          64,
+          62,
+          61,
+          62,
+          62,
+          62,
+          62
+        ]
+      },
+      "median_ms": {
+        "transducer": 32.0,
+        "handwritten": 32.0,
+        "base_list": 62.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.9375
+      }
+    },
+    {
+      "size": 128,
+      "repeats": 32768,
+      "expected": 268435456,
+      "samples_ms": {
+        "transducer": [
+          31,
+          32,
+          32,
+          32,
+          33,
+          31,
+          32,
+          31,
+          31,
+          31,
+          32,
+          31,
+          31,
+          32
+        ],
+        "handwritten": [
+          31,
+          31,
+          31,
+          30,
+          31,
+          31,
+          31,
+          30,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31
+        ],
+        "base_list": [
+          61,
+          59,
+          61,
+          61,
+          60,
+          61,
+          61,
+          62,
+          60,
+          61,
+          62,
+          62,
+          61,
+          62
+        ]
+      },
+      "median_ms": {
+        "transducer": 31.5,
+        "handwritten": 31.0,
+        "base_list": 61.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0161290322580645,
+        "handwritten": 1.0,
+        "base_list": 1.967741935483871
+      }
+    },
+    {
+      "size": 192,
+      "repeats": 21845,
+      "expected": 3264560480,
+      "samples_ms": {
+        "transducer": [
+          29,
+          30,
+          30,
+          29,
+          30,
+          30,
+          30,
+          30,
+          31,
+          31,
+          30,
+          31,
+          31,
+          30
+        ],
+        "handwritten": [
+          30,
+          30,
+          30,
+          31,
+          30,
+          30,
+          30,
+          30,
+          31,
+          30,
+          31,
+          31,
+          30,
+          31
+        ],
+        "base_list": [
+          58,
+          58,
+          58,
+          58,
+          58,
+          58,
+          58,
+          59,
+          60,
+          59,
+          59,
+          59,
+          59,
+          57
+        ]
+      },
+      "median_ms": {
+        "transducer": 30.0,
+        "handwritten": 30.0,
+        "base_list": 58.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.9333333333333333
+      }
+    },
+    {
+      "size": 256,
+      "repeats": 16384,
+      "expected": 536870912,
+      "samples_ms": {
+        "transducer": [
+          30,
+          28,
+          29,
+          29,
+          29,
+          30,
+          28,
+          28,
+          28,
+          28,
+          29,
+          29,
+          28,
+          29
+        ],
+        "handwritten": [
+          30,
+          28,
+          30,
+          29,
+          30,
+          29,
+          28,
+          28,
+          28,
+          28,
+          29,
+          28,
+          29,
+          28
+        ],
+        "base_list": [
+          57,
+          51,
+          56,
+          57,
+          56,
+          55,
+          56,
+          56,
+          54,
+          57,
+          56,
+          55,
+          55,
+          54
+        ]
+      },
+      "median_ms": {
+        "transducer": 29.0,
+        "handwritten": 28.5,
+        "base_list": 56.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0175438596491229,
+        "handwritten": 1.0,
+        "base_list": 1.9649122807017543
+      }
+    },
+    {
+      "size": 512,
+      "repeats": 8192,
+      "expected": 1073741824,
+      "samples_ms": {
+        "transducer": [
+          23,
+          25,
+          25,
+          26,
+          25,
+          25,
+          25,
+          23,
+          25,
+          25,
+          25,
+          26,
+          25,
+          25
+        ],
+        "handwritten": [
+          23,
+          25,
+          25,
+          25,
+          25,
+          26,
+          25,
+          23,
+          25,
+          25,
+          26,
+          25,
+          25,
+          25
+        ],
+        "base_list": [
+          46,
+          47,
+          48,
+          49,
+          47,
+          48,
+          47,
+          44,
+          47,
+          47,
+          46,
+          46,
+          48,
+          47
+        ]
+      },
+      "median_ms": {
+        "transducer": 25.0,
+        "handwritten": 25.0,
+        "base_list": 47.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.88
+      }
+    },
+    {
+      "size": 1024,
+      "repeats": 4096,
+      "expected": 2147483648,
+      "samples_ms": {
+        "transducer": [
+          21,
+          22,
+          21,
+          22,
+          21,
+          22,
+          22,
+          22,
+          21,
+          23,
+          21,
+          22,
+          22,
+          22
+        ],
+        "handwritten": [
+          21,
+          22,
+          22,
+          22,
+          22,
+          22,
+          22,
+          22,
+          22,
+          23,
+          23,
+          23,
+          22,
+          23
+        ],
+        "base_list": [
+          41,
+          41,
+          41,
+          41,
+          41,
+          41,
+          41,
+          41,
+          41,
+          41,
+          42,
+          41,
+          41,
+          41
+        ]
+      },
+      "median_ms": {
+        "transducer": 22.0,
+        "handwritten": 22.0,
+        "base_list": 41.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.8636363636363635
+      }
+    }
+  ],
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-map-inc-k_2sn5yj",
+  "program_sha256": {
+    "transducer": "6b378a76e631224c0728477644e41fd4d21b6ac7f8c63825d52f69454b9311f3",
+    "handwritten": "c5a15ba429bd47eb0a15da44a564a9b6f596d249cc4fea271659a6ded9406825",
+    "base_list": "dd901b144edb67541c7791b2cdddbcf0b626f7c004da9b519376236446e7e740"
+  }
+}

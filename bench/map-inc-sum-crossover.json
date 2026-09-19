@@ -1,0 +1,2197 @@
+{
+  "scope": "Sequential dynamic U32 lists; map inc benchmark; input construction and checksum included",
+  "mode": "sum",
+  "timing": "IO.now milliseconds inside persistent native process; one warmup; alternating variant order",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a",
+  "samples": 5,
+  "target_calls": 1048576,
+  "variants": [
+    "transducer",
+    "handwritten",
+    "base_list"
+  ],
+  "results": [
+    {
+      "size": 0,
+      "repeats": 1048576,
+      "expected": 0,
+      "samples_ms": {
+        "transducer": [
+          4,
+          5,
+          4,
+          5,
+          5,
+          4,
+          5,
+          4,
+          5,
+          4
+        ],
+        "handwritten": [
+          5,
+          4,
+          5,
+          4,
+          5,
+          5,
+          4,
+          5,
+          5,
+          4
+        ],
+        "base_list": [
+          17,
+          17,
+          17,
+          17,
+          16,
+          17,
+          17,
+          17,
+          16,
+          16
+        ]
+      },
+      "median_ms": {
+        "transducer": 4.5,
+        "handwritten": 5.0,
+        "base_list": 17.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 0.9,
+        "handwritten": 1.0,
+        "base_list": 3.4
+      }
+    },
+    {
+      "size": 1,
+      "repeats": 1048576,
+      "expected": 524288,
+      "samples_ms": {
+        "transducer": [
+          11,
+          12,
+          11,
+          12,
+          11,
+          11,
+          11,
+          12,
+          11,
+          12
+        ],
+        "handwritten": [
+          11,
+          12,
+          11,
+          12,
+          11,
+          11,
+          12,
+          11,
+          12,
+          11
+        ],
+        "base_list": [
+          30,
+          31,
+          30,
+          31,
+          30,
+          31,
+          30,
+          31,
+          30,
+          31
+        ]
+      },
+      "median_ms": {
+        "transducer": 11.0,
+        "handwritten": 11.0,
+        "base_list": 30.5
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.772727272727273
+      }
+    },
+    {
+      "size": 2,
+      "repeats": 524288,
+      "expected": 1048576,
+      "samples_ms": {
+        "transducer": [
+          9,
+          8,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          8,
+          9
+        ],
+        "handwritten": [
+          9,
+          9,
+          9,
+          9,
+          9,
+          8,
+          9,
+          9,
+          9,
+          9
+        ],
+        "base_list": [
+          23,
+          22,
+          23,
+          23,
+          24,
+          23,
+          23,
+          23,
+          23,
+          23
+        ]
+      },
+      "median_ms": {
+        "transducer": 9.0,
+        "handwritten": 9.0,
+        "base_list": 23.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.5555555555555554
+      }
+    },
+    {
+      "size": 3,
+      "repeats": 349525,
+      "expected": 2864534868,
+      "samples_ms": {
+        "transducer": [
+          8,
+          7,
+          8,
+          8,
+          7,
+          8,
+          8,
+          7,
+          8,
+          8
+        ],
+        "handwritten": [
+          8,
+          7,
+          8,
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "base_list": [
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          20,
+          19
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 7.5,
+        "base_list": 19.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0666666666666667,
+        "handwritten": 1.0,
+        "base_list": 2.533333333333333
+      }
+    },
+    {
+      "size": 4,
+      "repeats": 262144,
+      "expected": 2097152,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          7,
+          8,
+          7,
+          7,
+          7,
+          8,
+          7,
+          7
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "base_list": [
+          17,
+          16,
+          17,
+          17,
+          17,
+          17,
+          17,
+          17,
+          17,
+          17
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 17.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.4285714285714284
+      }
+    },
+    {
+      "size": 5,
+      "repeats": 209715,
+      "expected": 2579392100,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "handwritten": [
+          7,
+          8,
+          8,
+          7,
+          7,
+          6,
+          7,
+          7,
+          7,
+          7
+        ],
+        "base_list": [
+          16,
+          16,
+          15,
+          16,
+          16,
+          16,
+          16,
+          15,
+          16,
+          16
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 16.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.2857142857142856
+      }
+    },
+    {
+      "size": 6,
+      "repeats": 174762,
+      "expected": 1434102432,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          8,
+          8,
+          8,
+          8,
+          9,
+          8,
+          9,
+          8
+        ],
+        "handwritten": [
+          7,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          9,
+          8,
+          8
+        ],
+        "base_list": [
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 8.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.875
+      }
+    },
+    {
+      "size": 7,
+      "repeats": 149796,
+      "expected": 1230204330,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          8,
+          8,
+          7,
+          7,
+          8,
+          8,
+          7,
+          8
+        ],
+        "handwritten": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8,
+          8
+        ],
+        "base_list": [
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          14,
+          15,
+          15,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 8.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.875
+      }
+    },
+    {
+      "size": 8,
+      "repeats": 131072,
+      "expected": 4194304,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          8,
+          7,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8
+        ],
+        "handwritten": [
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7
+        ],
+        "base_list": [
+          14,
+          14,
+          14,
+          15,
+          14,
+          15,
+          14,
+          15,
+          14,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 9,
+      "repeats": 116508,
+      "expected": 958689718,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          7,
+          8,
+          7,
+          7,
+          7,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          7,
+          7,
+          7,
+          7,
+          7,
+          6,
+          8,
+          7,
+          7,
+          7
+        ],
+        "base_list": [
+          14,
+          16,
+          15,
+          14,
+          15,
+          15,
+          14,
+          14,
+          15,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.5
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0714285714285716
+      }
+    },
+    {
+      "size": 10,
+      "repeats": 104857,
+      "expected": 3440587543,
+      "samples_ms": {
+        "transducer": [
+          8,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          8,
+          7,
+          7
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "base_list": [
+          14,
+          14,
+          15,
+          15,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 11,
+      "repeats": 95325,
+      "expected": 2738832844,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          8,
+          7,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7
+        ],
+        "base_list": [
+          15,
+          15,
+          16,
+          15,
+          15,
+          16,
+          15,
+          15,
+          14,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.142857142857143
+      }
+    },
+    {
+      "size": 12,
+      "repeats": 87381,
+      "expected": 2869253438,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          7,
+          7,
+          7,
+          8,
+          7,
+          7,
+          7,
+          7,
+          7,
+          8
+        ],
+        "base_list": [
+          14,
+          14,
+          15,
+          14,
+          15,
+          15,
+          14,
+          15,
+          14,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 13,
+      "repeats": 80659,
+      "expected": 3640292848,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          7,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          7,
+          7,
+          7,
+          8,
+          7,
+          7,
+          7,
+          8,
+          7,
+          7
+        ],
+        "base_list": [
+          15,
+          14,
+          14,
+          15,
+          16,
+          16,
+          15,
+          16,
+          16,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.142857142857143
+      }
+    },
+    {
+      "size": 14,
+      "repeats": 74898,
+      "expected": 620607168,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8
+        ],
+        "handwritten": [
+          8,
+          7,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7
+        ],
+        "base_list": [
+          15,
+          15,
+          14,
+          16,
+          15,
+          14,
+          15,
+          15,
+          14,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.142857142857143
+      }
+    },
+    {
+      "size": 15,
+      "repeats": 69905,
+      "expected": 2298443632,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8
+        ],
+        "handwritten": [
+          7,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7
+        ],
+        "base_list": [
+          15,
+          14,
+          15,
+          14,
+          15,
+          14,
+          14,
+          14,
+          14,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 16,
+      "repeats": 65536,
+      "expected": 8388608,
+      "samples_ms": {
+        "transducer": [
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8
+        ],
+        "base_list": [
+          14,
+          14,
+          14,
+          15,
+          14,
+          14,
+          14,
+          14,
+          15,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 17,
+      "repeats": 61680,
+      "expected": 2281732088,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8
+        ],
+        "base_list": [
+          14,
+          15,
+          15,
+          14,
+          15,
+          15,
+          14,
+          15,
+          14,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.5,
+        "handwritten": 7.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0714285714285714,
+        "handwritten": 1.0,
+        "base_list": 2.142857142857143
+      }
+    },
+    {
+      "size": 18,
+      "repeats": 58254,
+      "expected": 486422720,
+      "samples_ms": {
+        "transducer": [
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          8,
+          8,
+          8,
+          7
+        ],
+        "handwritten": [
+          7,
+          7,
+          8,
+          7,
+          7,
+          7,
+          8,
+          8,
+          8,
+          7
+        ],
+        "base_list": [
+          15,
+          14,
+          15,
+          14,
+          14,
+          14,
+          15,
+          14,
+          14,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.1428571428571428,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 19,
+      "repeats": 55188,
+      "expected": 3174453426,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          7,
+          8,
+          7,
+          7
+        ],
+        "base_list": [
+          14,
+          14,
+          15,
+          14,
+          14,
+          14,
+          15,
+          14,
+          15,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 20,
+      "repeats": 52428,
+      "expected": 1727633664,
+      "samples_ms": {
+        "transducer": [
+          8,
+          8,
+          7,
+          8,
+          8,
+          8,
+          7,
+          8,
+          7,
+          7
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "base_list": [
+          15,
+          15,
+          15,
+          16,
+          14,
+          15,
+          14,
+          15,
+          14,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 7.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.1428571428571428,
+        "handwritten": 1.0,
+        "base_list": 2.142857142857143
+      }
+    },
+    {
+      "size": 21,
+      "repeats": 49932,
+      "expected": 419854782,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8
+        ],
+        "base_list": [
+          14,
+          15,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.5,
+        "handwritten": 7.5,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.8666666666666667
+      }
+    },
+    {
+      "size": 22,
+      "repeats": 47662,
+      "expected": 3525026408,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8
+        ],
+        "base_list": [
+          14,
+          14,
+          14,
+          15,
+          14,
+          15,
+          14,
+          14,
+          14,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.5,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 0.9333333333333333,
+        "handwritten": 1.0,
+        "base_list": 1.8666666666666667
+      }
+    },
+    {
+      "size": 23,
+      "repeats": 45590,
+      "expected": 2439375225,
+      "samples_ms": {
+        "transducer": [
+          8,
+          7,
+          8,
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8
+        ],
+        "base_list": [
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          14,
+          15,
+          14,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.5,
+        "handwritten": 7.5,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 24,
+      "repeats": 43690,
+      "expected": 1443539440,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          8,
+          7,
+          8,
+          8,
+          7,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "base_list": [
+          15,
+          14,
+          14,
+          15,
+          14,
+          14,
+          15,
+          14,
+          14,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 25,
+      "repeats": 41943,
+      "expected": 528461320,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7
+        ],
+        "base_list": [
+          14,
+          14,
+          15,
+          14,
+          14,
+          14,
+          14,
+          15,
+          14,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 26,
+      "repeats": 40329,
+      "expected": 3977329151,
+      "samples_ms": {
+        "transducer": [
+          8,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8
+        ],
+        "base_list": [
+          14,
+          15,
+          15,
+          15,
+          15,
+          15,
+          14,
+          15,
+          14,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.5,
+        "handwritten": 7.5,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 27,
+      "repeats": 38836,
+      "expected": 3195457634,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          8,
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          7
+        ],
+        "handwritten": [
+          8,
+          7,
+          8,
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8
+        ],
+        "base_list": [
+          14,
+          15,
+          14,
+          14,
+          15,
+          15,
+          15,
+          14,
+          15,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 8.0,
+        "base_list": 14.5
+      },
+      "ratio_to_handwritten": {
+        "transducer": 0.875,
+        "handwritten": 1.0,
+        "base_list": 1.8125
+      }
+    },
+    {
+      "size": 28,
+      "repeats": 37449,
+      "expected": 2468797238,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          8,
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8
+        ],
+        "handwritten": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "base_list": [
+          14,
+          14,
+          15,
+          14,
+          15,
+          14,
+          14,
+          15,
+          14,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.5,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0714285714285714,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 29,
+      "repeats": 36157,
+      "expected": 1791600245,
+      "samples_ms": {
+        "transducer": [
+          8,
+          7,
+          8,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "handwritten": [
+          8,
+          7,
+          8,
+          7,
+          7,
+          7,
+          8,
+          7,
+          8,
+          7
+        ],
+        "base_list": [
+          14,
+          15,
+          15,
+          15,
+          16,
+          15,
+          15,
+          14,
+          15,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 7.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.1428571428571428,
+        "handwritten": 1.0,
+        "base_list": 2.142857142857143
+      }
+    },
+    {
+      "size": 30,
+      "repeats": 34952,
+      "expected": 1160493776,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          8
+        ],
+        "handwritten": [
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "base_list": [
+          14,
+          14,
+          15,
+          14,
+          15,
+          15,
+          14,
+          15,
+          15,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.5,
+        "handwritten": 8.0,
+        "base_list": 14.5
+      },
+      "ratio_to_handwritten": {
+        "transducer": 0.9375,
+        "handwritten": 1.0,
+        "base_list": 1.8125
+      }
+    },
+    {
+      "size": 31,
+      "repeats": 33825,
+      "expected": 570408416,
+      "samples_ms": {
+        "transducer": [
+          8,
+          7,
+          8,
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8
+        ],
+        "handwritten": [
+          8,
+          7,
+          7,
+          8,
+          7,
+          8,
+          7,
+          8,
+          8,
+          7
+        ],
+        "base_list": [
+          15,
+          15,
+          15,
+          15,
+          15,
+          14,
+          15,
+          14,
+          15,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 7.5,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0666666666666667,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 32,
+      "repeats": 32768,
+      "expected": 16777216,
+      "samples_ms": {
+        "transducer": [
+          8,
+          9,
+          7,
+          8,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8
+        ],
+        "handwritten": [
+          7,
+          7,
+          8,
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8
+        ],
+        "base_list": [
+          15,
+          15,
+          16,
+          15,
+          15,
+          14,
+          15,
+          14,
+          15,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 7.5,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0666666666666667,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 48,
+      "repeats": 21845,
+      "expected": 2888127448,
+      "samples_ms": {
+        "transducer": [
+          7,
+          8,
+          8,
+          8,
+          8,
+          8,
+          9,
+          8,
+          9,
+          8
+        ],
+        "handwritten": [
+          8,
+          8,
+          8,
+          7,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "base_list": [
+          15,
+          14,
+          15,
+          15,
+          15,
+          14,
+          15,
+          15,
+          15,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 8.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.875
+      }
+    },
+    {
+      "size": 64,
+      "repeats": 16384,
+      "expected": 33554432,
+      "samples_ms": {
+        "transducer": [
+          9,
+          8,
+          8,
+          8,
+          8,
+          8,
+          7,
+          8,
+          8,
+          8
+        ],
+        "handwritten": [
+          8,
+          7,
+          8,
+          8,
+          8,
+          7,
+          8,
+          8,
+          7,
+          8
+        ],
+        "base_list": [
+          15,
+          15,
+          14,
+          15,
+          15,
+          14,
+          15,
+          15,
+          15,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 8.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.875
+      }
+    },
+    {
+      "size": 96,
+      "repeats": 10922,
+      "expected": 1481285312,
+      "samples_ms": {
+        "transducer": [
+          8,
+          8,
+          7,
+          8,
+          8,
+          8,
+          8,
+          7,
+          8,
+          8
+        ],
+        "handwritten": [
+          7,
+          8,
+          8,
+          7,
+          8,
+          8,
+          8,
+          7,
+          8,
+          8
+        ],
+        "base_list": [
+          15,
+          16,
+          16,
+          14,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 8.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.875
+      }
+    },
+    {
+      "size": 128,
+      "repeats": 8192,
+      "expected": 67108864,
+      "samples_ms": {
+        "transducer": [
+          8,
+          7,
+          8,
+          8,
+          7,
+          8,
+          7,
+          8,
+          8,
+          7
+        ],
+        "handwritten": [
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          8
+        ],
+        "base_list": [
+          14,
+          15,
+          15,
+          14,
+          15,
+          15,
+          15,
+          14,
+          15,
+          15
+        ]
+      },
+      "median_ms": {
+        "transducer": 8.0,
+        "handwritten": 7.0,
+        "base_list": 15.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.1428571428571428,
+        "handwritten": 1.0,
+        "base_list": 2.142857142857143
+      }
+    },
+    {
+      "size": 192,
+      "repeats": 5461,
+      "expected": 2963619168,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          8,
+          7,
+          8,
+          7,
+          7,
+          8,
+          7,
+          7
+        ],
+        "handwritten": [
+          8,
+          7,
+          7,
+          8,
+          7,
+          7,
+          7,
+          7,
+          8,
+          7
+        ],
+        "base_list": [
+          15,
+          14,
+          15,
+          15,
+          15,
+          14,
+          14,
+          13,
+          14,
+          14
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 14.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    },
+    {
+      "size": 256,
+      "repeats": 4096,
+      "expected": 2281701376,
+      "samples_ms": {
+        "transducer": [
+          7,
+          7,
+          7,
+          7,
+          6,
+          7,
+          6,
+          7,
+          7,
+          7
+        ],
+        "handwritten": [
+          7,
+          6,
+          7,
+          7,
+          6,
+          7,
+          6,
+          7,
+          7,
+          7
+        ],
+        "base_list": [
+          13,
+          13,
+          13,
+          13,
+          13,
+          13,
+          13,
+          14,
+          13,
+          13
+        ]
+      },
+      "median_ms": {
+        "transducer": 7.0,
+        "handwritten": 7.0,
+        "base_list": 13.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.8571428571428572
+      }
+    },
+    {
+      "size": 512,
+      "repeats": 2048,
+      "expected": 1342177280,
+      "samples_ms": {
+        "transducer": [
+          6,
+          6,
+          6,
+          6,
+          7,
+          6,
+          6,
+          6,
+          6,
+          6
+        ],
+        "handwritten": [
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          7,
+          6,
+          6
+        ],
+        "base_list": [
+          11,
+          11,
+          12,
+          11,
+          12,
+          11,
+          11,
+          12,
+          11,
+          12
+        ]
+      },
+      "median_ms": {
+        "transducer": 6.0,
+        "handwritten": 6.0,
+        "base_list": 11.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.0,
+        "handwritten": 1.0,
+        "base_list": 1.8333333333333333
+      }
+    },
+    {
+      "size": 1024,
+      "repeats": 1024,
+      "expected": 1073741824,
+      "samples_ms": {
+        "transducer": [
+          5,
+          6,
+          5,
+          5,
+          6,
+          6,
+          6,
+          6,
+          5,
+          6
+        ],
+        "handwritten": [
+          5,
+          6,
+          5,
+          6,
+          5,
+          5,
+          6,
+          5,
+          6,
+          5
+        ],
+        "base_list": [
+          10,
+          11,
+          10,
+          11,
+          10,
+          11,
+          10,
+          10,
+          10,
+          10
+        ]
+      },
+      "median_ms": {
+        "transducer": 6.0,
+        "handwritten": 5.0,
+        "base_list": 10.0
+      },
+      "ratio_to_handwritten": {
+        "transducer": 1.2,
+        "handwritten": 1.0,
+        "base_list": 2.0
+      }
+    }
+  ],
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-map-inc-p1bfxcwj",
+  "program_sha256": {
+    "transducer": "ec993595cbe634c19eac1a91a04c2abf11aae7fac9b8bd2a2287d03388633e66",
+    "handwritten": "0ec6e5032ba19dd7634084ed9c85e458ab90cabc3e65bf553a1f50999f06765f",
+    "base_list": "eeb4271705e3d65c67677e0dc361435e8e8b7182cda476301e6c50f74f2068a0"
+  }
+}
