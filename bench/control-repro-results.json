@@ -1,0 +1,83 @@
+{
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "timing": "IO.now milliseconds; one warmup then samples per process, two reversed-order rounds; CPU threads=1 GPU off",
+  "source_sha256": "1f4d890dab79fc93494769df95662c1907c0c3d7cc0307a5e2ca481fd6c87a52",
+  "end": 2000000,
+  "take": 2000000,
+  "repeats": 32,
+  "threshold": 2147483647,
+  "samples_ms": {
+    "direct": [
+      93,
+      91,
+      93,
+      93,
+      95,
+      92,
+      93,
+      94,
+      95,
+      92,
+      96,
+      93,
+      93,
+      96
+    ],
+    "tagged": [
+      325,
+      327,
+      326,
+      329,
+      329,
+      327,
+      326,
+      331,
+      328,
+      328,
+      330,
+      331,
+      334,
+      335
+    ],
+    "guarded": [
+      97,
+      98,
+      97,
+      93,
+      96,
+      97,
+      92,
+      98,
+      96,
+      96,
+      94,
+      94,
+      96,
+      97
+    ],
+    "split": [
+      331,
+      330,
+      330,
+      331,
+      331,
+      329,
+      331,
+      327,
+      331,
+      329,
+      328,
+      331,
+      329,
+      331
+    ]
+  },
+  "expected_batch_sum": 3358576704,
+  "median_ms": {
+    "direct": 93.0,
+    "tagged": 328.5,
+    "guarded": 96.0,
+    "split": 330.5
+  }
+}

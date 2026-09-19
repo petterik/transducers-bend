@@ -1,0 +1,389 @@
+{
+  "description": "Runtime thresholds and three-round mixed predicate; sequential native CPU measurements. See RUNTIME-FILTER.md.",
+  "reports": [
+    {
+      "timing": "IO.now milliseconds per batch; excludes process startup; one warmup per process",
+      "scope": "Sequential generated U32 ranges; CPU threads=1, GPU off; no prebuilt lists",
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+      "results": [
+        {
+          "case": "cheap_full",
+          "begin": 0,
+          "end": 2000000,
+          "take": 2000000,
+          "work_rounds": 0,
+          "threshold": 1,
+          "threshold_binding": "IO.args",
+          "predicate": "above",
+          "predicate_mix_rounds": 0,
+          "starts": "constant begin",
+          "repeats_per_sample": 32,
+          "expected_batch_sum": 724846560,
+          "builds": {
+            "library": {
+              "seconds": 0.47758041601628065,
+              "source_sha256": "d368b5132087a5d3384b3f840aab6d1cf4395f9487c4229a969abd452512797d",
+              "js_bytes": 24821,
+              "c_bytes": 111555
+            },
+            "direct": {
+              "seconds": 0.4171330409590155,
+              "source_sha256": "1c3c41621701121519a312f6f027641724daffa70de3a5b5d1dece3f7522a5ef",
+              "js_bytes": 18333,
+              "c_bytes": 99288
+            }
+          },
+          "oracle_inputs_per_sample": 64000000,
+          "oracle_accepted_per_sample": 63999968,
+          "samples_ms": {
+            "library": [
+              49,
+              50,
+              49,
+              50,
+              49,
+              50,
+              48,
+              51,
+              51,
+              49,
+              49,
+              50,
+              50,
+              51
+            ],
+            "direct": [
+              34,
+              34,
+              34,
+              34,
+              34,
+              34,
+              35,
+              34,
+              35,
+              34,
+              35,
+              33,
+              34,
+              35
+            ]
+          },
+          "median_batch_ms": {
+            "library": 50,
+            "direct": 34
+          },
+          "median_us_per_transduction": {
+            "library": 1562.5,
+            "direct": 1062.5
+          }
+        },
+        {
+          "case": "cheap_early",
+          "begin": 0,
+          "end": 2000000,
+          "take": 32,
+          "work_rounds": 0,
+          "threshold": 1,
+          "threshold_binding": "IO.args",
+          "predicate": "above",
+          "predicate_mix_rounds": 0,
+          "starts": "descending repetition index modulo 65536",
+          "repeats_per_sample": 1000000,
+          "expected_batch_sum": 819314240,
+          "builds": {
+            "library": {
+              "seconds": 0.4806701249908656,
+              "source_sha256": "86349a28f8dc62fdc0ebbf81eda4ad239df31543713b518dfbde59c53cead234",
+              "js_bytes": 24884,
+              "c_bytes": 111595
+            },
+            "direct": {
+              "seconds": 0.4243983329506591,
+              "source_sha256": "203978b1ea2d614b9499aedf5c11c26c2c32b1d2b25d2ebdd6f7e7c200cb1432",
+              "js_bytes": 18396,
+              "c_bytes": 99328
+            }
+          },
+          "oracle_inputs_per_sample": 32000016,
+          "oracle_accepted_per_sample": 32000000,
+          "samples_ms": {
+            "library": [
+              25,
+              26,
+              25,
+              25,
+              26,
+              25,
+              25,
+              24,
+              26,
+              26,
+              26,
+              25,
+              24,
+              25
+            ],
+            "direct": [
+              18,
+              18,
+              18,
+              17,
+              18,
+              17,
+              18,
+              18,
+              17,
+              18,
+              17,
+              18,
+              18,
+              17
+            ]
+          },
+          "median_batch_ms": {
+            "library": 25,
+            "direct": 18
+          },
+          "median_us_per_transduction": {
+            "library": 0.025,
+            "direct": 0.018
+          }
+        }
+      ]
+    },
+    {
+      "timing": "IO.now milliseconds per batch; excludes process startup; one warmup per process",
+      "scope": "Sequential generated U32 ranges; CPU threads=1, GPU off; no prebuilt lists",
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+      "results": [
+        {
+          "case": "cheap_full",
+          "begin": 0,
+          "end": 2000000,
+          "take": 2000000,
+          "work_rounds": 0,
+          "threshold": 1048576,
+          "threshold_binding": "IO.args",
+          "predicate": "above",
+          "predicate_mix_rounds": 0,
+          "starts": "constant begin",
+          "repeats_per_sample": 32,
+          "expected_batch_sum": 708069376,
+          "builds": {
+            "library": {
+              "seconds": 0.4829979590140283,
+              "source_sha256": "d368b5132087a5d3384b3f840aab6d1cf4395f9487c4229a969abd452512797d",
+              "js_bytes": 24821,
+              "c_bytes": 111555
+            },
+            "direct": {
+              "seconds": 0.41909412504173815,
+              "source_sha256": "1c3c41621701121519a312f6f027641724daffa70de3a5b5d1dece3f7522a5ef",
+              "js_bytes": 18333,
+              "c_bytes": 99288
+            }
+          },
+          "oracle_inputs_per_sample": 64000000,
+          "oracle_accepted_per_sample": 30445568,
+          "samples_ms": {
+            "library": [
+              38,
+              37,
+              37,
+              37,
+              38,
+              38,
+              38,
+              38,
+              38,
+              39,
+              38,
+              39,
+              38,
+              38
+            ],
+            "direct": [
+              34,
+              34,
+              35,
+              34,
+              34,
+              35,
+              34,
+              34,
+              35,
+              34,
+              34,
+              35,
+              34,
+              35
+            ]
+          },
+          "median_batch_ms": {
+            "library": 38,
+            "direct": 34
+          },
+          "median_us_per_transduction": {
+            "library": 1187.5,
+            "direct": 1062.5
+          }
+        }
+      ]
+    },
+    {
+      "timing": "IO.now milliseconds per batch; excludes process startup; one warmup per process",
+      "scope": "Sequential generated U32 ranges; CPU threads=1, GPU off; no prebuilt lists",
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+      "results": [
+        {
+          "case": "cheap_full",
+          "begin": 0,
+          "end": 2000000,
+          "take": 2000000,
+          "work_rounds": 0,
+          "threshold": 2147483647,
+          "threshold_binding": "IO.args",
+          "predicate": "mixed",
+          "predicate_mix_rounds": 3,
+          "starts": "constant begin",
+          "repeats_per_sample": 32,
+          "expected_batch_sum": 3358576704,
+          "builds": {
+            "library": {
+              "seconds": 0.4804165419191122,
+              "source_sha256": "a1f72aaf587645df82d78486b7097351a438b9bfb56d11e75be038fef79bb78e",
+              "js_bytes": 25186,
+              "c_bytes": 111990
+            },
+            "direct": {
+              "seconds": 0.4288493749918416,
+              "source_sha256": "65add14abf4d87ad5a204f8da38b76f56b15a665a90f8d144d9f4141f85be2e0",
+              "js_bytes": 18698,
+              "c_bytes": 99723
+            }
+          },
+          "oracle_inputs_per_sample": 64000000,
+          "oracle_accepted_per_sample": 32001824,
+          "samples_ms": {
+            "library": [
+              330,
+              328,
+              331,
+              332,
+              329,
+              331,
+              330,
+              329,
+              330,
+              335,
+              332,
+              329,
+              336,
+              336
+            ],
+            "direct": [
+              96,
+              96,
+              95,
+              94,
+              96,
+              94,
+              96,
+              95,
+              95,
+              95,
+              96,
+              97,
+              95,
+              96
+            ]
+          },
+          "median_batch_ms": {
+            "library": 330.5,
+            "direct": 95.5
+          },
+          "median_us_per_transduction": {
+            "library": 10328.125,
+            "direct": 2984.375
+          }
+        },
+        {
+          "case": "cheap_early",
+          "begin": 0,
+          "end": 2000000,
+          "take": 32,
+          "work_rounds": 0,
+          "threshold": 2147483647,
+          "threshold_binding": "IO.args",
+          "predicate": "mixed",
+          "predicate_mix_rounds": 3,
+          "starts": "descending repetition index modulo 65536",
+          "repeats_per_sample": 1000000,
+          "expected_batch_sum": 1349515560,
+          "builds": {
+            "library": {
+              "seconds": 0.49034725001547486,
+              "source_sha256": "51d686090ccf0cafc252320d447fe3b23feaba22be4dacfb712839b0913bac03",
+              "js_bytes": 25249,
+              "c_bytes": 112030
+            },
+            "direct": {
+              "seconds": 0.4314831249648705,
+              "source_sha256": "3bcc86c015e0bf10e503481b8e4aba863115f7b8bdf69a5b2e6574d45032e8b0",
+              "js_bytes": 18761,
+              "c_bytes": 99763
+            }
+          },
+          "oracle_inputs_per_sample": 64126141,
+          "oracle_accepted_per_sample": 32000000,
+          "samples_ms": {
+            "library": [
+              138,
+              139,
+              139,
+              138,
+              137,
+              139,
+              139,
+              140,
+              139,
+              138,
+              140,
+              138,
+              139,
+              139
+            ],
+            "direct": [
+              102,
+              102,
+              103,
+              103,
+              103,
+              103,
+              103,
+              106,
+              103,
+              103,
+              103,
+              103,
+              103,
+              103
+            ]
+          },
+          "median_batch_ms": {
+            "library": 139,
+            "direct": 103
+          },
+          "median_us_per_transduction": {
+            "library": 0.139,
+            "direct": 0.103
+          }
+        }
+      ]
+    }
+  ]
+}

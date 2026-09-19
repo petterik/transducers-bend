@@ -34,17 +34,17 @@ def keep(yes: Bool, left: Nat, acc: U32, x: U32) -> Running:
     case True{} 1n+p:
       Running{p, (acc + x : U32)}
 
-def feed(left: Nat, acc: U32, +x: U32) -> Running:
-  keep(U32.is_gt(x, 1), left, acc, x)
+def feed(threshold: U32, left: Nat, acc: U32, +x: U32) -> Running:
+  keep(above(threshold, x), left, acc, x)
 
-def direct(n: Nat, +x: U32, state: Running) -> U32:
+def direct(n: Nat, +x: U32, state: Running, +threshold: U32) -> U32:
   match n state:
     case n Running{0n, acc}:
       acc
     case 0n Running{left, acc}:
       acc
     case 1n+p Running{1n+k, acc}:
-      direct(p, (x + 1 : U32), feed(1n+k, acc, transform(x)))
+      direct(p, (x + 1 : U32), feed(threshold, 1n+k, acc, transform(x)), threshold)
 
 def main() -> U32:
   T.transduce(~T.over_range(~U32, ~pipeline()), (1, (2n, 0)), T.range_between(0, 5))

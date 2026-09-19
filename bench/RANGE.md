@@ -2,6 +2,8 @@
 
 Follow-up: [control-flow confidence review](CONTROL.md) reproduces the gap, rejects two ineffective rewrites, and shows that a more selective filter removes the measured gap. Use `--cases cheap_full --threshold 1048576` to reproduce that workload; defaults retain the original workload below.
 
+The [runtime-input follow-up](RUNTIME-FILTER.md) adds command-line thresholds and a mixed-value predicate. Its measurements are separate from the historical table below; the selective-filter result above is for a literal threshold, not arbitrary runtime configuration.
+
 Measured on the local M3 Max, using the sibling Bend fork's compiler and the open static reduction API. [Raw samples](range-results.json) include the compiler hash, build times, emitted code sizes, and every retained timing. No new compiler change was made.
 
 ```sh

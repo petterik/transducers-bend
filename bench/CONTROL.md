@@ -1,5 +1,7 @@
 # Control-flow confidence review
 
+Subsequent [runtime-threshold and mixed-predicate measurements](RUNTIME-FILTER.md) complete the recommended workload expansion and identify a branch-versus-conditional-selection difference in the mixed native loop. The findings below describe the earlier literal-threshold experiments.
+
 The 2026-09-19 investigation did **not** establish a beneficial control-flow rewrite. The library and compiler remain unchanged. The benchmark now accepts `--cases` and `--threshold` so filter selectivity can be checked explicitly. [Raw samples](control-results.json) retain the baseline, rejected variants, and final selective-filter run.
 
 ## Findings
