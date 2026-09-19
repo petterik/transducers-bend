@@ -11,7 +11,7 @@ Read README.md for the actual API, IMPLEMENTATION.md for compiler details and va
 ## Repositories and commits
 
 - Library: `/Users/petter/Github/petterik/transduce-bend`. The initial implementation is commit `b975f1d`; this hand-off is included in the subsequent benchmark/documentation commit (use `git log` for its hash).
-- Compiler: `/Users/petter/Github/petterik/bend`, commit `b1f9c936` (`Specialize statically constructed callbacks before lowering`). The library's performance/codegen expectations require this experimental patch.
+- Compiler dependency: [petterik/bend](https://github.com/petterik/bend), branch [`petter/transducers-sept-19`](https://github.com/petterik/bend/tree/petter/transducers-sept-19). Local checkout: `/Users/petter/Github/petterik/bend`, commit `b1f9c936` (`Specialize statically constructed callbacks before lowering`). The library's performance/codegen expectations require this experimental patch.
 - Bend's AGENTS.md explicitly prohibits editing `bend2/bend.ts`. It remains unchanged. Compiler/runtime work belongs in `bend2/comp.ts`.
 - Read both repositories' current status before editing; the user sometimes commits between turns. Do not overwrite their changes.
 

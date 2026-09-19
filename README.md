@@ -50,7 +50,7 @@ The sequential driver stops transformation immediately when it observes Stop. Th
 
 ## Compiler and verification
 
-Use the sibling Bend checkout with the accompanying `bend2/comp.ts` specialization change. The ordinary compiler can run the library semantically, but retains callback construction overhead; the code-generation test intentionally requires the specialization. This is an experimental source-checkout dependency, not a published Bend requirement/version.
+This library depends on the [petterik/bend fork, branch `petter/transducers-sept-19`](https://github.com/petterik/bend/tree/petter/transducers-sept-19), which contains the required `bend2/comp.ts` specialization change (commit `b1f9c936`). Use that branch in the sibling `../bend` checkout, or select its compiler with `--bend-main`. The ordinary compiler can run the library semantically, but retains callback construction overhead; the code-generation test intentionally requires the specialization. This is an experimental source-checkout dependency, not a published Bend requirement/version.
 
 ```sh
 python3 tests/run.py
