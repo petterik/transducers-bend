@@ -34,8 +34,10 @@ Run the default sweep with:
 python3 bench/wordscan/run.py --output bench/wordscan/results.json
 ```
 
-Useful knobs are `--array-depth`, `--batch-depth`, `--repeats`, and
-`--normalize-rounds`. The default workload is intentionally compute-heavy
+Useful knobs are `--array-depth`, `--batch-depth`, `--repeats`,
+`--normalize-rounds`, and `--gpu-memory`. Increase `--gpu-memory` when a
+larger materialized workload exceeds the default device span. The default
+workload is intentionally compute-heavy
 enough for the millisecond clock while retaining a real four-lane allocation
 and flattening boundary. `build` and the direct twins use the same seed order.
 A checksum mismatch catches lane-membership, wrapping, or batch-partition

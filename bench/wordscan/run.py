@@ -275,6 +275,7 @@ def render_report(report: dict[str, object], output_name: str,
         f"--normalize-rounds {parameters['NORMALIZE_ROUNDS']} "
         f"--samples {parameters['samples']} "
         f"--threads {parameters['threads']} "
+        f"--gpu-memory {parameters['gpu_memory']} "
         f"--output {output_command}"
     )
     if gpu_result.get("status") == "skipped":
@@ -343,6 +344,8 @@ def main() -> None:
     parser.add_argument("--repeats", type=int, default=2)
     parser.add_argument("--normalize-rounds", type=int, default=32)
     parser.add_argument("--threads", type=int, default=16)
+    parser.add_argument("--gpu-memory", default="1GB",
+                        help="Metal/CUDA memory span passed to --gpu")
     parser.add_argument("--no-gpu", action="store_true")
     args = parser.parse_args()
     if args.samples < 1 or args.repeats < 1 or args.threads < 1:
@@ -353,6 +356,8 @@ def main() -> None:
         parser.error("array-depth + batch-depth must be below 31")
     if args.normalize_rounds < 0:
         parser.error("normalize-rounds must be non-negative")
+    if re.fullmatch(r"[1-9][0-9]*(?:MB|GB)", args.gpu_memory) is None:
+        parser.error("gpu-memory must be a positive size such as 512MB or 2GB")
 
     compiler = args.bend_main.resolve()
     values = {"ARRAY_DEPTH": args.array_depth,
@@ -378,7 +383,8 @@ def main() -> None:
             "lean": "Handwritten Lean fused loop",
         },
         "parameters": {**values, "samples": args.samples,
-                       "threads": args.threads, "expected_checksum": expected_value},
+                       "threads": args.threads, "gpu_memory": args.gpu_memory,
+                       "expected_checksum": expected_value},
         "platform": platform.platform(),
         "compiler": str(compiler),
         "compiler_sha256": hashlib.sha256((compiler.parent / "comp.ts").read_bytes()).hexdigest(),
@@ -405,7 +411,7 @@ def main() -> None:
                                      "reason": "--no-gpu"}
         else:
             row["modes"]["gpu"] = run_bend(
-                binary, ["--threads", "1", "--gpu", "1GB"],
+                binary, ["--threads", "1", "--gpu", args.gpu_memory],
                 expected_value, args.samples)
         report["results"].append(row)
         args.output.parent.mkdir(parents=True, exist_ok=True)

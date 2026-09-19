@@ -19,6 +19,7 @@
     "NORMALIZE_ROUNDS": 32,
     "samples": 5,
     "threads": 16,
+    "gpu_memory": "1GB",
     "expected_checksum": 1287990074
   },
   "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
@@ -36,10 +37,10 @@
         "cpu_1": {
           "status": "ok",
           "samples_ms": [
-            61,
             62,
-            63,
-            63,
+            62,
+            62,
+            62,
             62
           ],
           "median_ms": 62,
@@ -48,11 +49,11 @@
         "cpu_16": {
           "status": "ok",
           "samples_ms": [
-            8,
+            9,
+            9,
             7,
-            8,
-            8,
-            7
+            7,
+            8
           ],
           "median_ms": 8,
           "checksum": 1287990074
@@ -60,13 +61,13 @@
         "gpu": {
           "status": "ok",
           "samples_ms": [
+            18,
             16,
-            16,
-            16,
+            18,
             16,
             17
           ],
-          "median_ms": 16,
+          "median_ms": 17,
           "checksum": 1287990074
         }
       }
@@ -81,22 +82,22 @@
         "cpu_1": {
           "status": "ok",
           "samples_ms": [
-            69,
-            69,
-            71,
+            73,
+            68,
+            67,
             68,
             68
           ],
-          "median_ms": 69,
+          "median_ms": 68,
           "checksum": 1287990074
         },
         "cpu_16": {
           "status": "ok",
           "samples_ms": [
-            9,
             8,
             9,
             8,
+            9,
             9
           ],
           "median_ms": 9,
@@ -105,13 +106,13 @@
         "gpu": {
           "status": "ok",
           "samples_ms": [
-            41,
-            42,
-            34,
-            36,
-            42
+            37,
+            39,
+            39,
+            40,
+            41
           ],
-          "median_ms": 41,
+          "median_ms": 39,
           "checksum": 1287990074
         }
       }
@@ -128,9 +129,9 @@
           "samples_ms": [
             50,
             51,
-            51,
-            50,
-            53
+            52,
+            52,
+            51
           ],
           "median_ms": 51,
           "checksum": 1287990074
@@ -138,9 +139,9 @@
         "cpu_16": {
           "status": "ok",
           "samples_ms": [
-            6,
-            6,
             7,
+            6,
+            6,
             7,
             6
           ],
@@ -150,8 +151,8 @@
         "gpu": {
           "status": "ok",
           "samples_ms": [
-            8,
-            6,
+            7,
+            7,
             7,
             7,
             7
@@ -162,31 +163,31 @@
       }
     }
   ],
-  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-wordscan-5mj0hfr0",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-wordscan-feqn2dip",
   "external": {
     "c": {
       "status": "ok",
       "samples_ms": [
-        5.327458027750254,
-        4.414540948346257,
-        4.158457973971963,
-        3.5466249100863934,
-        3.4903750056400895
+        2.9147919267416,
+        3.016167087480426,
+        2.789790974929929,
+        2.7484159218147397,
+        2.614959026686847
       ],
-      "median_ms": 4.158457973971963,
+      "median_ms": 2.789790974929929,
       "checksum": 1287990074,
       "timing_note": "process wall time, including startup"
     },
     "typescript": {
       "status": "ok",
       "samples_ms": [
-        94.20587494969368,
-        93.1768330046907,
-        93.2307499460876,
-        93.31908402964473,
-        93.47600000910461
+        93.53412501513958,
+        93.7893750378862,
+        93.56700000353158,
+        93.6520000686869,
+        93.51787506602705
       ],
-      "median_ms": 93.31908402964473,
+      "median_ms": 93.56700000353158,
       "checksum": 1287990074,
       "timing_note": "process wall time, including startup"
     },
