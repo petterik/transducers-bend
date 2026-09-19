@@ -41,6 +41,20 @@ def reduce_list(~A: Type, ~S: Type, ~advance: S -> A -> Control<S>, xs: List<A>,
     case h <> t Continue{s}:
       reduce_list(~A, ~S, ~advance, t, advance(s, h))
 
+# A closed reducer driver. Binding the reducer as a template parameter lets
+# the compiler see the step directly in the recursive loop, while the
+# generic reducer driver above remains available to source adapters that need
+# a runtime advance function.
+def reduce_list_static(~A: Type, ~R: Type, ~r: Reducer<A, R>,
+  xs: List<A>, c: Control<State(A, R, r)>) -> Control<State(A, R, r)>:
+  match xs c:
+    case Nil{} c:
+      c
+    case h <> t Stop{s}:
+      Stop{s}
+    case h <> t Continue{s}:
+      reduce_list_static(~A, ~R, ~r, t, step(A, R, r, s, h))
+
 def sum() -> Reducer<U32, U32>:
   Reducer{U32, U32, x => Continue{x}, s => x => Continue{(s + x : U32)}, s => s}
 
@@ -56,8 +70,7 @@ def map(~A: Type, ~B: Type, ~R: Type, ~f: A -> B, ~down: Reducer<B, R>) -> Reduc
 def cat(~B: Type, ~R: Type, ~down: Reducer<B, R>) -> Reducer<List<B>, R>:
   Reducer{Config(B, R, down), State(B, R, down),
     c => start(B, R, down, c),
-    s => xs => reduce_list(~B, ~State(B, R, down),
-      ~(inner => x => step(B, R, down, inner, x)), xs, Continue{s}),
+    s => xs => reduce_list_static(~B, ~R, ~down, xs, Continue{s}),
     s => finish(B, R, down, s)}
 
 # One-to-many mapping is ordinary map followed by list flattening. Keeping the
@@ -289,7 +302,7 @@ def reducible(~X: Type, ~A: Type, ~R: Type, ~recipe: Unit -> Reducer<A, R>,
 
 def over_list(~A: Type, ~R: Type, ~r: Reducer<A, R>) -> Reduction:
   reducible(~List<A>, ~A, ~R, ~(u => r),
-    ~(xs => c => reduce_list(~A, ~State(A, R, r), ~(s => x => step(A, R, r, s, x)), xs, c)))
+    ~(xs => c => reduce_list_static(~A, ~R, ~r, xs, c)))
 
 def over_range(~R: Type, ~r: Reducer<U32, R>) -> Reduction:
   reducible(~Range, ~U32, ~R, ~(u => r),

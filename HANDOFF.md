@@ -1,5 +1,47 @@
 # Hand-off: Bend transducers
 
+## Checkpoint 2026-09-19: static list driver
+
+The current target is unchanged: a closed `transduce` pipeline should compile
+to the speed of an equivalent handwritten fused Bend traversal. Ergonomic
+syntax, lazy `sequence`, `eduction`, arbitrary runtime captures, and a generic
+`into`/`conj` interface are deferred. The immediate execution model is
+`transduce`; ownership remains local to the run.
+
+This checkpoint adds `T.reduce_list_static` in `transduce.bend`. It binds the
+reducer as a template parameter and calls `step` directly from the recursive
+list loop. `T.reduce_list` remains unchanged for source adapters that need a
+runtime advance function. `T.cat` and `T.over_list` now use the static driver,
+so closed list pipelines no longer build an affine advance closure for every
+element. The change is semantics-preserving and leaves range/string/array
+drivers untouched.
+
+Validation completed before sign-off:
+
+- `python3 tests/run.py --bend-main /tmp/bend-fusion-parity.5vo6VS/candidate/main.ts` — 18/18 tests pass on candidate JS/native lanes.
+- `tests/static_driver.bend` exercises filtering, taking, stopping and sum through `over_list`.
+- Candidate C for that fixture contains no `Clo.apply` occurrence.
+- Five-sample candidate composition run: three maps 13/13 ms (transducer/handwritten); cheap full 11/10 ms; mixed full 44.5/14 ms; mixed early 38/38.5 ms. These are short engineering samples, not final acceptance measurements.
+
+The static driver is a useful foundation, but it does **not** meet the final
+performance target for mixed list map/filter/take. The remaining cost is the
+scalar `Control`/`Taking` state protocol and helper transitions in the list
+loop. Do not report parity from this checkpoint.
+
+### Handoff for tomorrow
+
+1. Start with `git status --short` and verify the checkpoint commit before editing. Keep `../bend` unchanged; candidate compiler work belongs in an isolated copy made by `bench/compiler/prepare_guarded.py`.
+2. Re-run the 18-test candidate gate and preserve the five-sample composition artifacts under `/tmp`. Compare only candidate transducer versus candidate handwritten lanes during development.
+3. Inspect `/tmp/bend-source-test/mixed.c` or regenerate it with the current `transduce.bend`. The static list loop is one native loop, but it still calls the nested typed transition chain. The direct loop carries only scalar `left`, `sum`, and its stop condition.
+4. The next compiler experiment should be typed and general: expose/fuse the nested scalar transition only when layouts, ownership, totality and callback evaluation order are proved. Do not recognize transducer names, numeric tag positions or generated-C text. Preserve generic fallback and all valid stopped/zero states.
+5. Existing experimental machinery is in `bench/compiler/guarded_scalar.inc.ts` and `guarded_loop.inc.ts`; it is not production compiler code. The guarded-scalar pass currently handles bounded pure scalar regions and has intentionally conservative fallback rules. Any promotion needs focused differential tests, checked-failure tests, code-growth limits, and a benchmark against direct Bend.
+6. Do not compare with the original compiler until the candidate implementation is complete, as requested. Final acceptance still needs balanced retained blocks and the direct-lane tolerance in `FUSION-EXECUTION-PLAN.md`.
+
+Scratch files from diagnosis (`experiments/*`, `transduce_static.bend`, and
+`bench/__pycache__`) should stay untracked and be removed before the final
+delivery if they are still present. No external branch or compiler checkout
+has been modified by this checkpoint.
+
 ## Priority #3 follow-up (supersedes the original hand-off below)
 
 The user authorized priority #3, confidence/prioritization reviews, and explicit laws with bounded executable checks. They rejected separate source drivers and then a closed Source enum in favor of an extensible reduction interface. The implemented API is `transduce(~reduction, config, source)`, where `over_list`, `over_range`, `over_string`, or a third-party adapter binds the user's pipeline once into a static Reduction description. `examples/tree.bend` adds an affine tree without changing the library. Source selection is explicit and static; ordinary source data remains runtime. See EXTENDING.md for the `reducible` binding helper and stopping-fold contract.
