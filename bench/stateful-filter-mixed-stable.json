@@ -1,0 +1,1952 @@
+{
+  "scope": "Sequential dynamic U32 lists; map inc plus stateful reduction; construction and checksum included",
+  "timing": "IO.now milliseconds inside persistent native process; one warmup; alternating variant order",
+  "variants": [
+    "transducer",
+    "direct_bend",
+    "base_list"
+  ],
+  "variant_descriptions": {
+    "transducer": "Public transducer composition in transduce.bend",
+    "direct_bend": "User-authored fused Bend traversal compiled to native C",
+    "base_list": "Core Base.List map/filter/take/foldl pipeline where the prelude type kinds permit it"
+  },
+  "manual_c_baseline": false,
+  "threshold": 2147483647,
+  "take": 1048576,
+  "work_rounds": 3,
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a",
+  "samples": 7,
+  "target_calls": 4194304,
+  "cases": [
+    "filter"
+  ],
+  "results": [
+    {
+      "case": "filter",
+      "size": 0,
+      "repeats": 4194304,
+      "expected": 0,
+      "samples_ms": {
+        "transducer": [
+          20,
+          20,
+          19,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          19
+        ],
+        "direct_bend": [
+          20,
+          20,
+          20,
+          20,
+          19,
+          20,
+          20,
+          20,
+          20,
+          19,
+          20,
+          20,
+          20,
+          20
+        ],
+        "base_list": [
+          126,
+          127,
+          127,
+          123,
+          125,
+          125,
+          129,
+          125,
+          124,
+          126,
+          125,
+          124,
+          123,
+          126
+        ]
+      },
+      "median_ms": {
+        "transducer": 20.0,
+        "direct_bend": 20.0,
+        "base_list": 125.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 6.25
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.16,
+        "direct_bend": 0.16,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 1,
+      "repeats": 4194304,
+      "expected": 4259761139,
+      "samples_ms": {
+        "transducer": [
+          52,
+          51,
+          51,
+          52,
+          51,
+          51,
+          52,
+          51,
+          51,
+          51,
+          50,
+          52,
+          50,
+          51
+        ],
+        "direct_bend": [
+          51,
+          52,
+          52,
+          51,
+          52,
+          52,
+          52,
+          53,
+          51,
+          52,
+          50,
+          52,
+          52,
+          51
+        ],
+        "base_list": [
+          211,
+          211,
+          209,
+          215,
+          216,
+          215,
+          215,
+          217,
+          216,
+          216,
+          216,
+          216,
+          213,
+          216
+        ]
+      },
+      "median_ms": {
+        "transducer": 51.0,
+        "direct_bend": 52.0,
+        "base_list": 215.5
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 0.9807692307692307,
+        "direct_bend": 1.0,
+        "base_list": 4.144230769230769
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.23665893271461716,
+        "direct_bend": 0.24129930394431554,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 2,
+      "repeats": 2097152,
+      "expected": 2903605448,
+      "samples_ms": {
+        "transducer": [
+          39,
+          39,
+          40,
+          39,
+          40,
+          39,
+          41,
+          39,
+          40,
+          39,
+          40,
+          40,
+          39,
+          40
+        ],
+        "direct_bend": [
+          40,
+          39,
+          40,
+          40,
+          39,
+          40,
+          40,
+          39,
+          39,
+          40,
+          40,
+          40,
+          39,
+          40
+        ],
+        "base_list": [
+          152,
+          154,
+          153,
+          155,
+          156,
+          153,
+          154,
+          154,
+          153,
+          154,
+          154,
+          154,
+          154,
+          154
+        ]
+      },
+      "median_ms": {
+        "transducer": 39.5,
+        "direct_bend": 40.0,
+        "base_list": 154.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 0.9875,
+        "direct_bend": 1.0,
+        "base_list": 3.85
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.2564935064935065,
+        "direct_bend": 0.2597402597402597,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 3,
+      "repeats": 1398101,
+      "expected": 1921673201,
+      "samples_ms": {
+        "transducer": [
+          35,
+          35,
+          35,
+          34,
+          35,
+          36,
+          34,
+          35,
+          35,
+          34,
+          35,
+          35,
+          34,
+          35
+        ],
+        "direct_bend": [
+          35,
+          35,
+          33,
+          32,
+          35,
+          35,
+          34,
+          34,
+          35,
+          35,
+          35,
+          35,
+          36,
+          35
+        ],
+        "base_list": [
+          130,
+          129,
+          131,
+          129,
+          130,
+          128,
+          129,
+          128,
+          129,
+          130,
+          131,
+          129,
+          130,
+          130
+        ]
+      },
+      "median_ms": {
+        "transducer": 35.0,
+        "direct_bend": 35.0,
+        "base_list": 129.5
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.7
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.2702702702702703,
+        "direct_bend": 0.2702702702702703,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 4,
+      "repeats": 1048576,
+      "expected": 1186142264,
+      "samples_ms": {
+        "transducer": [
+          32,
+          33,
+          32,
+          32,
+          31,
+          33,
+          34,
+          32,
+          33,
+          31,
+          30,
+          33,
+          33,
+          33
+        ],
+        "direct_bend": [
+          32,
+          33,
+          33,
+          33,
+          33,
+          31,
+          33,
+          33,
+          31,
+          30,
+          32,
+          33,
+          33,
+          31
+        ],
+        "base_list": [
+          119,
+          119,
+          119,
+          119,
+          118,
+          118,
+          119,
+          119,
+          119,
+          117,
+          118,
+          114,
+          114,
+          116
+        ]
+      },
+      "median_ms": {
+        "transducer": 32.5,
+        "direct_bend": 33.0,
+        "base_list": 118.5
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 0.9848484848484849,
+        "direct_bend": 1.0,
+        "base_list": 3.590909090909091
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.2742616033755274,
+        "direct_bend": 0.27848101265822783,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 5,
+      "repeats": 838860,
+      "expected": 4270933656,
+      "samples_ms": {
+        "transducer": [
+          36,
+          36,
+          35,
+          36,
+          36,
+          35,
+          36,
+          39,
+          38,
+          39,
+          38,
+          39,
+          38,
+          39
+        ],
+        "direct_bend": [
+          35,
+          36,
+          37,
+          38,
+          38,
+          39,
+          38,
+          39,
+          38,
+          38,
+          39,
+          39,
+          39,
+          38
+        ],
+        "base_list": [
+          112,
+          113,
+          113,
+          112,
+          103,
+          104,
+          104,
+          104,
+          104,
+          104,
+          108,
+          112,
+          112,
+          111
+        ]
+      },
+      "median_ms": {
+        "transducer": 37.0,
+        "direct_bend": 38.0,
+        "base_list": 109.5
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 0.9736842105263158,
+        "direct_bend": 1.0,
+        "base_list": 2.8815789473684212
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3378995433789954,
+        "direct_bend": 0.3470319634703196,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 6,
+      "repeats": 699050,
+      "expected": 469809942,
+      "samples_ms": {
+        "transducer": [
+          36,
+          36,
+          37,
+          36,
+          37,
+          37,
+          36,
+          36,
+          37,
+          36,
+          36,
+          38,
+          37,
+          36
+        ],
+        "direct_bend": [
+          36,
+          37,
+          36,
+          36,
+          36,
+          36,
+          37,
+          37,
+          36,
+          36,
+          37,
+          36,
+          37,
+          36
+        ],
+        "base_list": [
+          108,
+          107,
+          108,
+          108,
+          108,
+          107,
+          108,
+          107,
+          108,
+          101,
+          108,
+          108,
+          107,
+          108
+        ]
+      },
+      "median_ms": {
+        "transducer": 36.0,
+        "direct_bend": 36.0,
+        "base_list": 108.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.0
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3333333333333333,
+        "direct_bend": 0.3333333333333333,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 7,
+      "repeats": 599186,
+      "expected": 3007323925,
+      "samples_ms": {
+        "transducer": [
+          37,
+          35,
+          35,
+          36,
+          35,
+          35,
+          36,
+          35,
+          36,
+          36,
+          35,
+          35,
+          35,
+          36
+        ],
+        "direct_bend": [
+          36,
+          35,
+          35,
+          35,
+          35,
+          35,
+          36,
+          36,
+          35,
+          35,
+          36,
+          35,
+          36,
+          32
+        ],
+        "base_list": [
+          114,
+          115,
+          115,
+          114,
+          115,
+          115,
+          114,
+          111,
+          112,
+          115,
+          112,
+          108,
+          114,
+          113
+        ]
+      },
+      "median_ms": {
+        "transducer": 35.0,
+        "direct_bend": 35.0,
+        "base_list": 114.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.257142857142857
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.30701754385964913,
+        "direct_bend": 0.30701754385964913,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 8,
+      "repeats": 524288,
+      "expected": 1525915070,
+      "samples_ms": {
+        "transducer": [
+          35,
+          34,
+          35,
+          33,
+          35,
+          35,
+          35,
+          35,
+          34,
+          35,
+          33,
+          32,
+          32,
+          32
+        ],
+        "direct_bend": [
+          35,
+          35,
+          34,
+          35,
+          33,
+          35,
+          35,
+          35,
+          34,
+          34,
+          35,
+          35,
+          34,
+          35
+        ],
+        "base_list": [
+          119,
+          119,
+          114,
+          117,
+          119,
+          119,
+          117,
+          118,
+          120,
+          117,
+          119,
+          119,
+          119,
+          119
+        ]
+      },
+      "median_ms": {
+        "transducer": 34.5,
+        "direct_bend": 35.0,
+        "base_list": 119.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 0.9857142857142858,
+        "direct_bend": 1.0,
+        "base_list": 3.4
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.28991596638655465,
+        "direct_bend": 0.29411764705882354,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 9,
+      "repeats": 466033,
+      "expected": 3970724259,
+      "samples_ms": {
+        "transducer": [
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          32,
+          32,
+          33,
+          32,
+          32,
+          33,
+          32
+        ],
+        "direct_bend": [
+          30,
+          31,
+          33,
+          33,
+          32,
+          33,
+          31,
+          32,
+          33,
+          32,
+          32,
+          31,
+          33,
+          33
+        ],
+        "base_list": [
+          118,
+          118,
+          120,
+          119,
+          119,
+          117,
+          118,
+          116,
+          120,
+          119,
+          119,
+          119,
+          120,
+          119
+        ]
+      },
+      "median_ms": {
+        "transducer": 31.0,
+        "direct_bend": 32.0,
+        "base_list": 119.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 0.96875,
+        "direct_bend": 1.0,
+        "base_list": 3.71875
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.2605042016806723,
+        "direct_bend": 0.2689075630252101,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 10,
+      "repeats": 419430,
+      "expected": 2792043441,
+      "samples_ms": {
+        "transducer": [
+          31,
+          33,
+          34,
+          32,
+          32,
+          33,
+          34,
+          34,
+          31,
+          31,
+          33,
+          33,
+          33,
+          31
+        ],
+        "direct_bend": [
+          34,
+          34,
+          32,
+          33,
+          34,
+          33,
+          32,
+          32,
+          31,
+          33,
+          33,
+          34,
+          31,
+          31
+        ],
+        "base_list": [
+          118,
+          117,
+          118,
+          115,
+          117,
+          115,
+          119,
+          120,
+          114,
+          117,
+          115,
+          115,
+          115,
+          114
+        ]
+      },
+      "median_ms": {
+        "transducer": 33.0,
+        "direct_bend": 33.0,
+        "base_list": 116.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.515151515151515
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.28448275862068967,
+        "direct_bend": 0.28448275862068967,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 11,
+      "repeats": 381300,
+      "expected": 970186791,
+      "samples_ms": {
+        "transducer": [
+          35,
+          33,
+          32,
+          31,
+          34,
+          34,
+          34,
+          34,
+          34,
+          34,
+          34,
+          34,
+          34,
+          34
+        ],
+        "direct_bend": [
+          33,
+          34,
+          34,
+          33,
+          33,
+          33,
+          34,
+          34,
+          34,
+          33,
+          34,
+          35,
+          33,
+          35
+        ],
+        "base_list": [
+          120,
+          117,
+          117,
+          119,
+          118,
+          119,
+          119,
+          119,
+          119,
+          119,
+          118,
+          121,
+          119,
+          119
+        ]
+      },
+      "median_ms": {
+        "transducer": 34.0,
+        "direct_bend": 34.0,
+        "base_list": 119.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.5
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.2857142857142857,
+        "direct_bend": 0.2857142857142857,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 12,
+      "repeats": 349525,
+      "expected": 2128752366,
+      "samples_ms": {
+        "transducer": [
+          34,
+          35,
+          34,
+          33,
+          35,
+          33,
+          34,
+          34,
+          34,
+          34,
+          35,
+          33,
+          35,
+          34
+        ],
+        "direct_bend": [
+          35,
+          33,
+          35,
+          33,
+          35,
+          33,
+          35,
+          35,
+          34,
+          35,
+          33,
+          34,
+          35,
+          34
+        ],
+        "base_list": [
+          116,
+          118,
+          117,
+          117,
+          116,
+          117,
+          118,
+          117,
+          117,
+          118,
+          116,
+          118,
+          118,
+          117
+        ]
+      },
+      "median_ms": {
+        "transducer": 34.0,
+        "direct_bend": 34.5,
+        "base_list": 117.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 0.9855072463768116,
+        "direct_bend": 1.0,
+        "base_list": 3.391304347826087
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.2905982905982906,
+        "direct_bend": 0.2948717948717949,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 13,
+      "repeats": 322638,
+      "expected": 115144036,
+      "samples_ms": {
+        "transducer": [
+          35,
+          35,
+          37,
+          35,
+          36,
+          35,
+          35,
+          36,
+          35,
+          36,
+          36,
+          36,
+          36,
+          36
+        ],
+        "direct_bend": [
+          36,
+          35,
+          37,
+          35,
+          36,
+          35,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          35
+        ],
+        "base_list": [
+          118,
+          117,
+          116,
+          115,
+          115,
+          117,
+          117,
+          118,
+          117,
+          118,
+          118,
+          115,
+          118,
+          118
+        ]
+      },
+      "median_ms": {
+        "transducer": 36.0,
+        "direct_bend": 36.0,
+        "base_list": 117.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.25
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3076923076923077,
+        "direct_bend": 0.3076923076923077,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 14,
+      "repeats": 299593,
+      "expected": 1810906117,
+      "samples_ms": {
+        "transducer": [
+          35,
+          37,
+          35,
+          36,
+          36,
+          35,
+          37,
+          33,
+          33,
+          34,
+          33,
+          33,
+          34,
+          36
+        ],
+        "direct_bend": [
+          36,
+          36,
+          36,
+          37,
+          36,
+          36,
+          35,
+          33,
+          33,
+          34,
+          33,
+          33,
+          34,
+          33
+        ],
+        "base_list": [
+          119,
+          117,
+          114,
+          110,
+          110,
+          109,
+          110,
+          109,
+          110,
+          114,
+          119,
+          115,
+          109,
+          109
+        ]
+      },
+      "median_ms": {
+        "transducer": 35.0,
+        "direct_bend": 34.5,
+        "base_list": 110.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0144927536231885,
+        "direct_bend": 1.0,
+        "base_list": 3.1884057971014492
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3181818181818182,
+        "direct_bend": 0.31363636363636366,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 15,
+      "repeats": 279620,
+      "expected": 2161685920,
+      "samples_ms": {
+        "transducer": [
+          36,
+          36,
+          36,
+          36,
+          34,
+          37,
+          36,
+          36,
+          36,
+          36,
+          37,
+          36,
+          35,
+          36
+        ],
+        "direct_bend": [
+          35,
+          37,
+          37,
+          35,
+          37,
+          36,
+          36,
+          35,
+          36,
+          36,
+          36,
+          36,
+          35,
+          36
+        ],
+        "base_list": [
+          120,
+          120,
+          119,
+          119,
+          119,
+          118,
+          120,
+          120,
+          120,
+          120,
+          119,
+          118,
+          119,
+          120
+        ]
+      },
+      "median_ms": {
+        "transducer": 36.0,
+        "direct_bend": 36.0,
+        "base_list": 119.5
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.3194444444444446
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.301255230125523,
+        "direct_bend": 0.301255230125523,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 16,
+      "repeats": 262144,
+      "expected": 1083894773,
+      "samples_ms": {
+        "transducer": [
+          33,
+          34,
+          34,
+          33,
+          34,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          35,
+          36,
+          36
+        ],
+        "direct_bend": [
+          36,
+          38,
+          36,
+          35,
+          37,
+          36,
+          35,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36
+        ],
+        "base_list": [
+          121,
+          119,
+          122,
+          119,
+          120,
+          120,
+          120,
+          121,
+          121,
+          119,
+          120,
+          121,
+          120,
+          121
+        ]
+      },
+      "median_ms": {
+        "transducer": 36.0,
+        "direct_bend": 36.0,
+        "base_list": 120.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.3333333333333335
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3,
+        "direct_bend": 0.3,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 24,
+      "repeats": 174762,
+      "expected": 3437164549,
+      "samples_ms": {
+        "transducer": [
+          35,
+          36,
+          35,
+          37,
+          36,
+          35,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          35
+        ],
+        "direct_bend": [
+          38,
+          35,
+          37,
+          35,
+          35,
+          34,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          37,
+          35
+        ],
+        "base_list": [
+          113,
+          115,
+          113,
+          113,
+          113,
+          113,
+          113,
+          113,
+          113,
+          115,
+          113,
+          115,
+          114,
+          114
+        ]
+      },
+      "median_ms": {
+        "transducer": 36.0,
+        "direct_bend": 36.0,
+        "base_list": 113.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.138888888888889
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3185840707964602,
+        "direct_bend": 0.3185840707964602,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 32,
+      "repeats": 131072,
+      "expected": 579546892,
+      "samples_ms": {
+        "transducer": [
+          36,
+          35,
+          37,
+          36,
+          36,
+          37,
+          36,
+          36,
+          35,
+          36,
+          37,
+          36,
+          35,
+          37
+        ],
+        "direct_bend": [
+          36,
+          36,
+          36,
+          35,
+          37,
+          35,
+          36,
+          37,
+          36,
+          35,
+          37,
+          35,
+          36,
+          36
+        ],
+        "base_list": [
+          107,
+          110,
+          108,
+          109,
+          109,
+          109,
+          110,
+          109,
+          108,
+          110,
+          109,
+          109,
+          109,
+          110
+        ]
+      },
+      "median_ms": {
+        "transducer": 36.0,
+        "direct_bend": 36.0,
+        "base_list": 109.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 3.0277777777777777
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3302752293577982,
+        "direct_bend": 0.3302752293577982,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 48,
+      "repeats": 87381,
+      "expected": 1897664864,
+      "samples_ms": {
+        "transducer": [
+          34,
+          34,
+          35,
+          34,
+          34,
+          34,
+          34,
+          36,
+          35,
+          36,
+          38,
+          36,
+          34,
+          38
+        ],
+        "direct_bend": [
+          35,
+          35,
+          35,
+          34,
+          35,
+          34,
+          34,
+          35,
+          34,
+          34,
+          34,
+          35,
+          34,
+          34
+        ],
+        "base_list": [
+          98,
+          98,
+          98,
+          99,
+          98,
+          98,
+          98,
+          104,
+          100,
+          98,
+          98,
+          98,
+          98,
+          98
+        ]
+      },
+      "median_ms": {
+        "transducer": 34.5,
+        "direct_bend": 34.0,
+        "base_list": 98.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0147058823529411,
+        "direct_bend": 1.0,
+        "base_list": 2.8823529411764706
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3520408163265306,
+        "direct_bend": 0.3469387755102041,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 64,
+      "repeats": 65536,
+      "expected": 213330142,
+      "samples_ms": {
+        "transducer": [
+          37,
+          36,
+          37,
+          36,
+          37,
+          36,
+          37,
+          37,
+          36,
+          36,
+          37,
+          37,
+          36,
+          37
+        ],
+        "direct_bend": [
+          37,
+          36,
+          36,
+          37,
+          35,
+          37,
+          37,
+          36,
+          36,
+          37,
+          36,
+          36,
+          37,
+          36
+        ],
+        "base_list": [
+          103,
+          103,
+          102,
+          102,
+          102,
+          103,
+          103,
+          102,
+          103,
+          101,
+          102,
+          102,
+          101,
+          102
+        ]
+      },
+      "median_ms": {
+        "transducer": 37.0,
+        "direct_bend": 36.0,
+        "base_list": 102.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0277777777777777,
+        "direct_bend": 1.0,
+        "base_list": 2.8333333333333335
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3627450980392157,
+        "direct_bend": 0.35294117647058826,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 96,
+      "repeats": 43690,
+      "expected": 2647989384,
+      "samples_ms": {
+        "transducer": [
+          36,
+          36,
+          37,
+          36,
+          36,
+          37,
+          37,
+          36,
+          36,
+          37,
+          36,
+          36,
+          37,
+          35
+        ],
+        "direct_bend": [
+          37,
+          37,
+          37,
+          36,
+          37,
+          36,
+          37,
+          37,
+          37,
+          35,
+          37,
+          37,
+          36,
+          36
+        ],
+        "base_list": [
+          100,
+          99,
+          100,
+          99,
+          99,
+          99,
+          99,
+          97,
+          99,
+          99,
+          98,
+          96,
+          99,
+          98
+        ]
+      },
+      "median_ms": {
+        "transducer": 36.0,
+        "direct_bend": 37.0,
+        "base_list": 99.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 0.972972972972973,
+        "direct_bend": 1.0,
+        "base_list": 2.675675675675676
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.36363636363636365,
+        "direct_bend": 0.37373737373737376,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 128,
+      "repeats": 32768,
+      "expected": 97363542,
+      "samples_ms": {
+        "transducer": [
+          34,
+          36,
+          35,
+          34,
+          36,
+          34,
+          36,
+          35,
+          34,
+          35,
+          36,
+          34,
+          35,
+          33
+        ],
+        "direct_bend": [
+          35,
+          35,
+          35,
+          36,
+          35,
+          35,
+          36,
+          34,
+          35,
+          36,
+          34,
+          36,
+          34,
+          36
+        ],
+        "base_list": [
+          95,
+          97,
+          98,
+          98,
+          98,
+          97,
+          97,
+          98,
+          96,
+          97,
+          98,
+          96,
+          97,
+          98
+        ]
+      },
+      "median_ms": {
+        "transducer": 35.0,
+        "direct_bend": 35.0,
+        "base_list": 97.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 2.7714285714285714
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.36082474226804123,
+        "direct_bend": 0.36082474226804123,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 192,
+      "repeats": 21845,
+      "expected": 1456861853,
+      "samples_ms": {
+        "transducer": [
+          34,
+          34,
+          33,
+          34,
+          33,
+          33,
+          34,
+          33,
+          35,
+          34,
+          33,
+          33,
+          34,
+          34
+        ],
+        "direct_bend": [
+          34,
+          34,
+          34,
+          34,
+          34,
+          34,
+          34,
+          34,
+          34,
+          33,
+          33,
+          34,
+          34,
+          34
+        ],
+        "base_list": [
+          90,
+          92,
+          91,
+          90,
+          91,
+          91,
+          92,
+          91,
+          91,
+          91,
+          92,
+          92,
+          92,
+          91
+        ]
+      },
+      "median_ms": {
+        "transducer": 34.0,
+        "direct_bend": 34.0,
+        "base_list": 91.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 2.676470588235294
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.37362637362637363,
+        "direct_bend": 0.37362637362637363,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 256,
+      "repeats": 16384,
+      "expected": 73768885,
+      "samples_ms": {
+        "transducer": [
+          32,
+          30,
+          32,
+          32,
+          31,
+          32,
+          31,
+          31,
+          33,
+          31,
+          32,
+          30,
+          32,
+          32
+        ],
+        "direct_bend": [
+          32,
+          32,
+          31,
+          32,
+          32,
+          33,
+          31,
+          31,
+          32,
+          31,
+          31,
+          32,
+          31,
+          31
+        ],
+        "base_list": [
+          86,
+          84,
+          86,
+          85,
+          85,
+          86,
+          84,
+          85,
+          85,
+          85,
+          86,
+          88,
+          86,
+          86
+        ]
+      },
+      "median_ms": {
+        "transducer": 32.0,
+        "direct_bend": 31.5,
+        "base_list": 85.5
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0158730158730158,
+        "direct_bend": 1.0,
+        "base_list": 2.7142857142857144
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3742690058479532,
+        "direct_bend": 0.3684210526315789,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 512,
+      "repeats": 8192,
+      "expected": 516228373,
+      "samples_ms": {
+        "transducer": [
+          28,
+          29,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          27,
+          28,
+          29,
+          28,
+          28
+        ],
+        "direct_bend": [
+          29,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          29,
+          28,
+          28,
+          28,
+          29,
+          28
+        ],
+        "base_list": [
+          77,
+          78,
+          78,
+          79,
+          78,
+          79,
+          78,
+          73,
+          75,
+          74,
+          72,
+          73,
+          73,
+          72
+        ]
+      },
+      "median_ms": {
+        "transducer": 28.0,
+        "direct_bend": 28.0,
+        "base_list": 76.0
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.0,
+        "direct_bend": 1.0,
+        "base_list": 2.7142857142857144
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.3684210526315789,
+        "direct_bend": 0.3684210526315789,
+        "base_list": 1.0
+      }
+    },
+    {
+      "case": "filter",
+      "size": 1024,
+      "repeats": 4096,
+      "expected": 1112484700,
+      "samples_ms": {
+        "transducer": [
+          25,
+          24,
+          24,
+          27,
+          28,
+          28,
+          27,
+          27,
+          25,
+          27,
+          26,
+          27,
+          25,
+          27
+        ],
+        "direct_bend": [
+          24,
+          25,
+          25,
+          25,
+          24,
+          25,
+          24,
+          24,
+          24,
+          25,
+          23,
+          25,
+          24,
+          24
+        ],
+        "base_list": [
+          67,
+          66,
+          67,
+          65,
+          68,
+          67,
+          66,
+          66,
+          67,
+          66,
+          66,
+          66,
+          67,
+          67
+        ]
+      },
+      "median_ms": {
+        "transducer": 27.0,
+        "direct_bend": 24.0,
+        "base_list": 66.5
+      },
+      "ratio_to_direct_bend": {
+        "transducer": 1.125,
+        "direct_bend": 1.0,
+        "base_list": 2.7708333333333335
+      },
+      "ratio_to_base_list": {
+        "transducer": 0.40601503759398494,
+        "direct_bend": 0.3609022556390977,
+        "base_list": 1.0
+      }
+    }
+  ],
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-stateful-ph9vwmuv",
+  "program_sha256": {
+    "filter:transducer": "fb32c0d56c73d3f69a70ad46bdb4ce1a5e5bb130be5cda907d3b60ccf6cf4a3a",
+    "filter:direct_bend": "2312fdd0f8cf1c00bafbc8bd854d6ee11ef0ada4bffb8effd1237dcb6fc7bf6e",
+    "filter:base_list": "5293fa3bdf0b95e7f4d339d6b6b16ffee6ffeed835fb07844d04703aefa7f54c"
+  }
+}

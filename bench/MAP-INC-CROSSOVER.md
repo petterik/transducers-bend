@@ -75,7 +75,8 @@ general fix for this map case.
 The next useful small-list benchmark should add one stateful feature at a time
 (`filter`, `take`, then both) while retaining the accumulator-shaped direct Bend
 comparison. That will show exactly which control state causes the crossover and
-whether the compiler can lower that state into the same loop form.
+whether the compiler can lower that state into the same loop form. The completed
+measurements are in [STATEFUL-CROSSOVER.md](STATEFUL-CROSSOVER.md).
 
 ## Reproduction
 
