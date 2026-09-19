@@ -68,3 +68,26 @@ already meets direct Bend performance. Mixed-filter conditional updates remain w
 remaining cheap-range control/driver overhead needs separate attention to meet a target near the
 direct Bend result. The manually specialized prototype is not an automatic compiler optimization and is not
 installed in the public library. Do not ship it as a general solution based on these results alone.
+
+## Candidate-only parity audit (September 19, 2026)
+
+The current fusion work uses the isolated compiler prepared by
+`bench/compiler/prepare_guarded.py --loop`; the original sibling compiler is reserved
+for the final regression comparison. The runner now accepts `--artifact-dir`, so each
+case can be inspected without changing the timed program.
+
+In a five-sample candidate run on the same host, three maps were at parity within the
+timer resolution (transducers 14 ms, direct 15 ms). The mixed list case remained the
+important gap: transducers 48 ms versus the handwritten direct traversal 15 ms, while
+the manually specialized scalar prototype measured 18 ms. The early mixed case was
+closer (44 ms, 43.5 ms, and 45.5 ms respectively) but is dominated by owned-tail
+cleanup. These are diagnostic samples, not final acceptance evidence.
+
+The retained generated C explains the full mixed gap. The list driver is already one
+native loop, and Clang inlines the map/filter/take helpers. The generic transition still
+branches through the nested `Control`/`Taking` state for each item; the direct reference
+uses a scalar acceptance mask to update the accumulator and remaining count. The
+remaining work is therefore a typed transition/state representation or lowering change,
+not another source-specific driver and not a claim that the current product signal
+probe has fused. The next implementation must preserve all stop origins and completion
+states while exposing that scalar transition to the existing lowering.

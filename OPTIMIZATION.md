@@ -1,5 +1,18 @@
 # Optimization decision: confidence and priorities
 
+## Scope and strategy review
+
+The explicit target is **parity with equivalent handwritten fused Bend**.
+[The execution plan](FUSION-EXECUTION-PLAN.md) gives an ordered agent handoff,
+including the missing direct-Bend short-loop comparison and per-case gates.
+
+[Fusion direction](FUSION.md) records the September 19 clarification: immediate
+`transduce`, closed callbacks, and fusion before ergonomics. It separates static
+composition elimination, ownership/layout work and loop profitability, reviews
+their known loopholes, and defines the next diagnostic experiment.
+[Ergonomics notes](ERGONOMICS.md) preserve the deferred API ideas. The experimental
+short-loop promotion blocker below remains unresolved.
+
 ## Current milestone: automatic loop specialization
 
 [The bounded loop pass](bench/compiler/AUTO-LOOP.md) now discovers callers, derives

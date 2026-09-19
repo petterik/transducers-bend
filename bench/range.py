@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Focused sequential generated-range comparison, with independent output oracle."""
 import argparse
+import contextlib
 from collections import Counter
 import hashlib
 import json
@@ -19,6 +20,8 @@ p.add_argument('--samples', type=int, default=7)
 p.add_argument('--source', type=Path, default=ROOT / 'bench/range.bend',
                help='Benchmark definitions; defaults to the public pipeline')
 p.add_argument('--output', type=Path, help='Optional raw JSON report; otherwise print only')
+p.add_argument('--artifact-dir', type=Path,
+               help='Preserve generated Bend/C/JS/native artifacts in a new directory')
 p.add_argument('--cases', nargs='+', choices=['cheap_full', 'cheap_early', 'huge_early', 'expensive_early'],
                help='Run only these cases; default: all')
 p.add_argument('--threshold', type=int, default=1,
@@ -32,6 +35,9 @@ if a.samples < 1:
     p.error('samples must be positive')
 if not 0 <= a.threshold <= 4294967295:
     p.error('threshold must fit U32')
+if a.artifact_dir:
+    a.artifact_dir = a.artifact_dir.resolve()
+    a.artifact_dir.mkdir(parents=True, exist_ok=False)
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1', 'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 report = {'timing': 'IO.now milliseconds per batch; excludes process startup; one warmup per process',
           'scope': 'Sequential generated U32 ranges; CPU threads=1, GPU off; no prebuilt lists',
@@ -39,6 +45,7 @@ report = {'timing': 'IO.now milliseconds per batch; excludes process startup; on
           'compiler_sha256': hashlib.sha256((a.bend_main.resolve().parent / 'comp.ts').read_bytes()).hexdigest(),
           'benchmark_source_sha256': hashlib.sha256(a.source.read_bytes()).hexdigest(),
           'library_sha256': hashlib.sha256((ROOT / 'transduce.bend').read_bytes()).hexdigest(),
+          'artifacts': str(a.artifact_dir) if a.artifact_dir else None,
           'results': []}
 cases = [('cheap_full', 0, 2000000, 2000000, 0, 32),
          ('cheap_early', 0, 2000000, 32, 0, 1000000),
@@ -46,7 +53,9 @@ cases = [('cheap_full', 0, 2000000, 2000000, 0, 32),
          ('expensive_early', 0, 2000000, 32, 256, 1000)]
 if a.cases:
     cases = [case for case in cases if case[0] in a.cases]
-with tempfile.TemporaryDirectory(prefix='transduce-range-') as directory:
+directory_context = (contextlib.nullcontext(str(a.artifact_dir)) if a.artifact_dir
+                     else tempfile.TemporaryDirectory(prefix='transduce-range-'))
+with directory_context as directory:
     out = Path(directory).resolve()
     source = a.source.read_text().split('def main()')[0]
     source = source.replace('import ../transduce.bend as T',

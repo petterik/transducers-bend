@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Compare composed maps and filtering with handwritten and Base.List pipelines."""
 import argparse
+import contextlib
 import hashlib
 import json
 import os
@@ -14,11 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--samples', type=int, default=5)
 p.add_argument('--output', type=Path)
+p.add_argument('--artifact-dir', type=Path,
+               help='Preserve generated Bend/C/JS/native artifacts in a new directory')
 p.add_argument('--bend-main', type=Path, default=ROOT.parent / 'bend/bend2/main.ts')
 a = p.parse_args()
 if a.samples < 1:
     p.error('samples must be positive')
-out = Path(tempfile.mkdtemp(prefix='transduce-composition-')).resolve()
+a.artifact_dir = a.artifact_dir.resolve() if a.artifact_dir else None
+if a.artifact_dir:
+    a.artifact_dir.mkdir(parents=True, exist_ok=False)
+out = a.artifact_dir or Path(tempfile.mkdtemp(prefix='transduce-composition-')).resolve()
 print(out, flush=True)
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1', 'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 compiler = a.bend_main.resolve()

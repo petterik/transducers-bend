@@ -1,0 +1,153 @@
+# Fusion direction and confidence review
+
+**Clarified performance target:** transducers must be as fast as equivalent
+handwritten direct fused Bend. Removing abstractions or improving the baseline
+alone is insufficient. [The execution plan](FUSION-EXECUTION-PLAN.md) specifies
+the next steps, direct-reference measurement lanes and acceptance gates.
+
+This review records the September 19 scope clarification. Immediate `transduce`
+is the execution target. Clojure was an example of ergonomics, not a syntax or
+feature specification. Arbitrary runtime captures, eduction, lazy sequences and
+a generic `conj`/`into` interface are not goals. Ergonomics work is deferred;
+[its design notes](ERGONOMICS.md) preserve the useful directions.
+
+## Objective
+
+For a bounded, statically known pipeline, erase the composition machinery and
+produce a direct traversal that preserves the original computation. Closed
+callbacks and runtime scalar settings are sufficient for the initial target.
+Keep ownership local to execution; do not introduce a persistent pipeline object
+that retains the source. This is a compiler/library strategy, not a request to
+remove existing public operations or change their semantics.
+
+Statefulness and retaining elements are different. `take` retains a counter;
+reduction retains its accumulator. Neither requires buffering input elements.
+Keep these in the fusion target. Defer new element-buffering operations. Existing
+completion, stopping and ownership tests remain correctness constraints.
+
+Immediate execution does not itself create a borrowing interface. Existing
+drivers consume owned sources; early stopping can still require disposal of the
+unused tail. Borrowed traversal would need a separate supported ownership
+contract. It is not necessary to establish fusion, and is not proposed here.
+
+## What the evidence establishes
+
+| Layer | Evidence | Limit |
+| --- | --- | --- |
+| Streaming composition | map/filter/take feed the downstream reducer directly | Source/output storage and allocations inside callbacks remain |
+| Static description elimination | The compiler's bounded `static_fun`/`specialize` pass removes representative callback records | Richer compositions can retain records; fuel and supported expression forms limit specialization |
+| Map-chain fusion | Three U32 maps and one combined map have identical timed native assembly in [COMPOSITION](bench/COMPOSITION.md) | Not a theorem for arbitrary callbacks or arithmetic |
+| Scalar loop optimization | [AUTO-LOOP](bench/compiler/AUTO-LOOP.md) obtains near-handwritten measured full/early ranges | Isolated CPU experiment; [SHORT-LOOPS](bench/compiler/SHORT-LOOPS.md) finds substantial regressions for some small inputs |
+
+The [wordscan report](bench/wordscan/REPORT.md) records five residual static
+records in emitted JS. Their existence alone does not establish native hot-loop
+allocation or its cost. Conversely, passing the smaller array fixture does not
+establish description elimination for all array compositions.
+
+These are existing reports, reviewed alongside the current library and sibling
+compiler source. This review did not rerun their benchmarks or validation suites.
+
+## How ownership helps, and what must do the rest
+
+An affine value can be used at most once. Passing owned state from step to step
+prevents duplicating that state along the executed path. This supports direct
+state transfer and, when layout and escape conditions permit, storage reuse.
+It does not establish that a callback is statically known, that a value never
+escapes, that evaluation can be skipped, or that a branch is redundant.
+
+The sibling native compiler already tracks last uses and unused bindings and
+supports flat layouts (`bind_pop`, `bind_dead`, `val_to`). Investigate actual
+residual boxes/transfers before proposing a second ownership or layout system.
+For scalar state, eliminating a wrapper is preferable to allocating and reusing
+it. Ownership is valuable for boxed values too, but those require additional
+layout/lifetime analysis; the existing scalar experiment does not cover them.
+
+Use three separate mechanisms with separate obligations:
+
+1. **Resolve static code.** Reduce closed recipe construction and projections;
+   expose callbacks with bounded specialization. Bind dynamic arguments once.
+   Preserve strict evaluation even for arguments/fields whose values are unused.
+2. **Remove representational overhead.** Expose a bounded helper region and use
+   known layouts, ownership and data flow to eliminate temporary wrappers and
+   unnecessary transfers. Keep callback order and conditional execution intact.
+3. **Optimize the resulting control flow.** Simplify scalar transitions using
+   proved facts. Select a versioned loop only under a separately justified
+   profitability policy. This last step is not required to call stages fused.
+
+Do not start over: the current specializer and isolated typed loop pass implement
+parts of this path. Diagnose their boundaries and reuse their tests. Recognition
+must follow typed operations, bindings and control flow, not transducer names,
+fixed field positions, or guessed meanings of numeric tags.
+
+## Confidence review: counterexamples and obligations
+
+| Tempting assumption | Counterexample / loophole | Required handling |
+| --- | --- | --- |
+| Affine means safe to erase or inline everything | An unused argument can perform checked arithmetic and fail | Preserve call-by-value evaluation and failure order; use bound values when substituting |
+| Pure branches can both be evaluated | A rejected branch may overflow Nat or invoke a callback that should not run | Speculate only operations established safe in that context; otherwise keep the branch |
+| Zero count means stopped everywhere | Generic reducer states can contain Continue with zero; inner and outer tags differ | Preserve all valid states of shared helpers; use contextual facts only in scoped specializations |
+| A guard true at entry stays true | A continuing transition can change the guard's fields | Prove preservation using actual back-edge arguments, or refuse entry-only specialization |
+| One caller justifies changing its helper globally | Another caller can supply exceptional state | Keep generic helpers and isolate specialized clones/caches |
+| Removing calls proves good fusion | Wrapper allocation or repeated state packing can remain | Inspect generated native hot paths and measure allocation/transfer costs where relevant |
+| One traversal means allocation-free | mapcat callbacks may build fragments; collectors allocate output | Distinguish stage-boundary overhead from callback/source/output work; fragment deforestation is a later task |
+| Earlier stopping necessarily costs less | Owned-tail disposal can dominate | Compare equivalent ownership and cleanup; isolate generated-range step cost from prebuilt-source cost |
+| Long-loop wins justify default enablement | Independent short-loop cases already regress | Use the expanded short matrix and real call sites; do not add another threshold without evidence |
+| Smaller assembly identifies the cause | Known-state variants already differ in size and timing without residual helper calls | Reduce to a paired reproducer; change one lowering decision at a time |
+| Equal sums prove semantic equivalence | Reordering can preserve a checksum | Compare full state, ordered outputs and callback/failure traces, plus completion/initial stopping |
+| CPU evidence covers every backend | JS uses different representation; device compilation has different constraints | Keep experimental lowering CPU-scoped until backend-specific validation passes |
+
+The confidence skill's literal 100% target cannot be established by a finite
+review or test campaign. These are identified loopholes, not all possible bugs.
+Confidence should attach to a stated property and its evidence: source-level
+reasoning, bounded differential tests, typed preservation checks, or measured
+profitability. None alone proves the entire compiler correct or universally fast.
+
+## Priorities
+
+Effort means semantic complexity, maintenance, proof obligations and API impact,
+not lines of code or time spent learning the library.
+
+| Order / work | Impact | Effort | Value / decision |
+| --- | --- | --- | --- |
+| 1. Establish a small current fusion audit and reduce the known-state/dynamic-length regression | High: identifies which remaining cost is composition, representation or loop policy | Medium: controlled artifacts and backend diagnosis; no API change | Highest next investigation; extends the existing short-loop checkpoint |
+| 2. Fix the specific residual specialization/representation problem demonstrated by that audit | High: removes abstraction overhead without a pipeline-specific API | Medium–high: strictness, ownership and bounded compiler rewrites | Preferred implementation path; exact rewrite depends on diagnosis |
+| 3. Derive a narrow profitability policy for the existing proved loop specialization | High for demonstrated scalar loops | Medium–high: workload/backend sensitivity and code growth | Required before promotion; correctness and profitability are separate gates |
+| 4. Differential and negative checks at each changed compiler boundary | High: catches invalid skipping, duplication, state assumptions and fallback behavior | Medium; existing harnesses cover much of the contract | Required alongside 2 and 3, not a final optional phase |
+| 5. New boxed/fragment fusion, buffered stages or additional backends | Potentially high, beyond the current demonstrated need | High: escape/lifetime, producer and backend obligations | Defer until the small scalar target is reliable |
+| 6. Ergonomic transformation descriptions and composition | High usability, no established direct speed benefit | Medium: type packaging and staging design | Document now; implement later |
+| 7. New borrowed-source API, general inference, whole-program invariant inference, or pipeline-specific fast paths | Unproven incremental benefit to current fusion target | High semantic/API commitment | Not the next step |
+
+Items 1–3 are diagnostic branches, not a promise that every pass needs work. If
+the target already has no representation overhead, proceed directly to the
+remaining control-flow issue. If a record survives only outside the hot path,
+do not assume eliminating it will solve the timing regression.
+
+## Concrete next experiment and completion criteria
+
+Keep the public API and sibling production compiler unchanged during diagnosis.
+Use the original compiler plus the existing isolated loop compiler, with source,
+compiler and toolchain identities recorded. Regenerate missing temporary artifacts.
+
+- Retain map-chain assembly parity as a control.
+- Reduce one known-state/dynamic-length regression from the independent short
+  matrix. Compare original and specialized native code with identical callbacks,
+  inputs, cleanup and checked outputs. Diagnose guard/clone boundaries, state
+  transfers, inlining and backend loop transformations without presuming a cause.
+- Include one type-changing map/filter/take pipeline and a richer composition
+  with documented residual descriptions. Trace retained machinery to execution
+  frequency; JS constructor counts alone are not native allocation evidence.
+- Choose one targeted correction from the diagnosis. Keep work/clone limits and
+  unchanged fallback behavior for unsupported cases. Avoid wholesale new passes
+  and generated-C name recognition as production implementation.
+- Validate the affected rewrite against the original implementation using full
+  states, callback/failure order, zero/one/max counters, stopping and shared-callee
+  negative cases. Preserve ownership rejection and existing lifecycle behavior.
+- Benchmark paired full/early/predictable/mixed/short/known-state cases sequentially;
+  report noise and absolute as well as relative costs. Check code growth and
+  compile cost. Complete relevant compiler gates before any production promotion.
+
+Explaining a cost or finding a justified refusal policy completes only a diagnostic
+step. The performance task requires parity with equivalent handwritten fused Bend
+across the validated scope. If fallback remains slower than direct Bend, that case
+remains open. Unresolved regressions leave aggressive loop optimization experimental;
+they do not invalidate already demonstrated fusion.
