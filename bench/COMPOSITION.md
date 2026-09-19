@@ -7,7 +7,12 @@ after warmup, in forward and reverse variant order. Checksums are independently 
 All cases use 32 reductions of freshly constructed ascending 200,000-element U32 lists,
 including construction and cleanup. These are sequential CPU measurements, not parallel/GPU results.
 
-| Workload | Transducers | Scalar prototype | Handwritten | Ordinary list pipeline |
+Here, **Handwritten** means a user-authored direct Bend traversal compiled to native C by the
+same sibling compiler. **Ordinary list pipeline** means calls to core `Base.List` operations.
+The emitted C is compiler output for every variant; this benchmark has no manually written C
+baseline.
+
+| Workload | Transducers | Scalar prototype | Direct Bend | Core `Base.List` pipeline |
 | --- | ---: | ---: | ---: | ---: |
 | map +1, map +2, map +3, sum | 13 ms | single-map +6: 13 ms | 13 ms | 118 ms |
 | cheap map/filter/take-all/sum | 10.5 ms | 11 ms | 10 ms | 118 ms |
@@ -54,12 +59,12 @@ The original state representation, initializer, completion and driver remain int
 transition tests include continuing-zero and stopped-inner states.
 
 [Mixed generated-range measurements](scalar-select-mixed-results.json): 108 vs 95 ms full,
-114 vs 103 ms early, prototype vs handwritten. [Simple range measurements](scalar-select-default-results.json)
+114 vs 103 ms early, prototype vs direct Bend. [Simple range measurements](scalar-select-default-results.json)
 still show 51.5 vs 35 ms full and 26 vs 19 ms early; expensive early is 11 vs 11 ms.
 The simple-case prototype is approximately unchanged from the existing implementation, not at parity.
 
 Thus ordinary list pipelines are already substantially slower in these cases, and pure map composition
-already meets handwritten performance. Mixed-filter conditional updates remain worthwhile, but the
-remaining cheap-range control/driver overhead needs separate attention to meet a near-handwritten
-target. The manually specialized prototype is not an automatic compiler optimization and is not
+already meets direct Bend performance. Mixed-filter conditional updates remain worthwhile, but the
+remaining cheap-range control/driver overhead needs separate attention to meet a target near the
+direct Bend result. The manually specialized prototype is not an automatic compiler optimization and is not
 installed in the public library. Do not ship it as a general solution based on these results alone.

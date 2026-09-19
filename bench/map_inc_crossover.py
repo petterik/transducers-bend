@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Find the list-size crossover for transducer map(inc) versus collection loops."""
+"""Find the list-size crossover for transducer map(inc) versus Bend baselines."""
 import argparse
 import hashlib
 import json
@@ -195,7 +195,7 @@ def main():
     parser.add_argument("--mode", choices=["list", "sum"], default="list",
                         help="Map to a list, or map then reduce to a scalar")
     parser.add_argument("--list-accumulator", action="store_true",
-                        help="Include an accumulator-and-reverse handwritten list map")
+                        help="Include an accumulator-and-reverse direct Bend list map")
     parser.add_argument("--target-calls", type=int, default=1 << 20,
                         help="Approximate input elements per timed sample")
     parser.add_argument("--sizes", type=parse_sizes,
@@ -211,6 +211,15 @@ def main():
         "scope": "Sequential dynamic U32 lists; map inc benchmark; input construction and checksum included",
         "mode": args.mode,
         "timing": "IO.now milliseconds inside persistent native process; one warmup; alternating variant order",
+        "variant_language": "All variants are Bend source compiled to native C by the same sibling compiler",
+        "manual_c_baseline": False,
+        "ratio_to_handwritten_meaning": "Legacy field name; ratio to the direct Bend recursive comparator, not List.map or manual C",
+        "variant_descriptions": {
+            "transducer": "Public transducer composition in transduce.bend",
+            "handwritten": "User-authored direct Bend recursive comparator (legacy report key)",
+            "handwritten_accumulator": "User-authored direct Bend accumulator-and-reverse comparator (legacy report key)",
+            "base_list": "Core Base.List.map/List.foldl comparator",
+        },
         "platform": platform.platform(),
         "compiler": str(compiler),
         "compiler_sha256": hashlib.sha256((compiler.parent / "comp.ts").read_bytes()).hexdigest(),

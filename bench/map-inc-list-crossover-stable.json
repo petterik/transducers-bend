@@ -2,6 +2,15 @@
   "scope": "Sequential dynamic U32 lists; map inc benchmark; input construction and checksum included",
   "mode": "list",
   "timing": "IO.now milliseconds inside persistent native process; one warmup; alternating variant order",
+  "variant_language": "All variants are Bend source compiled to native C by the same sibling compiler",
+  "manual_c_baseline": false,
+  "ratio_to_handwritten_meaning": "Legacy field name; ratio to the direct Bend recursive comparator, not List.map or manual C",
+  "variant_descriptions": {
+    "transducer": "Public transducer composition in transduce.bend",
+    "handwritten": "User-authored direct Bend recursive comparator (legacy report key)",
+    "handwritten_accumulator": "User-authored direct Bend accumulator-and-reverse comparator (legacy report key)",
+    "base_list": "Core Base.List.map/List.foldl comparator"
+  },
   "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
   "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
   "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
