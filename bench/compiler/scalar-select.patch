@@ -1,0 +1,46 @@
+--- a/comp.ts
++++ b/comp.ts
+@@ -5,6 +5,7 @@
+ import * as fs from "node:fs";
+ 
+ import * as Bend from "./bend.ts";
++import { scalarSelect } from "./scalar_select.ts";
+ 
+ // Comp
+ // ====
+@@ -2804,7 +2805,34 @@
+   if (arms2.length === 1 || total === 1) {
+     return arms2[0]();
+   }
+-  emit_chain(fl, (i) => lv[i][0], arms2);
++  const start = fl.seg.lines.length;
++  const inputs = new Set<string>();
++  const allow = (v: Val) => v.ws.forEach((w, i) => {
++    if (v.lay.ks[i] !== "box" && /^[A-Za-z_]\w*$/.test(w)) inputs.add(w);
++  });
++  fl.uses.forEach(b => allow(b.val));
++  [s, ...rest].forEach(allow);
++  const regions: string[][] = [];
++  emit_chain(fl, (i) => lv[i][0], arms2.map(body => () => {
++    const at = fl.seg.lines.length;
++    body();
++    regions.push(fl.seg.lines.slice(at));
++  }));
++  // Only Boolean choices; Nat/count guards and unsupported regions remain.
++  const target = dst?.lay ?? fl.seg.ret;
++  if (adt.k === "Bool" && regions.length === 2 && !target.ks.includes("box")) {
++    const outs = dst?.ws ?? target.ks.map((_, i) => `r${i}`);
++    const tail = `WL_RETN(${outs.length});`;
++    const bodies = regions.map(lines => dst === null && lines.at(-1)?.trim() === tail
++      ? lines.slice(0, -1) : lines);
++    const selected = scalarSelect(bodies, inputs, outs, lv[0][0]);
++    if (selected !== null && (dst !== null || regions.every(ls => ls.at(-1)?.trim() === tail))) {
++      fl.seg.lines.splice(start);
++      file_push(fl, "/* scalar_select: total unboxed Boolean arms */");
++      selected.forEach(line => file_push(fl, line));
++      if (dst === null) file_push(fl, tail);
++    }
++  }
+ }
+ 
+ function emit_stuck(fl: File): void {

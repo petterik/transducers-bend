@@ -1,5 +1,16 @@
 # Optimization decision: confidence and priorities
 
+## Latest evidence: controlled generated-C ablations
+
+[The ablation study](bench/compiler/ABLATION.md) now demonstrates a near-handwritten
+code shape on mixed and predictable full/early ranges. The winning combination is
+guarded scalar updates, a stop tag derived from the updated count, an original-helper
+cold fallback, and explicit preservation of unchanged fields across that fallback.
+Unlike the previous emitted-C selection pass, this targets the actual hot transition.
+It is still a program-specific experiment, not an automatic optimization. This is
+the current implementation target; the older ranking and prototype results below
+are retained as the investigation history.
+
 The Source API is not the demonstrated performance problem; [historical comparisons](bench/API-REGRESSION.md) show identical old/new timed mixed-list assembly. The opportunity is to lower a known scalar transition into conditional updates without speculating arbitrary callbacks or assuming a relationship between generic Control and numeric fields.
 
 ## Candidate established by experiment
@@ -30,6 +41,13 @@ python3 tests/run.py
 ```
 
 ## Priority ranking
+
+An initial [automatic compiler experiment](bench/compiler/README.md) now implements
+a bounded selection rule for straight-line scalar Boolean arms. It fires in a
+code-generation test and passes the 16-file suite, but does not improve the hot
+generic filtering pipeline: helper calls and nested guarded arithmetic are still
+outside its accepted region. Scoped helper-body exposure remains required; this
+first pass is not the completed optimization and is not installed in the sibling fork.
 
 The [composition and ordinary-list comparison](bench/COMPOSITION.md) sharpens the acceptance
 criteria: pure map composition already matches handwritten code, with identical timed assembly

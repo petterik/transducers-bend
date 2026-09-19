@@ -1,0 +1,308 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-ablation-gotz67y9",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "scope": "Program-specific C replacement of filter/take/sum helper; source, mapping, predicate and driver unchanged; runtime threshold; 32 x 2M inputs; sequential CPU",
+  "results": [
+    {
+      "case": "mixed",
+      "expected": 3358576704,
+      "samples_ms": {
+        "original": [
+          327,
+          339,
+          329,
+          331,
+          330,
+          329,
+          330,
+          326,
+          324,
+          325
+        ],
+        "direct": [
+          97,
+          95,
+          97,
+          93,
+          93,
+          95,
+          96,
+          96,
+          96,
+          96
+        ],
+        "flat_branch": [
+          341,
+          331,
+          330,
+          329,
+          328,
+          340,
+          339,
+          339,
+          338,
+          342
+        ],
+        "select_all": [
+          115,
+          116,
+          115,
+          112,
+          114,
+          112,
+          115,
+          115,
+          115,
+          113
+        ],
+        "guarded_select": [
+          114,
+          115,
+          112,
+          114,
+          115,
+          114,
+          114,
+          114,
+          114,
+          114
+        ],
+        "guarded_branch": [
+          115,
+          113,
+          115,
+          112,
+          115,
+          114,
+          115,
+          113,
+          112,
+          114
+        ],
+        "guarded_nexttag": [
+          102,
+          104,
+          105,
+          101,
+          104,
+          104,
+          103,
+          103,
+          103,
+          103
+        ],
+        "guarded_likely": [
+          104,
+          105,
+          103,
+          103,
+          103,
+          104,
+          104,
+          103,
+          105,
+          102
+        ],
+        "guarded_cold": [
+          100,
+          99,
+          99,
+          99,
+          97,
+          99,
+          99,
+          99,
+          99,
+          99
+        ],
+        "guarded_cold_invariants": [
+          97,
+          95,
+          97,
+          95,
+          95,
+          98,
+          95,
+          96,
+          97,
+          97
+        ]
+      },
+      "c_sha256": {
+        "original": "a758e3545f299c97be992f245018981aa543babd46bacfa0663d1649cbc216b3",
+        "direct": "db71f3dfdc7156dfb1a241487d650e91857201e17d6c86e7c309ed96ce426548",
+        "flat_branch": "066fb6e886a5e739919f632becdc68ff6cb7990a7999e45ccf7c04bac1bf7e42",
+        "select_all": "a6eaef97f4fa99f662eaf0bfcba1221e299b2968724bdf638454cf814e71999c",
+        "guarded_select": "1ea0c8d1a3be38d89f29304e57054b4f2130f8808ab105adea1e7c9272fff93f",
+        "guarded_branch": "558c6d9524424e4deebf44a5a9676edc8f30c24a84a18dedbc459633f3283821",
+        "guarded_nexttag": "ba1f3f9d70eb2426dd9bb51d2b46457729226fccb7441b286fef3bc99ca12d4e",
+        "guarded_likely": "4c159a7e8c07f45de1529710734aee2da25a2477945a3fb25130c0ffeb92f591",
+        "guarded_cold": "f888e5bca0f2d3d26097f08f5862699a7d6cfa2b837f20e171d0182acfd03045",
+        "guarded_cold_invariants": "555a2399d90bd4637ca2aba25125339acf243a05f8134d0c2c09bce2c6f50027"
+      },
+      "median_ms": {
+        "original": 329.0,
+        "direct": 96.0,
+        "flat_branch": 338.5,
+        "select_all": 115.0,
+        "guarded_select": 114.0,
+        "guarded_branch": 114.0,
+        "guarded_nexttag": 103.0,
+        "guarded_likely": 103.5,
+        "guarded_cold": 99.0,
+        "guarded_cold_invariants": 96.5
+      }
+    },
+    {
+      "case": "simple",
+      "expected": 724846560,
+      "samples_ms": {
+        "original": [
+          50,
+          50,
+          51,
+          52,
+          48,
+          51,
+          51,
+          52,
+          51,
+          51
+        ],
+        "direct": [
+          34,
+          35,
+          34,
+          34,
+          35,
+          35,
+          35,
+          35,
+          34,
+          35
+        ],
+        "flat_branch": [
+          73,
+          73,
+          73,
+          74,
+          73,
+          74,
+          74,
+          78,
+          75,
+          74
+        ],
+        "select_all": [
+          72,
+          72,
+          72,
+          72,
+          73,
+          72,
+          72,
+          72,
+          70,
+          72
+        ],
+        "guarded_select": [
+          63,
+          63,
+          63,
+          63,
+          63,
+          63,
+          63,
+          63,
+          63,
+          63
+        ],
+        "guarded_branch": [
+          83,
+          82,
+          82,
+          82,
+          83,
+          83,
+          82,
+          82,
+          82,
+          82
+        ],
+        "guarded_nexttag": [
+          51,
+          52,
+          51,
+          51,
+          51,
+          50,
+          51,
+          51,
+          51,
+          50
+        ],
+        "guarded_likely": [
+          51,
+          51,
+          51,
+          51,
+          51,
+          51,
+          50,
+          51,
+          51,
+          52
+        ],
+        "guarded_cold": [
+          45,
+          43,
+          44,
+          44,
+          44,
+          44,
+          44,
+          44,
+          43,
+          44
+        ],
+        "guarded_cold_invariants": [
+          36,
+          37,
+          36,
+          38,
+          36,
+          36,
+          37,
+          36,
+          37,
+          36
+        ]
+      },
+      "c_sha256": {
+        "original": "ff02a87f766a42469764a06931b869ffc3bac714fec3ca7fcbf2358469b0e5d4",
+        "direct": "7de4aed559835d79eaaf62b43c19548282a3c687d889e71893b8c11188c769db",
+        "flat_branch": "2caaf3079a54a155c0eacc3274346e6e98d6950406f712ffcd59993e00e7c7f8",
+        "select_all": "68489744124f3739cd6829d5a1017cfd20431a4b602761be3eccc0fab87bb7b0",
+        "guarded_select": "302e3989bb3d6c2fe9c4198383a1a1fd8c6e3ec2c9f6dffef4d34f24e9944b0a",
+        "guarded_branch": "8d4edfde0395e30e3b15f929c94b9fd919ec6b6001b007abd790b55c400c3673",
+        "guarded_nexttag": "9c5eef2cce5914d04ea916f07335959238cda17db2c8b3badb3cedd360410224",
+        "guarded_likely": "d1be8e027b9a206bbc97d28bfec6d5470fea2d6ed4b27cc831163ee200e5a427",
+        "guarded_cold": "1b66d31f389079ed8eaf97551d9a25e4366d5171221e62b1b9092cf38639d0ed",
+        "guarded_cold_invariants": "daced764e0f802cd34c40ea6a8768039e98c9115a4e212e312b4049efef96521"
+      },
+      "median_ms": {
+        "original": 51.0,
+        "direct": 35.0,
+        "flat_branch": 74.0,
+        "select_all": 72.0,
+        "guarded_select": 63.0,
+        "guarded_branch": 82.0,
+        "guarded_nexttag": 51.0,
+        "guarded_likely": 51.0,
+        "guarded_cold": 44.0,
+        "guarded_cold_invariants": 36.0
+      }
+    }
+  ]
+}

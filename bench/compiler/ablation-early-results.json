@@ -1,0 +1,139 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-ablation-t98z9fr3",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "scope": "Program-specific C replacement of filter/take/sum helper; source, mapping, predicate and driver unchanged; runtime threshold; sequential CPU",
+  "timing": "IO.now milliseconds; one warmup per process; two reversed-order rounds",
+  "early": true,
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a",
+  "results": [
+    {
+      "case": "mixed_early",
+      "expected": 1349515560,
+      "samples_ms": {
+        "original": [
+          141,
+          138,
+          139,
+          140,
+          137,
+          137,
+          141,
+          138,
+          139,
+          141,
+          140,
+          141,
+          142,
+          139
+        ],
+        "direct": [
+          104,
+          105,
+          104,
+          105,
+          105,
+          102,
+          106,
+          104,
+          104,
+          105,
+          106,
+          105,
+          106,
+          104
+        ],
+        "guarded_cold_invariants": [
+          104,
+          104,
+          104,
+          106,
+          106,
+          106,
+          105,
+          106,
+          106,
+          107,
+          105,
+          104,
+          104,
+          106
+        ]
+      },
+      "c_sha256": {
+        "original": "9a92b4fa6df9e593d1b3682bd38eec280d203df958490464fcc19df56136b9b9",
+        "direct": "1331be524598f6c874e2498992b4505a6d42ae2ca2b222e1751f547074f6ff39",
+        "guarded_cold_invariants": "26b1921f7b461c1bdc11933565eef68817e79bfa56572fa422b8b8a98f7ccd85"
+      },
+      "median_ms": {
+        "original": 139.5,
+        "direct": 105.0,
+        "guarded_cold_invariants": 105.5
+      }
+    },
+    {
+      "case": "simple_early",
+      "expected": 819314240,
+      "samples_ms": {
+        "original": [
+          24,
+          26,
+          26,
+          26,
+          26,
+          26,
+          27,
+          25,
+          24,
+          25,
+          26,
+          26,
+          25,
+          26
+        ],
+        "direct": [
+          17,
+          18,
+          17,
+          18,
+          17,
+          17,
+          18,
+          17,
+          18,
+          17,
+          18,
+          18,
+          17,
+          17
+        ],
+        "guarded_cold_invariants": [
+          18,
+          18,
+          19,
+          18,
+          19,
+          18,
+          18,
+          19,
+          18,
+          19,
+          18,
+          19,
+          18,
+          19
+        ]
+      },
+      "c_sha256": {
+        "original": "3ea1edd55b84227e7fa9f25bfcae99f1791def13557dfc8250d4ee471ea35570",
+        "direct": "a206f80b1380f1d4ab71025ccbb8335d60809f7ed9e07c92907eb2d2d875407e",
+        "guarded_cold_invariants": "3c57653d253a5efe8e218680355393cfa2f48ee59b1f8341610c2761b4b9c882"
+      },
+      "median_ms": {
+        "original": 26.0,
+        "direct": 17.0,
+        "guarded_cold_invariants": 18.0
+      }
+    }
+  ]
+}
