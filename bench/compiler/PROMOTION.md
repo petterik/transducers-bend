@@ -1,5 +1,9 @@
 # Promotion review: outlining profitability remains unresolved
 
+**Follow-up:** [confidence review and priorities](STRATEGY.md) tests loop-entry
+versioning and loop bailout, including local induction checks and counterexamples.
+It narrows the next implementation target without claiming production readiness.
+
 The automatic scalar transformation from commit `a8d62f5` passed broader local
 correctness and compatibility checks. **Do not default-enable this compiler pass
 on that evidence alone:** new measurements demonstrate a cost when valid zero or

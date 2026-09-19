@@ -1,0 +1,174 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-ablation-ktpfxq6o",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "scope": "Automatic typed scalar specialization of unchanged public pipeline; original/direct controls; loop_version and loop_bailout are program-specific caller-cloning diagnostics, not automatic compiler passes",
+  "timing": "IO.now milliseconds; one warmup per process; two reversed-order rounds",
+  "early": false,
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a",
+  "results": [
+    {
+      "case": "mixed",
+      "expected": 3358576704,
+      "samples_ms": {
+        "original": [
+          320,
+          319,
+          320,
+          319,
+          321,
+          319,
+          319,
+          321,
+          326,
+          323
+        ],
+        "direct": [
+          88,
+          90,
+          88,
+          88,
+          88,
+          88,
+          89,
+          88,
+          88,
+          88
+        ],
+        "automatic": [
+          89,
+          91,
+          89,
+          89,
+          89,
+          89,
+          89,
+          89,
+          89,
+          89
+        ],
+        "loop_version": [
+          85,
+          85,
+          85,
+          85,
+          85,
+          84,
+          85,
+          85,
+          85,
+          85
+        ],
+        "loop_bailout": [
+          88,
+          87,
+          87,
+          88,
+          87,
+          87,
+          87,
+          87,
+          87,
+          88
+        ]
+      },
+      "c_sha256": {
+        "original": "9da631691c33481e87ad8efd705429d519dcdf0a4d8b87a76f13b79871d9a8d8",
+        "direct": "3a75c005f0ccf3385dd3134a1f0893515c627633f261e32344799f882bb4070a",
+        "automatic": "bbd9a48f4d7f9cfba46d7d0fb1155e2613bc1610464a2a01f6cf500b6d3bb413",
+        "loop_version": "e0a6b46c9a0d817f83f5fb45b3c38ed11c277f82eba34a44460b975a1e44f820",
+        "loop_bailout": "6760705b882feb8bb234a3b07e2a37c358b86f730dd4ade4cbcbcc2722770deb"
+      },
+      "median_ms": {
+        "original": 320.0,
+        "direct": 88.0,
+        "automatic": 89.0,
+        "loop_version": 85.0,
+        "loop_bailout": 87.0
+      }
+    },
+    {
+      "case": "simple",
+      "expected": 724846560,
+      "samples_ms": {
+        "original": [
+          49,
+          47,
+          49,
+          47,
+          48,
+          47,
+          48,
+          47,
+          48,
+          47
+        ],
+        "direct": [
+          36,
+          32,
+          34,
+          33,
+          33,
+          32,
+          32,
+          33,
+          33,
+          33
+        ],
+        "automatic": [
+          37,
+          34,
+          35,
+          34,
+          35,
+          34,
+          34,
+          34,
+          35,
+          35
+        ],
+        "loop_version": [
+          32,
+          30,
+          30,
+          30,
+          30,
+          29,
+          30,
+          30,
+          30,
+          31
+        ],
+        "loop_bailout": [
+          36,
+          32,
+          33,
+          33,
+          32,
+          32,
+          33,
+          33,
+          33,
+          34
+        ]
+      },
+      "c_sha256": {
+        "original": "4ceaff3e2c68b340a1e50e77894ba225f67c7816b43fa36fe185f50eaf855e40",
+        "direct": "8f2883c7cb0c57f8276930f143a98661340458e1aa0568b4c3881e92277bee70",
+        "automatic": "c6dab174315c450bac48550922c4d4f1c01ec692bbab494e758c00344c3a0363",
+        "loop_version": "06661a223154aed71fd178933c9fb8d3f12b67b2d6482062f22d1839d2e456ea",
+        "loop_bailout": "07c93b4a9563fc1f401553ea2b97e9dfb0eeab33512a23c32416cd72179107e2"
+      },
+      "median_ms": {
+        "original": 47.5,
+        "direct": 33.0,
+        "automatic": 34.5,
+        "loop_version": 30.0,
+        "loop_bailout": 33.0
+      }
+    }
+  ],
+  "automatic_compiler_sha256": "8946e8843af976ffef45acd166696e2684a2da895025c7d2ca07848191883200",
+  "linkage_ablation": false,
+  "program_specific_loop_version": true
+}

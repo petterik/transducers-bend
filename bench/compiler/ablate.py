@@ -19,9 +19,11 @@ p.add_argument('--early', action='store_true', help='Take 32 with varying source
 p.add_argument('--variants', nargs='+', help='Candidate names; original and direct always included')
 p.add_argument('--automatic-compiler', type=Path,
                help='Compile the unchanged pipeline with an isolated automatic pass instead of C replacement')
+p.add_argument('--loop-version', action='store_true', help='Program-specific loop-entry versioning diagnostic; requires automatic compiler')
 p.add_argument('--linkage-ablation', action='store_true', help='With automatic compiler, compare noinline-only/inline fallback declarations in generated C')
 a = p.parse_args()
 assert a.samples > 0
+assert not a.loop_version or a.automatic_compiler, '--loop-version requires --automatic-compiler'
 assert not a.linkage_ablation or a.automatic_compiler, '--linkage-ablation requires --automatic-compiler'
 out = Path(tempfile.mkdtemp(prefix='bend-ablation-')).resolve()
 print(out, flush=True)
@@ -43,6 +45,9 @@ if a.automatic_compiler:
     report['scope'] = 'Automatic typed scalar specialization of unchanged public pipeline; original/direct controls'
     report['automatic_compiler_sha256'] = hashlib.sha256((a.automatic_compiler.parent/'comp.ts').read_bytes()).hexdigest()
     report['linkage_ablation'] = a.linkage_ablation
+    report['program_specific_loop_version'] = a.loop_version
+    if a.loop_version:
+        report['scope'] += '; loop_version and loop_bailout are program-specific caller-cloning diagnostics, not automatic compiler passes'
 for mixed in [True, False]:
     label = ('mixed' if mixed else 'simple') + ('_early' if a.early else '')
     take, repeats = (32, 1000000) if a.early else (2000000, 32)
@@ -171,6 +176,10 @@ int main(void) {
             command(['clang', '-std=c11', '-O1', '-fsanitize=undefined', '-fno-sanitize-recover=all',
                      str(check.with_suffix('.c')), '-lpthread', '-lm', '-o', str(check)+'-ubsan'])
             assert command([str(check)+'-ubsan']).strip() == 'PASS 200000 full-state comparisons'
+    if a.loop_version:
+        from loop_version import version_range
+        codes['loop_version'] = version_range(c, automatic)
+        codes['loop_bailout'] = version_range(c, automatic, bailout=True)
     expected = 0
     offsets = Counter(i & 65535 for i in range(repeats)) if a.early else {0: repeats}
     for offset, multiplicity in offsets.items():

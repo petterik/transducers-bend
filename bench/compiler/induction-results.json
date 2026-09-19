@@ -1,0 +1,1134 @@
+{
+  "scope": "typed scalar-path induction with manually supplied caller feedback and continuation tag; not automatic caller analysis",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-induction-pw7bpcz6",
+  "cases": [
+    {
+      "case": "public_pipeline",
+      "callee": "../transduce.filter_choose~0",
+      "continuing_output": {
+        "index": 0,
+        "value": 0
+      },
+      "evidence": [
+        {
+          "applicable": true,
+          "outputs": [
+            {
+              "a": [],
+              "n": 0,
+              "op": "lit"
+            },
+            {
+              "a": [],
+              "id": 1,
+              "op": "var"
+            },
+            {
+              "a": [],
+              "id": 2,
+              "op": "var"
+            },
+            {
+              "a": [],
+              "id": 3,
+              "op": "var"
+            },
+            {
+              "a": [],
+              "id": 4,
+              "op": "var"
+            }
+          ],
+          "path": [
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 0,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              true
+            ]
+          ],
+          "proved": true,
+          "results": [
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 2,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            },
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 3,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 1,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            }
+          ]
+        },
+        {
+          "applicable": false
+        },
+        {
+          "applicable": false
+        },
+        {
+          "applicable": false
+        },
+        {
+          "applicable": true,
+          "outputs": [
+            {
+              "a": [],
+              "n": 0,
+              "op": "lit"
+            },
+            {
+              "a": [],
+              "id": 1,
+              "op": "var"
+            },
+            {
+              "a": [
+                {
+                  "a": [],
+                  "id": 2,
+                  "op": "var"
+                },
+                {
+                  "a": [],
+                  "n": -1,
+                  "op": "lit"
+                }
+              ],
+              "op": "offset",
+              "size": 3
+            },
+            {
+              "a": [],
+              "n": 0,
+              "op": "lit"
+            },
+            {
+              "a": [
+                {
+                  "a": [],
+                  "id": 4,
+                  "op": "var"
+                },
+                {
+                  "a": [],
+                  "id": 5,
+                  "op": "var"
+                }
+              ],
+              "op": "add32",
+              "size": 3
+            }
+          ],
+          "path": [
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 0,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              false
+            ],
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 2,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              false
+            ],
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 3,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 1,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              false
+            ],
+            [
+              {
+                "a": [
+                  {
+                    "a": [
+                      {
+                        "a": [],
+                        "id": 2,
+                        "op": "var"
+                      },
+                      {
+                        "a": [],
+                        "n": -1,
+                        "op": "lit"
+                      }
+                    ],
+                    "op": "offset",
+                    "size": 3
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 5
+              },
+              false
+            ]
+          ],
+          "proved": true,
+          "results": [
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 2,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            },
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 3,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 1,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            }
+          ]
+        }
+      ],
+      "fast_guard": [
+        [
+          {
+            "a": [
+              {
+                "a": [],
+                "id": 2,
+                "op": "var"
+              },
+              {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              }
+            ],
+            "op": "eq",
+            "size": 3
+          },
+          false
+        ],
+        [
+          {
+            "a": [
+              {
+                "a": [],
+                "id": 3,
+                "op": "var"
+              },
+              {
+                "a": [],
+                "n": 1,
+                "op": "lit"
+              }
+            ],
+            "op": "eq",
+            "size": 3
+          },
+          false
+        ]
+      ],
+      "feedback": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "induction": true
+    },
+    {
+      "case": "reordered",
+      "callee": "route",
+      "continuing_output": {
+        "index": 0,
+        "value": 0
+      },
+      "evidence": [
+        {
+          "applicable": true,
+          "outputs": [
+            {
+              "a": [],
+              "n": 0,
+              "op": "lit"
+            },
+            {
+              "a": [],
+              "id": 1,
+              "op": "var"
+            },
+            {
+              "a": [],
+              "id": 2,
+              "op": "var"
+            },
+            {
+              "a": [],
+              "id": 3,
+              "op": "var"
+            },
+            {
+              "a": [],
+              "id": 4,
+              "op": "var"
+            }
+          ],
+          "path": [
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 5,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              true
+            ]
+          ],
+          "proved": true,
+          "results": [
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 1,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            },
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 3,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            }
+          ]
+        },
+        {
+          "applicable": false
+        },
+        {
+          "applicable": false
+        },
+        {
+          "applicable": false
+        },
+        {
+          "applicable": true,
+          "outputs": [
+            {
+              "a": [],
+              "n": 0,
+              "op": "lit"
+            },
+            {
+              "a": [],
+              "n": 1,
+              "op": "lit"
+            },
+            {
+              "a": [
+                {
+                  "a": [],
+                  "id": 2,
+                  "op": "var"
+                },
+                {
+                  "a": [],
+                  "id": 0,
+                  "op": "var"
+                }
+              ],
+              "op": "add32",
+              "size": 3
+            },
+            {
+              "a": [
+                {
+                  "a": [],
+                  "id": 3,
+                  "op": "var"
+                },
+                {
+                  "a": [],
+                  "n": -1,
+                  "op": "lit"
+                }
+              ],
+              "op": "offset",
+              "size": 3
+            },
+            {
+              "a": [],
+              "id": 4,
+              "op": "var"
+            }
+          ],
+          "path": [
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 5,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              false
+            ],
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 1,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              false
+            ],
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 3,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              false
+            ],
+            [
+              {
+                "a": [
+                  {
+                    "a": [
+                      {
+                        "a": [],
+                        "id": 3,
+                        "op": "var"
+                      },
+                      {
+                        "a": [],
+                        "n": -1,
+                        "op": "lit"
+                      }
+                    ],
+                    "op": "offset",
+                    "size": 3
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 5
+              },
+              false
+            ]
+          ],
+          "proved": true,
+          "results": [
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 1,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            },
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 3,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            }
+          ]
+        }
+      ],
+      "fast_guard": [
+        [
+          {
+            "a": [
+              {
+                "a": [],
+                "id": 1,
+                "op": "var"
+              },
+              {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              }
+            ],
+            "op": "eq",
+            "size": 3
+          },
+          false
+        ],
+        [
+          {
+            "a": [
+              {
+                "a": [],
+                "id": 3,
+                "op": "var"
+              },
+              {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              }
+            ],
+            "op": "eq",
+            "size": 3
+          },
+          false
+        ]
+      ],
+      "feedback": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "induction": true
+    },
+    {
+      "case": "breaks_induction",
+      "callee": "route",
+      "continuing_output": {
+        "index": 0,
+        "value": 0
+      },
+      "evidence": [
+        {
+          "applicable": true,
+          "outputs": [
+            {
+              "a": [],
+              "n": 0,
+              "op": "lit"
+            },
+            {
+              "a": [],
+              "id": 1,
+              "op": "var"
+            },
+            {
+              "a": [],
+              "id": 2,
+              "op": "var"
+            },
+            {
+              "a": [],
+              "id": 3,
+              "op": "var"
+            },
+            {
+              "a": [],
+              "id": 4,
+              "op": "var"
+            }
+          ],
+          "path": [
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 5,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              true
+            ]
+          ],
+          "proved": true,
+          "results": [
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 1,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            },
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 3,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            }
+          ]
+        },
+        {
+          "applicable": false
+        },
+        {
+          "applicable": false
+        },
+        {
+          "applicable": false
+        },
+        {
+          "applicable": true,
+          "outputs": [
+            {
+              "a": [],
+              "n": 0,
+              "op": "lit"
+            },
+            {
+              "a": [],
+              "n": 0,
+              "op": "lit"
+            },
+            {
+              "a": [
+                {
+                  "a": [],
+                  "id": 2,
+                  "op": "var"
+                },
+                {
+                  "a": [],
+                  "id": 0,
+                  "op": "var"
+                }
+              ],
+              "op": "add32",
+              "size": 3
+            },
+            {
+              "a": [
+                {
+                  "a": [],
+                  "id": 3,
+                  "op": "var"
+                },
+                {
+                  "a": [],
+                  "n": -1,
+                  "op": "lit"
+                }
+              ],
+              "op": "offset",
+              "size": 3
+            },
+            {
+              "a": [],
+              "id": 4,
+              "op": "var"
+            }
+          ],
+          "path": [
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 5,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              false
+            ],
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 1,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              false
+            ],
+            [
+              {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 3,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              false
+            ],
+            [
+              {
+                "a": [
+                  {
+                    "a": [
+                      {
+                        "a": [],
+                        "id": 3,
+                        "op": "var"
+                      },
+                      {
+                        "a": [],
+                        "n": -1,
+                        "op": "lit"
+                      }
+                    ],
+                    "op": "offset",
+                    "size": 3
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 5
+              },
+              false
+            ]
+          ],
+          "proved": false,
+          "results": [
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 1,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 1,
+                "op": "lit"
+              },
+              "proved": false,
+              "wanted": false
+            },
+            {
+              "condition": {
+                "a": [
+                  {
+                    "a": [],
+                    "id": 3,
+                    "op": "var"
+                  },
+                  {
+                    "a": [],
+                    "n": 0,
+                    "op": "lit"
+                  }
+                ],
+                "op": "eq",
+                "size": 3
+              },
+              "next": {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              },
+              "proved": true,
+              "wanted": false
+            }
+          ]
+        }
+      ],
+      "fast_guard": [
+        [
+          {
+            "a": [
+              {
+                "a": [],
+                "id": 1,
+                "op": "var"
+              },
+              {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              }
+            ],
+            "op": "eq",
+            "size": 3
+          },
+          false
+        ],
+        [
+          {
+            "a": [
+              {
+                "a": [],
+                "id": 3,
+                "op": "var"
+              },
+              {
+                "a": [],
+                "n": 0,
+                "op": "lit"
+              }
+            ],
+            "op": "eq",
+            "size": 3
+          },
+          false
+        ]
+      ],
+      "feedback": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "induction": false
+    }
+  ]
+}

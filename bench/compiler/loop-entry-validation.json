@@ -1,0 +1,19 @@
+{
+  "scope": "program-specific range driver clone; not automatic loop discovery/proof",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-ablation-ktpfxq6o",
+  "bailout": false,
+  "checks": [
+    {
+      "case": "mixed",
+      "driver_states": 200000,
+      "event_order_and_count": true,
+      "ubsan": true
+    },
+    {
+      "case": "simple",
+      "driver_states": 200000,
+      "event_order_and_count": true,
+      "ubsan": true
+    }
+  ]
+}

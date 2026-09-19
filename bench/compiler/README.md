@@ -1,5 +1,9 @@
 # Automatic scalar-selection experiment
 
+**Next implementation priority:** [bounded loop specialization](STRATEGY.md),
+supported by new diagnostic measurements and a local proof check. Automatic
+caller discovery/cloning and small-input profitability are not yet implemented.
+
 **Current implementation:** [typed guarded scalar specialization](AUTOMATIC.md),
 prepared with `prepare_guarded.py`. It derives the successful transition
 automatically and reaches near-handwritten local CPU timings. The older

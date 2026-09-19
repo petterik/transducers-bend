@@ -1,5 +1,16 @@
 # Optimization decision: confidence and priorities
 
+## Current recommendation: bounded loop specialization
+
+[The confidence/prioritization investigation](bench/compiler/STRATEGY.md) now
+demonstrates a loop-entry versioning target and a per-step bailout alternative.
+Entry checks plus a local preservation proof avoid whole-program initializer
+inference. Program-specific caller-cloning diagnostics reach near-handwritten
+full/early timing and remove the large repeated-fallback penalty on longer
+sources. Automatic caller mapping/cloning is still missing, and tiny-source
+profitability remains unresolved. Prioritize that bounded automatic loop case
+and its cost gate; do not change the public API or default-enable the helper pass.
+
 ## Latest milestone: automatic isolated compiler experiment
 
 The [subsequent promotion review](bench/compiler/PROMOTION.md) passes broader

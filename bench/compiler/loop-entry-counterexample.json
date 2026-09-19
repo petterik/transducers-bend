@@ -1,0 +1,20 @@
+{
+  "scope": "program-specific range driver clone; not automatic loop discovery/proof",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-ablation-ktpfxq6o",
+  "bailout": false,
+  "deliberately_noninductive": true,
+  "checks": [
+    {
+      "case": "mixed",
+      "counterexample_found": true,
+      "status": 2,
+      "counterexample": "i=16 remaining=4 outer=0 n=281474976710655 inner=0 threshold=0 events=12 expected_events=6 count=281474976710651 expected_count=281474976710654 sum=57 expected_sum=12"
+    },
+    {
+      "case": "simple",
+      "counterexample_found": true,
+      "status": 2,
+      "counterexample": "i=16 remaining=4 outer=0 n=281474976710655 inner=0 threshold=0 events=12 expected_events=6 count=281474976710651 expected_count=281474976710654 sum=57 expected_sum=12"
+    }
+  ]
+}
