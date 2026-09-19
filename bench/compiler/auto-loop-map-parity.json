@@ -1,0 +1,7 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-loop-map-check-c39giv7q",
+  "compiler_sha256": "4b79c9a53ec4cd49bd665a830b03de0fa8632e0468be17e61b53227d00fe8940",
+  "source_report": "bench/compiler/automatic-composition-results.json",
+  "timed_function_identical": true,
+  "assembly_sha256": "abe01ab28e8c32a61be0e94b6871c66c8fd2a92174db6799a4c51e537bac6b4a"
+}

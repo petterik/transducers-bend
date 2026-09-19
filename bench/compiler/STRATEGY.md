@@ -1,5 +1,10 @@
 # Confidence review and priorities: specialize the loop boundary
 
+**Implementation follow-up:** [automatic bounded loop specialization](AUTO-LOOP.md)
+now implements caller discovery, the local proof and scoped cloning. This document
+records the earlier investigation; dynamic short-loop profitability remains open.
+
+
 ## Recommendation
 
 Investigate **bounded loop-entry versioning with a local preservation proof**, not

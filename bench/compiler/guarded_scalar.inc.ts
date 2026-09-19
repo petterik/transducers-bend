@@ -28,7 +28,7 @@ const gkey = (x: GX): string => JSON.stringify(x, (k, v) => k === "size" ? undef
 const geq = (a: GX, b: GX): boolean => gkey(a) === gkey(b);
 class GReject extends Error {
 }
-function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original: string): string | null {
+function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original: string, loop?: GLProbe): string | null {
   const sig = sig_def(fl, ck.k);
   if ([...sig.lays, sig.ret].some(l => l.ks.includes("box"))
     || sig.ret.ks.length > 8 || sig.lays.reduce((n, l) => n + l.ks.length, 0) > 12)
@@ -61,7 +61,7 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
     return { xs, lay: l };
   };
   const args = sig.lays.map(input);
-  if (!selectors.length)
+  if (!loop && !selectors.length)
     return null;
   const affine = (x: GX): [number, number] | null => x.op === "var" ? [x.id!, 0]
     : x.op === "offset" && x.a[1].op === "lit" ? (() => {
@@ -146,7 +146,7 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
       throw new GReject("layout conversion");
     return v;
   };
-  const visit = (t: HTerm, ty0: HTerm | null, es: HTerm[], vs: GV[], env: Map<Probe, GV>, pc: GP, stack: string[]): GR[] => {
+  const visit = (t: HTerm, ty0: HTerm | null, es: HTerm[], vs: GV[], env: Map<Probe, GV>, pc: GP, stack: string[], tail = true): GR[] => {
     budget();
     if (stack.length > 16)
       throw new GReject("depth");
@@ -159,13 +159,13 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
         const e = es[0];
         if (!e)
           throw new GReject("erasure");
-        return visit(x.f(e), all.B(e), es.slice(1), vs, env, pc, stack);
+        return visit(x.f(e), all.B(e), es.slice(1), vs, env, pc, stack, tail);
       }
       if (!vs.length)
         throw new GReject("closure");
       const o = term_open(x), ne = new Map(env);
       ne.set(o.ps[0], cast(vs[0], lay_of(fl.book, all.A)));
-      return visit(o.b, all.B(DUMMY), es, vs.slice(1), ne, pc, stack);
+      return visit(o.b, all.B(DUMMY), es, vs.slice(1), ne, pc, stack, tail);
     }
     if (x.$ === "Mat") {
       if (!vs.length)
@@ -177,11 +177,14 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
       if (l.ks.includes("box") || adt.k === "U32" || adt.k === "F32")
         throw new GReject("match representation");
       const { arms, end } = mat_arms(x);
-      if (Bend.term_strip(end).$ !== "Efq")
+      if (!loop && Bend.term_strip(end).$ !== "Efq")
         throw new GReject("open match");
       const walk = (i: number, facts: GP): GR[] => {
-        if (i >= arms.length)
+        if (i >= arms.length) {
+          if (loop && Bend.term_strip(end).$ !== "Efq")
+            return visit(end, null, es, vs, new Map(env), facts, stack, tail);
           throw new GReject("nonexhaustive");
+        }
         const [k, h] = arms[i];
         let fields: GV[], cond: GX;
         if (adt.k === "Nat") {
@@ -202,7 +205,7 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
           const p: GP = c.n === 1 ? facts : [...facts, [cond, true]];
           if (adt.k === "Nat" && k === "Succ")
             fields = [{ xs: [offset(s.xs[0], -1, p)], lay: l }];
-          result.push(...visit(h, null, es, [...fields, ...vs.slice(1)], new Map(env), p, stack));
+          result.push(...visit(h, null, es, [...fields, ...vs.slice(1)], new Map(env), p, stack, tail));
         }
         if (c.n !== 1) {
           // A final exhaustive arm is reached with its tag known. Nat Succ
@@ -221,12 +224,12 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
         throw new GReject("scope");
       return [{ pc, v }];
     }
-    const each = (ts: HTerm[], done: (vs: GV[], pc: GP) => GR[], i = 0, out: GV[] = [], facts = pc): GR[] => i === ts.length ? done(out, facts) : visit(ts[i], null, [], [], env, facts, stack).flatMap(r => each(ts, done, i + 1, [...out, r.v], r.pc));
+    const each = (ts: HTerm[], done: (vs: GV[], pc: GP) => GR[], i = 0, out: GV[] = [], facts = pc): GR[] => i === ts.length ? done(out, facts) : visit(ts[i], null, [], [], env, facts, stack, false).flatMap(r => each(ts, done, i + 1, [...out, r.v], r.pc));
     if (x.$ === "Let") {
       if (x.k.length !== 1)
         throw new GReject("fork");
       const o = term_open(x);
-      return each(x.v, (vals, p) => { const ne = new Map(env); ne.set(o.ps[0], vals[0]); return visit(o.b, null, es, [], ne, p, stack); });
+      return each(x.v, (vals, p) => { const ne = new Map(env); ne.set(o.ps[0], vals[0]); return visit(o.b, null, es, [], ne, p, stack, tail); });
     }
     if (x.$ === "Ctr") {
       const [adt, u] = ctr_adt(fl, x, ty), l = lay_of(fl.book, adt);
@@ -254,6 +257,31 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
       if (m.t.$ !== "Ref")
         throw new GReject("indirect call");
       const k = m.t.k, op = eff_name(k), intr = intr_of(fl, k);
+      if (loop && k === ck.k) {
+        if (!tail || stack.length !== 1 || !m.call || m.call.bang)
+          throw new GReject("non-tail loop");
+        const selfDef=fl.book.tlds[k] as Def;
+        const selfDoms=tele_unbind(fl.book,selfDef.T).doms;
+        const selfErs=m.all.filter((_,i)=>i<selfDef.n && !quant_live(selfDoms[i][0]));
+        if (gl_key(fl,m.call,selfErs)!==gl_key(fl,ck,ers))
+          throw new GReject("changed recursive erasure");
+        loop.sites.add(x);
+        if (loop.sites.size > 1) throw new GReject("multiple back edges");
+        return each(m.args, (v, p) => {
+          loop.edges.push({pc:p, xs:v.flatMap(v=>v.xs)});
+          return [];
+        });
+      }
+      if (loop && !loop.chain.has(k) && !stack.includes(loop.candidate.k)) {
+        // Unknown scalar results stay unconstrained. The emitter retains the
+        // actual operation (including effects/failures) at its original site.
+        if ((!m.call && !intr) || m.call?.bang) throw new GReject("opaque call shape");
+        const ret = sig_def(fl,k).ret;
+        if (ret.ks.includes("box") || ret.ks.length > 8)
+          throw new GReject("opaque boxed result");
+        return each(m.args, (_, p) => [{pc:p, v:input(ret)}]);
+      }
+
       if (intr) {
         // Semantic intrinsic identity, not its generated spelling. This first
         // region admits wrapping addition only; all other operations bail out.
@@ -267,13 +295,61 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
         throw new GReject("opaque/recursive call");
       const ds = tele_unbind(fl.book, d.T).doms;
       const er = m.all.filter((_, i) => i < d.n && !quant_live(ds[i][0]));
-      return each(m.args, (v, p) => visit(d.h!, d.T, er, v, new Map(), p, [...stack, k]));
+      if (loop && loop.keys.has(k) && loop.keys.get(k) !== gl_key(fl,m.call,er))
+        throw new GReject("changed erasure in chain");
+      return each(m.args, (v, p) => {
+        if (loop && k === loop.candidate.k) {
+          const actual = v.flatMap(v=>v.xs);
+          const mapped: GP = loop.candidate.pc.map(([c,y]) => [gl_sub(c,actual),y]);
+          // Guard inputs must be unchanged loop-entry scalars. Do not evaluate
+          // an opaque callback or a checked expression to form the entry test.
+          if (!mapped.every(([c]) => gl_vars(c).every(i => i < loop.width))
+            || actual.some((x,i) => loop.candidate.inputs.has(i) && x.op !== "var" && x.op !== "lit"))
+            throw new GReject("guard unavailable at entry");
+          if (loop.guard && JSON.stringify(loop.guard) !== JSON.stringify(mapped))
+            throw new GReject("inconsistent step guards");
+          loop.guard = mapped;
+          if (p.some(([c])=>gl_vars(c).some(i=>i>=loop.width)))
+            throw new GReject("opaque loop reachability condition");
+          loop.callPaths.push(p);
+          loop.calls++;
+        }
+        return visit(d.h!, d.T, er, v, new Map(), p, [...stack,k], false);
+      });
     }
     throw new GReject("term " + x.$);
   };
   try {
     const d = fl.book.tlds[ck.k] as Def;
     const rows = visit(d.h!, d.T, ers, args, new Map(), [], [ck.k]);
+    if (loop) {
+      fuel = 60000;
+      if (!loop.guard || !loop.edges.length || !loop.calls)
+        throw new GReject("no guarded loop");
+      for (const edge of loop.edges) {
+        if (edge.xs.length !== loop.width) throw new GReject("feedback width");
+        const facts: GP = [...edge.pc,...loop.guard];
+        const impossible = loop.guard.some(([c,y]) => {
+          const v=simp(c,edge.pc); return v.op === "lit" && !!v.n !== y;
+        });
+        if (impossible) continue;
+        for (const path of loop.callPaths) {
+          // The next iteration must satisfy a typed path to the step. A Stop
+          // result may recur once to the driver but cannot reach the fast call.
+          const nextPath:GP=path.map(([c,y])=>[gl_sub(c,edge.xs),y]);
+          if (nextPath.some(([c,y])=>{
+            const v=simp(c,facts); return v.op === "lit" && !!v.n !== y;
+          })) continue;
+          for (const [c,y] of loop.guard) {
+            const next=simp(gl_sub(c,edge.xs),[...facts,...nextPath]);
+            if (next.op !== "lit" || !!next.n !== y)
+              throw new GReject("non-inductive guard");
+          }
+        }
+      }
+      loop.proved = true;
+      return null;
+    }
     if (rows.length < 3 || rows.length > 32)
       return null;
     // Independent budget for bounded simplification/search.
@@ -366,6 +442,14 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
               lines.push(`  Term g${j} = ${render(x)};`); });
             outputs.forEach((x, j) => lines.push(`  o[${j}] = ${x.op === "outzero" ? `(g${x.id} == 0)` : `g${j}`};`));
             lines.push("  return 1;", "}");
+            gl_state(fl).summaries.set(gl_key(fl,ck,ers), {
+              k:ck.k, pc, inputs:new Set(pc.flatMap(([c])=>gl_vars(c))),
+              fast:(fastName:string) => [
+                `INLINE Term ${fastName}(Env e, THR Term* o${decl}) {`,
+                ...outputs.flatMap((x,j)=> x.op === "outzero" ? [] : [`  Term g${j} = ${render(x)};`]),
+                ...outputs.map((x,j)=>`  o[${j}] = ${x.op === "outzero" ? `(g${x.id} == 0)` : `g${j}`};`),
+                "  return 1;", "}"].join("\n")
+            });
             // Host-only experiment: device sees exactly the original helper.
             return ["#if !defined(__METAL_VERSION__) && !defined(__CUDACC__) && !defined(__CUDACC_RTC__)", ...lines, "#else", original, "#endif"].join("\n");
           }
@@ -374,6 +458,7 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
   catch (e) {
     if (!(e instanceof GReject))
       throw e;
+    if (loop) loop.rejection=e.message;
     if (process.env.BEND_GUARDED_TRACE)
       console.error(`guarded reject ${ck.k}: ${e.message}`);
   }

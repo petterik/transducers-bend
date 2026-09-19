@@ -1,5 +1,10 @@
 # Promotion review: outlining profitability remains unresolved
 
+**Implementation follow-up:** [automatic bounded loop specialization](AUTO-LOOP.md)
+now implements caller discovery, the local proof and scoped cloning. This document
+records the earlier investigation; dynamic short-loop profitability remains open.
+
+
 **Follow-up:** [confidence review and priorities](STRATEGY.md) tests loop-entry
 versioning and loop bailout, including local induction checks and counterexamples.
 It narrows the next implementation target without claiming production readiness.

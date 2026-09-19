@@ -1,17 +1,16 @@
 # Optimization decision: confidence and priorities
 
-## Current recommendation: bounded loop specialization
+## Current milestone: automatic loop specialization
 
-[The confidence/prioritization investigation](bench/compiler/STRATEGY.md) now
-demonstrates a loop-entry versioning target and a per-step bailout alternative.
-Entry checks plus a local preservation proof avoid whole-program initializer
-inference. Program-specific caller-cloning diagnostics reach near-handwritten
-full/early timing and remove the large repeated-fallback penalty on longer
-sources. Automatic caller mapping/cloning is still missing, and tiny-source
-profitability remains unresolved. Prioritize that bounded automatic loop case
-and its cost gate; do not change the public API or default-enable the helper pass.
+[The bounded loop pass](bench/compiler/AUTO-LOOP.md) now discovers callers, derives
+entry guards and state feedback, proves preservation, and emits scoped helper
+clones automatically in an isolated compiler. Full/early range workloads reach
+near-handwritten local CPU performance. Shared helpers retain their original
+behavior, and literal zero/one countdown callers use generic lowering directly.
+Dynamic one-element loops still regress, so profitability remains the next gate
+before default enablement. The public API and production compiler remain unchanged.
 
-## Latest milestone: automatic isolated compiler experiment
+## Earlier milestone: automatic scalar specialization
 
 The [subsequent promotion review](bench/compiler/PROMOTION.md) passes broader
 correctness checks but finds a measured outlining tradeoff: frequent valid

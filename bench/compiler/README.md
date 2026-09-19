@@ -1,15 +1,14 @@
 # Automatic scalar-selection experiment
 
-**Next implementation priority:** [bounded loop specialization](STRATEGY.md),
-supported by new diagnostic measurements and a local proof check. Automatic
-caller discovery/cloning and small-input profitability are not yet implemented.
+**Current implementation:** [automatic bounded loop specialization](AUTO-LOOP.md),
+prepared with `prepare_guarded.py --loop`. Typed caller analysis, preservation
+checking and scoped native cloning now replace the earlier manual loop diagnostic.
+Dynamic short-loop profitability still blocks default enablement.
 
-**Current implementation:** [typed guarded scalar specialization](AUTOMATIC.md),
-prepared with `prepare_guarded.py`. It derives the successful transition
-automatically and reaches near-handwritten local CPU timings. The older
-`prepare.py` and C-text selection experiment below remain unchanged.
-The [promotion review](PROMOTION.md) now records a fallback-heavy outlining
-regression and broader correctness checks; default enablement remains deferred.
+Without `--loop`, preparation retains the [outlined scalar experiment](AUTOMATIC.md).
+The [strategy investigation](STRATEGY.md) and [promotion review](PROMOTION.md)
+document the evidence that led to loop scoping. Older experiments below are
+retained for comparison.
 
 Newer result: [controlled generated-C ablations](ABLATION.md) identify a substantially
 better target: guarded specialization plus unchanged-field summaries across a cold

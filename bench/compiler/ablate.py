@@ -19,10 +19,12 @@ p.add_argument('--early', action='store_true', help='Take 32 with varying source
 p.add_argument('--variants', nargs='+', help='Candidate names; original and direct always included')
 p.add_argument('--automatic-compiler', type=Path,
                help='Compile the unchanged pipeline with an isolated automatic pass instead of C replacement')
+p.add_argument('--automatic-loop', action='store_true', help='Compiler emits proven caller loops; validate with test_loop_version.py --automatic-loop')
 p.add_argument('--loop-version', action='store_true', help='Program-specific loop-entry versioning diagnostic; requires automatic compiler')
 p.add_argument('--linkage-ablation', action='store_true', help='With automatic compiler, compare noinline-only/inline fallback declarations in generated C')
 a = p.parse_args()
 assert a.samples > 0
+assert not a.automatic_loop or (a.automatic_compiler and not a.loop_version and not a.linkage_ablation)
 assert not a.loop_version or a.automatic_compiler, '--loop-version requires --automatic-compiler'
 assert not a.linkage_ablation or a.automatic_compiler, '--linkage-ablation requires --automatic-compiler'
 out = Path(tempfile.mkdtemp(prefix='bend-ablation-')).resolve()
@@ -44,6 +46,9 @@ report = {'artifacts': str(out), 'compiler_sha256': hashlib.sha256((compiler.par
 if a.automatic_compiler:
     report['scope'] = 'Automatic typed scalar specialization of unchanged public pipeline; original/direct controls'
     report['automatic_compiler_sha256'] = hashlib.sha256((a.automatic_compiler.parent/'comp.ts').read_bytes()).hexdigest()
+    if a.automatic_loop:
+        report['scope'] = 'Automatic typed loop recognition, entry guard, preservation proof and scoped native cloning; unchanged public pipeline'
+    report['automatic_loop'] = a.automatic_loop
     report['linkage_ablation'] = a.linkage_ablation
     report['program_specific_loop_version'] = a.loop_version
     if a.loop_version:
@@ -127,11 +132,15 @@ def main() -> IO(Unit):
         stem = out / f'{label}-automatic'
         command(['bun', str(a.automatic_compiler), str(out/f'{label}-original.bend'), '-o', str(stem.with_suffix('.c'))])
         automatic = stem.with_suffix('.c').read_text()
-        assert automatic.count('/* guarded_scalar:') == 1, 'Expected one discovered region in this benchmark'
-        assert name+'_guarded_fallback(' in automatic, 'Helper numbering changed; review differential harness'
-        untouched = match[0].replace('INLINE Term', 'static __attribute__((noinline, cold)) Term', 1)
-        untouched = untouched.replace(name+'(', name+'_guarded_fallback(', 1)
-        assert untouched in automatic, 'Fallback must be the original compiler output, apart from its declaration'
+        if a.automatic_loop:
+            assert automatic.count('/* guarded_loop:') == 1
+            assert match[0] in automatic, 'Generic scalar helper changed'
+        else:
+            assert automatic.count('/* guarded_scalar:') == 1, 'Expected one discovered region in this benchmark'
+            assert name+'_guarded_fallback(' in automatic, 'Helper numbering changed; review differential harness'
+            untouched = match[0].replace('INLINE Term', 'static __attribute__((noinline, cold)) Term', 1)
+            untouched = untouched.replace(name+'(', name+'_guarded_fallback(', 1)
+            assert untouched in automatic, 'Fallback must be the original compiler output, apart from its declaration'
         bodies = {'automatic': ''}
         automatic_variants = {'automatic': automatic}
         if a.linkage_ablation:
@@ -168,6 +177,10 @@ int main(void) {
                        + harness.split('\n#undef main\n', 1)[1]
                          .replace(name+'(e, original', name+'_guarded_fallback(e, original')
                          .replace('candidate(e, changed', name+'(e, changed'))
+        if a.automatic_loop:
+            # Generic scalar body is unchanged. Full optimized driver-state and
+            # ordered callback validation is a separate explicit gate.
+            continue
         check = out / f'{label}-{variant}-check'
         check.with_suffix('.c').write_text(harness)
         command(['clang', '-std=c11', '-O3', str(check.with_suffix('.c')), '-lpthread', '-lm', '-o', str(check)])

@@ -44,6 +44,7 @@ def check(file):
         return row
     c=Path(str(stem)+'.c').read_text()
     row['regions']=c.count('/* guarded_scalar:')
+    row['loops']=c.count('/* guarded_loop:')
     row['c_identical']=c==Path(str(stem)+'-original.c').read_text()
     build=run(['clang','-std=c11','-O3',str(stem)+'.c','-lpthread','-lm','-o',stem])
     if build['status']:

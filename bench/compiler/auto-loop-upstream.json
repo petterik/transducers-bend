@@ -1,0 +1,2248 @@
+{
+  "scope": "local native CPU and JS; runnable positive tests in selected namespaces; not cluster/GPU gate",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-upstream-local-jmmxrbf5",
+  "namespaces": [
+    "base",
+    "compile",
+    "flatten",
+    "reg",
+    "state"
+  ],
+  "compiler_sha256": "1d6fe34d8552c208bbd2767e0505d22517bed3a4d57692523930180b88d34519",
+  "results": [
+    {
+      "test": "base/float_roundtrip.bend",
+      "want": "144",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/list_fold.bend",
+      "want": "[1, 3, 5]\n16\n[1, 2, 3, 9]\nTrue\nFalse\nTrue\nFalse\nSome(3)\nNone\nTrue\nFalse\n[1, 1, 3, 4, 5, 8, 9]\n[]\n[3, 2, 1]\n[apple, fig, pear]\n1\n2",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/list_kit.bend",
+      "want": "111111111",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/list_ops.bend",
+      "want": "12",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/list_slice.bend",
+      "want": "3\n[1, 2, 3]\n[1, 2, 3]\n[3, 2, 1]\nTrue\nFalse\nSome(7)\nNone\n[8, 9]\nSome(9)\nNone\nSome(20)\nNone\n[10, 20, 5]\n[10, 20, 30]\n[1, 2]\n[1, 2]\n[3, 4]\n[]\n[1:4, 2:5]\n[0, 1, 2, 3]\n[7, 7, 7]",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/list_sort.bend",
+      "want": "6",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/map_ops.bend",
+      "want": "7",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/map_prefix_keys.bend",
+      "want": "a=2,ab=1,b=3,.\na=20,ab=1,b=3,c=30,.\na=2,ab=1,b=3,c=30,.\nLTGTLT",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/map_set_array_kit.bend",
+      "want": "3\n[1, 2, 3]\n2\n[x, y]\n[0, 5, 0, 7]\n[1, 6, 1, 8]",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/maybe_result_kit.bend",
+      "want": "5\n9\nTrue\nFalse\nSome(2)\nNone\nSome(3)\nSome(2)\n4\n0\nTrue\nFalse\nDone(8)\nFail(bad)\n7\nx",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/nat_divmod_zero.bend",
+      "want": "6n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/nat_ops.bend",
+      "want": "5",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/num_kit.bend",
+      "want": "True\nFalse\nTrue\nFalse\nTrue\n4\n9\n3\n2\n0\n1024\n4\n9\n10\n5\n81\nTrue\nFalse\n150\n250\n100\n250\n900\n500\n300\n200\n314\n42\n1\n1\nFalse",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/rand.bend",
+      "want": "4323489",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/read_bounds.bend",
+      "want": "99999999999999\n100000000000000\n281474976710655\nNone\nNone\n4294967295\nNone\nNone\nNone\n4294967295\n2 No such file or directory",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/result_maybe.bend",
+      "want": "5",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/show_read.bend",
+      "want": "5",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/string_kit.bend",
+      "want": "5\nTrue\ncba\nTrue\nTrue\nTrue\nFalse\nTrue\nTrue\nFalse\nTrue\nhe\nllo\nSome(e)\nNone\ncba\nabc\na, b, c\n<>\n[a, b, , c]\n[x, y]\nababab\nHELLO 1\nhello 1\n<hi>\n<hi>\n<hi>\nTrue\nFalse\nTrue\nFalse\nTrue\nAb\n65\nB\nTrue",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/string_ops.bend",
+      "want": "11",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/sugar_ops.bend",
+      "want": "562",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/text_ops.bend",
+      "want": "14",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/u32_divmod.bend",
+      "want": "14n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "base/u32_divmod_zero.bend",
+      "want": "6n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/alias_def.bend",
+      "want": "21",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/array_dynamic_closure.bend",
+      "want": "9",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/array_large_literal.bend",
+      "want": "60",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/array_literal_gaps.bend",
+      "want": "3065382255",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/array_nodeless_default.bend",
+      "want": "7",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/array_single_slot.bend",
+      "want": "22",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/array_static_default.bend",
+      "want": "214",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/array_swap_header.bend",
+      "want": "2337",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/bang_intrinsic_closure.bend",
+      "want": "3",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/bare_ref_value.bend",
+      "want": "84",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/boxed_ctor_reuse.bend",
+      "want": "15",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/closure_cps.bend",
+      "want": "55",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/closure_dynamic_apply.bend",
+      "want": "19",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/closure_linear_hof.bend",
+      "want": "42",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/closure_match_lambda.bend",
+      "want": "103",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/closure_partial_app.bend",
+      "want": "17",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/closure_record_shared.bend",
+      "want": "33",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/closure_slab_drop.bend",
+      "want": "5",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/closure_tainted_dispatch.bend",
+      "want": "1055",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/ctor_dedup_grow.bend",
+      "want": "36n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/ctor_name_collision.bend",
+      "want": "42n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/dead_code_prune.bend",
+      "want": "42",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/default_rebind_000.bend",
+      "want": "2",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/default_rebind_001.bend",
+      "want": "10",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/dollar_name_sanitize.bend",
+      "want": "25",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/erased_apply.bend",
+      "want": "4n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/erased_argument.bend",
+      "want": "7",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/erased_eta_body.bend",
+      "want": "21",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/erased_partial_closure.bend",
+      "want": "3",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/erased_recursive_arg.bend",
+      "want": "9",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/erasure_match_arm.bend",
+      "want": "11",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/erasure_through_binder.bend",
+      "want": "41",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/eta_closure_body.bend",
+      "want": "42",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/eta_ctor_arm.bend",
+      "want": "100",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/eta_default_arm.bend",
+      "want": "107",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/flat_ctor_args.bend",
+      "want": "18",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/flat_record_suite.bend",
+      "want": "955",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/float_accumulation.bend",
+      "want": "2775",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/float_builtin_agreement.bend",
+      "want": "-2 -1 -1 1.5",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/float_compare.bend",
+      "want": "1999985",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/float_roundtrip.bend",
+      "want": "45",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/float_tanh.bend",
+      "want": "1.1752012 1.5430807 0.7615942 1",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/float_trig.bend",
+      "want": "0.84147096 0.5403023 1.5574077",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/float_unary_math.bend",
+      "want": "2.7182817 0.99999994 3 3 1.4142135",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/float_unboxed_ctor.bend",
+      "want": "375",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/fork_array_capture.bend",
+      "want": "49",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/fork_closure_capture.bend",
+      "want": "3264",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/fork_closure_stress.bend",
+      "want": "2298769217",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/fork_ctor_build.bend",
+      "want": "2016",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/fork_operand.bend",
+      "want": "169",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/fork_width.bend",
+      "want": "1024n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/gpu_mark_closure.bend",
+      "want": "7n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/gpu_mark_inert.bend",
+      "want": "28n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/gpu_reach.bend",
+      "want": "15n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/gpu_reach_apply.bend",
+      "want": "42n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/gpu_reach_closure_box.bend",
+      "want": "20n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/gpu_reach_closure_list.bend",
+      "want": "21n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/gpu_reach_plain.bend",
+      "want": "4n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/import_name_sanitize.bend",
+      "want": "50n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/join_verdict_000.bend",
+      "want": "536",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/join_verdict_001.bend",
+      "want": "7",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/let_headed_app.bend",
+      "want": "16",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/literal_patterns.bend",
+      "want": "87",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/local_name_livelock.bend",
+      "want": "35n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/loop_peel_countdown.bend",
+      "want": "77975n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/loop_record_unpack_000.bend",
+      "want": "2356",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/loop_record_unpack_001.bend",
+      "want": "183",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/mach_scan_sibling.bend",
+      "want": "356721367",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/match_absurd_tail.bend",
+      "want": "ok",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/match_default.bend",
+      "want": "0n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/nat_table_months.bend",
+      "want": "3093",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/nested_literal_pattern.bend",
+      "want": "107",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/nested_pattern.bend",
+      "want": "4",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/nested_split_aux.bend",
+      "want": "2",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/no_default_arm.bend",
+      "want": "1",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/nodeless_dup_drop.bend",
+      "want": "1015",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/nofk_closure.bend",
+      "want": "22",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/over_application.bend",
+      "want": "42",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/overuse_clone_site.bend",
+      "want": "3040",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/select_ternary_word.bend",
+      "want": "198",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/set_headed_app.bend",
+      "want": "7",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/shared_match_ctor.bend",
+      "want": "10",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/shared_match_word.bend",
+      "want": "82",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/shared_pattern_reuse.bend",
+      "want": "987",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/shared_tree_copies.bend",
+      "want": "752",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/spin_machine.bend",
+      "want": "24",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/split_aux_halt.bend",
+      "want": "4",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/static_callback_capture.bend",
+      "want": "[12, 23]",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/static_callback_fork.bend",
+      "want": "7",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/static_callback_record.bend",
+      "want": "[4, 6, 8]",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/static_callback_strict.bend",
+      "want": "42",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/static_callback_unsafe.bend",
+      "want": "5",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/tail_pin.bend",
+      "want": "3n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/tainted_zero_arg.bend",
+      "want": "496",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/uint_literal_suffix.bend",
+      "want": "1n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "compile/word_contraction_dup.bend",
+      "want": "242",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/array_statement.bend",
+      "want": "i => j => k => v => w => main.rd1(j, k, w, Array.get.if(U32, [v, v], [v, v], 2, U32.and(i, 3), Cmp.is_lt(U32.cmp(U32.and(i, 3), 2))))",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "i => j => k => v => w => main.rd1(j, k, w, Array.get.if(U32, [v, v], [v, v], 2, U32.and(i, 3), Cmp.is_lt(U32.cmp(U32.and(i, 3), 2))))",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/array_statement_main_rd1.bend",
+      "want": "j => k => w => \\{Tuple: (m2 => x => main.rd2(x, Array.get.at(U32, k, Array.size(U32, Array.set.fin(U32, Array.swap.at(U32, j, w, Array.size(U32, m2)))))))}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "j => k => w => \\{Tuple: (m2 => x => main.rd2(x, Array.get.at(U32, k, Array.size(U32, Array.set.fin(U32, Array.swap.at(U32, j, w, Array.size(U32, m2)))))))}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/array_statement_main_rd2.bend",
+      "want": "x => \\{Tuple: (m4 => z => U32.add(x, z))}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "x => \\{Tuple: (m4 => z => U32.add(x, z))}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/closure_inline.bend",
+      "want": "196899n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/computed_operator_match_000.bend",
+      "want": "a => b => p => q => pick(p, q, Cmp.is_le(U32.cmp(a, b)))",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "a => b => p => q => pick(p, q, Cmp.is_le(U32.cmp(a, b)))",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/computed_operator_match_000_pick.bend",
+      "want": "p => q => \\{False: p; True: q}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "p => q => \\{False: p; True: q}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/computed_operator_match_001.bend",
+      "want": "n => m => p => q => pick(p, q, Cmp.is_eq(U32.cmp(n, m)))",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "n => m => p => q => pick(p, q, Cmp.is_eq(U32.cmp(n, m)))",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/computed_operator_match_001_pick.bend",
+      "want": "p => q => \\{True: p; False: q}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "p => q => \\{True: p; False: q}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/computed_recursion_000.bend",
+      "want": "\\{Zero: (n => Z{}); Succ: (g => \\{Zn: Z{}; Sn: \\{Zn: Z{}; Sn: (p => S{S{main(g, p)}})}})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Zero: (n => Z{}); Succ: (g => \\{Zn: Z{}; Sn: \\{Zn: Z{}; Sn: (p => S{S{main(g, p)}})}})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/computed_recursion_000_big.bend",
+      "want": "\\{Zn: F{}; Sn: \\{Zn: F{}; Sn: (p => T{})}}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Zn: F{}; Sn: \\{Zn: F{}; Sn: (p => T{})}}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/computed_recursion_001.bend",
+      "want": "\\{Zero: (n => Z{}); Succ: (g => \\{Z: Z{}; S: (m0 => main.dec(main(g, m0), par(m0), par(m0)))})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Zero: (n => Z{}); Succ: (g => \\{Z: Z{}; S: (m0 => main.dec(main(g, m0), par(m0), par(m0)))})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/computed_recursion_001_main_dec.bend",
+      "want": "r => \\{T: \\{T: S{r}; F: Z{}}; F: (z2 => r)}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "r => \\{T: \\{T: S{r}; F: Z{}}; F: (z2 => r)}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/computed_recursion_001_not.bend",
+      "want": "\\{T: F{}; F: T{}}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{T: F{}; F: T{}}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/computed_recursion_001_par.bend",
+      "want": "\\{Z: T{}; S: (n => not(main(n)))}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Z: T{}; S: (n => not(main(n)))}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/dead_residue_elision_005.bend",
+      "want": "281n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/destructure_let_000.bend",
+      "want": "p => k => go.at(swap(p), k)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "p => k => go.at(swap(p), k)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_000_go.bend",
+      "want": "n => o => k => U32.add(U32.mul(n, k), o)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "n => o => k => U32.add(U32.mul(n, k), o)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_000_go_at.bend",
+      "want": "\\{P: (a => b => k => U32.add(U32.mul(a, k), b))}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{P: (a => b => k => U32.add(U32.mul(a, k), b))}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_000_mk.bend",
+      "want": "n => o => P{n, o}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "n => o => P{n, o}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_000_swap.bend",
+      "want": "\\{P: (a => b => P{b, a})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{P: (a => b => P{b, a})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_002.bend",
+      "want": "p => flip(p)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "p => flip(p)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_002_flip.bend",
+      "want": "\\{Mk: (x => y => Mk{y, x})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Mk: (x => y => Mk{y, x})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_003.bend",
+      "want": "\\{P: (a => b => U32.add(a, b))}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{P: (a => b => U32.add(a, b))}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_004.bend",
+      "want": "\\{P: (a => b => \\{P: (c => d => U32.add(U32.mul(a, c), U32.mul(b, d)))})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{P: (a => b => \\{P: (c => d => U32.add(U32.mul(a, c), U32.mul(b, d)))})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_005.bend",
+      "want": "x => y => k => U32.add(U32.mul(x, k), y)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "x => y => k => U32.add(U32.mul(x, k), y)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/destructure_let_005_go.bend",
+      "want": "\\{P: (a => b => k => U32.add(U32.mul(a, k), b))}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{P: (a => b => k => U32.add(U32.mul(a, k), b))}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/field_match_in_order.bend",
+      "want": "9",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/field_match_in_order_f.bend",
+      "want": "\\{Nil: 0n; Con: \\{Zero: (t => main(t)); Succ: (p => t => Nat.add(p, main(t)))}}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Nil: 0n; Con: \\{Zero: (t => main(t)); Succ: (p => t => Nat.add(p, main(t)))}}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/field_match_in_order_g.bend",
+      "want": "\\{Tuple: \\{Zero: (b => b); Succ: (q => b => Nat.add(q, b))}}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Tuple: \\{Zero: (b => b); Succ: (q => b => Nat.add(q, b))}}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/lambda_match_sugar.bend",
+      "want": "d => \\{A: (x => y => U32.add(x, y)); B: (z => w => U32.mul(z, w)); (q => d)}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "d => \\{A: (x => y => U32.add(x, y)); B: (z => w => U32.mul(z, w)); (q => d)}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/let_group_scope.bend",
+      "want": "4294901770",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/literal_rows_cubic.bend",
+      "want": "1000\n1007\n1499\n2499\n2999",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "native_extra_flag": "-fbracket-depth=4096",
+      "result": "pass"
+    },
+    {
+      "test": "flatten/mixed_computed_column_003.bend",
+      "want": "a => b => sel(a, b, b)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "a => b => sel(a, b, b)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/mixed_computed_column_003_id.bend",
+      "want": "n => n",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "n => n",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/mixed_computed_column_003_sel.bend",
+      "want": "\\{Zn: \\{Zn: (w => Z{}); Sn: (q => w => S{Z{}})}; Sn: (p => b => w => S{S{Z{}}})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Zn: \\{Zn: (w => Z{}); Sn: (q => w => S{Z{}})}; Sn: (p => b => w => S{S{Z{}}})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_000.bend",
+      "want": "n => dec(pos(n), odd(n))",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "n => dec(pos(n), odd(n))",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_000_dec.bend",
+      "want": "\\{T: \\{T: K1{}; F: K2{}}; F: (z2 => K3{})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{T: \\{T: K1{}; F: K2{}}; F: (z2 => K3{})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_000_not.bend",
+      "want": "\\{T: F{}; F: T{}}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{T: F{}; F: T{}}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_000_odd.bend",
+      "want": "\\{Z: F{}; S: (n => not(main(n)))}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Z: F{}; S: (n => not(main(n)))}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_000_pos.bend",
+      "want": "\\{Z: F{}; (a => T{})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Z: F{}; (a => T{})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_002.bend",
+      "want": "n => dec(odd(n), small(n))",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "n => dec(odd(n), small(n))",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_002_dec.bend",
+      "want": "\\{T: (z2 => K1{}); F: \\{T: K50{}; F: K500{}}}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{T: (z2 => K1{}); F: \\{T: K50{}; F: K500{}}}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_002_not.bend",
+      "want": "\\{T: F{}; F: T{}}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{T: F{}; F: T{}}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_002_odd.bend",
+      "want": "\\{Z: F{}; S: (n => not(main(n)))}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Z: F{}; S: (n => not(main(n)))}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_computed_match_002_small.bend",
+      "want": "\\{Z: T{}; (x => F{})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Z: T{}; (x => F{})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/nested_destructure_let.bend",
+      "want": "\\{P: \\{B: (x => y => U32.add(x, y))}}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{P: \\{B: (x => y => U32.add(x, y))}}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/numeric_switch.bend",
+      "want": "1n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/operator_line_break_000.bend",
+      "want": "a => b => c => d => U32.mul(U32.add(U32.add(a, b), c), d)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "a => b => c => d => U32.mul(U32.add(U32.add(a, b), c), d)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/operator_line_break_000_f.bend",
+      "want": "a => b => c => U32.add(U32.add(a, b), c)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "a => b => c => U32.add(U32.add(a, b), c)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/operator_line_break_001.bend",
+      "want": "a => m => w => U32.add(U32.and(a, m), w)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "a => m => w => U32.add(U32.and(a, m), w)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/redex_hideouts.bend",
+      "want": "22n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/share_erasure_001.bend",
+      "want": "\\{Z: (y => z => y); S: (p => y => z => U32.add(y, z))}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{Z: (y => z => y); S: (p => y => z => U32.add(y, z))}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/single_ctor_type_000.bend",
+      "want": "\\{K: (a => b => c => A{a, b, c}); (a => B{a})}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "\\{K: (a => b => c => A{a, b, c}); (a => B{a})}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "flatten/taint_bare_call.bend",
+      "want": "10n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/taint_demote_pure.bend",
+      "want": "9n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/taint_hoist_capture.bend",
+      "want": "28n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "flatten/tuple_pattern.bend",
+      "want": "21",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/arity_wall.bend",
+      "want": "1",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/array_borrow_generic.bend",
+      "want": "120",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/array_borrow_generic_sum.bend",
+      "want": "2260",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/array_clone_boxed.bend",
+      "want": "ababababababababhelloworldabcdabzzdcleaf",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/array_copy_pair.bend",
+      "want": "36",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/array_half_loop.bend",
+      "want": "19200\n800\n100",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/array_heap_element.bend",
+      "want": "716",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/array_keep_cow.bend",
+      "want": "70",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/array_nested.bend",
+      "want": "135",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/array_node_loop.bend",
+      "want": "6400\n800\n112",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_box_field.bend",
+      "want": "51",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_field_request.bend",
+      "want": "10\n11\n12\n20",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_fork_hold.bend",
+      "want": "2003000",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_let_reads.bend",
+      "want": "72",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_loop.bend",
+      "want": "16",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_nested_call.bend",
+      "want": "144",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_nested_flat.bend",
+      "want": "55",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_owned_reads.bend",
+      "want": "72",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_request.bend",
+      "want": "95",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_spin_sink.bend",
+      "want": "44916",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/borrow_two_readers.bend",
+      "want": "21",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_arrays.bend",
+      "want": "15",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit2_array_field.bend",
+      "want": "12",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit2_array_match.bend",
+      "want": "12",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit2_box_generic.bend",
+      "want": "7",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit2_fold_jump.bend",
+      "want": "2",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit2_fresh_box_root.bend",
+      "want": "3",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit2_mixed_hold.bend",
+      "want": "3",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit2_mixed_twins.bend",
+      "want": "3",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit2_twins_consume.bend",
+      "want": "4",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit2_unbox_generic.bend",
+      "want": "4",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit3_dependent_array.bend",
+      "want": "7",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit3_twin_owner.bend",
+      "want": "42",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit_box_temp.bend",
+      "want": "0",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit_fork_flip.bend",
+      "want": "3",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit_mixed_flat.bend",
+      "want": "14",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit_twins.bend",
+      "want": "23",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit_unbox_root.bend",
+      "want": "2",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_audit_unfold_zero.bend",
+      "want": "0",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_closure_capture.bend",
+      "want": "40",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_field_store.bend",
+      "want": "26",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_flat_layout.bend",
+      "want": "16",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_fork_cross.bend",
+      "want": "199",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_fork_dead.bend",
+      "want": "179",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_mixed_args.bend",
+      "want": "10",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_native_consume.bend",
+      "want": "hi\nhi",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_readers.bend",
+      "want": "33",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_shared_fields.bend",
+      "want": "75",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_sibling_unused.bend",
+      "want": "51",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_spin_lent.bend",
+      "want": "65",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_tail_reader.bend",
+      "want": "111",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_twins.bend",
+      "want": "501521",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_unfold_retain.bend",
+      "want": "25",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/brw_zero_box.bend",
+      "want": "14",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/clo_packed_arg.bend",
+      "want": "893",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/closure_capture_once.bend",
+      "want": "55\n111\n174",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/closure_keep_generic.bend",
+      "want": "42",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/closure_value_owns.bend",
+      "want": "41000000",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/cop_let_descent_escape.bend",
+      "want": "22",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/dead_fork_binding.bend",
+      "want": "4",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/dead_param_fork.bend",
+      "want": "8004000",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/erased_arrow_apps.bend",
+      "want": "158 7",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/erased_call_cut.bend",
+      "want": "abc",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/erased_field_call.bend",
+      "want": "0",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/expr_let_erased_lam.bend",
+      "want": "29",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/far_import.bend",
+      "want": "66",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/interp_arm_share.bend",
+      "want": "{2097152 == 0 : U32}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "{2097152 == 0 : U32}",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "reg/interp_field_share.bend",
+      "want": "1048576",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/match_pointfree.bend",
+      "want": "34",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/match_value_literal_arm.bend",
+      "want": "4",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/nat_chain.bend",
+      "want": "411210",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/nat_default.bend",
+      "want": "102001101 81007",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/nat_table.bend",
+      "want": "305",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/parts_owned_pair.bend",
+      "want": "59",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/record_single_field.bend",
+      "want": "23n",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/refold_reentry.bend",
+      "want": "True",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/rwt_carb_binders.bend",
+      "want": "8879",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/seal_clone_heat.bend",
+      "want": "14",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/seal_var_scope.bend",
+      "want": "14",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/share_tuple_global.bend",
+      "want": "Tuple{653, 4}",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/spin_refs_dead_seg.bend",
+      "want": "75616",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/static_lent_literal.bend",
+      "want": "115\n95",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/static_shared_cell.bend",
+      "want": "651689688",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/u32_structural_view.bend",
+      "want": "14",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/unfold_arg_type.bend",
+      "want": "0",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/wnf_deep_chain.bend",
+      "want": "False{}",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "reg/word_copy_native.bend",
+      "want": "22",
+      "regions": 0,
+      "loops": 0,
+      "c_identical": true,
+      "result": "pass"
+    },
+    {
+      "test": "state/eval_case_tree_000.bend",
+      "want": "n => ones_twos(n)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "n => ones_twos(n)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "state/eval_curried_tree.bend",
+      "want": "n => x => spec_thm(n, x)",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "n => x => spec_thm(n, x)",
+        "stderr": ""
+      }
+    },
+    {
+      "test": "state/eval_refl_value.bend",
+      "want": "{1.5 == 1.5 : F32}",
+      "result": "interpreter-only-pass",
+      "interpreter": {
+        "status": 0,
+        "stdout": "{1.5 == 1.5 : F32}",
+        "stderr": ""
+      }
+    }
+  ],
+  "summary": {
+    "interpreter-only-pass": 50,
+    "pass": 216
+  },
+  "optimized_regions": 0
+}

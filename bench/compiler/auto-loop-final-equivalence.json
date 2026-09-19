@@ -1,0 +1,40 @@
+{
+  "compiler_sha256": "4b79c9a53ec4cd49bd665a830b03de0fa8632e0468be17e61b53227d00fe8940",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-loop-reemit-qtrys9h6",
+  "checks": [
+    {
+      "case": "mixed",
+      "tested_report": "bench/compiler/auto-loop-results.json",
+      "tested_compiler_sha256": "1d6fe34d8552c208bbd2767e0505d22517bed3a4d57692523930180b88d34519",
+      "c_identical": true,
+      "c_sha256": "f057979c9cc51833531132d0905533291f26080e8da65ae1943d55fddf0fb1f6"
+    },
+    {
+      "case": "simple",
+      "tested_report": "bench/compiler/auto-loop-results.json",
+      "tested_compiler_sha256": "1d6fe34d8552c208bbd2767e0505d22517bed3a4d57692523930180b88d34519",
+      "c_identical": true,
+      "c_sha256": "96fe08a4dbb980523e200dad458fe3d34de9c81ddad73c22a1457c850a5feb9f"
+    },
+    {
+      "case": "mixed_early",
+      "tested_report": "bench/compiler/auto-loop-early-results.json",
+      "tested_compiler_sha256": "1d6fe34d8552c208bbd2767e0505d22517bed3a4d57692523930180b88d34519",
+      "c_identical": true,
+      "c_sha256": "0c85d9dd76c66c70301c2af206af885a7f96e23f57ad1d1f542892bb8aa65a60"
+    },
+    {
+      "case": "simple_early",
+      "tested_report": "bench/compiler/auto-loop-early-results.json",
+      "tested_compiler_sha256": "1d6fe34d8552c208bbd2767e0505d22517bed3a4d57692523930180b88d34519",
+      "c_identical": true,
+      "c_sha256": "e4cebefced1bfd50121d1e8910ea3e953fd0cbdbcdd6bbe48a0233f4e9bb2103"
+    }
+  ],
+  "upstream": {
+    "tested_report": "bench/compiler/auto-loop-upstream.json",
+    "tested_compiler_sha256": "1d6fe34d8552c208bbd2767e0505d22517bed3a4d57692523930180b88d34519",
+    "c_and_js_identical": 216,
+    "interpreter_rerun_pass": 50
+  }
+}

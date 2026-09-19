@@ -13,6 +13,7 @@ SOURCE = ROOT.parent / 'bend/bend2'
 EXPECTED = '96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3'
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--output-dir', type=Path)
+p.add_argument('--loop', action='store_true', help='Automatic bounded loop-entry specialization; generic helpers remain original')
 a = p.parse_args()
 original = (SOURCE/'comp.ts').read_text()
 assert hashlib.sha256(original.encode()).hexdigest() == EXPECTED, 'Compiler changed; review integration before rebasing'
@@ -25,14 +26,29 @@ shutil.copytree(SOURCE/'effs', out/'effs')
 anchor = '  Object.assign(fl, outer);\n  return name;\n}'
 assert original.count(anchor) == 1
 integration = '''  const emitted = fl.spins[fl.spins.length - 1];
-  const optimized = guarded_scalar(fl, ck, ers, name, emitted[1]);
-  if (optimized !== null) emitted[1] = optimized;
+  gl_finish(fl, ck, ers, name, emitted);
   Object.assign(fl, outer);
   return name;
 }'''
-(out/'comp.ts').write_text(original.replace(anchor, integration) + '\n' + (HERE/'guarded_scalar.inc.ts').read_text())
+key_anchor = '''  const key = [ck.k, ...ers.map((e) => JSON.stringify(lay_of(fl.book, e)))]
+    .join("|");'''
+assert original.count(key_anchor) == 1
+patched = original.replace(anchor, integration).replace(key_anchor, '  const key = gl_native_key(fl, ck, ers);')
+assert patched.count('function emit_native(') == 1
+patched = patched.replace('function emit_native(', 'function emit_native_core(', 1)
+call_anchor = '  const name = emit_native(fl, ck, ers);'
+assert patched.count(call_anchor) == 1
+patched = patched.replace(call_anchor, '  const name = gl_call_name(fl, emit_native(fl, ck, ers), ck);')
+loop_code = (HERE/'guarded_loop.inc.ts').read_text()
+if a.loop:
+    loop_code = loop_code.replace('const GL_ENABLE_LOOP = false;', 'const GL_ENABLE_LOOP = true;')
+(out/'comp.ts').write_text(patched + '\n' + (HERE/'guarded_scalar.inc.ts').read_text() + '\n' + loop_code)
 subprocess.run(['bun', str(out/'main.ts'), str(ROOT/'bench/range.bend'), '-o', str(out/'smoke.c')], check=True)
 c = (out/'smoke.c').read_text()
-assert c.count('/* guarded_scalar:') == 1, 'Unchanged public pipeline did not specialize'
-assert '_guarded_fallback(' in c and '== 0);' in c
+if a.loop:
+    assert c.count('/* guarded_loop:') == 1, 'Unchanged public pipeline did not specialize'
+    assert '_guarded_fallback(' not in c
+else:
+    assert c.count('/* guarded_scalar:') == 1, 'Unchanged public pipeline did not specialize'
+    assert '_guarded_fallback(' in c and '== 0);' in c
 print(out/'main.ts')

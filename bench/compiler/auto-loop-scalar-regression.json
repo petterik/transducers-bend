@@ -1,0 +1,10 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-guarded-tests-jyer0x6s",
+  "compiler_sha256": "aacc4b4f3ec949497a06b7327c065619568d6a7f49250f40b354c5915f99dd96",
+  "checks": [
+    "reordered: 200000 full states + UBSan + original fallback",
+    "callback: 200000 full states + UBSan + callback counts",
+    "checked successor: rejected overflow does not execute",
+    "checked successor: accepted overflow fails identically"
+  ]
+}

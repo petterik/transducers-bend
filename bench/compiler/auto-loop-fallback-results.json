@@ -1,0 +1,343 @@
+{
+  "scope": "one million complete range-driver calls per batch; runtime max-U32 threshold rejects all values; valid zero/stopped entry states; sequential CPU",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-loop-fallback-kjlshbyk",
+  "source_report": "bench/compiler/auto-loop-results.json",
+  "results": [
+    {
+      "length": 1,
+      "state": "zero",
+      "fraction": 0.0,
+      "samples_ms": {
+        "original": [
+          2.872,
+          2.68,
+          2.662,
+          1.339,
+          1.339,
+          1.339
+        ],
+        "automatic_loop": [
+          2.066,
+          2.076,
+          1.984,
+          1.819,
+          1.789,
+          1.735
+        ]
+      },
+      "checksum": 3206588384,
+      "median_ms": {
+        "original": 2.0004999999999997,
+        "automatic_loop": 1.9015
+      }
+    },
+    {
+      "length": 1,
+      "state": "zero",
+      "fraction": 0.25,
+      "samples_ms": {
+        "original": [
+          1.095,
+          1.079,
+          1.086,
+          1.079,
+          1.082,
+          1.103
+        ],
+        "automatic_loop": [
+          1.347,
+          1.336,
+          1.342,
+          1.381,
+          1.383,
+          1.369
+        ]
+      },
+      "checksum": 3198588480,
+      "median_ms": {
+        "original": 1.084,
+        "automatic_loop": 1.358
+      }
+    },
+    {
+      "length": 1,
+      "state": "zero",
+      "fraction": 1.0,
+      "samples_ms": {
+        "original": [
+          1.072,
+          1.062,
+          1.061,
+          1.061,
+          1.058,
+          1.062
+        ],
+        "automatic_loop": [
+          1.338,
+          1.326,
+          1.326,
+          1.326,
+          1.323,
+          1.326
+        ]
+      },
+      "checksum": 3174588384,
+      "median_ms": {
+        "original": 1.0615,
+        "automatic_loop": 1.326
+      }
+    },
+    {
+      "length": 1,
+      "state": "stopped",
+      "fraction": 0.0,
+      "samples_ms": {
+        "original": [
+          1.072,
+          1.059,
+          1.061,
+          1.058,
+          1.062,
+          1.058
+        ],
+        "automatic_loop": [
+          1.325,
+          1.339,
+          1.284,
+          1.325,
+          1.331,
+          1.285
+        ]
+      },
+      "checksum": 3206588384,
+      "median_ms": {
+        "original": 1.06,
+        "automatic_loop": 1.325
+      }
+    },
+    {
+      "length": 1,
+      "state": "stopped",
+      "fraction": 0.25,
+      "samples_ms": {
+        "original": [
+          1.079,
+          1.097,
+          1.082,
+          1.124,
+          1.128,
+          1.092
+        ],
+        "automatic_loop": [
+          1.341,
+          1.359,
+          1.333,
+          1.356,
+          1.356,
+          1.367
+        ]
+      },
+      "checksum": 3206838381,
+      "median_ms": {
+        "original": 1.0945,
+        "automatic_loop": 1.356
+      }
+    },
+    {
+      "length": 1,
+      "state": "stopped",
+      "fraction": 1.0,
+      "samples_ms": {
+        "original": [
+          1.081,
+          1.061,
+          1.058,
+          1.058,
+          1.062,
+          1.058
+        ],
+        "automatic_loop": [
+          1.344,
+          1.342,
+          1.326,
+          1.323,
+          1.326,
+          1.326
+        ]
+      },
+      "checksum": 3207588384,
+      "median_ms": {
+        "original": 1.0594999999999999,
+        "automatic_loop": 1.326
+      }
+    },
+    {
+      "length": 32,
+      "state": "zero",
+      "fraction": 0.0,
+      "samples_ms": {
+        "original": [
+          18.534,
+          18.568,
+          18.33,
+          18.518,
+          18.884,
+          18.412
+        ],
+        "automatic_loop": [
+          16.149,
+          16.103,
+          16.117,
+          16.157,
+          16.089,
+          16.09
+        ]
+      },
+      "checksum": 3206588384,
+      "median_ms": {
+        "original": 18.526,
+        "automatic_loop": 16.11
+      }
+    },
+    {
+      "length": 32,
+      "state": "zero",
+      "fraction": 0.25,
+      "samples_ms": {
+        "original": [
+          18.272,
+          18.297,
+          18.487,
+          18.75,
+          18.633,
+          19.065
+        ],
+        "automatic_loop": [
+          16.883,
+          17.036,
+          17.563,
+          16.999,
+          16.879,
+          16.896
+        ]
+      },
+      "checksum": 3198588480,
+      "median_ms": {
+        "original": 18.56,
+        "automatic_loop": 16.947499999999998
+      }
+    },
+    {
+      "length": 32,
+      "state": "zero",
+      "fraction": 1.0,
+      "samples_ms": {
+        "original": [
+          18.542,
+          18.292,
+          18.414,
+          18.524,
+          18.551,
+          18.535
+        ],
+        "automatic_loop": [
+          13.23,
+          13.234,
+          13.579,
+          13.247,
+          13.234,
+          13.236
+        ]
+      },
+      "checksum": 3174588384,
+      "median_ms": {
+        "original": 18.5295,
+        "automatic_loop": 13.235
+      }
+    },
+    {
+      "length": 32,
+      "state": "stopped",
+      "fraction": 0.0,
+      "samples_ms": {
+        "original": [
+          18.281,
+          18.28,
+          18.28,
+          18.036,
+          18.394,
+          17.597
+        ],
+        "automatic_loop": [
+          16.098,
+          16.103,
+          16.101,
+          16.119,
+          16.121,
+          16.104
+        ]
+      },
+      "checksum": 3206588384,
+      "median_ms": {
+        "original": 18.28,
+        "automatic_loop": 16.1035
+      }
+    },
+    {
+      "length": 32,
+      "state": "stopped",
+      "fraction": 0.25,
+      "samples_ms": {
+        "original": [
+          19.246,
+          18.761,
+          18.986,
+          18.117,
+          18.259,
+          18.259
+        ],
+        "automatic_loop": [
+          17.571,
+          17.064,
+          16.85,
+          16.876,
+          16.852,
+          16.876
+        ]
+      },
+      "checksum": 3206838381,
+      "median_ms": {
+        "original": 18.509999999999998,
+        "automatic_loop": 16.876
+      }
+    },
+    {
+      "length": 32,
+      "state": "stopped",
+      "fraction": 1.0,
+      "samples_ms": {
+        "original": [
+          18.018,
+          17.771,
+          18.467,
+          18.583,
+          18.024,
+          18.225
+        ],
+        "automatic_loop": [
+          14.012,
+          14.056,
+          14.07,
+          13.893,
+          13.813,
+          13.605
+        ]
+      },
+      "checksum": 3207588384,
+      "median_ms": {
+        "original": 18.1245,
+        "automatic_loop": 13.9525
+      }
+    }
+  ]
+}

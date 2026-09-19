@@ -10,6 +10,7 @@ from loop_version import version_range
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--report',type=Path,required=True)
 p.add_argument('--output',type=Path,required=True)
+p.add_argument('--automatic-loop',action='store_true',help='Compare actual compiler loop to original')
 p.add_argument('--samples',type=int,default=3)
 a=p.parse_args()
 r=json.loads(a.report.read_text());artifacts=Path(r['artifacts'])
@@ -21,7 +22,8 @@ def run(args):
     return r.stdout
 original=(artifacts/'simple-original.c').read_text()
 auto=(artifacts/'simple-automatic.c').read_text()
-codes={'original':original,'outlined_helper':auto,'entry_version':version_range(original,auto),'loop_bailout':version_range(original,auto,bailout=True),'two_steps':version_range(original,auto,min_two=True)}
+codes=({'original':original,'automatic_loop':auto} if a.automatic_loop else
+       {'original':original,'outlined_helper':auto,'entry_version':version_range(original,auto),'loop_bailout':version_range(original,auto,bailout=True),'two_steps':version_range(original,auto,min_two=True)})
 for name,c in codes.items():
     harness='#define main bend_main\n'+c+'\n#undef main\n'+r'''
 #include <time.h>
