@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Program-specific generated-C ablations, NOT an automatic compiler rewrite."""
+"""Compare C ablations or an isolated automatic compiler against original/direct controls."""
 import argparse
 from collections import Counter
 import hashlib
@@ -17,6 +17,8 @@ p.add_argument('--samples', type=int, default=5)
 p.add_argument('--output', type=Path)
 p.add_argument('--early', action='store_true', help='Take 32 with varying source offsets')
 p.add_argument('--variants', nargs='+', help='Candidate names; original and direct always included')
+p.add_argument('--automatic-compiler', type=Path,
+               help='Compile the unchanged pipeline with an isolated automatic pass instead of C replacement')
 a = p.parse_args()
 assert a.samples > 0
 out = Path(tempfile.mkdtemp(prefix='bend-ablation-')).resolve()
@@ -35,6 +37,9 @@ report = {'artifacts': str(out), 'compiler_sha256': hashlib.sha256((compiler.par
           'timing': 'IO.now milliseconds; one warmup per process; two reversed-order rounds',
           'early': a.early, 'library_sha256': hashlib.sha256((ROOT/'transduce.bend').read_bytes()).hexdigest(),
           'results': []}
+if a.automatic_compiler:
+    report['scope'] = 'Automatic typed scalar specialization of unchanged public pipeline; original/direct controls'
+    report['automatic_compiler_sha256'] = hashlib.sha256((a.automatic_compiler.parent/'comp.ts').read_bytes()).hexdigest()
 for mixed in [True, False]:
     label = ('mixed' if mixed else 'simple') + ('_early' if a.early else '')
     take, repeats = (32, 1000000) if a.early else (2000000, 32)
@@ -110,6 +115,16 @@ def main() -> IO(Unit):
     if a.variants:
         assert set(a.variants) <= set(bodies), a.variants
         bodies = {k: v for k, v in bodies.items() if k in a.variants}
+    if a.automatic_compiler:
+        stem = out / f'{label}-automatic'
+        command(['bun', str(a.automatic_compiler), str(out/f'{label}-original.bend'), '-o', str(stem.with_suffix('.c'))])
+        automatic = stem.with_suffix('.c').read_text()
+        assert automatic.count('/* guarded_scalar:') == 1, 'Expected one discovered region in this benchmark'
+        assert name+'_guarded_fallback(' in automatic, 'Helper numbering changed; review differential harness'
+        untouched = match[0].replace('INLINE Term', 'static __attribute__((noinline, cold)) Term', 1)
+        untouched = untouched.replace(name+'(', name+'_guarded_fallback(', 1)
+        assert untouched in automatic, 'Fallback must be the original compiler output, apart from its declaration'
+        bodies = {'automatic': ''}
     for variant, body in bodies.items():
         replacement = header + prefix + body + suffix
         if variant.startswith('guarded_cold'):
@@ -134,10 +149,20 @@ int main(void) {
   puts("PASS 200000 full-state comparisons"); return 0;
 }
 '''.replace('HELPER(', name+'(')
+        if a.automatic_compiler:
+            codes[variant] = automatic
+            harness = ('#define main bend_main\n' + automatic + '\n#undef main\n'
+                       + harness.split('\n#undef main\n', 1)[1]
+                         .replace(name+'(e, original', name+'_guarded_fallback(e, original')
+                         .replace('candidate(e, changed', name+'(e, changed'))
         check = out / f'{label}-{variant}-check'
         check.with_suffix('.c').write_text(harness)
         command(['clang', '-std=c11', '-O3', str(check.with_suffix('.c')), '-lpthread', '-lm', '-o', str(check)])
         assert command([str(check)]).strip() == 'PASS 200000 full-state comparisons'
+        if a.automatic_compiler:
+            command(['clang', '-std=c11', '-O1', '-fsanitize=undefined', '-fno-sanitize-recover=all',
+                     str(check.with_suffix('.c')), '-lpthread', '-lm', '-o', str(check)+'-ubsan'])
+            assert command([str(check)+'-ubsan']).strip() == 'PASS 200000 full-state comparisons'
     expected = 0
     offsets = Counter(i & 65535 for i in range(repeats)) if a.early else {0: repeats}
     for offset, multiplicity in offsets.items():

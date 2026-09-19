@@ -1,5 +1,17 @@
 # Optimization decision: confidence and priorities
 
+## Latest milestone: automatic isolated compiler experiment
+
+[The typed guarded-scalar pass](bench/compiler/AUTOMATIC.md) now discovers and
+lowers the successful transition from the unchanged public pipeline. It analyzes
+typed helper bodies with separate binding scopes, derives preserved fields and
+branch-local Nat bounds, and retains the original helper as a cold fallback.
+It uses no transducer/helper names or fixed field positions for recognition.
+This is a bounded CPU experiment in an isolated compiler copy, not a production
+optimization or a general profitability guarantee. The Source API, production
+library, and sibling compiler remain unchanged. Details, raw measurements,
+validation, reproduction, and remaining promotion gates are in that report.
+
 ## Latest evidence: controlled generated-C ablations
 
 [The ablation study](bench/compiler/ABLATION.md) now demonstrates a near-handwritten

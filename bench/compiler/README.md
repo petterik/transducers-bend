@@ -1,5 +1,10 @@
 # Automatic scalar-selection experiment
 
+**Current implementation:** [typed guarded scalar specialization](AUTOMATIC.md),
+prepared with `prepare_guarded.py`. It derives the successful transition
+automatically and reaches near-handwritten local CPU timings. The older
+`prepare.py` and C-text selection experiment below remain unchanged.
+
 Newer result: [controlled generated-C ablations](ABLATION.md) identify a substantially
 better target: guarded specialization plus unchanged-field summaries across a cold
 fallback. That experiment reaches near-handwritten timing on full/early mixed and

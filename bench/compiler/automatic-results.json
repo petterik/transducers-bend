@@ -1,0 +1,116 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-ablation-priulpny",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "scope": "Automatic typed scalar specialization of unchanged public pipeline; original/direct controls",
+  "timing": "IO.now milliseconds; one warmup per process; two reversed-order rounds",
+  "early": false,
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a",
+  "results": [
+    {
+      "case": "mixed",
+      "expected": 3358576704,
+      "samples_ms": {
+        "original": [
+          321,
+          319,
+          319,
+          323,
+          319,
+          319,
+          319,
+          320,
+          327,
+          336
+        ],
+        "direct": [
+          96,
+          95,
+          97,
+          95,
+          95,
+          95,
+          94,
+          95,
+          95,
+          94
+        ],
+        "automatic": [
+          96,
+          95,
+          96,
+          96,
+          95,
+          96,
+          93,
+          96,
+          96,
+          96
+        ]
+      },
+      "c_sha256": {
+        "original": "9da631691c33481e87ad8efd705429d519dcdf0a4d8b87a76f13b79871d9a8d8",
+        "direct": "3a75c005f0ccf3385dd3134a1f0893515c627633f261e32344799f882bb4070a",
+        "automatic": "bbd9a48f4d7f9cfba46d7d0fb1155e2613bc1610464a2a01f6cf500b6d3bb413"
+      },
+      "median_ms": {
+        "original": 319.5,
+        "direct": 95.0,
+        "automatic": 96.0
+      }
+    },
+    {
+      "case": "simple",
+      "expected": 724846560,
+      "samples_ms": {
+        "original": [
+          51,
+          50,
+          51,
+          50,
+          51,
+          49,
+          49,
+          50,
+          50,
+          51
+        ],
+        "direct": [
+          36,
+          34,
+          34,
+          34,
+          34,
+          34,
+          33,
+          35,
+          34,
+          34
+        ],
+        "automatic": [
+          37,
+          37,
+          36,
+          36,
+          36,
+          36,
+          38,
+          36,
+          37,
+          36
+        ]
+      },
+      "c_sha256": {
+        "original": "4ceaff3e2c68b340a1e50e77894ba225f67c7816b43fa36fe185f50eaf855e40",
+        "direct": "8f2883c7cb0c57f8276930f143a98661340458e1aa0568b4c3881e92277bee70",
+        "automatic": "c6dab174315c450bac48550922c4d4f1c01ec692bbab494e758c00344c3a0363"
+      },
+      "median_ms": {
+        "original": 50.0,
+        "direct": 34.0,
+        "automatic": 36.0
+      }
+    }
+  ],
+  "automatic_compiler_sha256": "8946e8843af976ffef45acd166696e2684a2da895025c7d2ca07848191883200"
+}

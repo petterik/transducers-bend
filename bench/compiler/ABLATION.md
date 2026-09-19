@@ -1,5 +1,9 @@
 # Generated-C ablations: a near-handwritten target
 
+**Follow-up:** [the automatic typed-region experiment](AUTOMATIC.md) now derives
+this shape in an isolated compiler. This document describes the earlier
+program-specific experiment and its evidence.
+
 This is a **program-specific experiment**, not an installed compiler pass.
 `ablate.py` compiles the original public map/filter/take/sum pipeline, then replaces
 one generated scalar helper. The source driver, mapper, predicate, initializer,

@@ -1,0 +1,12 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-guarded-tests-6_8c5tzb",
+  "compiler_sha256": "8946e8843af976ffef45acd166696e2684a2da895025c7d2ca07848191883200",
+  "checks": [
+    "reordered: 200000 full states + UBSan + original fallback",
+    "callback: 200000 full states + UBSan + callback counts",
+    "checked successor: rejected overflow does not execute",
+    "checked successor: accepted overflow fails identically",
+    "three maps / single map / original compiler: identical timed-function assembly"
+  ],
+  "map_assembly_sha256": "abe01ab28e8c32a61be0e94b6871c66c8fd2a92174db6799a4c51e537bac6b4a"
+}
