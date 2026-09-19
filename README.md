@@ -63,8 +63,9 @@ The test runner compares emitted JS and native output against each Bend file's `
 
 ## Current limits
 
-Range sources, `into_list`, public buffered/flattening operations, parallel execution, and IO drivers are not implemented. The completion suite contains test-only buffering adapters to validate the protocol. No allocation-free guarantee is made: JS still constructs state/control objects, and native layout/reuse depends on the compiler.
+Range sources, `into_list`, public buffered/flattening operations, parallel collection drivers, and IO drivers are not implemented. Existing sequential pipelines can run inside caller-defined parallel batches; see [CPU/GPU measurements](bench/PARALLEL.md). The completion suite contains test-only buffering adapters to validate the protocol. No allocation-free guarantee is made: JS still constructs state/control objects, and native layout/reuse depends on the compiler.
 
+- [CPU threads and Metal GPU performance](bench/PARALLEL.md)
 - [Implementation status, validation, and performance](IMPLEMENTATION.md)
 - [Library design](DESIGN.md)
 - [Confidence review](CONFIDENCE.md)

@@ -1,0 +1,88 @@
+{
+  "timing": "IO.now milliseconds; excludes process/GPU startup, includes source construction and cleanup",
+  "semantics": "Independent list reductions; take resets at every leaf. Not a parallel global take.",
+  "rounds": 2,
+  "samples_per_round": 7,
+  "results": [
+    {
+      "case": "batch_early_14",
+      "leaves": 16384,
+      "elements_per_leaf": 64,
+      "take_per_leaf": 8,
+      "expected": 3297640448,
+      "builds": {
+        "library": {
+          "seconds": 0.7980734159937128,
+          "gpu_bytes": 101344
+        },
+        "materialized": {
+          "seconds": 0.9685935829766095,
+          "gpu_bytes": 135104
+        },
+        "direct": {
+          "seconds": 0.7669882079353556,
+          "gpu_bytes": 98720
+        }
+      },
+      "samples_ms": {
+        "cpu_2/library": [
+          32,
+          31,
+          30,
+          29,
+          30,
+          29,
+          30,
+          29,
+          29,
+          29,
+          30,
+          29,
+          29,
+          29
+        ],
+        "cpu_2/materialized": [
+          207,
+          207,
+          208,
+          206,
+          212,
+          221,
+          212,
+          249,
+          243,
+          237,
+          219,
+          207,
+          208,
+          208
+        ],
+        "cpu_2/direct": [
+          30,
+          29,
+          30,
+          30,
+          29,
+          30,
+          29,
+          30,
+          29,
+          30,
+          29,
+          30,
+          30,
+          29
+        ]
+      },
+      "medians_ms": {
+        "cpu_2/library": 29.0,
+        "cpu_2/materialized": 210.0,
+        "cpu_2/direct": 30.0
+      }
+    }
+  ],
+  "work_rounds": 256,
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "cpu_count": 16
+}

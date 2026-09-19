@@ -52,3 +52,7 @@ The expensive map uses 256 rounds of a nonlinear U32 recurrence. All benchmark v
 The historical single-map experiment was also rerun with specialization: its median was 31.7 ms versus 32.2 ms direct and 30.2 ms for direct template callbacks in that run, compared with the previously recorded 65.3 ms for the record implementation. See [specialized samples](experiments/static_reducer/specialized-results.json).
 
 Allocation traffic and peak live heap were not measured. Absence of intermediate stage collections does not imply absence of per-element wrapper allocation, especially in JS. Native compiler specialization and these timing results do not justify a zero-allocation claim.
+
+## CPU threads and GPU follow-up
+
+[Parallel benchmark report](bench/PARALLEL.md) records actual Metal execution and 1/2/4/8/16-thread CPU measurements against equally parallel handwritten and materialized baselines. Balanced independent reductions scale well; a single list remains serial. Long GPU samples give 52 ms library versus 53 ms handwritten for full consumption, and 7 ms for both versus 50 ms materialized with early stopping. Every output matched. Cheap prebuilt lists expose an important limit: unused-tail cleanup can make early stopping slower than full consumption, for both fused implementations. No library/compiler changes were needed. This validates the measured workloads on this M3 Max, not arbitrary pipelines, CUDA, or the unavailable cluster gates.

@@ -1,0 +1,374 @@
+{
+  "timing": "IO.now milliseconds; excludes process/GPU startup, includes source construction and cleanup",
+  "semantics": "Independent list reductions; take resets at every leaf. Not a parallel global take.",
+  "rounds": 2,
+  "samples_per_round": 5,
+  "results": [
+    {
+      "case": "batch_full_14",
+      "leaves": 16384,
+      "elements_per_leaf": 64,
+      "take_per_leaf": 64,
+      "expected": 1585446912,
+      "builds": {
+        "library": {
+          "seconds": 0.7189921250101179,
+          "gpu_bytes": 101280
+        },
+        "materialized": {
+          "seconds": 0.75294025009498,
+          "gpu_bytes": 135056
+        },
+        "direct": {
+          "seconds": 0.6867049580905586,
+          "gpu_bytes": 98672
+        }
+      },
+      "samples_ms": {
+        "cpu_1/library": [
+          3472,
+          3474,
+          3483,
+          3471,
+          3505,
+          3588,
+          3704,
+          3685,
+          3685,
+          3655
+        ],
+        "cpu_1/materialized": [
+          7261,
+          7145,
+          5143,
+          4497,
+          4604,
+          3810,
+          3652,
+          3566,
+          3673,
+          3587
+        ],
+        "cpu_1/direct": [
+          4869,
+          4378,
+          4196,
+          4187,
+          4166,
+          3764,
+          3778,
+          3816,
+          3688,
+          3724
+        ],
+        "cpu_8/library": [
+          657,
+          679,
+          683,
+          682,
+          699,
+          678,
+          579,
+          633,
+          678,
+          573
+        ],
+        "cpu_8/materialized": [
+          662,
+          758,
+          617,
+          716,
+          675,
+          604,
+          605,
+          605,
+          609,
+          611
+        ],
+        "cpu_8/direct": [
+          745,
+          647,
+          672,
+          666,
+          659,
+          617,
+          649,
+          596,
+          604,
+          597
+        ],
+        "cpu_16/library": [
+          383,
+          458,
+          383,
+          410,
+          378,
+          374,
+          451,
+          339,
+          446,
+          379
+        ],
+        "cpu_16/materialized": [
+          474,
+          431,
+          471,
+          394,
+          377,
+          457,
+          432,
+          442,
+          424,
+          471
+        ],
+        "cpu_16/direct": [
+          387,
+          386,
+          389,
+          405,
+          506,
+          309,
+          383,
+          374,
+          356,
+          363
+        ],
+        "gpu/library": [
+          8,
+          6,
+          7,
+          6,
+          6,
+          9,
+          9,
+          8,
+          8,
+          13
+        ],
+        "gpu/materialized": [
+          7,
+          7,
+          7,
+          7,
+          7,
+          8,
+          8,
+          8,
+          9,
+          8
+        ],
+        "gpu/direct": [
+          7,
+          6,
+          7,
+          7,
+          6,
+          7,
+          7,
+          7,
+          7,
+          7
+        ]
+      },
+      "medians_ms": {
+        "cpu_1/library": 3546.5,
+        "cpu_1/materialized": 4153.5,
+        "cpu_1/direct": 3991.0,
+        "cpu_8/library": 678.0,
+        "cpu_8/materialized": 614.0,
+        "cpu_8/direct": 648.0,
+        "cpu_16/library": 383.0,
+        "cpu_16/materialized": 437.0,
+        "cpu_16/direct": 384.5,
+        "gpu/library": 8.0,
+        "gpu/materialized": 7.5,
+        "gpu/direct": 7.0
+      }
+    },
+    {
+      "case": "batch_early_14",
+      "leaves": 16384,
+      "elements_per_leaf": 64,
+      "take_per_leaf": 8,
+      "expected": 1808793600,
+      "builds": {
+        "library": {
+          "seconds": 0.909590041032061,
+          "gpu_bytes": 101296
+        },
+        "materialized": {
+          "seconds": 0.9259711250197142,
+          "gpu_bytes": 135088
+        },
+        "direct": {
+          "seconds": 0.8694599170703441,
+          "gpu_bytes": 98672
+        }
+      },
+      "samples_ms": {
+        "cpu_1/library": [
+          450,
+          450,
+          478,
+          504,
+          465,
+          448,
+          448,
+          447,
+          447,
+          448
+        ],
+        "cpu_1/materialized": [
+          3611,
+          3631,
+          3545,
+          3543,
+          3551,
+          3544,
+          3547,
+          3549,
+          3544,
+          3551
+        ],
+        "cpu_1/direct": [
+          449,
+          448,
+          449,
+          448,
+          450,
+          473,
+          471,
+          535,
+          456,
+          450
+        ],
+        "cpu_8/library": [
+          57,
+          58,
+          57,
+          60,
+          63,
+          72,
+          73,
+          72,
+          73,
+          77
+        ],
+        "cpu_8/materialized": [
+          567,
+          551,
+          649,
+          560,
+          571,
+          601,
+          591,
+          574,
+          580,
+          594
+        ],
+        "cpu_8/direct": [
+          73,
+          73,
+          72,
+          74,
+          75,
+          68,
+          70,
+          73,
+          72,
+          75
+        ],
+        "cpu_16/library": [
+          54,
+          53,
+          53,
+          53,
+          54,
+          49,
+          47,
+          49,
+          46,
+          47
+        ],
+        "cpu_16/materialized": [
+          433,
+          337,
+          357,
+          393,
+          367,
+          326,
+          354,
+          353,
+          431,
+          373
+        ],
+        "cpu_16/direct": [
+          47,
+          47,
+          45,
+          60,
+          56,
+          83,
+          73,
+          70,
+          62,
+          52
+        ],
+        "gpu/library": [
+          5,
+          2,
+          2,
+          2,
+          2,
+          1,
+          3,
+          2,
+          2,
+          2
+        ],
+        "gpu/materialized": [
+          10,
+          10,
+          10,
+          11,
+          10,
+          10,
+          8,
+          10,
+          9,
+          9
+        ],
+        "gpu/direct": [
+          2,
+          2,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3
+        ]
+      },
+      "medians_ms": {
+        "cpu_1/library": 449.0,
+        "cpu_1/materialized": 3548.0,
+        "cpu_1/direct": 450.0,
+        "cpu_8/library": 67.5,
+        "cpu_8/materialized": 577.0,
+        "cpu_8/direct": 73.0,
+        "cpu_16/library": 51.0,
+        "cpu_16/materialized": 362.0,
+        "cpu_16/direct": 58.0,
+        "gpu/library": 2.0,
+        "gpu/materialized": 10.0,
+        "gpu/direct": 2.0
+      }
+    }
+  ],
+  "work_rounds": 2048,
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "cpu_count": 16
+}
