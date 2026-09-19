@@ -19,8 +19,10 @@ p.add_argument('--early', action='store_true', help='Take 32 with varying source
 p.add_argument('--variants', nargs='+', help='Candidate names; original and direct always included')
 p.add_argument('--automatic-compiler', type=Path,
                help='Compile the unchanged pipeline with an isolated automatic pass instead of C replacement')
+p.add_argument('--linkage-ablation', action='store_true', help='With automatic compiler, compare noinline-only/inline fallback declarations in generated C')
 a = p.parse_args()
 assert a.samples > 0
+assert not a.linkage_ablation or a.automatic_compiler, '--linkage-ablation requires --automatic-compiler'
 out = Path(tempfile.mkdtemp(prefix='bend-ablation-')).resolve()
 print(out, flush=True)
 compiler = ROOT.parent / 'bend/bend2/main.ts'
@@ -40,6 +42,7 @@ report = {'artifacts': str(out), 'compiler_sha256': hashlib.sha256((compiler.par
 if a.automatic_compiler:
     report['scope'] = 'Automatic typed scalar specialization of unchanged public pipeline; original/direct controls'
     report['automatic_compiler_sha256'] = hashlib.sha256((a.automatic_compiler.parent/'comp.ts').read_bytes()).hexdigest()
+    report['linkage_ablation'] = a.linkage_ablation
 for mixed in [True, False]:
     label = ('mixed' if mixed else 'simple') + ('_early' if a.early else '')
     take, repeats = (32, 1000000) if a.early else (2000000, 32)
@@ -125,6 +128,11 @@ def main() -> IO(Unit):
         untouched = untouched.replace(name+'(', name+'_guarded_fallback(', 1)
         assert untouched in automatic, 'Fallback must be the original compiler output, apart from its declaration'
         bodies = {'automatic': ''}
+        automatic_variants = {'automatic': automatic}
+        if a.linkage_ablation:
+            for variant_label, decl in [('no_cold', 'static __attribute__((noinline))'), ('inline', 'INLINE')]:
+                automatic_variants[variant_label] = automatic.replace('static __attribute__((noinline, cold)) Term', decl+' Term')
+                bodies[variant_label] = ''
     for variant, body in bodies.items():
         replacement = header + prefix + body + suffix
         if variant.startswith('guarded_cold'):
@@ -150,8 +158,8 @@ int main(void) {
 }
 '''.replace('HELPER(', name+'(')
         if a.automatic_compiler:
-            codes[variant] = automatic
-            harness = ('#define main bend_main\n' + automatic + '\n#undef main\n'
+            codes[variant] = automatic_variants[variant]
+            harness = ('#define main bend_main\n' + codes[variant] + '\n#undef main\n'
                        + harness.split('\n#undef main\n', 1)[1]
                          .replace(name+'(e, original', name+'_guarded_fallback(e, original')
                          .replace('candidate(e, changed', name+'(e, changed'))

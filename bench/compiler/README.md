@@ -4,6 +4,8 @@
 prepared with `prepare_guarded.py`. It derives the successful transition
 automatically and reaches near-handwritten local CPU timings. The older
 `prepare.py` and C-text selection experiment below remain unchanged.
+The [promotion review](PROMOTION.md) now records a fallback-heavy outlining
+regression and broader correctness checks; default enablement remains deferred.
 
 Newer result: [controlled generated-C ablations](ABLATION.md) identify a substantially
 better target: guarded specialization plus unchanged-field summaries across a cold

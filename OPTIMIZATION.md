@@ -2,6 +2,12 @@
 
 ## Latest milestone: automatic isolated compiler experiment
 
+The [subsequent promotion review](bench/compiler/PROMOTION.md) passes broader
+correctness checks but finds a measured outlining tradeoff: frequent valid
+zero/stopped states make the outlined helper slower, while inlining its fallback
+loses the predictable-range speedup. Caller-level profitability remains unresolved;
+keep the pass isolated rather than enabling it universally.
+
 [The typed guarded-scalar pass](bench/compiler/AUTOMATIC.md) now discovers and
 lowers the successful transition from the unchanged public pipeline. It analyzes
 typed helper bodies with separate binding scopes, derives preserved fields and

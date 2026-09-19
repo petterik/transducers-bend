@@ -1,5 +1,9 @@
 # Automatic guarded scalar specialization
 
+**Follow-up:** [promotion review](PROMOTION.md) adds 3.2 million adversarial state
+comparisons and local upstream coverage. It also demonstrates a fallback-heavy
+performance regression from outlining, so this pass is not ready to default-enable.
+
 The first milestone is implemented: an isolated compiler now derives the winning
 scalar transition from the unchanged public map/filter/take/sum pipeline. This is
 **automatic discovery and lowering**, not another handwritten transition or C

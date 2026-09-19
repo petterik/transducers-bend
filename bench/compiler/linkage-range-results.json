@@ -1,0 +1,173 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-ablation-04oitye1",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "scope": "Automatic typed scalar specialization of unchanged public pipeline; original/direct controls",
+  "timing": "IO.now milliseconds; one warmup per process; two reversed-order rounds",
+  "early": false,
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a",
+  "results": [
+    {
+      "case": "mixed",
+      "expected": 3358576704,
+      "samples_ms": {
+        "original": [
+          321,
+          330,
+          320,
+          319,
+          319,
+          319,
+          319,
+          320,
+          320,
+          322
+        ],
+        "direct": [
+          93,
+          93,
+          93,
+          93,
+          93,
+          94,
+          93,
+          94,
+          93,
+          94
+        ],
+        "automatic": [
+          94,
+          94,
+          95,
+          94,
+          95,
+          95,
+          95,
+          95,
+          94,
+          95
+        ],
+        "no_cold": [
+          95,
+          94,
+          95,
+          95,
+          94,
+          92,
+          93,
+          92,
+          93,
+          92
+        ],
+        "inline": [
+          103,
+          102,
+          101,
+          102,
+          102,
+          102,
+          102,
+          101,
+          102,
+          102
+        ]
+      },
+      "c_sha256": {
+        "original": "9da631691c33481e87ad8efd705429d519dcdf0a4d8b87a76f13b79871d9a8d8",
+        "direct": "3a75c005f0ccf3385dd3134a1f0893515c627633f261e32344799f882bb4070a",
+        "automatic": "bbd9a48f4d7f9cfba46d7d0fb1155e2613bc1610464a2a01f6cf500b6d3bb413",
+        "no_cold": "27af019b09cd4b90c8acd62e99306ccae78373ba5c9eafe506f53eb43726f4f0",
+        "inline": "55e998e3a4e46faac815431056fb71f0d56168ab083f5b2e396501b774470c39"
+      },
+      "median_ms": {
+        "original": 320.0,
+        "direct": 93.0,
+        "automatic": 95.0,
+        "no_cold": 93.5,
+        "inline": 102.0
+      }
+    },
+    {
+      "case": "simple",
+      "expected": 724846560,
+      "samples_ms": {
+        "original": [
+          49,
+          47,
+          48,
+          47,
+          48,
+          48,
+          49,
+          47,
+          48,
+          47
+        ],
+        "direct": [
+          36,
+          34,
+          34,
+          34,
+          34,
+          34,
+          32,
+          33,
+          34,
+          34
+        ],
+        "automatic": [
+          38,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36,
+          36
+        ],
+        "no_cold": [
+          38,
+          36,
+          36,
+          37,
+          36,
+          36,
+          36,
+          36,
+          37,
+          36
+        ],
+        "inline": [
+          50,
+          50,
+          50,
+          50,
+          50,
+          50,
+          50,
+          50,
+          50,
+          50
+        ]
+      },
+      "c_sha256": {
+        "original": "4ceaff3e2c68b340a1e50e77894ba225f67c7816b43fa36fe185f50eaf855e40",
+        "direct": "8f2883c7cb0c57f8276930f143a98661340458e1aa0568b4c3881e92277bee70",
+        "automatic": "c6dab174315c450bac48550922c4d4f1c01ec692bbab494e758c00344c3a0363",
+        "no_cold": "c7a203c433a89b49c4a1fd77ce6cfa5d64cd516f7423f2190ba3610e98ca76d1",
+        "inline": "fb27cdebbae3824c735937c2972773b95aa8aed33d07ba1ecc3064e26e8ff33d"
+      },
+      "median_ms": {
+        "original": 48.0,
+        "direct": 34.0,
+        "automatic": 36.0,
+        "no_cold": 36.0,
+        "inline": 50.0
+      }
+    }
+  ],
+  "automatic_compiler_sha256": "8946e8843af976ffef45acd166696e2684a2da895025c7d2ca07848191883200",
+  "linkage_ablation": true
+}

@@ -1,0 +1,102 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-adversarial-z2qcaiab",
+  "compiler_sha256": "8946e8843af976ffef45acd166696e2684a2da895025c7d2ca07848191883200",
+  "results": [
+    {
+      "case": "original",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "closed_changes_cookie",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "zero_changes_cookie",
+      "optimized_regions": 0,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "closed_changes_sum",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "closed_changes_count",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "accepted_changes_inner_tag",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "sum_twice",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "wrapping_constant",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "constant_sum",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "reverse_outer_tags",
+      "optimized_regions": 0,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "no_decrement",
+      "optimized_regions": 0,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "rejected_changes_cookie",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "closed_changes_cookie_extra_add",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "zero_changes_cookie_extra_add",
+      "optimized_regions": 0,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "closed_changes_sum_extra_add",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    },
+    {
+      "case": "closed_changes_count_extra_add",
+      "optimized_regions": 1,
+      "states": 200000,
+      "ubsan": true
+    }
+  ]
+}
