@@ -1,9 +1,9 @@
 // Direct TypeScript twin of direct.bend. The arithmetic is explicitly kept
 // in uint32 space so its checksum matches Bend and the C twin.
 const ARRAY_DEPTH = 8;
-const BATCH_DEPTH = 6;
+const BATCH_DEPTH = 10;
 const NORMALIZE_ROUNDS = 32;
-const REPEATS = 1;
+const REPEATS = 2;
 
 const u32 = (x: number): number => x >>> 0;
 

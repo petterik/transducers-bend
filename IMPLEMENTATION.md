@@ -80,16 +80,14 @@ Core Bend list path, a direct fused Bend traversal, and handwritten C,
 TypeScript, and Lean twins. Its default report is in
 [bench/wordscan/REPORT.md](bench/wordscan/REPORT.md).
 
-The measured local CPU-1 medians were 62 ms transduced, 68 ms Core Bend
-materialized, and 50 ms direct fused Bend; CPU-16 medians were 7, 9, and 6 ms
-respectively. All variants matched the independent checksum. This supports
-the expected benefit over materialization for a map-reduce-shaped workload,
-while the direct loop remains a lower-level reference. The host had no
-available GPU device, and Lean was not installed, so those columns are marked
-unavailable rather than inferred. The benchmark also records five retained
-static reducer/source records in generated JS for the richer mapcat composition;
-this is a current compiler code-shape observation and not an allocation-free
-claim.
+The checked-in report records the local CPU medians and the independent
+checksum for every successful variant. This supports the expected benefit over
+materialization for a map-reduce-shaped workload, while the direct loop remains
+a lower-level reference. The host had no available GPU device, and Lean was not
+installed, so those columns are marked unavailable rather than inferred. The
+benchmark also records the retained static reducer/source records in generated
+JS for the richer mapcat composition; this is a current compiler code-shape
+observation and not an allocation-free claim.
 
 ## CPU threads and GPU follow-up
 

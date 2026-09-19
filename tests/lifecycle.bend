@@ -31,6 +31,15 @@ def done(state: State) -> U32:
 def consumer() -> T.Reducer<U32, U32>:
   T.Reducer{Nat, State, n => begin(n), s => x => advance(s, x), s => done(s)}
 
+def array_values() -> Array<U32>:
+  a = Array.set(U32, [0 : U32*4n], 0, 1)
+  b = Array.set(U32, a, 1, 2)
+  c = Array.set(U32, b, 2, 3)
+  Array.set(U32, c, 3, 4)
+
+def expand_one(x: U32) -> List<U32>:
+  [x, 0]
+
 def digits() -> T.Reducer<Char, U32>:
   T.map(~Char, ~U32, ~U32, ~(c => (Char.to_u32(c) - 48 : U32)), ~consumer())
 
@@ -48,5 +57,14 @@ def main() -> List<U32>:
      Tree.Branch{Tree.Leaf{1}, Tree.Branch{Tree.Leaf{2}, Tree.Leaf{3}}}),
    T.transduce(~Tree.over_tree(~U32, ~U32, ~consumer()), 0n,
      Tree.Branch{Tree.Leaf{1}, Tree.Leaf{2}}),
-   T.transduce(~Tree.over_tree(~U32, ~U32, ~consumer()), 9n, Tree.EmptyTree{})]
-#|[1003, 1000, 1000, 1003, 1000, 1000, 1003, 1000, 1000, 1003, 1000, 1000]
+   T.transduce(~Tree.over_tree(~U32, ~U32, ~consumer()), 9n, Tree.EmptyTree{}),
+   T.transduce(~T.over_array(~U32, ~U32, ~consumer()), 2n, array_values()),
+   T.transduce(~T.over_array(~U32, ~U32, ~consumer()), 0n, array_values()),
+   T.transduce(~T.over_array(~U32, ~U32, ~consumer()), 9n, array_values()),
+   T.transduce(~T.over_array(~U32, ~U32,
+     ~T.mapcat(~U32, ~U32, ~U32, ~expand_one, ~consumer())), 2n, array_values()),
+   T.transduce(~T.over_array(~U32, ~U32,
+     ~T.mapcat(~U32, ~U32, ~U32, ~expand_one, ~consumer())), 0n, array_values()),
+   T.transduce(~T.over_array(~U32, ~U32,
+     ~T.mapcat(~U32, ~U32, ~U32, ~expand_one, ~consumer())), 9n, array_values())]
+#|[1003, 1000, 1000, 1003, 1000, 1000, 1003, 1000, 1000, 1003, 1000, 1000, 1003, 1000, 1010, 1001, 1000, 1010]

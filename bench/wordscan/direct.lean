@@ -1,9 +1,9 @@
 -- Direct Lean twin of direct.bend. It uses mutable loops for the scalar
 -- reference and UInt32 arithmetic for the same wrapping checksum.
 def ARRAY_DEPTH : Nat := 8
-def BATCH_DEPTH : Nat := 6
+def BATCH_DEPTH : Nat := 10
 def NORMALIZE_ROUNDS : Nat := 32
-def REPEATS : Nat := 1
+def REPEATS : Nat := 2
 
 def work (n : Nat) (x : UInt32) : UInt32 :=
   match n with

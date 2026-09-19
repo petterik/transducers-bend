@@ -44,8 +44,13 @@ def main() -> IO(Unit):
         ~T.take(~U32, ~U32, ~T.sum()))), (3n, 0), values())))
     IO.print(U32.show(T.transduce(~T.over_array(~Quad, ~U32,
       ~T.mapcat(~Quad, ~U32, ~U32, ~maybe_pair, ~T.sum())), 0, with_empty())))
+    IO.print(List.show(~&1, ~U32, ~U32.show,
+      T.transduce(~T.over_array(~Quad, ~List<U32>,
+        ~T.mapcat(~Quad, ~U32, ~List<U32>, ~pair, ~T.into_list(~U32))),
+        Unit{}, values())))
 #|72
 #|72
 #|72
 #|17
 #|5
+#|[1, 11, 5, 15, 3, 13, 7, 17]

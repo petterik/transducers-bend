@@ -1,37 +1,38 @@
 # Array mapcat benchmark report
 
-The default local run used `ARRAY_DEPTH=8`, `BATCH_DEPTH=10`, two batches per
-timed sample, and 32 normalization rounds per lane. Every variant returned
-checksum `1287990074` for every sample. Bend timings are persistent
-process `IO.now` medians after one discarded warm-up; the C and TypeScript
-figures include process startup and are therefore a separate reference.
+This run used `ARRAY_DEPTH=8`,
+`BATCH_DEPTH=10`, `REPEATS=2`,
+and `NORMALIZE_ROUNDS=32`. Every successful
+variant returned checksum `1287990074`. Bend timings are
+persistent-process `IO.now` medians after one discarded warm-up; the C and
+TypeScript figures include process startup and are therefore a separate
+reference.
 
 | Variant | Bend CPU 1 | Bend CPU 16 | Bend GPU | External CPU 1 |
 | --- | ---: | ---: | --- | ---: |
-| Transduced (`over_array` + `mapcat`) | 62 ms | 7 ms | unavailable: no device | — |
-| Core Bend materialized list | 68 ms | 9 ms | unavailable: no device | — |
-| Direct fused Bend | 50 ms | 6 ms | unavailable: no device | — |
-| Handwritten C | — | — | — | 2.83 ms |
-| Handwritten TypeScript | — | — | — | 93.12 ms |
-| Handwritten Lean | — | — | — | unavailable: `lean` not installed |
+| Transduced (`over_array` + `mapcat`) | 62.00 ms | 7.00 ms | unavailable: bend: --gpu on, but this binary found no GPU device | — |
+| Core Bend materialized list | 68.00 ms | 10.00 ms | unavailable: bend: --gpu on, but this binary found no GPU device | — |
+| Direct fused Bend | 51.00 ms | 6.00 ms | unavailable: bend: --gpu on, but this binary found no GPU device | — |
+| Handwritten C | — | — | — | 4.38 ms |
+| Handwritten TypeScript | — | — | — | 93.84 ms |
+| Handwritten Lean | — | — | — | unavailable: lean not found |
 
-The useful within-Bend result is that streaming transduction is about 9% faster
-than the materialized Core Bend list path at one thread. The CPU-16 medians are
-7 ms versus 9 ms, but the one-millisecond clock makes that smaller difference
-less certain. The transduced path remains within roughly 24% of the direct
-fused Bend loop at one thread for this mapcat/filter/map workload. The direct Bend and C loops still define a
-lower-level ceiling; this benchmark does not claim that the public transducer
-API beats handwritten C. The richer mapcat composition currently leaves four
-static reducer/source records in emitted JS; that is a compiler/code-shape
-observation, not a correctness failure.
+The public transduced path is 9% faster than the materialized Core Bend list path at one thread in this run. It is 22% above the direct fused Bend loop at one thread. The direct Bend and C loops are lower-level reference points;
+this benchmark does not claim that the public transducer API beats handwritten
+C. The emitted transduced JavaScript contains 5 static reducer/source
+records; that is a compiler/code-shape observation, not a correctness failure.
 
-The host had no available GPU device, so the GPU column records an attempted
-run rather than a performance result. Re-run the benchmark on a Metal host to
-populate that mode. Raw samples, compiler/library hashes, checksums, and the
-artifact directory are in [results.json](results.json).
+The benchmark checksum validates lane membership, wrapping arithmetic, and
+batch partitioning. It is a sum, so it cannot by itself prove traversal order;
+the ordered `over_array` conformance test covers that separately.
+
+The host's GPU result was `unavailable: bend: --gpu on, but this binary found no GPU device`, and Lean was `unavailable: lean not found`. Re-run the
+benchmark on a host with those capabilities to populate those modes. Raw
+samples, compiler/library hashes, checksums, and the artifact directory are in
+[results.json](results.json).
 
 Reproduce with:
 
 ```sh
-python3 bench/wordscan/run.py --output bench/wordscan/results.json
+python3 bench/wordscan/run.py --array-depth 8 --batch-depth 10 --repeats 2 --normalize-rounds 32 --samples 5 --threads 16 --output bench/wordscan/results.json
 ```

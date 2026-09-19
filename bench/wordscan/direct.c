@@ -9,13 +9,13 @@
 #define ARRAY_DEPTH 8
 #endif
 #ifndef BATCH_DEPTH
-#define BATCH_DEPTH 6
+#define BATCH_DEPTH 10
 #endif
 #ifndef NORMALIZE_ROUNDS
 #define NORMALIZE_ROUNDS 32
 #endif
 #ifndef REPEATS
-#define REPEATS 1
+#define REPEATS 2
 #endif
 
 static uint32_t work(uint32_t x) {

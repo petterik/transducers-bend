@@ -19,7 +19,7 @@ The variants have distinct meanings:
 
 The Bend runner keeps a persistent process and times each computation with
 `IO.now`. It checks every checksum against an independent Python oracle and
-records CPU-1, CPU-16, and GPU modes. GPU availability is reported as an
+records CPU-1, the configured threaded CPU mode, and GPU modes. GPU availability is reported as an
 unavailable mode when the host has no device. External language timings include
 process startup and are therefore reported separately.
 
@@ -32,5 +32,7 @@ python3 bench/wordscan/run.py --output bench/wordscan/results.json
 Useful knobs are `--array-depth`, `--batch-depth`, `--repeats`, and
 `--normalize-rounds`. The default workload is intentionally compute-heavy
 enough for the millisecond clock while retaining a real four-lane allocation
-and flattening boundary. `build` and the direct twins use the same seed order,
-so a checksum mismatch catches ordering, wrapping, or batch-partition errors.
+and flattening boundary. `build` and the direct twins use the same seed order.
+A checksum mismatch catches lane-membership, wrapping, or batch-partition
+errors; because the checksum is a sum, it cannot by itself prove traversal
+order. The ordered `over_array` conformance test covers that property.

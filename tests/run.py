@@ -67,16 +67,36 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
                 assert result.returncode == 0 and result.stderr == '16,13', result.stderr
                 assert result.stdout.strip() == want, result.stdout
             if file.stem == 'lifecycle':
-                for function, counter in [('begin', 'starts'), ('advance', 'steps'), ('done', 'finishes')]:
+                for function, counter in [('begin', 'starts'), ('advance', 'steps'),
+                                          ('done', 'finishes'), ('expand_one', 'expansions')]:
                     source, replacements = re.subn(
                         rf'(function \${function}\$\([^\n]*\) \{{)', rf'\1 {counter}++;', source)
                     assert replacements == 1, (function, 'lifecycle target changed')
-                source = ('let starts = 0, steps = 0, finishes = 0; process.on("exit", () => '
-                          'process.stderr.write(`${starts},${steps},${finishes}`));\n' + source)
+                source = ('let starts = 0, steps = 0, finishes = 0, expansions = 0; '
+                          'process.on("exit", () => '
+                          'process.stderr.write(`${starts},${steps},${finishes},${expansions}`));\n' + source)
                 instrumented = Path(d) / 'lifecycle-instrumented.js'
                 instrumented.write_text(source)
                 result = subprocess.run(['bun', str(instrumented)], capture_output=True, text=True, timeout=10)
-                assert result.returncode == 0 and result.stderr == '12,8,12', result.stderr
+                assert result.returncode == 0 and result.stderr == '18,24,18,5', result.stderr
+                assert result.stdout.strip() == want, result.stdout
+            if file.stem == 'array':
+                for function, counter in [('pair', 'pair_calls'),
+                                          ('maybe_pair', 'maybe_pair_calls')]:
+                    source, replacements = re.subn(
+                        rf'(function \${function}\$\([^\n]*\) \{{)', rf'\1 {counter}++;', source)
+                    assert replacements == 1, (function, 'array mapper target changed')
+                source = ('let pair_calls = 0, maybe_pair_calls = 0; '
+                          'process.on("exit", () => process.stderr.write('
+                          '`${pair_calls},${maybe_pair_calls}`));\n' + source)
+                instrumented = Path(d) / 'array-instrumented.js'
+                instrumented.write_text(source)
+                result = subprocess.run(['bun', str(instrumented)], capture_output=True, text=True, timeout=10)
+                # pair runs for the two full pipelines, the take pipeline,
+                # and the ordered collection check (4 + 4 + 2 + 4);
+                # maybe_pair sees both
+                # source records, including the empty fragment.
+                assert result.returncode == 0 and result.stderr == '14,2', result.stderr
                 assert result.stdout.strip() == want, result.stdout
         passed += 1
         print('PASS', file.name)

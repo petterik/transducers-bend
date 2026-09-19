@@ -38,3 +38,15 @@ def cases(~X: Type, ~fold: X -> T.Control<Trace> -> T.Control<Trace>,
    result(fold(make(Unit{}), T.Continue{Trace{9n, 0, 0}})),
    result(fold(empty(Unit{}), T.Continue{Trace{9n, 0, 0}})),
    result(fold(empty(Unit{}), T.Stop{Trace{9n, 0, 0}}))]
+
+# Array has no empty constructor in this Bend fork, so its conformance cases
+# cover the populated-source lifecycle separately from the empty-source cases
+# above. The same controls exercise initial Stop, consumer-originated Stop,
+# complete ordered traversal, and the final completion boundary.
+def populated_cases(~X: Type,
+  ~fold: X -> T.Control<Trace> -> T.Control<Trace>,
+  ~make: Unit -> X) -> List<List<U32>>:
+  [result(fold(make(Unit{}), T.Stop{Trace{9n, 0, 0}})),
+   result(fold(make(Unit{}), T.Continue{Trace{1n, 0, 0}})),
+   result(fold(make(Unit{}), T.Continue{Trace{2n, 0, 0}})),
+   result(fold(make(Unit{}), T.Continue{Trace{9n, 0, 0}}))]

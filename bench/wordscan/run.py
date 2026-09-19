@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import statistics
 import subprocess
@@ -114,8 +115,6 @@ def build_bend(root: Path, compiler: Path, out: Path, variant: str,
                            text=True, timeout=240)
     if built.returncode != 0:
         raise RuntimeError(built.stdout + built.stderr)
-    if variant == "transduced":
-        emitted = stem.with_suffix(".js").read_text()
     # This is diagnostic rather than a correctness requirement: the current
     # compiler may retain static records for the richer mapcat composition.
     emitted = stem.with_suffix(".js").read_text()
@@ -141,13 +140,22 @@ def parse_bend_output(output: str, expected_value: int,
     return pairs[1:]
 
 
+def require_success(run: subprocess.CompletedProcess[str], context: str) -> None:
+    if run.returncode != 0:
+        message = (run.stdout + run.stderr).strip()
+        raise RuntimeError(f"{context}: {message[-1000:]}")
+
+
 def run_bend(binary: Path, flags: list[str], expected_value: int,
              samples: int) -> dict[str, object]:
     run = subprocess.run([str(binary), *flags], capture_output=True,
                          text=True, timeout=240)
     if run.returncode != 0:
         message = (run.stdout + run.stderr).strip()
-        return {"status": "unavailable", "reason": message[-300:]}
+        gpu_requested = "--gpu" in flags and flags[flags.index("--gpu") + 1] != "off"
+        if gpu_requested and "no gpu device" in message.lower():
+            return {"status": "unavailable", "reason": message[-300:]}
+        require_success(run, f"Bend benchmark failed ({binary.name} {' '.join(flags)})")
     times = parse_bend_output(run.stdout, expected_value, samples)
     return {"status": "ok", "samples_ms": times,
             "median_ms": statistics.median(times), "checksum": expected_value}
@@ -156,20 +164,22 @@ def run_bend(binary: Path, flags: list[str], expected_value: int,
 def external_source(root: Path, language: str, values: dict[str, int],
                     out: Path) -> Path:
     source = (root / "bench/wordscan" / LANGUAGE_FILES[language]).read_text()
-    defaults = {"ARRAY_DEPTH": 8, "BATCH_DEPTH": 6,
-                "NORMALIZE_ROUNDS": 32, "REPEATS": 1}
-    if language == "c":
-        for name, default in defaults.items():
-            source = source.replace(f"#define {name} {default}",
-                                   f"#define {name} {values[name]}")
-    elif language == "typescript":
-        for name, default in defaults.items():
-            source = source.replace(f"const {name} = {default};",
-                                   f"const {name} = {values[name]};")
-    else:
-        for name, default in defaults.items():
-            source = source.replace(f"def {name} : Nat := {default}",
-                                   f"def {name} : Nat := {values[name]}")
+    parameter_names = ("ARRAY_DEPTH", "BATCH_DEPTH", "NORMALIZE_ROUNDS", "REPEATS")
+    patterns = {
+        "c": {name: rf"(#define {name} )\d+"
+              for name in parameter_names},
+        "typescript": {name: rf"(const {name} = )\d+;"
+                       for name in parameter_names},
+        "lean": {name: rf"(def {name} : Nat := )\d+"
+                 for name in parameter_names},
+    }[language]
+
+    for name, pattern in patterns.items():
+        source, count = re.subn(pattern, rf"\g<1>{values[name]}", source)
+        if count != 1:
+            raise AssertionError(
+                f"{language} benchmark parameter {name} matched {count} declarations"
+            )
     path = out / f"direct.{language}"
     path.write_text(source)
     return path
@@ -178,13 +188,13 @@ def external_source(root: Path, language: str, values: dict[str, int],
 def run_external(language: str, source: Path, out: Path,
                  expected_value: int, samples: int) -> dict[str, object]:
     if language == "c":
+        if shutil.which("clang") is None:
+            return {"status": "unavailable", "reason": "clang not found"}
         binary = out / "direct-c"
         build = subprocess.run(["clang", "-std=c11", "-O3", str(source),
                                 "-o", str(binary)], capture_output=True,
                                text=True, timeout=120)
-        if build.returncode != 0:
-            return {"status": "unavailable",
-                    "reason": (build.stdout + build.stderr)[-300:]}
+        require_success(build, "C benchmark compilation failed")
         command = [str(binary)]
     elif language == "typescript":
         if shutil.which("bun") is None:
@@ -202,9 +212,7 @@ def run_external(language: str, source: Path, out: Path,
         run = subprocess.run(command, capture_output=True, text=True,
                              timeout=240)
         elapsed = (time.perf_counter() - started) * 1000
-        if run.returncode != 0:
-            return {"status": "unavailable",
-                    "reason": (run.stdout + run.stderr)[-300:]}
+        require_success(run, f"{language} benchmark failed")
         values = [int(line) for line in run.stdout.splitlines() if line]
         if values != [expected_value]:
             raise AssertionError((language, expected_value, run.stdout,
@@ -214,6 +222,102 @@ def run_external(language: str, source: Path, out: Path,
             "median_ms": statistics.median(times[1:]),
             "checksum": expected_value,
             "timing_note": "process wall time, including startup"}
+
+
+def result_text(result: dict[str, object]) -> str:
+    status = result["status"]
+    if status == "ok":
+        return f"{result['median_ms']:.2f} ms"
+    reason = str(result.get("reason", ""))
+    return f"{status}: {reason.replace(chr(10), ' ')}"
+
+
+def render_report(report: dict[str, object], output_name: str,
+                  output_command: str) -> str:
+    parameters = report["parameters"]
+    results = {row["variant"]: row for row in report["results"]}
+    threaded_label = f"cpu_{parameters['threads']}"
+    threaded_title = f"Bend CPU {parameters['threads']}"
+    transduced = results["transduced"]
+    staged = results["staged"]
+    direct = results["direct"]
+    trans_cpu1 = transduced["modes"]["cpu_1"]
+    staged_cpu1 = staged["modes"]["cpu_1"]
+    direct_cpu1 = direct["modes"]["cpu_1"]
+    trans_median = trans_cpu1.get("median_ms")
+    staged_median = staged_cpu1.get("median_ms")
+    direct_median = direct_cpu1.get("median_ms")
+    numeric_medians = all(isinstance(x, (int, float)) for x in
+                          (trans_median, staged_median, direct_median))
+    if numeric_medians and staged_median != 0 and direct_median != 0:
+        staged_delta = (1 - trans_median / staged_median) * 100
+        direct_gap = (trans_median / direct_median - 1) * 100
+        comparison = (
+            f"The public transduced path is {staged_delta:.0f}% faster than the "
+            f"materialized Core Bend list path at one thread in this run. "
+            f"It is {direct_gap:.0f}% above the direct fused Bend loop at one "
+            "thread."
+        )
+    elif numeric_medians:
+        comparison = "The timer resolution was too coarse for a meaningful CPU ratio on this small workload."
+    else:
+        comparison = "The CPU comparison is incomplete because one or more modes failed."
+    trans_records = transduced["build"]["js_records"]
+    gpu_result = transduced["modes"].get("gpu", {})
+    lean_result = report["external"]["lean"]
+    gpu_note = result_text(gpu_result)
+    lean_note = result_text(lean_result)
+    reproduce_command = (
+        "python3 bench/wordscan/run.py "
+        f"--array-depth {parameters['ARRAY_DEPTH']} "
+        f"--batch-depth {parameters['BATCH_DEPTH']} "
+        f"--repeats {parameters['REPEATS']} "
+        f"--normalize-rounds {parameters['NORMALIZE_ROUNDS']} "
+        f"--samples {parameters['samples']} "
+        f"--threads {parameters['threads']} "
+        f"--output {output_command}"
+    )
+    if gpu_result.get("status") == "skipped":
+        reproduce_command += " --no-gpu"
+    return f"""# Array mapcat benchmark report
+
+This run used `ARRAY_DEPTH={parameters['ARRAY_DEPTH']}`,
+`BATCH_DEPTH={parameters['BATCH_DEPTH']}`, `REPEATS={parameters['REPEATS']}`,
+and `NORMALIZE_ROUNDS={parameters['NORMALIZE_ROUNDS']}`. Every successful
+variant returned checksum `{parameters['expected_checksum']}`. Bend timings are
+persistent-process `IO.now` medians after one discarded warm-up; the C and
+TypeScript figures include process startup and are therefore a separate
+reference.
+
+| Variant | Bend CPU 1 | {threaded_title} | Bend GPU | External CPU 1 |
+| --- | ---: | ---: | --- | ---: |
+| Transduced (`over_array` + `mapcat`) | {result_text(trans_cpu1)} | {result_text(transduced['modes'][threaded_label])} | {gpu_note} | — |
+| Core Bend materialized list | {result_text(staged_cpu1)} | {result_text(staged['modes'][threaded_label])} | {result_text(staged['modes'].get('gpu', {}))} | — |
+| Direct fused Bend | {result_text(direct_cpu1)} | {result_text(direct['modes'][threaded_label])} | {result_text(direct['modes'].get('gpu', {}))} | — |
+| Handwritten C | — | — | — | {result_text(report['external']['c'])} |
+| Handwritten TypeScript | — | — | — | {result_text(report['external']['typescript'])} |
+| Handwritten Lean | — | — | — | {lean_note} |
+
+{comparison} The direct Bend and C loops are lower-level reference points;
+this benchmark does not claim that the public transducer API beats handwritten
+C. The emitted transduced JavaScript contains {trans_records} static reducer/source
+records; that is a compiler/code-shape observation, not a correctness failure.
+
+The benchmark checksum validates lane membership, wrapping arithmetic, and
+batch partitioning. It is a sum, so it cannot by itself prove traversal order;
+the ordered `over_array` conformance test covers that separately.
+
+The host's GPU result was `{gpu_note}`, and Lean was `{lean_note}`. Re-run the
+benchmark on a host with those capabilities to populate those modes. Raw
+samples, compiler/library hashes, checksums, and the artifact directory are in
+[{output_name}]({output_name}).
+
+Reproduce with:
+
+```sh
+{reproduce_command}
+```
+"""
 
 
 def main() -> None:
@@ -272,16 +376,18 @@ def main() -> None:
 
     out = Path(tempfile.mkdtemp(prefix="transduce-wordscan-")).resolve()
     report["artifacts"] = str(out)
+    cpu_modes = [("cpu_1", ["--threads", "1", "--gpu", "off"])]
+    threaded_label = f"cpu_{args.threads}"
+    if threaded_label != "cpu_1":
+        cpu_modes.append((threaded_label,
+                          ["--threads", str(args.threads), "--gpu", "off"]))
     for variant in VARIANTS:
         binary, build_info = build_bend(ROOT, compiler, out, variant, values)
         row: dict[str, object] = {"variant": variant, "build": build_info,
                                   "modes": {}}
-        row["modes"]["cpu_1"] = run_bend(
-            binary, ["--threads", "1", "--gpu", "off"],
-            expected_value, args.samples)
-        row["modes"]["cpu_16"] = run_bend(
-            binary, ["--threads", str(args.threads), "--gpu", "off"],
-            expected_value, args.samples)
+        for label, flags in cpu_modes:
+            row["modes"][label] = run_bend(
+                binary, flags, expected_value, args.samples)
         if args.no_gpu:
             row["modes"]["gpu"] = {"status": "skipped",
                                      "reason": "--no-gpu"}
@@ -301,6 +407,9 @@ def main() -> None:
     report["external"] = external
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
+    args.output.with_name("REPORT.md").write_text(
+        render_report(report, args.output.name, str(args.output))
+    )
     print(json.dumps(report, indent=2))
 
 
