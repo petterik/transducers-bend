@@ -1,5 +1,10 @@
 # Automatic bounded loop specialization
 
+Latest checkpoint: [short-loop profitability](SHORT-LOOPS.md). Independent input
+variation and known-state callers expose regressions beyond the original
+one-element case. The optional source gate is experimental; default behavior
+remains unchanged and work is paused.
+
 ## Result and decision
 
 The next milestone from [STRATEGY.md](STRATEGY.md) is implemented in an isolated

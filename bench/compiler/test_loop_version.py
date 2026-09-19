@@ -10,11 +10,13 @@ from loop_version import version_range
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--report',type=Path,required=True,help='Full-range ablate.py --loop-version report')
 p.add_argument('--output',type=Path,required=True)
+p.add_argument('--policy',choices=['source_gate','peel','lazy','lazy_gate','constant_guard','constant_inline','constant_region','callsite_const'],help='Validate a program-specific policy diagnostic using automatic loop input')
 p.add_argument('--inject-failure',action='store_true',help='Inject callback failure returns and verify propagation/order')
 p.add_argument('--automatic-loop',action='store_true',help='Validate actual compiler-emitted loop against its untouched generic copy')
 p.add_argument('--bailout',action='store_true')
 p.add_argument('--break-induction',action='store_true',help='Perturb both generic and fast transitions so an accepted Continue changes the inner tag')
 a=p.parse_args()
+assert not a.policy or a.automatic_loop
 assert not a.automatic_loop or (not a.bailout and not a.break_induction)
 r=json.loads(a.report.read_text());out=Path(r['artifacts'])
 checks=[]
@@ -23,6 +25,9 @@ for row in r['results']:
     original=(out/(label+'-original.c')).read_text()
     auto=(out/(label+'-automatic.c')).read_text()
     code=auto if a.automatic_loop else version_range(original,auto,bailout=a.bailout)
+    if a.policy:
+        from short_loop_policy import policies
+        code=policies(original,auto)[a.policy]
     if a.break_induction:
         # Both functions retain the same one-step semantics on the fast domain,
         # but may leave it while still returning outer Continue. Entry-only
@@ -84,4 +89,4 @@ int main(void) {
         assert answer.returncode==0 and answer.stdout.strip()=='PASS 200000 driver states and event traces',(answer.stdout,answer.stderr)
         checks.append({'case':label,'driver_states':200000,'event_order_and_count':True,'ubsan':True,'injected_callback_failure':a.inject_failure})
     print('PASS',label,flush=True)
-a.output.write_text(json.dumps({'scope':'automatic compiler-emitted loop' if a.automatic_loop else 'program-specific range driver clone; not automatic loop discovery/proof','artifacts':str(out),'bailout':a.bailout,'deliberately_noninductive':a.break_induction,'checks':checks},indent=2)+'\n')
+a.output.write_text(json.dumps({'scope':'program-specific policy diagnostic '+a.policy if a.policy else 'automatic compiler-emitted loop' if a.automatic_loop else 'program-specific range driver clone; not automatic loop discovery/proof','artifacts':str(out),'bailout':a.bailout,'deliberately_noninductive':a.break_induction,'checks':checks},indent=2)+'\n')

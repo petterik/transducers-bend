@@ -7,8 +7,10 @@ entry guards and state feedback, proves preservation, and emits scoped helper
 clones automatically in an isolated compiler. Full/early range workloads reach
 near-handwritten local CPU performance. Shared helpers retain their original
 behavior, and literal zero/one countdown callers use generic lowering directly.
-Dynamic one-element loops still regress, so profitability remains the next gate
-before default enablement. The public API and production compiler remain unchanged.
+The [short-loop investigation](bench/compiler/SHORT-LOOPS.md) now includes independent
+entry-state/length variation and known-state callers. Every tested profitability
+policy still has regressions, so default enablement remains blocked. Work is paused
+at that documented checkpoint. The public API and production compiler remain unchanged.
 
 ## Earlier milestone: automatic scalar specialization
 

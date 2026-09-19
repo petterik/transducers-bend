@@ -19,11 +19,15 @@ p.add_argument('--early', action='store_true', help='Take 32 with varying source
 p.add_argument('--variants', nargs='+', help='Candidate names; original and direct always included')
 p.add_argument('--automatic-compiler', type=Path,
                help='Compile the unchanged pipeline with an isolated automatic pass instead of C replacement')
+p.add_argument('--policy-variants',nargs='+',choices=['source_gate','peel','lazy','lazy_gate','constant_guard','constant_inline','constant_region','callsite_const'],help='Program-specific policy diagnostics added to automatic loop comparison')
+p.add_argument('--entry-compiler', type=Path, help='With --automatic-loop, also benchmark an ungated loop compiler')
 p.add_argument('--automatic-loop', action='store_true', help='Compiler emits proven caller loops; validate with test_loop_version.py --automatic-loop')
 p.add_argument('--loop-version', action='store_true', help='Program-specific loop-entry versioning diagnostic; requires automatic compiler')
 p.add_argument('--linkage-ablation', action='store_true', help='With automatic compiler, compare noinline-only/inline fallback declarations in generated C')
 a = p.parse_args()
 assert a.samples > 0
+assert not a.entry_compiler or a.automatic_loop
+assert not a.policy_variants or a.automatic_loop
 assert not a.automatic_loop or (a.automatic_compiler and not a.loop_version and not a.linkage_ablation)
 assert not a.loop_version or a.automatic_compiler, '--loop-version requires --automatic-compiler'
 assert not a.linkage_ablation or a.automatic_compiler, '--linkage-ablation requires --automatic-compiler'
@@ -48,6 +52,11 @@ if a.automatic_compiler:
     report['automatic_compiler_sha256'] = hashlib.sha256((a.automatic_compiler.parent/'comp.ts').read_bytes()).hexdigest()
     if a.automatic_loop:
         report['scope'] = 'Automatic typed loop recognition, entry guard, preservation proof and scoped native cloning; unchanged public pipeline'
+    if a.entry_compiler:
+        report['entry_compiler_sha256'] = hashlib.sha256((a.entry_compiler.parent/'comp.ts').read_bytes()).hexdigest()
+    if a.policy_variants:
+        report['policy_diagnostics'] = a.policy_variants
+        report['scope'] += '; named policy variants are program-specific C diagnostics, not automatic passes'
     report['automatic_loop'] = a.automatic_loop
     report['linkage_ablation'] = a.linkage_ablation
     report['program_specific_loop_version'] = a.loop_version
@@ -143,6 +152,12 @@ def main() -> IO(Unit):
             assert untouched in automatic, 'Fallback must be the original compiler output, apart from its declaration'
         bodies = {'automatic': ''}
         automatic_variants = {'automatic': automatic}
+        if a.entry_compiler:
+            entry = out / f'{label}-entry_control.c'
+            command(['bun', str(a.entry_compiler), str(out/f'{label}-original.bend'), '-o', str(entry)])
+            automatic_variants['entry_control'] = entry.read_text()
+            assert automatic_variants['entry_control'].count('/* guarded_loop:') == 1
+            bodies['entry_control'] = ''
         if a.linkage_ablation:
             for variant_label, decl in [('no_cold', 'static __attribute__((noinline))'), ('inline', 'INLINE')]:
                 automatic_variants[variant_label] = automatic.replace('static __attribute__((noinline, cold)) Term', decl+' Term')
@@ -193,6 +208,11 @@ int main(void) {
         from loop_version import version_range
         codes['loop_version'] = version_range(c, automatic)
         codes['loop_bailout'] = version_range(c, automatic, bailout=True)
+    if a.policy_variants:
+        from short_loop_policy import policies
+        options = policies(c, automatic)
+        for variant in a.policy_variants:
+            codes[variant] = options[variant]
     expected = 0
     offsets = Counter(i & 65535 for i in range(repeats)) if a.early else {0: repeats}
     for offset, multiplicity in offsets.items():

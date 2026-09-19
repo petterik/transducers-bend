@@ -14,7 +14,10 @@ EXPECTED = '96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3'
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--output-dir', type=Path)
 p.add_argument('--loop', action='store_true', help='Automatic bounded loop-entry specialization; generic helpers remain original')
+p.add_argument('--source-gate', action='store_true', help='With --loop, route dynamic zero/one countdowns to the original loop')
 a = p.parse_args()
+if a.source_gate and not a.loop:
+    p.error('--source-gate requires --loop')
 original = (SOURCE/'comp.ts').read_text()
 assert hashlib.sha256(original.encode()).hexdigest() == EXPECTED, 'Compiler changed; review integration before rebasing'
 out = a.output_dir.resolve() if a.output_dir else Path(tempfile.mkdtemp(prefix='bend-guarded-scalar-')).resolve()
@@ -42,6 +45,8 @@ patched = patched.replace(call_anchor, '  const name = gl_call_name(fl, emit_nat
 loop_code = (HERE/'guarded_loop.inc.ts').read_text()
 if a.loop:
     loop_code = loop_code.replace('const GL_ENABLE_LOOP = false;', 'const GL_ENABLE_LOOP = true;')
+if a.source_gate:
+    loop_code = loop_code.replace('const GL_SOURCE_GATE = false;', 'const GL_SOURCE_GATE = true;')
 (out/'comp.ts').write_text(patched + '\n' + (HERE/'guarded_scalar.inc.ts').read_text() + '\n' + loop_code)
 subprocess.run(['bun', str(out/'main.ts'), str(ROOT/'bench/range.bend'), '-o', str(out/'smoke.c')], check=True)
 c = (out/'smoke.c').read_text()

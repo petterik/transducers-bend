@@ -14,6 +14,7 @@ ROOT=HERE.parents[1]
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--bend-main',type=Path,required=True)
 p.add_argument('--output',type=Path,required=True)
+p.add_argument('--source-gate',action='store_true',help='Require the inferred source gate on reordered positive fixtures')
 a=p.parse_args()
 out=Path(tempfile.mkdtemp(prefix='bend-auto-loop-tests-')).resolve()
 base=(HERE/'fixtures/reordered.bend').read_text().split('def exercise')[0]
@@ -72,6 +73,8 @@ for label,source,expected in cases:
             assert c.count('/* guarded_loop:')==expected,(label,c.count('/* guarded_loop:'),out)
             assert 'guarded_fallback' not in c
             records=[json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+            if a.source_gate and expected:
+                assert any(x.get('callee')=='spin' and x.get('sourceGateSlot')==1 for x in records),records
             if label=='noninductive': assert any(x.get('rejected')=='non-inductive guard' for x in records),records
             if label=='second_step': assert any('rejected' in x for x in records),records
             if label=='literal_one': assert any(x.get('trivialCaller') for x in records),records

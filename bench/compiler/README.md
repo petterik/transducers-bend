@@ -3,7 +3,9 @@
 **Current implementation:** [automatic bounded loop specialization](AUTO-LOOP.md),
 prepared with `prepare_guarded.py --loop`. Typed caller analysis, preservation
 checking and scoped native cloning now replace the earlier manual loop diagnostic.
-Dynamic short-loop profitability still blocks default enablement.
+[Expanded short-loop measurements](SHORT-LOOPS.md) still block default enablement.
+An optional `--source-gate` and diagnostic policies are retained for investigation;
+none is promoted. Work is paused at that checkpoint.
 
 Without `--loop`, preparation retains the [outlined scalar experiment](AUTOMATIC.md).
 The [strategy investigation](STRATEGY.md) and [promotion review](PROMOTION.md)

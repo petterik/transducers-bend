@@ -1,0 +1,150 @@
+{
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-ablation-fhkx_5f6",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "scope": "Automatic typed loop recognition, entry guard, preservation proof and scoped native cloning; unchanged public pipeline; named policy variants are program-specific C diagnostics, not automatic passes",
+  "timing": "IO.now milliseconds; one warmup per process; two reversed-order rounds",
+  "early": true,
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a",
+  "results": [
+    {
+      "case": "mixed_early",
+      "expected": 1349515560,
+      "samples_ms": {
+        "original": [
+          144,
+          143,
+          144,
+          143,
+          143,
+          147,
+          143,
+          143,
+          144,
+          143
+        ],
+        "direct": [
+          108,
+          108,
+          107,
+          108,
+          107,
+          107,
+          108,
+          109,
+          108,
+          107
+        ],
+        "automatic": [
+          103,
+          102,
+          103,
+          103,
+          102,
+          104,
+          103,
+          103,
+          103,
+          103
+        ],
+        "lazy_gate": [
+          107,
+          107,
+          107,
+          106,
+          106,
+          106,
+          107,
+          107,
+          107,
+          108
+        ]
+      },
+      "c_sha256": {
+        "original": "c63bc57958b10c23e01969410ed0466d20c1e7ba91993931d6ae0cc190dfa1a6",
+        "direct": "5ebbd8c30cfc4ad2652311ae2f373148d0147e7bc5b9f0d5a2843008dcfcbaa8",
+        "automatic": "0c85d9dd76c66c70301c2af206af885a7f96e23f57ad1d1f542892bb8aa65a60",
+        "lazy_gate": "831574d7dd28e02a93742f8f33a67675081b6ab0fbd9853a4995e514e8cf5e35"
+      },
+      "median_ms": {
+        "original": 143.0,
+        "direct": 108.0,
+        "automatic": 103.0,
+        "lazy_gate": 107.0
+      }
+    },
+    {
+      "case": "simple_early",
+      "expected": 819314240,
+      "samples_ms": {
+        "original": [
+          28,
+          27,
+          26,
+          27,
+          26,
+          26,
+          27,
+          26,
+          27,
+          26
+        ],
+        "direct": [
+          21,
+          20,
+          18,
+          18,
+          18,
+          18,
+          18,
+          18,
+          18,
+          17
+        ],
+        "automatic": [
+          19,
+          18,
+          17,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "lazy_gate": [
+          19,
+          18,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          15,
+          16
+        ]
+      },
+      "c_sha256": {
+        "original": "34eb0de37e46e2fcbbb860670e520714bb61bd968f37aca751e3f6abae359563",
+        "direct": "257706263665598affe0987f57a201746e193204037b137da5f13c7a6cfcf972",
+        "automatic": "e4cebefced1bfd50121d1e8910ea3e953fd0cbdbcdd6bbe48a0233f4e9bb2103",
+        "lazy_gate": "bfdd113aa23fa41e4be785a957cf6591b0e368e7210ffbfeaeaafdde13e95491"
+      },
+      "median_ms": {
+        "original": 26.5,
+        "direct": 18.0,
+        "automatic": 16.0,
+        "lazy_gate": 16.0
+      }
+    }
+  ],
+  "automatic_compiler_sha256": "54bba12013d7f7b2d7814b8e5f00ae2c6b0f854af5caf3e04678ea8ad4dba891",
+  "policy_diagnostics": [
+    "lazy_gate"
+  ],
+  "automatic_loop": true,
+  "linkage_ablation": false,
+  "program_specific_loop_version": false
+}

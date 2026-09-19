@@ -14,6 +14,7 @@ type GLState = {
   trivial:Map<string,{generic:string; doms:number[]}>;
 };
 const GL_ENABLE_LOOP = false;
+const GL_SOURCE_GATE = false;
 const GL_STATES = new WeakMap<File,GLState>();
 const GL_HOST = '#if !defined(__METAL_VERSION__) && !defined(__CUDACC__) && !defined(__CUDACC_RTC__)';
 function gl_state(fl:File):GLState {
@@ -111,24 +112,29 @@ function gl_finish(fl:File,ck:Call,ers:HTerm[],name:string,emitted:[string,strin
     const generic=name+'_loop_generic';
     const decl=sig.lays.flatMap(l=>l.ks).map((k,i)=>`, ${lay_c(k)} r${i}`).join('');
     const actual=Array.from({length:width},(_,i)=>`, r${i}`).join('');
-    emitted[1]=[GL_HOST,
-      `/* guarded_loop: typed entry guard; ${probe.edges.length} proven back-edge paths; ${chainNames.size} scoped helpers */`,
-      original.replace(`${name}(`,`${generic}(`),
-      `INLINE Term ${name}(Env e, THR Term* o${decl}) {`,
-      `  if (${guard}) return ${fast}(e, o${actual});`,
-      `  return ${generic}(e, o${actual});`,
-      '}', `#define ${name}_loop_trivial ${generic}`, '#else',original,
-      `#define ${name}_loop_trivial ${name}`, '#endif'].join('\n');
     let at=0;
-    const trivial:number[]=[];
+    const trivial:number[]=[], countdownSlots:number[]=[];
     sig.lays.forEach((l,i)=>{
       const slot=at; at+=l.ks.length;
       if (ty_adt(fl.book,sig.live[i][2])?.k === 'Nat' && l.ks.length===1
         && probe.edges.every(e=>{
           const x=e.xs[slot];
           return x.op==='offset' && x.a[0].op==='var' && x.a[0].id===slot && x.a[1].n===-1;
-        })) trivial.push(i);
+        })) { trivial.push(i); countdownSlots.push(slot); }
     });
+    // Optional profitability policy, separate from the safety proof. Select a
+    // unique scalar Nat countdown derived from typed back-edge expressions.
+    // Multiple countdowns are ambiguous for this policy and keep entry mode.
+    const sourceGate=GL_SOURCE_GATE && countdownSlots.length===1 ? countdownSlots[0] : null;
+    emitted[1]=[GL_HOST,
+      `/* guarded_loop: typed entry guard; ${probe.edges.length} proven back-edge paths; ${chainNames.size} scoped helpers */`,
+      original.replace(`${name}(`,`${generic}(`),
+      `INLINE Term ${name}(Env e, THR Term* o${decl}) {`,
+      ...(sourceGate===null ? [] : [`  if (r${sourceGate} <= 1) return ${generic}(e, o${actual});`]),
+      `  if (${guard}) return ${fast}(e, o${actual});`,
+      `  return ${generic}(e, o${actual});`,
+      '}', `#define ${name}_loop_trivial ${generic}`, '#else',original,
+      `#define ${name}_loop_trivial ${name}`, '#endif'].join('\n');
     state.trivial.set(name,{generic:name+'_loop_trivial',doms:trivial});
     emitted[2].add(fast);
     // Native helpers are emitted in dependency order, with no forward prototypes.
@@ -136,7 +142,7 @@ function gl_finish(fl:File,ck:Call,ers:HTerm[],name:string,emitted:[string,strin
     fl.spins.push(emitted);
     if (process.env.BEND_LOOP_REPORT) fs.appendFileSync(process.env.BEND_LOOP_REPORT,
       JSON.stringify({callee:ck.k,name,fast,guard:probe.guard,backEdges:probe.edges.length,
-        chain:[...keys.keys()],width,trivialNatDomains:trivial})+'\n');
+        chain:[...keys.keys()],width,trivialNatDomains:trivial,sourceGateSlot:sourceGate})+'\n');
   } catch(e) {
     if (!(e instanceof GReject)) throw e;
     if(process.env.BEND_GUARDED_TRACE) console.error(`loop reject ${ck.k}: ${e.message}`);

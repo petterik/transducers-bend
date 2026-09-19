@@ -1,0 +1,7 @@
+{
+  "compiler_sha256": "5207af33c5648934b9d7833ab0260388ff1781866f9faa5dfe4a80cd53f9a191",
+  "command": "python3 tests/run.py --bend-main /tmp/bend-source-gate-v1/main.ts",
+  "exit_status": 0,
+  "output": "PASS completion.bend\nPASS composed_maps.bend\nPASS extensions.bend\nPASS laws.bend\nPASS lifecycle.bend\nPASS order.bend\nPASS ownership.bend\nPASS pipeline.bend\nPASS range.bend\nPASS reject_affine_filter.bend\nPASS reuse.bend\nPASS scalar_codegen.bend\nPASS scalar_transition.bend\nPASS source_contract.bend\nPASS sources.bend\nPASS zero_state.bend\nPASS: 16 / 16; code generation, source/mapper counts, and bounded laws verified\n",
+  "library_sha256": "cec75f791024a0f09f3cf81d7e70849536f7ef899213de7334f124fa0dc4e70a"
+}

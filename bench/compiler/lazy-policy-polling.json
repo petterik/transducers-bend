@@ -1,0 +1,8 @@
+{
+  "scope": "program-specific policy; controlled predicate and polling-failure injection; not actual asynchronous cancellation or GPU execution",
+  "policy": "lazy",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-policy-poll-wyhjbauj",
+  "cases": 33,
+  "ubsan": true,
+  "stdout": "PASS 33 polling-boundary and forced-failure cases"
+}
