@@ -63,5 +63,5 @@ def direct(xs: List<U32>, state: Running) -> U32:
       direct(t, feed(1n+p, acc, transform(h)))
 
 def main() -> U32:
-  T.transduce(~U32, ~U32, ~pipeline(), (1, (100000n, 0)), build(100000n, []))
+  T.transduce(~T.over_list(~U32, ~U32, ~pipeline()), (1, (100000n, 0)), build(100000n, []))
 #|200000

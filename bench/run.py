@@ -38,7 +38,7 @@ with tempfile.TemporaryDirectory(prefix='transduce-bench-', dir='/tmp') as direc
                 value &= 0xFFFFFFFF
         expected = str((min(count, take) * value) & 0xFFFFFFFF) if value > 1 else '0'
         xs = f'build({count}n, [])'
-        bodies = {'library': f'T.transduce(~U32, ~U32, ~pipeline(), (1, ({take}n, 0)), {xs})',
+        bodies = {'library': f'T.transduce(~T.over_list(~U32, ~U32, ~pipeline()), (1, ({take}n, 0)), {xs})',
                   'materialized': f'staged({xs}, {take}n)',
                   'direct': f'direct({xs}, Running{{{take}n, 0}})'}
         builds = {}

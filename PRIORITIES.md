@@ -1,6 +1,25 @@
 # Implementation priorities
 
-Current implementation: priorities #1 and #2 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md). This document records the original design/review.
+Current implementation: priorities #1–#3 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md). The original ranking and scope decision below are historical; later user authorization included compiler specialization.
+
+## Priority #3 follow-up ranking
+
+Effort here means semantic complexity, API commitments, and maintenance, not lines of code or familiarity with Bend.
+
+| Work | Impact | Effort | Value | Status |
+| --- | --- | --- | --- | --- |
+| Fix range/consumer contracts | High | Low | Very high | Implemented and documented |
+| Range with boundary, stopping, and codegen checks | High | Medium | Very high | Implemented; JS/native validated |
+| Ordered affine into_list | High | Low–medium | High | Implemented |
+| Open static source reduction and external extension example | High | Medium | Very high | List/range/string and third-party tree validated |
+| Reusable source conformance and exact lifecycle checks | High | Medium | Very high | All four sources validated |
+| Nat count consumer | Medium | Low | High | Implemented |
+| Cross-source lifecycle checks and reusable examples | High | Medium | Very high | Implemented |
+| Explicit laws, bounded checks, no-wrap argument | High | Medium | High | Added; not formal proofs |
+| Focused generated-range benchmark | High | Medium | High | Measured; see bench/RANGE.md |
+| Full compiler project gates | High | Infrastructure-dependent | High | Still outstanding |
+| Mechanized driver/composition proofs | High | High; formalization fit unknown | Higher after API settles | Follow-up investigation |
+| Configurable range steps, parallel drivers, public buffering/mapcat | Potentially high | High | Lower now | Deferred |
 
 This pass ranks the proposed design by impact, lasting effort, and value before initial implementation. It does not expand the scope in DESIGN.md.
 

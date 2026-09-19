@@ -1,6 +1,6 @@
 # transduce-bend
 
-Current implementation: priorities #1 and #2 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md). This document records the original design/review.
+Current implementation: priorities #1–#3 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md), [current API](README.md), and [laws/proof status](LAWS.md). This document records the original design/review; its open items and compiler-scope restrictions are historical and superseded by later authorized work.
 
 Status: proposed library design, grounded in small compilation experiments against Bend 2.0.16. The public Bend signatures and complete lifecycle implementation remain to be validated. No compiler or language changes are assumed.
 

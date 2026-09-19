@@ -1,4 +1,20 @@
-# Initial implementation: priorities #1 and #2
+# Initial implementation: priorities #1–#3
+
+## Priority #3 follow-up
+
+The library now includes range, string, and list reduction implementations plus `into_list` and `count`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.
+
+The range is ascending with unit step, empty for reversed/equal bounds. It checks bounds before subtraction and structurally decreases a Nat budget. A source value is computed as `end - remaining` only after checking control; there is no source list or overflowing endpoint increment. Strings traverse Char elements directly. `into_list` accepts affine values and reverses its prepended accumulator once; both new consumers use Unit configuration and start fresh. `count` returns checked Nat. List data is passed directly through `over_list`.
+
+Twelve test files cover emitted JS and native CPU execution, including affine-filter rejection. Seven completion fixtures run through list and range. Boundary tests cover maximum U32 bounds, reversed/empty ranges, a near-full-domain range stopped at zero/one output, and consumer-originated Stop. JS instrumentation observes 16 source-value calls and 13 mapper calls in the range fixture, and nine mapper calls in the list fixture. The source fixture checks the map/inc/sum/range example returns 55 and string character traversal. Reusable conformance checks exercise all four sources; a lifecycle fixture observes exactly 12 starts, 8 steps, and 12 finishes. The external tree supports affine elements and accumulators.
+
+`tests/laws.bend` executes 18,750 bounded assertions per backend over 3,125 small parameter tuples. [LAWS.md](LAWS.md) states their scope, intended laws, the mathematical no-wrap/termination argument, and outstanding formal proof work. These checks are not mechanized proofs and do not establish compiler correctness. No compiler changes or explicit library `@unsafe` were added in this follow-up; the compiler still reports generated templates as unsafe annotations.
+
+The binding delays its reducer recipe and type metadata as closed functions, avoiding repeated eager evaluation at binding boundaries that exhausted the existing specialization fuel. Representative fixtures eliminate both Reducer and Reduction records. The specialization remains bounded: custom callbacks that are bare pattern matchers may retain records, whereas forwarding lambdas allow the current pass to resolve those function heads. The lifecycle fixture uses that form. This is a documented code-generation limitation, not a semantic restriction or claim of universal allocation elimination.
+
+See [range measurements](bench/RANGE.md) for the focused generated-range comparison. Existing CPU/GPU list measurements below are historical evidence; they do not validate this new range driver on GPU. Full compiler project gates remain outstanding for the existing compiler patch.
+
+The remaining sections record the original priorities #1/#2 work.
 
 ## Delivered
 
@@ -6,7 +22,7 @@
 
 The sequential list driver supports identity, map, configured map, configured filter, take, and reduction. Start and step carry owned state in Continue/Stop. Initialization stopping avoids mapper calls; consumer stops propagate upstream. Taking retains downstream control so its own limit is distinguishable from downstream stopping. Completion runs on either outcome.
 
-The API is provisional. It uses nested adapters rather than a runtime pipeline builder. Consumer initialization is part of the reducer configuration. The planned finite range source and into_list convenience remain priority #3.
+The API is provisional. It uses nested adapters rather than a runtime pipeline builder. Consumer initialization is part of the reducer configuration. The finite range source and into_list consumer were subsequently added in the priority #3 follow-up above.
 
 ## Why compiler specialization was needed for this representation
 

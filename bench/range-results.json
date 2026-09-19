@@ -1,0 +1,264 @@
+{
+  "timing": "IO.now milliseconds per batch; excludes process startup; one warmup per process",
+  "scope": "Sequential generated U32 ranges; CPU threads=1, GPU off; no prebuilt lists",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "results": [
+    {
+      "case": "cheap_full",
+      "begin": 0,
+      "end": 2000000,
+      "take": 2000000,
+      "work_rounds": 0,
+      "starts": "constant begin",
+      "repeats_per_sample": 32,
+      "expected_batch_sum": 724846560,
+      "builds": {
+        "library": {
+          "seconds": 0.4564825420966372,
+          "js_bytes": 22799,
+          "c_bytes": 106090
+        },
+        "direct": {
+          "seconds": 0.38969879201613367,
+          "js_bytes": 16176,
+          "c_bytes": 93342
+        }
+      },
+      "samples_ms": {
+        "library": [
+          49,
+          49,
+          48,
+          49,
+          49,
+          48,
+          49,
+          48,
+          49,
+          48,
+          49,
+          48,
+          49,
+          49
+        ],
+        "direct": [
+          33,
+          34,
+          33,
+          33,
+          34,
+          33,
+          33,
+          33,
+          33,
+          34,
+          33,
+          33,
+          33,
+          33
+        ]
+      },
+      "median_batch_ms": {
+        "library": 49.0,
+        "direct": 33.0
+      },
+      "median_us_per_transduction": {
+        "library": 1531.25,
+        "direct": 1031.25
+      }
+    },
+    {
+      "case": "cheap_early",
+      "begin": 0,
+      "end": 2000000,
+      "take": 32,
+      "work_rounds": 0,
+      "starts": "descending repetition index modulo 65536",
+      "repeats_per_sample": 1000000,
+      "expected_batch_sum": 819314240,
+      "builds": {
+        "library": {
+          "seconds": 0.45049529196694493,
+          "js_bytes": 22862,
+          "c_bytes": 106130
+        },
+        "direct": {
+          "seconds": 0.39144379098434,
+          "js_bytes": 16239,
+          "c_bytes": 93382
+        }
+      },
+      "samples_ms": {
+        "library": [
+          25,
+          26,
+          26,
+          25,
+          25,
+          25,
+          25,
+          24,
+          24,
+          25,
+          24,
+          25,
+          24,
+          25
+        ],
+        "direct": [
+          17,
+          17,
+          17,
+          18,
+          18,
+          17,
+          18,
+          17,
+          17,
+          17,
+          17,
+          17,
+          17,
+          18
+        ]
+      },
+      "median_batch_ms": {
+        "library": 25.0,
+        "direct": 17.0
+      },
+      "median_us_per_transduction": {
+        "library": 0.025,
+        "direct": 0.017
+      }
+    },
+    {
+      "case": "huge_early",
+      "begin": 0,
+      "end": 4294967295,
+      "take": 32,
+      "work_rounds": 0,
+      "starts": "descending repetition index modulo 65536",
+      "repeats_per_sample": 1000000,
+      "expected_batch_sum": 819314240,
+      "builds": {
+        "library": {
+          "seconds": 0.44639337505213916,
+          "js_bytes": 22865,
+          "c_bytes": 106133
+        },
+        "direct": {
+          "seconds": 0.3946052920073271,
+          "js_bytes": 16242,
+          "c_bytes": 93385
+        }
+      },
+      "samples_ms": {
+        "library": [
+          26,
+          26,
+          25,
+          26,
+          26,
+          26,
+          25,
+          25,
+          26,
+          25,
+          26,
+          25,
+          25,
+          24
+        ],
+        "direct": [
+          20,
+          19,
+          20,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          20,
+          19,
+          19
+        ]
+      },
+      "median_batch_ms": {
+        "library": 25.5,
+        "direct": 19.0
+      },
+      "median_us_per_transduction": {
+        "library": 0.0255,
+        "direct": 0.019
+      }
+    },
+    {
+      "case": "expensive_early",
+      "begin": 0,
+      "end": 2000000,
+      "take": 32,
+      "work_rounds": 256,
+      "starts": "descending repetition index modulo 65536",
+      "repeats_per_sample": 1000,
+      "expected_batch_sum": 4014221255,
+      "builds": {
+        "library": {
+          "seconds": 0.4544439589371905,
+          "js_bytes": 23036,
+          "c_bytes": 106350
+        },
+        "direct": {
+          "seconds": 0.3975797910243273,
+          "js_bytes": 16413,
+          "c_bytes": 93602
+        }
+      },
+      "samples_ms": {
+        "library": [
+          11,
+          12,
+          11,
+          11,
+          10,
+          12,
+          11,
+          12,
+          11,
+          10,
+          11,
+          12,
+          10,
+          11
+        ],
+        "direct": [
+          11,
+          12,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ]
+      },
+      "median_batch_ms": {
+        "library": 11.0,
+        "direct": 11.0
+      },
+      "median_us_per_transduction": {
+        "library": 11.0,
+        "direct": 11.0
+      }
+    }
+  ]
+}

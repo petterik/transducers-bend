@@ -1,6 +1,16 @@
 # Hand-off: Bend transducers
 
-## Start here
+## Priority #3 follow-up (supersedes the original hand-off below)
+
+The user authorized priority #3, confidence/prioritization reviews, and explicit laws with bounded executable checks. They rejected separate source drivers and then a closed Source enum in favor of an extensible reduction interface. The implemented API is `transduce(~reduction, config, source)`, where `over_list`, `over_range`, `over_string`, or a third-party adapter binds the user's pipeline once into a static Reduction description. `examples/tree.bend` adds an affine tree without changing the library. Source selection is explicit and static; ordinary source data remains runtime. See EXTENDING.md for the `reducible` binding helper and stopping-fold contract.
+
+Range, ordered affine into_list, and Nat count are implemented. Ranges use ascending half-open U32 bounds with step 1; reversed/equal bounds are empty and endpoints never wrap. Strings yield Char. Twelve test files pass JS/native, including 18,750 bounded law assertions per backend, reusable source conformance checks, affine external-tree tests, and JS source/mapper/lifecycle counts. Representative fixtures eliminate Reducer and Reduction records. LAWS.md records non-mechanized arguments and remaining proof work.
+
+The binding delays its reducer recipe (`~(u => r)`) and type metadata to stay within the existing compiler specialization budget. Direct pattern-matching callbacks in custom Reducer fields may retain runtime records; forwarding lambdas work with the current pass. No compiler changes were made. The actual compiler remains `../bend/bend2/main.ts`; a temporary debugging copy lacked effs/print.js, which was unrelated to the library. Final tests/benchmarks use the sibling checkout.
+
+`python3 bench/range.py` measures generated ranges against handwritten traversal; bench/RANGE.md and range-results.json retain the final report. Cheap work shows overhead (49 vs 33 ms for the full batch); expensive work ties at the timer's resolution. Prior compiler full-gate gaps remain, and no new range GPU validation or formal library-law proof was performed. Check git status: this follow-up is uncommitted unless the user has subsequently committed it. Nothing was pushed.
+
+## Original hand-off (historical)
 
 The user is exploring efficient pure-data transducers for Bend, inspired by Clojure but adapted to Bend's ownership and explicit parallel execution. They prefer pragmatic performance and allow future bounded speculative work; never evaluating an unnecessary element is not a universal requirement. They authorized implementation priorities #1 and #2 and compiler specialization when necessary. Those are implemented and measured. Priority #3 has not yet been requested for implementation.
 

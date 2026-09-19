@@ -1,0 +1,49 @@
+# Laws and proof status
+
+These are intended semantic laws of the public adapters and sequential drivers, not machine-checked theorems. Tests and generated-code inspection support them over explicitly bounded cases. The compiler specialization and backend runtimes remain separate trust obligations. No Lean proof or end-to-end compiler correctness proof has been added.
+
+## Scope and notation
+
+Assume pure, terminating callbacks, well-typed configurations, sufficient runtime resources, and arithmetic within the backend's supported domain. U32 arithmetic retains its defined wrapping behavior; Nat arithmetic can fail at the runtime limit. Equality below means equal returned values (or extensional behavior for function-valued results), not equal allocation counts, internal states, timing, or generated code.
+
+Write `run(r, c, xs)` for `transduce(~over_list(..., ~r), c, xs)` and `range(r, c, b, e)` for `transduce(~over_range(..., ~r), c, range_between(b, e))`, with remaining types implicit. `range(e)` is shorthand for bounds 0 and e. A custom reducer need not obey any associativity or algebraic combination law. Source-owned folds must satisfy [the extension contract](EXTENDING.md); their types alone do not prove it. For affine inputs, equal runs use separately constructed equivalent values, not duplicated owned values.
+
+## Intended laws
+
+1. **Source equivalence.** `range(r, c, b, e) = run(r, c, [b, b+1, ..., e-1])` when `b < e`; otherwise the reference list is empty. The same initialization, step sequence up to stopping, and completion apply to either source.
+2. **Ordered collection.** Running `into_list(A)` with Unit configuration returns the elements fed to that consumer in encounter order. With no adapters it returns a list equal to its source; with adapters it also includes any valid completion-time emissions. It does not require A to be Data.
+3. **Count.** Running `count(A)` returns the number of values fed to that consumer, including completion-time emissions, provided the Nat limit is not exceeded. For a pipeline reusable with either consumer, this equals the length of its `into_list` result.
+4. **Identity.** Replacing `r` with `identity(r)` preserves execution and result with the same configuration. The implementation returns the description unchanged.
+5. **Map composition.** `map(f, map(g, r))` agrees with `map(x => g(f(x)), r)` for the same source and downstream configuration, with compatible element types. Function order matters; neither law permits moving a map across a filter or take.
+6. **Consecutive take.** `take(n, take(m, r))` agrees in result and downstream lifecycle with `take(min(n,m), r)` (notation puts runtime take counts alongside their adapters). Configuration changes from `(n, (m, c))` to `(min(n,m), c)`. This is for adjacent takes; it does not move take through another adapter. Each version retains downstream Stop, so completion may flush only where downstream remains open.
+7. **Sequential lifecycle.** The execution installed by `reducible` calls outer start once, passes control to the source fold, then calls outer finish once. The source fold never calls step after observing Stop and never performs initialization/completion itself. Public reducer adapters delegate downstream initialization and completion once; test-only buffering honors downstream Stop during flush. Arbitrary user callbacks cannot be guaranteed to delegate correctly by their types alone.
+
+`take(0)` obtains no source values, but need not return an empty list or zero: an initialized adapter may legitimately emit during completion. No law promises fewer than O(n) cleanup work for an already constructed owned list. Future speculative/parallel drivers require their own operational contract.
+
+## Range termination and no-wrap argument
+
+Let b and e be the mathematical values of the U32 bounds. The driver checks `b < e` before calculating `e - b`. Reversed or equal bounds finish without a step. For valid bounds the initial budget is `n = e - b`, with `1 <= n <= 2^32 - 1`.
+
+At each recursive call, the invariant is `0 <= n <= e - b`. If control is Stop or n is zero, the driver finishes without calling `range_value`. Otherwise it produces `x = e - n`. Consequently `b <= x < e`, both the conversion of n to U32 and the subtraction are exact, and no arithmetic wraps. The recursive budget is n-1, obtained structurally by pattern matching, so termination follows. The next value is computed only after the next control check; the driver never increments an emitted U32 at the upper bound.
+
+This is a mathematical argument about the implementation, not a mechanized proof. The helper `range_value` assumes the driver's invariant; direct calls to internal helpers with arbitrary arguments do not carry that guarantee. Emitted JS uses BigInt for the budget and a constant-size U32 conversion; native uses numeric Nat. Neither creates a unary budget or a source list.
+
+`Range` is an ordinary bounds value. Its stopping fold returns control to the shared executor for completion. Source implementation selection occurs statically through a Reduction description; no runtime type dispatch or equality cast is needed.
+
+## Executable evidence
+
+`python3 tests/run.py` checks both emitted JS and native CPU execution:
+
+- `tests/laws.bend` enumerates all 3,125 tuples `(begin, end, threshold, n, m)` with coordinates 0..4. Six assertions each exercise source equivalence with ordered and scalar consumers, count versus collected length, identity/order against an independently constructed reference list, map composition, and consecutive take. Total: 18,750 assertions per backend. Some coordinates are irrelevant to particular assertions, so not all checks are distinct.
+- The reference list is constructed descending from end by prepending, then drops begin elements; it does not call the range driver. This includes empty and reversed bounds, no-match filtering, and zero/oversized take. It is exhaustive over that grid, not over arbitrary lists, callbacks, types, or machine integers.
+- `tests/range.bend` checks explicit ordered results, fresh consumer state, high U32 boundaries, near-full-domain early stops, consumer-initiated stops, affine collection and affine counting. Instrumented JS observes exactly 16 source-value calls and 13 named mapper calls across its cases. Existing list instrumentation observes nine mapper calls.
+- `tests/completion.bend` runs the same seven lifecycle fixtures on list and range sources, including nested buffering, upstream truncation, initial downstream Stop, and stopping during completion emission. Existing order/ownership tests remain active.
+- `tests/sources.bend` checks `range(10)` with map/inc/sum returns 55, string counting/stopping, and Char values including a non-ASCII character.
+- `tests/source_contract.bend` uses the same reusable helper for list, range, string, and an external tree. It checks order, preservation of control, initial Stop, mid-run Stop, and empty input.
+- `tests/extensions.bend` checks the third-party tree with affine values/state. `tests/lifecycle.bend` instruments exact initialization/step/completion counts across all four sources: 12/8/12.
+
+The bounded take/map checks compare collected results, not arbitrary callback traces. Lifecycle fixtures provide separate operational evidence. Instrumentation is a testing technique for the sequential implementation, not a supported effectful callback API.
+
+## Further proof work
+
+After the API stabilizes, investigate whether Bend's Lean core formalization supports a faithful model of these library definitions and templates. Candidate first proofs are the range invariant/source equivalence and the driver lifecycle. Prove map/take laws against that model with their assumptions stated explicitly. A source-level proof would still not validate the experimental specialization pass or generated JS/C runtimes; full compiler gates and separate compiler reasoning remain necessary.

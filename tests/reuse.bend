@@ -18,10 +18,10 @@ def reverse_collector() -> T.Reducer<U32, List<U32>>:
 
 def main() -> IO(Unit):
   do IO<Unit>:
-    IO.print(U32.show(T.transduce(~U32, ~U32, ~pipeline(~U32, ~T.sum()), (2, (2n, 0)), [1, 2, 3, 4, 5])))
+    IO.print(U32.show(T.transduce(~T.over_list(~U32, ~U32, ~pipeline(~U32, ~T.sum())), (2, (2n, 0)), [1, 2, 3, 4, 5])))
     IO.print(List.show(~&1, ~U32, ~U32.show,
-      T.transduce(~U32, ~List<U32>, ~pipeline(~List<U32>, ~reverse_collector()), (2, (2n, [])), [1, 2, 3, 4, 5])))
-    IO.print(U32.show(T.transduce(~U32, ~U32, ~T.identity(~U32, ~U32, ~T.sum()), 10, [1, 2])))
+      T.transduce(~T.over_list(~U32, ~List<U32>, ~pipeline(~List<U32>, ~reverse_collector())), (2, (2n, [])), [1, 2, 3, 4, 5])))
+    IO.print(U32.show(T.transduce(~T.over_list(~U32, ~U32, ~T.identity(~U32, ~U32, ~T.sum())), 10, [1, 2])))
 #|7
 #|[4, 3]
 #|13

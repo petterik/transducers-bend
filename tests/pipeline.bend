@@ -13,7 +13,7 @@ def pipeline() -> T.Reducer<U32, U32>:
       ~T.take(~U32, ~U32, ~T.sum())))
 
 def run(xs: List<U32>, threshold: U32, n: Nat) -> U32:
-  T.transduce(~U32, ~U32, ~pipeline(), (threshold, (n, 0)), xs)
+  T.transduce(~T.over_list(~U32, ~U32, ~pipeline()), (threshold, (n, 0)), xs)
 
 def main() -> List<U32>:
   [run([1, 2, 3, 4, 5], 2, 2n), run([1, 2, 3], 2, 0n), run([], 2, 2n), run([1, 2, 3], 99, 2n), run([1, 2, 3], 2, 9n)]

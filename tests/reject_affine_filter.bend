@@ -12,7 +12,7 @@ def bad() -> T.Reducer<(Unit -> U32), U32>:
     ~T.reducing(~(Unit -> U32), ~U32, ~U32, ~add, ~(s => s)))
 
 def main() -> U32:
-  T.transduce(~(Unit -> U32), ~U32, ~bad(), (Unit{}, 0), [u => 1])
+  T.transduce(~T.over_list(~(Unit -> U32), ~U32, ~bad()), (Unit{}, 0), [u => 1])
 #|Error:
 #|- expected : Data
 #|- observed : Type

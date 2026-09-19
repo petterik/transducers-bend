@@ -20,10 +20,10 @@ def runtime_map() -> T.Reducer<U32, U32>:
 
 def main() -> IO(Unit):
   do IO<Unit>:
-    IO.print(List.show(~&1, ~Bool, ~Bool.show, T.transduce(~U32, ~List<Bool>, ~flags(), [], [1, 2, 3])))
-    IO.print(U32.show(T.transduce(~U32, ~U32, ~closures(), 0, [1, 2, 3])))
-    IO.print(U32.show(T.transduce(~U32, ~U32, ~runtime_map(), (10, 0), [1, 2])))
-    IO.print(U32.show(T.transduce(~U32, ~U32, ~T.sum(), 10, [1, 2])))
+    IO.print(List.show(~&1, ~Bool, ~Bool.show, T.transduce(~T.over_list(~U32, ~List<Bool>, ~flags()), [], [1, 2, 3])))
+    IO.print(U32.show(T.transduce(~T.over_list(~U32, ~U32, ~closures()), 0, [1, 2, 3])))
+    IO.print(U32.show(T.transduce(~T.over_list(~U32, ~U32, ~runtime_map()), (10, 0), [1, 2])))
+    IO.print(U32.show(T.transduce(~T.over_list(~U32, ~U32, ~T.sum()), 10, [1, 2])))
 #|[False, True, False]
 #|6
 #|23

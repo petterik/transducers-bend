@@ -65,11 +65,18 @@ def ending(~down: T.Reducer<U32, U32>) -> T.Reducer<U32, U32>:
     s => T.finish_control(~U32, ~U32, ~down, send(~down, send(~down, s, 1), 2))}
 
 def main() -> List<U32>:
-  [T.transduce(~U32, ~U32, ~T.take(~U32, ~U32, ~pair(~collector())), (3n, 0), [1, 2, 3, 4, 5]),
-   T.transduce(~U32, ~U32, ~pair(~T.take(~U32, ~U32, ~collector())), (1n, 0), [1, 2, 3, 4, 5]),
-   T.transduce(~U32, ~U32, ~pair(~collector()), 0, []),
-   T.transduce(~U32, ~U32, ~pair(~T.take(~U32, ~U32, ~collector())), (0n, 0), [1, 2, 3]),
-   T.transduce(~U32, ~U32, ~pair(~pair(~collector())), 0, [1, 2, 3]),
-   T.transduce(~U32, ~U32, ~ending(~T.take(~U32, ~U32, ~collector())), (1n, 0), []),
-   T.transduce(~U32, ~U32, ~ending(~T.take(~U32, ~U32, ~collector())), (0n, 0), [])]
-#|[1033, 1003, 1000, 1000, 1006, 1001, 1000]
+  [T.transduce(~T.over_list(~U32, ~U32, ~T.take(~U32, ~U32, ~pair(~collector()))), (3n, 0), [1, 2, 3, 4, 5]),
+   T.transduce(~T.over_list(~U32, ~U32, ~pair(~T.take(~U32, ~U32, ~collector()))), (1n, 0), [1, 2, 3, 4, 5]),
+   T.transduce(~T.over_list(~U32, ~U32, ~pair(~collector())), 0, []),
+   T.transduce(~T.over_list(~U32, ~U32, ~pair(~T.take(~U32, ~U32, ~collector()))), (0n, 0), [1, 2, 3]),
+   T.transduce(~T.over_list(~U32, ~U32, ~pair(~pair(~collector()))), 0, [1, 2, 3]),
+   T.transduce(~T.over_list(~U32, ~U32, ~ending(~T.take(~U32, ~U32, ~collector()))), (1n, 0), []),
+   T.transduce(~T.over_list(~U32, ~U32, ~ending(~T.take(~U32, ~U32, ~collector()))), (0n, 0), []),
+   T.transduce(~T.over_range(~U32, ~T.take(~U32, ~U32, ~pair(~collector()))), (3n, 0), T.range_between(1, 6)),
+   T.transduce(~T.over_range(~U32, ~pair(~T.take(~U32, ~U32, ~collector()))), (1n, 0), T.range_between(1, 6)),
+   T.transduce(~T.over_range(~U32, ~pair(~collector())), 0, T.range_between(0, 0)),
+   T.transduce(~T.over_range(~U32, ~pair(~T.take(~U32, ~U32, ~collector()))), (0n, 0), T.range_between(1, 4)),
+   T.transduce(~T.over_range(~U32, ~pair(~pair(~collector()))), 0, T.range_between(1, 4)),
+   T.transduce(~T.over_range(~U32, ~ending(~T.take(~U32, ~U32, ~collector()))), (1n, 0), T.range_between(0, 0)),
+   T.transduce(~T.over_range(~U32, ~ending(~T.take(~U32, ~U32, ~collector()))), (0n, 0), T.range_between(0, 0))]
+#|[1033, 1003, 1000, 1000, 1006, 1001, 1000, 1033, 1003, 1000, 1000, 1006, 1001, 1000]

@@ -1,6 +1,18 @@
 # Confidence review
 
-Current implementation: priorities #1 and #2 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md). This document records the original design/review.
+Current implementation: priorities #1–#3 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md). The original review below is historical; its open items and compiler-scope restriction are superseded by later authorized work.
+
+## Priority #3 confidence follow-up
+
+The pre-implementation review narrowed range semantics to the existing ascending, half-open U32 design with step 1. Reversed bounds are checked before subtraction. A decreasing numeric Nat budget avoids eager source construction; computing `end - remaining` only while Continue prevents value generation after Stop and avoids endpoint wrap. The maximum U32 cannot be emitted with this exclusive-bound API; this is documented rather than hidden behind a widened bound type.
+
+Consumers use Unit configuration: ordered `into_list` supports affine elements and reverses once; `count` returns Nat and follows the compiler's checked limit. This avoids a second pipeline interface and silent U32 count wrapping. Tests cover both sources, affine ownership, stopping, boundary behavior, and existing completion fixtures. [LAWS.md](LAWS.md) records the intended laws, no-wrap argument, 18,750 bounded assertions per backend, and limits of the evidence.
+
+The final source API is an open static reduction interface: third-party modules supply an ordered stopping fold and a small binding adapter using `reducible`. `transduce(~reduction, config, source)` derives types from that binding and callers supply their pipeline once. The built-in list/range/string implementations and the external tree pass reusable conformance tests, affine ownership checks, and exact lifecycle instrumentation. There is no source enum, registry, automatic trait resolution, or runtime reusable callback.
+
+Prototypes established that ordinary runtime callback reuse is rejected by affinity. Static reduction works, but repeated eager evaluation at binding boundaries exceeded the compiler's bounded evaluator for larger pipelines. Delaying the closed recipe and type metadata fixed the representative codegen checks without modifying the compiler. Callback shape still matters: forwarding lambdas around pattern-matching functions specialize where bare matcher heads can remain runtime calls. This limitation is documented rather than treated as universal optimization.
+
+Remaining uncertainty is explicit: no mechanized library proof, allocation profiling, new range GPU validation, or full compiler gates. The benchmark compares equivalent generated sources and includes an independent output oracle; it does not imply universal performance parity. Passing tests and bounded specialization do not justify 100% confidence in arbitrary pipelines.
 
 Performed before drafting DESIGN.md, against the current Bend checkout and installed CLI (both reporting 2.0.16). This is an adversarial design review, not a claim of exhaustive proof or 100% certainty.
 

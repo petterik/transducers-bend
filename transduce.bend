@@ -32,16 +32,14 @@ def finish(-A: Type, -R: Type, r: Reducer<A, R>) -> State(A, R, r) -> R:
     case Reducer{C, S, init, advance, f}:
       f
 
-def drive(~A: Type, ~R: Type, ~r: Reducer<A, R>, xs: List<A>, c: Control<State(A, R, r)>) -> R:
+def reduce_list(~A: Type, ~S: Type, ~advance: S -> A -> Control<S>, xs: List<A>, c: Control<S>) -> Control<S>:
   match xs c:
-    case Nil{} Continue{s}:
-      finish(A, R, r, s)
-    case Nil{} Stop{s}:
-      finish(A, R, r, s)
+    case Nil{} c:
+      c
     case h <> t Stop{s}:
-      finish(A, R, r, s)
+      Stop{s}
     case h <> t Continue{s}:
-      drive(~A, ~R, ~r, t, step(A, R, r, s, h))
+      reduce_list(~A, ~S, ~advance, t, advance(s, h))
 
 def sum() -> Reducer<U32, U32>:
   Reducer{U32, U32, x => Continue{x}, s => x => Continue{(s + x : U32)}, s => s}
@@ -51,10 +49,6 @@ def map(~A: Type, ~B: Type, ~R: Type, ~f: A -> B, ~down: Reducer<B, R>) -> Reduc
     c => start(B, R, down, c),
     s => x => step(B, R, down, s, f(x)),
     s => finish(B, R, down, s)}
-
-def transduce(~A: Type, ~R: Type, ~r: Reducer<A, R>, config: Config(A, R, r), xs: List<A>) -> R:
-  drive(~A, ~R, ~r, xs, start(A, R, r, config))
-
 
 # A consumer with an ordinary reducing callback and a separate completion.
 def reducing(~A: Type, ~S: Type, ~R: Type, ~f: S -> A -> S, ~done: S -> R) -> Reducer<A, R>:
@@ -164,3 +158,109 @@ def take(~A: Type, ~R: Type, ~down: Reducer<A, R>) -> Reducer<A, R>:
 # Identity composition is the downstream description itself.
 def identity(~A: Type, ~R: Type, ~down: Reducer<A, R>) -> Reducer<A, R>:
   down
+
+# Empty configuration makes these consumers start fresh on every run.
+def into_list(~A: Type) -> Reducer<A, List<A>>:
+  Reducer{Unit, List<A>, u => Continue{[]},
+    xs => x => Continue{x <> xs}, xs => List.reverse(&1, A, xs)}
+
+def count(~A: Type) -> Reducer<A, Nat>:
+  Reducer{Unit, Nat, u => Continue{0n}, n => x => Continue{1n+n}, n => n}
+
+# Called only for a positive remaining budget, after checking control.
+# Invariant: 0 < remaining <= end - begin, so begin <= value < end.
+def range_value(end: U32, remaining: Nat) -> U32:
+  (end - U32.from_nat(remaining) : U32)
+
+type Range is Data:
+  Range{begin: U32, end: U32}
+
+def range(end: U32) -> Range:
+  Range{0, end}
+
+def range_between(begin: U32, end: U32) -> Range:
+  Range{begin, end}
+
+def drive_range(~S: Type, ~advance: S -> U32 -> Control<S>, +remaining: Nat,
+  c: Control<S>, +end: U32) -> Control<S>:
+  match remaining c:
+    case n Stop{s}:
+      Stop{s}
+    case 0n Continue{s}:
+      Continue{s}
+    case 1n+p Continue{s}:
+      drive_range(~S, ~advance, p, advance(s, range_value(end, 1n+p)), end)
+
+def range_bounds(~S: Type, ~advance: S -> U32 -> Control<S>, valid: Bool,
+  begin: U32, +end: U32, c: Control<S>) -> Control<S>:
+  match valid:
+    case False{}:
+      c
+    case True{}:
+      drive_range(~S, ~advance, U32.to_nat((end - begin : U32)), c, end)
+
+def reduce_range(~S: Type, ~advance: S -> U32 -> Control<S>, source: Range, c: Control<S>) -> Control<S>:
+  match source:
+    case Range{+begin, +end}:
+      range_bounds(~S, ~advance, U32.is_lt(begin, end), begin, end, c)
+
+def reduce_string(~S: Type, ~advance: S -> Char -> Control<S>, xs: String, c: Control<S>) -> Control<S>:
+  match xs c:
+    case SNil{} c:
+      c
+    case SCon{h, t} Stop{s}:
+      Stop{s}
+    case SCon{h, t} Continue{s}:
+      reduce_string(~S, ~advance, t, advance(s, h))
+
+# Static binding of a source-owned stopping fold to a reducer. This is open:
+# third-party adapters construct it with reducible; no source registry exists.
+# Type metadata is delayed so specialization need not evaluate type expressions
+# while projecting run. The code-generation tests require this record to vanish.
+type Reduction is Type:
+  Reduction{Input: Unit -> Type, Output: Unit -> Type, Config: Unit -> Type,
+    run: Config(Unit{}) -> Input(Unit{}) -> Output(Unit{})}
+
+def Input(p: Reduction) -> Type:
+  match p:
+    case Reduction{X, R, C, run}:
+      X(Unit{})
+
+def Output(p: Reduction) -> Type:
+  match p:
+    case Reduction{X, R, C, run}:
+      R(Unit{})
+
+def RunConfig(p: Reduction) -> Type:
+  match p:
+    case Reduction{X, R, C, run}:
+      C(Unit{})
+
+def execute(p: Reduction) -> RunConfig(p) -> Input(p) -> Output(p):
+  match p:
+    case Reduction{X, R, C, run}:
+      run
+
+def transduce(~p: Reduction, config: RunConfig(p), source: Input(p)) -> Output(p):
+  execute(p, config, source)
+
+# The fold receives initialized Control and must return it without completing.
+# Its step code is closed syntax; runtime settings remain in owned state.
+# recipe is delayed to avoid repeatedly evaluating the same static reducer at
+# nested binding boundaries and exhausting the compiler's bounded evaluator.
+def reducible(~X: Type, ~A: Type, ~R: Type, ~recipe: Unit -> Reducer<A, R>,
+  ~fold: X -> Control<State(A, R, recipe(Unit{}))> -> Control<State(A, R, recipe(Unit{}))>) -> Reduction:
+  Reduction{u => X, u => R, u => Config(A, R, recipe(Unit{})),
+    config => xs => finish_control(~A, ~R, ~recipe(Unit{}), fold(xs, start(A, R, recipe(Unit{}), config)))}
+
+def over_list(~A: Type, ~R: Type, ~r: Reducer<A, R>) -> Reduction:
+  reducible(~List<A>, ~A, ~R, ~(u => r),
+    ~(xs => c => reduce_list(~A, ~State(A, R, r), ~(s => x => step(A, R, r, s, x)), xs, c)))
+
+def over_range(~R: Type, ~r: Reducer<U32, R>) -> Reduction:
+  reducible(~Range, ~U32, ~R, ~(u => r),
+    ~(xs => c => reduce_range(~State(U32, R, r), ~(s => x => step(U32, R, r, s, x)), xs, c)))
+
+def over_string(~R: Type, ~r: Reducer<Char, R>) -> Reduction:
+  reducible(~String, ~Char, ~R, ~(u => r),
+    ~(xs => c => reduce_string(~State(Char, R, r), ~(s => x => step(Char, R, r, s, x)), xs, c)))

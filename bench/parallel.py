@@ -48,7 +48,7 @@ report['cpu_count'] = os.cpu_count()
 for case in a.cases:
     depth, count, take = cases[case]
     expected = (value * min(count, take) * (1 << depth)) & 0xffffffff if value > 1 else 0
-    bodies = {'library': f'T.transduce(~U32, ~U32, ~pipeline(), (1, ({take}n, 0)), xs)',
+    bodies = {'library': f'T.transduce(~T.over_list(~U32, ~U32, ~pipeline()), (1, ({take}n, 0)), xs)',
               'materialized': f'staged(xs, {take}n)', 'direct': f'direct(xs, Running{{{take}n, 0}})'}
     row = {'case': case, 'leaves': 1 << depth, 'elements_per_leaf': count, 'take_per_leaf': take,
            'expected': expected, 'builds': {}, 'samples_ms': {}, 'medians_ms': {}}
@@ -89,7 +89,9 @@ def main() -> IO(Unit):
         assert r.returncode == 0, r.stdout+r.stderr
         if variant == 'library':
             assert '{$: "Reducer"' not in stem.with_suffix('.js').read_text()
-        row['builds'][variant] = {'seconds': time.perf_counter()-start, 'gpu_bytes': stem.with_suffix('.gpu').stat().st_size}
+        gpu_file = stem.with_suffix('.gpu')
+        row['builds'][variant] = {'seconds': time.perf_counter()-start,
+                                 'gpu_bytes': gpu_file.stat().st_size if gpu_file.exists() else 0}
     modes = [(f'cpu_{t}', ['--threads', str(t), '--gpu', 'off']) for t in a.threads]
     if a.gpu:
         modes.append(('gpu', ['--threads', '1', '--gpu', '1GB']))
