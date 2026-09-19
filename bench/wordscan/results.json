@@ -36,10 +36,10 @@
         "cpu_1": {
           "status": "ok",
           "samples_ms": [
-            64,
+            61,
             62,
-            62,
-            62,
+            63,
+            63,
             62
           ],
           "median_ms": 62,
@@ -48,18 +48,26 @@
         "cpu_16": {
           "status": "ok",
           "samples_ms": [
-            7,
             8,
             7,
-            7,
-            8
+            8,
+            8,
+            7
           ],
-          "median_ms": 7,
+          "median_ms": 8,
           "checksum": 1287990074
         },
         "gpu": {
-          "status": "unavailable",
-          "reason": "bend: --gpu on, but this binary found no GPU device"
+          "status": "ok",
+          "samples_ms": [
+            16,
+            16,
+            16,
+            16,
+            17
+          ],
+          "median_ms": 16,
+          "checksum": 1287990074
         }
       }
     },
@@ -73,30 +81,38 @@
         "cpu_1": {
           "status": "ok",
           "samples_ms": [
-            68,
             69,
-            68,
+            69,
+            71,
             68,
             68
           ],
-          "median_ms": 68,
+          "median_ms": 69,
           "checksum": 1287990074
         },
         "cpu_16": {
           "status": "ok",
           "samples_ms": [
+            9,
             8,
             9,
-            10,
-            10,
-            10
+            8,
+            9
           ],
-          "median_ms": 10,
+          "median_ms": 9,
           "checksum": 1287990074
         },
         "gpu": {
-          "status": "unavailable",
-          "reason": "bend: --gpu on, but this binary found no GPU device"
+          "status": "ok",
+          "samples_ms": [
+            41,
+            42,
+            34,
+            36,
+            42
+          ],
+          "median_ms": 41,
+          "checksum": 1287990074
         }
       }
     },
@@ -110,11 +126,11 @@
         "cpu_1": {
           "status": "ok",
           "samples_ms": [
-            52,
-            51,
             50,
             51,
-            50
+            51,
+            50,
+            53
           ],
           "median_ms": 51,
           "checksum": 1287990074
@@ -123,46 +139,54 @@
           "status": "ok",
           "samples_ms": [
             6,
+            6,
             7,
-            6,
-            6,
+            7,
             6
           ],
           "median_ms": 6,
           "checksum": 1287990074
         },
         "gpu": {
-          "status": "unavailable",
-          "reason": "bend: --gpu on, but this binary found no GPU device"
+          "status": "ok",
+          "samples_ms": [
+            8,
+            6,
+            7,
+            7,
+            7
+          ],
+          "median_ms": 7,
+          "checksum": 1287990074
         }
       }
     }
   ],
-  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-wordscan-9_80xnjl",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-wordscan-5mj0hfr0",
   "external": {
     "c": {
       "status": "ok",
       "samples_ms": [
-        7.842209073714912,
-        5.018832976929843,
-        4.376041935756803,
-        3.4894999116659164,
-        3.0705839162692428
+        5.327458027750254,
+        4.414540948346257,
+        4.158457973971963,
+        3.5466249100863934,
+        3.4903750056400895
       ],
-      "median_ms": 4.376041935756803,
+      "median_ms": 4.158457973971963,
       "checksum": 1287990074,
       "timing_note": "process wall time, including startup"
     },
     "typescript": {
       "status": "ok",
       "samples_ms": [
-        93.8405420165509,
-        93.72937493026257,
-        95.75987502466887,
-        93.36395899299532,
-        95.93058296013623
+        94.20587494969368,
+        93.1768330046907,
+        93.2307499460876,
+        93.31908402964473,
+        93.47600000910461
       ],
-      "median_ms": 93.8405420165509,
+      "median_ms": 93.31908402964473,
       "checksum": 1287990074,
       "timing_note": "process wall time, including startup"
     },

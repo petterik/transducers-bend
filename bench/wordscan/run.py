@@ -279,6 +279,19 @@ def render_report(report: dict[str, object], output_name: str,
     )
     if gpu_result.get("status") == "skipped":
         reproduce_command += " --no-gpu"
+    if gpu_result.get("status") == "ok":
+        gpu_summary = (
+            f"The host exposed Metal and the transduced GPU median was {gpu_note}."
+        )
+    else:
+        gpu_summary = (
+            f"The host's GPU result was `{gpu_note}`. Re-run the benchmark on a "
+            "host with Metal access to populate that mode."
+        )
+    if lean_result.get("status") == "ok":
+        lean_summary = f"Lean was measured at {lean_note}."
+    else:
+        lean_summary = f"Lean was `{lean_note}`."
     return f"""# Array mapcat benchmark report
 
 This run used `ARRAY_DEPTH={parameters['ARRAY_DEPTH']}`,
@@ -307,8 +320,7 @@ The benchmark checksum validates lane membership, wrapping arithmetic, and
 batch partitioning. It is a sum, so it cannot by itself prove traversal order;
 the ordered `over_array` conformance test covers that separately.
 
-The host's GPU result was `{gpu_note}`, and Lean was `{lean_note}`. Re-run the
-benchmark on a host with those capabilities to populate those modes. Raw
+{gpu_summary} {lean_summary} Raw
 samples, compiler/library hashes, checksums, and the artifact directory are in
 [{output_name}]({output_name}).
 

@@ -23,6 +23,11 @@ records CPU-1, the configured threaded CPU mode, and GPU modes. GPU availability
 unavailable mode when the host has no device. External language timings include
 process startup and are therefore reported separately.
 
+On macOS, GPU mode requires the process to have access to the host's Metal
+device. A sandboxed or headless execution can report no device even when the
+machine has a supported Apple GPU; run the benchmark in a host context when
+that happens.
+
 Run the default sweep with:
 
 ```sh
