@@ -1,9 +1,12 @@
 # Transducer architecture work plan
 
-Status: proposed execution details, written 2026-09-20 following the accepted
-[design-review direction](DESIGN-REVIEW.md). No work package below is marked
-implemented by this document. [PRIORITIES.md](PRIORITIES.md) contains the impact,
-effort, and value ranking.
+Status: partially implemented, reviewed 2026-09-20. The
+[implementation review](review/IMPLEMENTATION-REVIEW.md) found that several
+checkpoints below are probes, not completion of their work packages. The
+[repair and completion plan](IMPLEMENTATION-REPAIR-PLAN.md) details the next
+worksets and the proposed compositional keep design. The original acceptance
+criteria below remain applicable. [PRIORITIES.md](PRIORITIES.md) contains the
+original impact, effort, and value ranking.
 
 ## Objective and boundaries
 
@@ -350,9 +353,8 @@ semantics, or silently change the source contract. A correct fallback establishe
 safety, not performance success. Conversely, removing real buffering is not a
 requirement for successful fusion.
 
-The current execution slice has completed packages 0–6 and recorded package 7's
-candidate/reference validation. The remaining work is deliberately bounded:
-prove the tree/continuation region before considering a fast tree path, measure
-any representation rewrite against a paired direct reference, and complete the
-device/upstream gates before promotion. No broad compiler rewrite is implied by
-the passing host-CPU List matrix.
+Package 0's conservative repair is complete. Packages 1, 5, 6, and 7 are partial;
+packages 2–4 have investigation evidence but their planned general compiler
+implementation is incomplete. See IMPLEMENTATION-REPAIR-PLAN.md for concrete
+remaining work and acceptance criteria. The host-CPU List matrix does not close
+the static-composition, scoped-fact, representation, or configured-API work.

@@ -2,6 +2,14 @@
 
 ## Current direction: architecture review and prioritized work
 
+The latest next-work specification is
+[IMPLEMENTATION-REPAIR-PLAN.md](IMPLEMENTATION-REPAIR-PLAN.md), following the
+[implementation review](review/IMPLEMENTATION-REVIEW.md). Packages 0–6 were not
+fully completed: static composition, scoped facts, and local representation
+received probes while their general compiler implementation remains open.
+The new plan also proposes keep as map followed by consuming optional flattening.
+It is a plan for review, not an implemented API change.
+
 Read [PRIORITIES.md](PRIORITIES.md) and [DESIGN-WORK-PLAN.md](DESIGN-WORK-PLAN.md)
 before continuing implementation. They supersede the earlier execution order
 below. [DESIGN-REVIEW.md](DESIGN-REVIEW.md) records confirmed wrong-code behavior
