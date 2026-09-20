@@ -18,6 +18,7 @@ These documents describe the accepted direction and the work still required:
 - [Scoped constructor facts](current/SCOPED-FACTS.md) — created 2026-09-20.
 - [Local representation elimination](current/LOCAL-REPRESENTATION.md) — created 2026-09-20.
 - [Extension/direct parity](current/EXTENSION-PARITY.md) — created 2026-09-20.
+- [Configured API checkpoint](current/CONFIGURED-API.md) — created 2026-09-20.
 
 The repair plan and implementation review are the best starting points. The
 current work remains partial: the tree rewrite is refused, while static

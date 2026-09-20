@@ -323,6 +323,11 @@ all-source or GPU claim follows from List timings.
 
 ## 6. Simplify the actual configured user experience
 
+Status: semantic acceptance remains complete through `tests/api_surface.bend`;
+the named-settings experiment is still open. `CONFIGURED-API.md` records the
+failed generic `comp` and dependent-record probes and keeps the tuple API until
+a concrete wrapper works for multiple downstream configuration types.
+
 **Files:** `transduce.bend`, `tests/api_surface.bend`, README and extension examples.
 
 1. Prototype a named reusable pipeline with type-changing keep, configured filter,

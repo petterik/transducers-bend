@@ -36,6 +36,16 @@ final promotion gates are still open.
 performance gaps; the 1.05 target was not relaxed. The next work should remove a
 general option/control or group-boundary cost and rerun the same matrix.
 
+## Checkpoint 2026-09-20: configured API boundary
+
+[`CONFIGURED-API.md`](CONFIGURED-API.md) records the package 6 probe. The
+existing reusable type-changing pipeline remains correct. A generic static
+`comp` cannot pass a runtime downstream binder to the closed `~down` template
+parameters, and the first dependent settings-record wrapper is rejected by the
+current checker. Keep the tuple API until a concrete named wrapper is proven
+with multiple downstream configuration types; do not introduce a runtime stage
+registry to improve spelling.
+
 ## Checkpoint 2026-09-20: final candidate validation
 
 `FINAL-VALIDATION.md` records the 20-file JS/native suite, source-shape and

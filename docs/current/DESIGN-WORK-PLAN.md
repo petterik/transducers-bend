@@ -292,12 +292,12 @@ performance gaps remain open.
 
 ## 6. Stabilize the library surface
 
-Status: acceptance fixture complete. `tests/api_surface.bend` reuses one
-type-changing `keep` declaration with `count` and `into_list` over range, list,
-and the external tree source. The current positional configuration is retained
-as the simplest form supported by Bend's type syntax; no second compatibility
-API is introduced. Further named configuration records require a separate type
-design.
+Status: semantic acceptance fixture complete; named configuration remains open.
+`tests/api_surface.bend` reuses one type-changing `keep` declaration with
+`count` and `into_list` over range, list, and the external tree source.
+`CONFIGURED-API.md` records why the current positional configuration is still
+the simplest form supported by Bend's type syntax and why no second
+compatibility API is introduced yet.
 
 **Purpose:** users describe transformations, settings, consumer, and source once.
 
