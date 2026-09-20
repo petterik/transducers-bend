@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import random
 import statistics
 import subprocess
 import tempfile
@@ -27,6 +28,12 @@ parser.add_argument('--samples', type=int, default=5,
                     help='timed samples per lane; one warmup is discarded')
 parser.add_argument('--repeats', type=int, default=32,
                     help='reductions per timed sample')
+parser.add_argument('--sessions', type=int, default=1,
+                    help='independent timing sessions; each has forward/reverse orders')
+parser.add_argument('--min-batch-ms', type=float, default=0,
+                    help='require every retained timed sample to meet this duration')
+parser.add_argument('--bootstrap-seed', type=int, default=20260920)
+parser.add_argument('--bootstrap-resamples', type=int, default=2000)
 parser.add_argument('--cases', nargs='+',
                     choices=['zero_take', 'one_element', 'map_chain',
                              'type_change', 'mixed_full',
@@ -42,6 +49,12 @@ if a.samples < 1:
     parser.error('--samples must be positive')
 if a.repeats < 1:
     parser.error('--repeats must be positive')
+if a.sessions < 1:
+    parser.error('--sessions must be positive')
+if a.min_batch_ms < 0:
+    parser.error('--min-batch-ms cannot be negative')
+if a.bootstrap_resamples < 1:
+    parser.error('--bootstrap-resamples must be positive')
 
 compiler = a.bend_main.resolve()
 if a.artifact_dir:
@@ -235,6 +248,32 @@ def run(cmd, timeout=120):
     return result
 
 
+def bootstrap_ratio(pairs, seed, resamples):
+    """Return a paired bootstrap interval for median(transducer)/median(direct)."""
+    if not pairs or not any(direct for _, direct in pairs):
+        return None
+    rng = random.Random(seed)
+    ratios = []
+    for _ in range(resamples):
+        sample = [pairs[rng.randrange(len(pairs))] for _ in pairs]
+        transducers = statistics.median(t for t, _ in sample)
+        direct = statistics.median(d for _, d in sample)
+        if direct:
+            ratios.append(transducers / direct)
+    ratios.sort()
+    if not ratios:
+        return None
+    quantile = lambda p: ratios[int(p * (len(ratios) - 1))]
+    return {
+        'seed': seed,
+        'resamples': resamples,
+        'paired_samples': len(pairs),
+        'lower_95': quantile(0.025),
+        'median': quantile(0.5),
+        'upper_95': quantile(0.975),
+    }
+
+
 def write_program(stem, case, body):
     spec = CASES[case]
     if spec['work_rounds']:
@@ -385,6 +424,10 @@ report = {
     'scope': 'candidate compiler; sequential List source; CPU threads=1; GPU off; source construction and cleanup included',
     'timing': 'IO.now milliseconds per repeated batch; one warmup discarded; lanes run in forward and reverse order',
     'repeats_per_sample': a.repeats,
+    'sessions': a.sessions,
+    'minimum_batch_ms': a.min_batch_ms,
+    'bootstrap': {'seed': a.bootstrap_seed, 'resamples': a.bootstrap_resamples,
+                  'statistic': 'paired median(transducers) / median(direct)'},
     'artifacts': str(out),
     'results': [],
 }
@@ -393,6 +436,7 @@ for case in selected:
     spec = CASES[case]
     result = {'case': case, **spec, 'expected': expected(spec, a.repeats),
               'samples_ms': {'transducers': [], 'direct': []},
+              'paired_samples_ms': [],
               'program_sha256': {}, 'builds': {}}
     if spec.get('kind') == 'map_chain':
         bodies = {
@@ -426,24 +470,38 @@ for case in selected:
             'clo_apply_occurrences': stem.with_suffix('.c').read_text().count('Clo.apply'),
         }
     expected_value = result['expected']
-    for lanes in (list(bodies), list(reversed(bodies))):
-        for lane in lanes:
-            stem = out / f'{case}-{lane}'
-            run_result = run([stem, '--threads', '1', '--gpu', 'off'])
-            rows = [line.split(':') for line in run_result.stdout.splitlines()]
-            assert len(rows) == a.samples + 1, (case, lane, run_result.stdout)
-            assert all(int(value) == expected_value for value, _ in rows), (case, lane, run_result.stdout, expected_value)
-            result['samples_ms'][lane].extend(int(ms) for _, ms in rows[1:])
+    for _session in range(a.sessions):
+        for lanes in (list(bodies), list(reversed(bodies))):
+            timed = {}
+            for lane in lanes:
+                stem = out / f'{case}-{lane}'
+                run_result = run([stem, '--threads', '1', '--gpu', 'off'])
+                rows = [line.split(':') for line in run_result.stdout.splitlines()]
+                assert len(rows) == a.samples + 1, (case, lane, run_result.stdout)
+                assert all(int(value) == expected_value for value, _ in rows), (case, lane, run_result.stdout, expected_value)
+                samples = [int(ms) for _, ms in rows[1:]]
+                timed[lane] = samples
+                result['samples_ms'][lane].extend(samples)
+            result['paired_samples_ms'].extend(zip(timed['transducers'], timed['direct']))
     result['median_ms'] = {lane: statistics.median(values)
                            for lane, values in result['samples_ms'].items()}
+    if a.min_batch_ms:
+        minimum = min(ms for values in result['samples_ms'].values() for ms in values)
+        assert minimum >= a.min_batch_ms, (case, minimum, a.min_batch_ms)
+        result['minimum_observed_ms'] = minimum
+    result['bootstrap_95'] = bootstrap_ratio(
+        result['paired_samples_ms'], a.bootstrap_seed, a.bootstrap_resamples)
     result['ratio_transducer_over_direct'] = (
         result['median_ms']['transducers'] / result['median_ms']['direct']
         if result['median_ms']['direct'] else None)
     report['results'].append(result)
     ratio_text = ('n/a' if result['ratio_transducer_over_direct'] is None
                   else f"{result['ratio_transducer_over_direct']:.3f}")
+    interval = result['bootstrap_95']
+    interval_text = ('n/a' if interval is None
+                     else f"95%=[{interval['lower_95']:.3f},{interval['upper_95']:.3f}]")
     print(case, result['median_ms'],
-          f"ratio={ratio_text}", flush=True)
+          f"ratio={ratio_text}", interval_text, flush=True)
 
 text = json.dumps(report, indent=2) + '\n'
 if a.output:

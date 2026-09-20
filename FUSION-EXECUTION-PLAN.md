@@ -44,6 +44,12 @@ expensive callbacks. It records generated artifacts and hashes; rows that
 measure zero milliseconds are correctness gates only and are not performance
 evidence.
 
+The runner now supports independent sessions, minimum batch-duration checks and
+a deterministic paired bootstrap for median transducer/direct ratios. A smoke
+run with 256 reductions per sample kept the mixed-full batch above 113 ms and
+reported a 95% ratio interval of 0.983–1.009; this is a protocol check, not the
+required 20-block/two-session acceptance result.
+
 ## Performance acceptance rules
 
 During development, measure these two lanes using the same candidate backend,
@@ -195,10 +201,10 @@ variability across reductions and verify generated code still performs the work.
 
 The current deliverable is a table of per-case ratios to direct Bend and
 preserved artifacts. Next, calibrate repetitions so timed rows exceed 100 ms,
-add the second session and paired-bootstrap interval, and extend coverage to
-three maps, a type-changing mapper, ranges and the other existing source
-adapters. This harness identifies the actual parity gaps; success against
-original helpers cannot substitute for this table.
+run 20 retained blocks in two sessions with the paired interval, and extend
+coverage to ranges and the other existing source adapters. This harness
+identifies the actual parity gaps; success against original helpers cannot
+substitute for this table.
 
 ## Step 4 — Reduce one parity gap and identify its cause
 

@@ -34,6 +34,7 @@ Validation completed:
 - Runtime-threshold mixed range check: candidate/direct 85/88 ms full and 42/44 ms early, with one guarded loop and independent output checks.
 - `bench/fusion_parity.py` matrix: mixed full 15/15 ms, mixed take-one 36/38 ms, mixed take-32 35/38 ms, and expensive take-32 36.5/37 ms (transducers/direct); dynamic short and zero/one-element rows pass correctness but are below timer resolution.
 - The same matrix now includes three-map 14/14 ms and U32→Nat→U32 type-changing 14/14.5 ms. Both have no `Clo.apply`; their simple scalar chains do not need the guarded-loop marker.
+- The harness now records paired samples and deterministic bootstrap intervals. A 256-reduction mixed-full smoke run measured 114.5/114.5 ms with a 0.983–1.009 95% ratio interval and passed the 50 ms minimum-duration check.
 - `bench/compiler/test_source_shapes.py` passes: String reaches one guarded loop, while Array-tree traversal and boxed `into_list` state stay on the generic path with matching JS/native outputs.
 
 ### Handoff for the next session
@@ -45,11 +46,10 @@ Validation completed:
 3. Inspect the mixed full generated C and assembly. Confirm the fast wrapper is
    guarded by the typed state conditions and the generic list helper remains
    available for the fallback path.
-4. Extend `bench/fusion_parity.py` with range and other source cases, then
-   calibrate repetitions so timed rows exceed 100 ms.
-   Add the balanced 20-block, two-session run and paired-bootstrap interval from
-   `FUSION-EXECUTION-PLAN.md`, including short, runtime-threshold, zero/one/
-   max-count, and irregular-selectivity cases.
+4. Extend `bench/fusion_parity.py` with range and other source cases, then run
+   `--samples 20 --sessions 2` after calibrating `--repeats` so timed rows
+   exceed 100 ms. Keep the paired bootstrap interval and include short,
+   runtime-threshold, zero/one/max-count, and irregular-selectivity cases.
 5. Extend source-shape coverage to custom recursive sources and unusual scalar
    states. Keep Array-tree and boxed-state refusals explicit; widen the source
    proof only when a new representation has a structural proof and differential

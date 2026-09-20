@@ -144,6 +144,11 @@ transducer programs each contain one guarded loop and no `Clo.apply` occurrence.
 These are retained engineering artifacts, not the calibrated 100 ms/two-session
 acceptance run.
 
+The duration/statistics path was exercised separately with 256 reductions and a
+50 ms minimum. Mixed-full transducers/direct measured **114.5/114.5 ms** across
+four paired samples; the deterministic 95% bootstrap interval was **0.983–1.009**.
+It is a protocol smoke check, not the final 20-block/two-session acceptance run.
+
 The same harness's three-map and U32→Nat→U32 type-changing controls measured
 **14/14 ms** and **14/14.5 ms** respectively. Their C has no `Clo.apply`; the
 simple scalar chains are already exposed by ordinary static specialization and
