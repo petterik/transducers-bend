@@ -14,10 +14,11 @@ type GLState = {
   trivial:Map<string,{generic:string; doms:number[]}>;
 };
 const GL_ENABLE_LOOP = false;
+const GL_ENABLE_TREE = true;
 const GL_SOURCE_GATE = false;
-const GL_STATES = new WeakMap<File,GLState>();
+const GL_STATES = new WeakMap<object,GLState>();
 const GL_HOST = '#if !defined(__METAL_VERSION__) && !defined(__CUDACC__) && !defined(__CUDACC_RTC__)';
-function gl_state(fl:File):GLState {
+function gl_state(fl:Carb):GLState {
   let s=GL_STATES.get(fl);
   if (!s) GL_STATES.set(fl,s={summaries:new Map(),records:new Map(),attempts:0,clones:0,suppress:0,trivial:new Map()});
   return s;
@@ -42,6 +43,96 @@ function gl_native_key(fl:File,ck:Call,ers:HTerm[]):string {
   const key=gl_key(fl,ck,ers), cx=gl_state(fl).context;
   return cx?.keys.has(key) ? `${key}|guarded-loop:${cx.id}` : key;
 }
+
+// A structural tree driver has a boxed recursive source and two recursive
+// calls, with one result fed into the other. It cannot use the tail-loop
+// entry proof, but it can still reuse a proven scalar callback chain. This
+// predicate deliberately knows nothing about adapter names or generated C.
+function gl_tree_flat(fl:Carb,ck:Call):boolean {
+  if (!GL_ENABLE_LOOP || !GL_ENABLE_TREE) return false;
+  // Without a previously proved scalar callback there is no safe tree
+  // specialization to request; leave the ordinary work-loop lowering alone.
+  const gs=gl_state(fl);
+  if (gs.summaries.size===0 || ![...gs.records.values()].some(r=>gs.summaries.has(r.key))) return false;
+  const tld=fl.book.tlds[ck.k] as Def;
+  if (!tld?.h) return false;
+  const sig=sig_def(fl,ck.k);
+  if (sig.lays.length===0 || sig.lays[0].ks.length!==1 || sig.lays[0].ks[0]!=='box') return false;
+  if (sig.lays.flatMap(l=>l.ks).length>16 || sig.ret.ks.length>8) return false;
+  let self=0, nonTail=0, bad=false;
+  term_any(fl,tld.h,(t,tail)=>{
+    const call=call_kind(fl,t);
+    if (call?.k===ck.k) {
+      self++;
+      if (!tail) nonTail++;
+      if (call.bang) bad=true;
+    }
+    if (call?.bang===true || (t.$==='Let' && t.k.length>=2)) bad=true;
+    return false;
+  });
+  // The elaborated term visits each annotated recursive application twice;
+  // this is the structural two-branch tree shape (four visits, two non-tail).
+  return !bad && self===4 && nonTail===2;
+}
+
+// Re-emit a tree driver while the context maps its statically known callback
+// chain to guarded scalar helpers. The tree source/control representation is
+// unchanged; every callback helper retains its own generic fallback.
+function gl_tree_finish(fl:File,ck:Call,ers:HTerm[],name:string,emitted:[string,string,Set<string>]):boolean {
+  const state=gl_state(fl);
+  if (state.suppress || !gl_tree_flat(fl,ck) || state.attempts++>64 || state.clones>=16) return false;
+  const descendants=new Map<string,GLRecord>();
+  const collect=(n:string,depth=0):void=>{
+    if (depth>8 || descendants.size>24) throw new GReject('tree call graph budget');
+    const r=state.records.get(n);
+    if (!r || descendants.has(n)) return;
+    descendants.set(n,r);
+    r.refs.forEach(x=>collect(x,depth+1));
+  };
+  try {
+    collect(name);
+    const candidates=[...descendants].filter(([,r])=>state.summaries.has(r.key));
+    if (candidates.length!==1) return false;
+    const [candidateName,record]=candidates[0], candidate=state.summaries.get(record.key)!;
+    const chainNames=new Set([candidateName]);
+    for(let i=0;i<9;i++) for(const [n,r] of descendants)
+      if ([...r.refs].some(x=>chainNames.has(x))) chainNames.add(n);
+    if (!chainNames.has(name) || chainNames.size>6) return false;
+    const keys=new Map<string,string>();
+    for(const n of chainNames) {
+      const r=descendants.get(n)!;
+      if (keys.has(r.k) && keys.get(r.k)!==r.key) throw new GReject('polymorphic tree chain');
+      keys.set(r.k,r.key);
+    }
+    state.context={id:name,keys:new Set(keys.values()),candidateKey:record.key,candidate};
+    state.clones++;
+    let fast:string;
+    try { fast=emit_native(fl,ck,ers); }
+    finally { state.context=undefined; }
+    const original=emitted[1], generic=name+'_tree_generic';
+    const sig=sig_def(fl,ck.k);
+    const width=sig.lays.flatMap(l=>l.ks).length;
+    const decl=sig.lays.flatMap(l=>l.ks).map((k,i)=>`, ${lay_c(k)} r${i}`).join('');
+    const renamed=original.replace(new RegExp(`\\b${name}\\b`,'g'),generic);
+    emitted[1]=[GL_HOST,
+      `/* guarded_tree: typed callback chain; ${chainNames.size} scoped helpers */`,
+      renamed,
+      `INLINE Term ${name}(Env e, THR Term* o${decl}) {`,
+      `  return ${fast}(e, o${Array.from({length:width},(_,i)=>`, r${i}`).join('')});`,
+      '}', '#else', original, '#endif'].join('\n');
+    emitted[2].add(fast);
+    fl.spins.splice(fl.spins.indexOf(emitted),1);
+    fl.spins.push(emitted);
+    if (process.env.BEND_LOOP_REPORT) fs.appendFileSync(process.env.BEND_LOOP_REPORT,
+      JSON.stringify({callee:ck.k,name,fast,tree:true,chain:[...keys.keys()]})+'\n');
+    return true;
+  } catch(e) {
+    if (!(e instanceof GReject)) throw e;
+    if (process.env.BEND_GUARDED_TRACE) console.error(`tree reject ${ck.k}: ${e.message}`);
+    return false;
+  }
+}
+
 function gl_finish(fl:File,ck:Call,ers:HTerm[],name:string,emitted:[string,string,Set<string>]):void {
   const state=gl_state(fl), key=gl_key(fl,ck,ers), cx=state.context;
   const original=emitted[1];
@@ -55,6 +146,7 @@ function gl_finish(fl:File,ck:Call,ers:HTerm[],name:string,emitted:[string,strin
   }
   state.records.set(name,{key,k:ck.k,refs:emitted[2]});
   if (state.suppress) return;
+  if (GL_ENABLE_TREE && gl_tree_finish(fl,ck,ers,name,emitted)) return;
   const scalar=guarded_scalar(fl,ck,ers,name,original);
   if (!GL_ENABLE_LOOP) {
     if (scalar !== null) emitted[1]=scalar;

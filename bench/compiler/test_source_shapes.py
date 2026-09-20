@@ -26,13 +26,16 @@ cases = {
     'string': {
         'source': HERE / 'fixtures/string_transducer.bend',
         'guarded_loops': 1,
+        'guarded_trees': 0,
         'output': '0:195:394',
     },
-    # Array traversal has a tree-shaped source representation and is outside
-    # the single boxed recursive-source proof for now.
+    # Array traversal has a tree-shaped source representation.  The candidate
+    # can substitute a previously proved scalar callback chain while leaving
+    # the source/control tree and generic fallback unchanged.
     'array': {
         'source': HERE / 'fixtures/array_transducer.bend',
         'guarded_loops': 0,
+        'guarded_trees': 1,
         'output': '0:9:22',
     },
     # into_list keeps a boxed reducer state and result; scalar loop analysis
@@ -40,6 +43,7 @@ cases = {
     'boxed_state': {
         'source': HERE / 'fixtures/boxed_state_transducer.bend',
         'guarded_loops': 0,
+        'guarded_trees': 0,
         'output': '[]\n[4, 5]\n[4, 5]',
     },
 }
@@ -64,7 +68,9 @@ for name, spec in cases.items():
          '-o', stem.with_suffix('.js')])
     emitted = stem.with_suffix('.c').read_text()
     loops = emitted.count('/* guarded_loop:')
+    trees = emitted.count('/* guarded_tree:')
     assert loops == spec['guarded_loops'], (name, loops, spec['guarded_loops'])
+    assert trees == spec['guarded_trees'], (name, trees, spec['guarded_trees'])
     assert 'Clo.apply' not in emitted, name
     run(['clang', '-std=c11', '-O3', stem.with_suffix('.c'), '-lpthread', '-lm',
          '-o', stem])
@@ -75,6 +81,7 @@ for name, spec in cases.items():
     report['cases'][name] = {
         'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
         'guarded_loop_comments': loops,
+        'guarded_tree_comments': trees,
         'native_output': native.stdout.strip(),
         'js_output': js.stdout.strip(),
         'c_bytes': stem.with_suffix('.c').stat().st_size,

@@ -42,6 +42,13 @@ patched = patched.replace('function emit_native(', 'function emit_native_core(',
 call_anchor = '  const name = emit_native(fl, ck, ers);'
 assert patched.count(call_anchor) == 1
 patched = patched.replace(call_anchor, '  const name = gl_call_name(fl, emit_native(fl, ck, ers), ck);')
+flat_anchor = '  const flat = flat_of(ck.k);'
+assert patched.count(flat_anchor) == 1
+patched = patched.replace(flat_anchor, '  const flat = flat_of(ck.k) || gl_tree_flat(fl, ck);')
+call_flat_anchor = '  return ck !== null && ck.bang !== true && flat_of(ck.k);'
+assert patched.count(call_flat_anchor) == 1
+patched = patched.replace(call_flat_anchor,
+                          '  return ck !== null && ck.bang !== true && (flat_of(ck.k) || gl_tree_flat(c, ck));')
 loop_code = (HERE/'guarded_loop.inc.ts').read_text()
 if a.loop:
     loop_code = loop_code.replace('const GL_ENABLE_LOOP = false;', 'const GL_ENABLE_LOOP = true;')
