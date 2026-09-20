@@ -144,6 +144,11 @@ transducer programs each contain one guarded loop and no `Clo.apply` occurrence.
 These are retained engineering artifacts, not the calibrated 100 ms/two-session
 acceptance run.
 
+The same harness's three-map and U32→Nat→U32 type-changing controls measured
+**14/14 ms** and **14/14.5 ms** respectively. Their C has no `Clo.apply`; the
+simple scalar chains are already exposed by ordinary static specialization and
+do not require a `guarded_loop` wrapper.
+
 Additional six-sample checks: [huge early ranges and expensive mapping](automatic-extra-results.json)
 measured automatic/handwritten at 18/19 ms and 11/11 ms; a
 [runtime no-match filter](automatic-no-match-results.json) measured 36/34 ms.

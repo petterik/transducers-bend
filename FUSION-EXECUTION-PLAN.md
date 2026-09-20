@@ -38,10 +38,11 @@ gates.
 compiles an unchanged transducer lane and an independently written direct Bend
 lane with the same source construction, callbacks, configuration and cleanup,
 then checks both against a Python oracle. The current matrix covers zero and
-one-element inputs, mixed full and early stopping, dynamic short source/count/
-threshold modes, and expensive callbacks. It records generated artifacts and
-hashes; rows that measure zero milliseconds are correctness gates only and are
-not performance evidence.
+one-element inputs, three composed maps, a U32→Nat→U32 type-changing mapper,
+mixed full and early stopping, dynamic short source/count/threshold modes, and
+expensive callbacks. It records generated artifacts and hashes; rows that
+measure zero milliseconds are correctness gates only and are not performance
+evidence.
 
 ## Performance acceptance rules
 

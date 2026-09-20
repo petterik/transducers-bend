@@ -28,7 +28,8 @@ parser.add_argument('--samples', type=int, default=5,
 parser.add_argument('--repeats', type=int, default=32,
                     help='reductions per timed sample')
 parser.add_argument('--cases', nargs='+',
-                    choices=['zero_take', 'one_element', 'mixed_full',
+                    choices=['zero_take', 'one_element', 'map_chain',
+                             'type_change', 'mixed_full',
                              'mixed_take_one', 'mixed_take_32',
                              'dynamic_short', 'expensive_take_32'],
                     help='selected cases; default: all')
@@ -61,6 +62,12 @@ CASES = {
                   'work_rounds': 0},
     'one_element': {'count': 1, 'take': 1, 'threshold_mode': 'above',
                     'work_rounds': 0},
+    'map_chain': {'count': 200_000, 'take': 200_000,
+                  'threshold_mode': 'above', 'work_rounds': 0,
+                  'kind': 'map_chain'},
+    'type_change': {'count': 200_000, 'take': 200_000,
+                    'threshold_mode': 'above', 'work_rounds': 0,
+                    'kind': 'type_change'},
     'mixed_full': {'count': 200_000, 'take': 200_000,
                    'threshold_mode': 'mixed', 'work_rounds': 0},
     'mixed_take_one': {'count': 200_000, 'take': 1,
@@ -92,6 +99,8 @@ def transform(x: U32) -> U32:
 
 def above(t: U32, x: U32) -> Bool:
   {predicate}
+
+{extra_defs}
 
 def pipeline() -> T.Reducer<U32, U32>:
   T.map(~U32, ~U32, ~U32, ~transform,
@@ -199,6 +208,16 @@ def expected(case, repeats):
         for x in range(count):
             if accepted == budget:
                 break
+            if case.get('kind') == 'map_chain':
+                mapped = (x + 6) & 0xffffffff
+                subtotal = (subtotal + mapped) & 0xffffffff
+                accepted += 1
+                continue
+            if case.get('kind') == 'type_change':
+                mapped = x
+                subtotal = (subtotal + mapped) & 0xffffffff
+                accepted += 1
+                continue
             mapped = cheap(x) if case['work_rounds'] == 0 else u32_work(x, case['work_rounds'])
             key = mapped if case['threshold_mode'] == 'above' else u32_work(mapped, 3)
             if key > threshold:
@@ -228,6 +247,48 @@ def write_program(stem, case, body):
         predicate = 'U32.is_gt(work(3n, x), t)'
     else:
         predicate = 'U32.is_gt(work(3n, x), t)'
+    if spec.get('kind') == 'map_chain':
+        extra_defs = '''def inc1(x: U32) -> U32:
+  (x + 1 : U32)
+
+def inc2(x: U32) -> U32:
+  (x + 2 : U32)
+
+def inc3(x: U32) -> U32:
+  (x + 3 : U32)
+
+def chain_pipeline() -> T.Reducer<U32, U32>:
+  T.map(~U32, ~U32, ~U32, ~inc1,
+    ~T.map(~U32, ~U32, ~U32, ~inc2,
+      ~T.map(~U32, ~U32, ~U32, ~inc3, ~T.sum())))
+
+def direct_chain(xs: List<U32>, acc: U32) -> U32:
+  match xs:
+    case Nil{}:
+      acc
+    case h <> t:
+      direct_chain(t, (acc + ((h + 6 : U32)) : U32))
+'''
+    elif spec.get('kind') == 'type_change':
+        extra_defs = '''def to_nat(x: U32) -> Nat:
+  U32.to_nat(x)
+
+def from_nat(x: Nat) -> U32:
+  U32.from_nat(x)
+
+def type_change_pipeline() -> T.Reducer<U32, U32>:
+  T.map(~U32, ~Nat, ~U32, ~to_nat,
+    ~T.map(~Nat, ~U32, ~U32, ~from_nat, ~T.sum()))
+
+def direct_type_change(xs: List<U32>, acc: U32) -> U32:
+  match xs:
+    case Nil{}:
+      acc
+    case h <> t:
+      direct_type_change(t, (acc + from_nat(to_nat(h)) : U32))
+'''
+    else:
+        extra_defs = ''
     if spec['count'] == 'dynamic':
         dynamic_helpers = '''type Mode is Data:
   Mode0{}
@@ -300,6 +361,7 @@ def dyn_next(+mode: Mode) -> Mode:
         transduce_import=os.path.relpath(ROOT / 'transduce.bend', stem.parent),
         work_call=work_call,
         predicate=predicate,
+        extra_defs=extra_defs,
         dynamic_helpers=dynamic_helpers,
         count_expr=count_expr,
         take_expr=take_expr,
@@ -332,11 +394,22 @@ for case in selected:
     result = {'case': case, **spec, 'expected': expected(spec, a.repeats),
               'samples_ms': {'transducers': [], 'direct': []},
               'program_sha256': {}, 'builds': {}}
-    bodies = {
-        'transducers': ('T.transduce(~T.over_list(~U32, ~U32, ~pipeline()), '
-                        '(threshold, (budget, 0)), xs)'),
-        'direct': 'direct_list(xs, Running{budget, 0}, threshold)',
-    }
+    if spec.get('kind') == 'map_chain':
+        bodies = {
+            'transducers': 'T.transduce(~T.over_list(~U32, ~U32, ~chain_pipeline()), 0, xs)',
+            'direct': 'direct_chain(xs, 0)',
+        }
+    elif spec.get('kind') == 'type_change':
+        bodies = {
+            'transducers': 'T.transduce(~T.over_list(~U32, ~U32, ~type_change_pipeline()), 0, xs)',
+            'direct': 'direct_type_change(xs, 0)',
+        }
+    else:
+        bodies = {
+            'transducers': ('T.transduce(~T.over_list(~U32, ~U32, ~pipeline()), '
+                            '(threshold, (budget, 0)), xs)'),
+            'direct': 'direct_list(xs, Running{budget, 0}, threshold)',
+        }
     for lane, body in bodies.items():
         stem = out / f'{case}-{lane}'
         program = write_program(stem, case, body)
