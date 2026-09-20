@@ -11,9 +11,9 @@ status: current
 > historical individual test results remain recorded evidence.
 
 
-Status: isolated compiler prototype. This is the first small local rewrite
-behind the typed-region plan; it is evidence for the design, not an upstream
-compiler change.
+Status: isolated compiler prototype with a conservative helper boundary. This
+is the first small local rewrite behind the typed-region plan; it is evidence
+for the design, not an upstream compiler change.
 
 The prototype attaches provenance to the compiler's existing emitted `Val`
 record. When `emit_ctr` creates a value, it records the constructor name and
@@ -38,6 +38,15 @@ affine, projected, mismatched, or otherwise uncertain values take the existing
 generic match path. The rule is deliberately local and nonrecursive; it does
 not infer facts from equal layouts, call names, prior code generation, or a
 whole-program call graph.
+
+Caller-specific facts are now dropped before entering a cached native helper.
+The helper is shared by calls with different constructor facts, so retaining
+the first caller's fact there produced wrong native code. The ordinary-code
+regression in [`shared_constructor_fact.bend`](../../review/shared_constructor_fact.bend)
+returns the reference result in both backends after this containment. The
+optimization remains available while the current body is being emitted; the
+shared-helper boundary is intentionally conservative until checked specialized
+helper identities exist.
 
 The isolated compiler is built by
 [`prepare_static.py`](../../bench/compiler/prepare_static.py) with `--facts`.

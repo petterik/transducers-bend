@@ -103,25 +103,18 @@ if args.facts:
         '      return val_new(got, lay, false, src.fact === undefined\n'
         '        ? undefined : fact_rebind(src.fact, got));\n'
         '    });', 1)
+    # Facts are valid while the current body is being emitted. A native helper
+    # is cached and shared by multiple callers, so caller-specific facts must
+    # stop at that boundary. Passing them into the helper specializes it for
+    # whichever call happened to be emitted first and can produce wrong code
+    # for the next call.
     native_call_anchor = '  const name = emit_native(fl, ck, ers);'
     assert patched.count(native_call_anchor) == 1
-    patched = patched.replace(native_call_anchor,
-        '  const name = emit_native(fl, ck, ers, arg_vals);', 1)
     native_sig_anchor = 'function emit_native(fl: File, ck: Call, ers: HTerm[]): string {'
     assert patched.count(native_sig_anchor) == 1
-    patched = patched.replace(native_sig_anchor,
-        'function emit_native(fl: File, ck: Call, ers: HTerm[],\n'
-        '  arg_vals?: Val[]): string {', 1)
-    native_vals_anchor = '  const vals = emit_open(fl, ck.k);\n  const seg = fl.seg;'
-    assert patched.count(native_vals_anchor) == 1
-    patched = patched.replace(native_vals_anchor,
-        '  const vals = emit_open(fl, ck.k);\n'
-        '  arg_vals?.forEach((src, i) => {\n'
-        '    if (src.fact !== undefined && vals[i] !== undefined) {\n'
-        '      vals[i] = { ...vals[i], fact: fact_rebind(src.fact, vals[i].ws) };\n'
-        '    }\n'
-        '  });\n'
-        '  const seg = fl.seg;', 1)
+    # Keep the helper's original signature and formal-value initialization.
+    # The local `arg_vals` facts still flow through non-flat inlining above;
+    # they are intentionally absent from the cached native specialization.
     val_anchor = 'type Val = { ws: string[]; lay: Lay; stat: boolean };'
     assert patched.count(val_anchor) == 1
     patched = patched.replace(val_anchor,
