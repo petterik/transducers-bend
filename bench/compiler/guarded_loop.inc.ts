@@ -7,7 +7,7 @@ type GLProbe = {
   width:number; sites:Set<HTerm>; edges:{pc:GP; xs:GX[]}[];
   calls:number; callPaths:GP[]; guard?:GP; proved:boolean; rejection?:string;
 };
-type GLContext = {id:string; keys:Set<string>; candidateKey:string; candidate:GLSummary};
+type GLContext = {id:string; keys:Set<string>; candidateKey:string; candidate:GLSummary; treeK?:string};
 type GLState = {
   summaries:Map<string,GLSummary>; records:Map<string,GLRecord>;
   context?:GLContext; attempts:number; clones:number; suppress:number;
@@ -131,6 +131,91 @@ function gl_tree_finish(fl:File,ck:Call,ers:HTerm[],name:string,emitted:[string,
     if (process.env.BEND_GUARDED_TRACE) console.error(`tree reject ${ck.k}: ${e.message}`);
     return false;
   }
+}
+
+// Find the callback chain already emitted while compiling a non-flat tree
+// definition.  The ordinary compiler has emitted the driver's FID and its
+// native callback references by this point, so the same typed call-graph
+// proof used by the native-tree path can select exactly one scalar summary.
+function gl_tree_context_for_def(fl:File,k:Bend.Name,tld:Def,root:Seg):GLContext|null {
+  const state=gl_state(fl);
+  if (state.suppress || state.context || state.summaries.size===0
+    || !tld.h) return null;
+  let call:Call|undefined;
+  term_any(fl,tld.h,(t)=>{
+    const c=call_kind(fl,t);
+    if (c?.k===k) { call=c; return true; }
+    return false;
+  });
+  if (!call || !gl_tree_flat(fl,call) || state.clones>=16) return null;
+  const descendants=new Map<string,GLRecord>();
+  const collect=(n:string,depth=0):void=>{
+    if (depth>8 || descendants.size>24) throw new GReject('tree call graph budget');
+    const r=state.records.get(n);
+    if (!r || descendants.has(n)) return;
+    descendants.set(n,r);
+    r.refs.forEach(x=>collect(x,depth+1));
+  };
+  root.refs.forEach(collect);
+  const candidates=[...descendants].filter(([,r])=>state.summaries.has(r.key));
+  if (candidates.length!==1) return null;
+  const [candidateName,record]=candidates[0], candidate=state.summaries.get(record.key)!;
+  const chainNames=new Set([candidateName]);
+  for(let i=0;i<9;i++) for(const [n,r] of descendants)
+    if ([...r.refs].some(x=>chainNames.has(x))) chainNames.add(n);
+  if (chainNames.size>6) return null;
+  const keys=new Map<string,string>();
+  for(const n of chainNames) {
+    const r=descendants.get(n)!;
+    if (keys.has(r.k) && keys.get(r.k)!==r.key)
+      throw new GReject('polymorphic tree chain');
+    keys.set(r.k,r.key);
+  }
+  return {id:root.fid,keys:new Set(keys.values()),candidateKey:record.key,
+    candidate,treeK:k};
+}
+
+// Compile every definition normally first so the generic FID remains the
+// semantic fallback and the callback records are available.  A proven tree
+// is then emitted a second time under its callback context.  The resulting
+// segment contains a host fast FID and the original FID in the other branch;
+// both use the compiler's continuation machinery, so recursive descent never
+// becomes a C recursive call.
+function gl_compile_def(fl:File,k:Bend.Name,tld:Def,vals:Val[]):void {
+  const root=fl.seg;
+  emit_body(fl,tld.h as HTerm,tld.T,[],vals,null);
+  let cx:GLContext|null=null;
+  try { cx=gl_tree_context_for_def(fl,k,tld,root); }
+  catch(e) {
+    if (!(e instanceof GReject)) throw e;
+    if (process.env.BEND_GUARDED_TRACE) console.error(`tree reject ${k}: ${e.message}`);
+    return;
+  }
+  if (!cx) return;
+  const rootIndex=fl.segs.indexOf(root);
+  if (rootIndex<0) return;
+  const genericLines=root.lines.slice(), genericRefs=new Set(root.refs);
+  const state=gl_state(fl), old=state.context;
+  state.context=cx;
+  state.clones++;
+  let fastRoot:Seg;
+  try {
+    const fastVals=emit_open(fl,k);
+    fastRoot=fl.seg;
+    emit_body(fl,tld.h as HTerm,tld.T,[],fastVals,null);
+  } finally {
+    state.context=old;
+  }
+  fastRoot.lines=[GL_HOST,
+    `/* guarded_tree: typed callback chain; ${cx.keys.size} scoped helpers */`,
+    ...fastRoot.lines, '#else', ...genericLines, '#endif'];
+  fastRoot.refs=new Set([...genericRefs,...fastRoot.refs]);
+  fastRoot.host=root.host;
+  fastRoot.fork=root.fork;
+  fl.segs[rootIndex]=fastRoot;
+  if (process.env.BEND_LOOP_REPORT) fs.appendFileSync(process.env.BEND_LOOP_REPORT,
+    JSON.stringify({callee:k,name:root.fid,fast:fastRoot.fid,tree:true,
+      chain:[...cx.keys]})+'\n');
 }
 
 function gl_finish(fl:File,ck:Call,ers:HTerm[],name:string,emitted:[string,string,Set<string>]):void {
