@@ -33,6 +33,7 @@ Validation completed:
 - Five-sample candidate composition run: three maps 13/13 ms, cheap full 10/10 ms, mixed full 14/14 ms, mixed early 40/41.5 ms (transducers/direct). The mixed full C has one `guarded_loop` region and no `Clo.apply`.
 - Runtime-threshold mixed range check: candidate/direct 85/88 ms full and 42/44 ms early, with one guarded loop and independent output checks.
 - `bench/fusion_parity.py` matrix: mixed full 15/15 ms, mixed take-one 36/38 ms, mixed take-32 35/38 ms, and expensive take-32 36.5/37 ms (transducers/direct); dynamic short and zero/one-element rows pass correctness but are below timer resolution.
+- `bench/compiler/test_source_shapes.py` passes: String reaches one guarded loop, while Array-tree traversal and boxed `into_list` state stay on the generic path with matching JS/native outputs.
 
 ### Handoff for the next session
 
@@ -48,9 +49,10 @@ Validation completed:
    Add the balanced 20-block, two-session run and paired-bootstrap interval from
    `FUSION-EXECUTION-PLAN.md`, including short, runtime-threshold, zero/one/
    max-count, and irregular-selectivity cases.
-5. Exercise other boxed recursive sources and boxed reducer states. They should
-   refuse the loop specialization and retain identical semantics. Do not widen
-   the source exception until those negative cases are explicit.
+5. Extend source-shape coverage to custom recursive sources and unusual scalar
+   states. Keep Array-tree and boxed-state refusals explicit; widen the source
+   proof only when a new representation has a structural proof and differential
+   semantics checks.
 6. Only after the candidate scope is complete, run the original compiler as the
    final comparison. GPU/CUDA and production compiler promotion remain separate
    gates; the generated host guard deliberately leaves device code unchanged.

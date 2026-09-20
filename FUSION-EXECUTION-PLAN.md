@@ -30,7 +30,9 @@ clone. The original list driver remains the fallback. Five-sample candidate timi
 and the proof boundary are recorded in [COMPOSITION](bench/COMPOSITION.md) and
 [AUTOMATIC](bench/compiler/AUTOMATIC.md). This is still an experimental host-CPU
 milestone; the balanced acceptance matrix, other boxed sources/states and device
-validation remain open.
+validation remain open. String now has an explicit positive source-shape gate;
+Array-tree traversal and boxed reducer state have explicit conservative refusal
+gates.
 
 `bench/fusion_parity.py` now provides the first named public-list matrix. It
 compiles an unchanged transducer lane and an independently written direct Bend

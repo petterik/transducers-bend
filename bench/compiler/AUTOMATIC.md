@@ -87,7 +87,11 @@ preserves source ownership, stop origins, callback order and checked failures.
 `bench/compiler/fixtures/list_transducer.bend` and
 `bench/compiler/test_list_driver.py` are the positive boxed-source gate; the
 existing automatic-loop and adversarial fixtures continue to exercise refusal
-and fallback behavior.
+and fallback behavior. `test_source_shapes.py` adds a structurally different
+positive String source (one guarded loop, JS/native result parity) plus explicit
+Array-tree and boxed-reducer-state refusals with JS/native result checks. The
+Array representation is deliberately outside the current single-box proof; this
+does not imply that Array fusion is impossible.
 
 ## Performance
 
