@@ -41,6 +41,22 @@ dispatch disappear in both generated programs. The buffered case still retains
 necessary group storage; the probe intentionally does not convert source counts
 into allocation claims. A paired local rewrite remains open.
 
+## Loop and tree profitability checkpoint
+
+The current isolated candidate passes a calibrated List parity matrix against
+independent direct Bend traversals. Three-map, type-changing, mixed full, mixed
+early, and expensive-callback rows all stay below the provisional 1.05 upper
+bootstrap limit; the report is
+[fusion-parity-acceptance-current.json](bench/fusion-parity-acceptance-current.json).
+The dynamic-short smoke row is retained for correctness only because its timer
+resolution is zero.
+
+This does not reopen the Array/tree path. The known wrong-code reproducer is
+fixed by refusal, and the continuation/control proof needed for a tree fast
+path is still absent. The short-loop measurements likewise do not support a
+general profitability heuristic. See [PROFITABILITY.md](bench/compiler/PROFITABILITY.md)
+and [SHORT-LOOPS.md](bench/compiler/SHORT-LOOPS.md).
+
 ## Priority #3 follow-up
 
 The library now includes balanced-array, range, string, and list reduction implementations plus `into_list`, `count`, and streaming `cat`/`mapcat`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_array`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.

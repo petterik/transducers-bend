@@ -1,0 +1,558 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler_sha256": "01adea0f6ef5bf13f76cfb222cc563d879440f873ea0070c0629dcc19da7c32e",
+  "library_sha256": "b14ed740061378cb39433ffcd14cf39f58785d8ff623b9a05437bc0cf61da98a",
+  "harness_sha256": "639e795e39a08c3caf758457ca9664f7cafbf2aa8fccf14862f0439876ab15c2",
+  "scope": "candidate compiler; sequential List source; CPU threads=1; GPU off; source construction and cleanup included",
+  "timing": "IO.now milliseconds per repeated batch; one warmup discarded; lanes run in forward and reverse order",
+  "repeats_per_sample": 32,
+  "sessions": 1,
+  "minimum_batch_ms": 0,
+  "bootstrap": {
+    "seed": 20260920,
+    "resamples": 2000,
+    "statistic": "paired median(transducers) / median(direct)"
+  },
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transduce-fusion-parity-uisev313",
+  "results": [
+    {
+      "case": "map_chain",
+      "count": 200000,
+      "take": 200000,
+      "threshold_mode": "above",
+      "work_rounds": 0,
+      "kind": "map_chain",
+      "expected": 85072896,
+      "samples_ms": {
+        "transducers": [
+          14,
+          15,
+          15,
+          15,
+          14,
+          14,
+          14,
+          14,
+          15,
+          14
+        ],
+        "direct": [
+          14,
+          14,
+          15,
+          15,
+          15,
+          14,
+          14,
+          14,
+          15,
+          14
+        ]
+      },
+      "paired_samples_ms": [
+        [
+          14,
+          14
+        ],
+        [
+          15,
+          14
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          14,
+          15
+        ],
+        [
+          14,
+          14
+        ],
+        [
+          14,
+          14
+        ],
+        [
+          14,
+          14
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          14,
+          14
+        ]
+      ],
+      "program_sha256": {
+        "transducers": "66bf6b022cc2531dd33a5695c7128bbd70e005415fde90be2038f6b367aa3843",
+        "direct": "2f0dfad39d27c5bf06197ba715231ce35c3f6404e375383459f142d2becef651"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.42124662501737475,
+          "js_bytes": 16635,
+          "c_bytes": 106276,
+          "guarded_loop_comments": 0,
+          "clo_apply_occurrences": 0
+        },
+        "direct": {
+          "seconds": 0.39791604201309383,
+          "js_bytes": 15334,
+          "c_bytes": 103765,
+          "guarded_loop_comments": 0,
+          "clo_apply_occurrences": 0
+        }
+      },
+      "median_ms": {
+        "transducers": 14.0,
+        "direct": 14.0
+      },
+      "bootstrap_95": {
+        "seed": 20260920,
+        "resamples": 2000,
+        "paired_samples": 10,
+        "lower_95": 0.9333333333333333,
+        "median": 1.0,
+        "upper_95": 1.0714285714285714
+      },
+      "ratio_transducer_over_direct": 1.0
+    },
+    {
+      "case": "mixed_full",
+      "count": 200000,
+      "take": 200000,
+      "threshold_mode": "mixed",
+      "work_rounds": 0,
+      "expected": 3285922656,
+      "samples_ms": {
+        "transducers": [
+          15,
+          14,
+          15,
+          15,
+          14,
+          14,
+          15,
+          15,
+          15,
+          14
+        ],
+        "direct": [
+          15,
+          14,
+          15,
+          15,
+          14,
+          15,
+          14,
+          15,
+          15,
+          14
+        ]
+      },
+      "paired_samples_ms": [
+        [
+          15,
+          15
+        ],
+        [
+          14,
+          14
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          14,
+          14
+        ],
+        [
+          14,
+          15
+        ],
+        [
+          15,
+          14
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          14,
+          14
+        ]
+      ],
+      "program_sha256": {
+        "transducers": "195a082b2fc9c458803ce74907edc556d6675c4545ebaea5e9222272536e08fd",
+        "direct": "9a7a5eba6755573387a7c4fe8975f317019d3733127ce5b1072612cf1dd9298c"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4944844999117777,
+          "js_bytes": 22133,
+          "c_bytes": 126065,
+          "guarded_loop_comments": 1,
+          "clo_apply_occurrences": 0
+        },
+        "direct": {
+          "seconds": 0.4093904580222443,
+          "js_bytes": 17118,
+          "c_bytes": 111162,
+          "guarded_loop_comments": 0,
+          "clo_apply_occurrences": 0
+        }
+      },
+      "median_ms": {
+        "transducers": 15.0,
+        "direct": 15.0
+      },
+      "bootstrap_95": {
+        "seed": 20260920,
+        "resamples": 2000,
+        "paired_samples": 10,
+        "lower_95": 0.9333333333333333,
+        "median": 1.0,
+        "upper_95": 1.0714285714285714
+      },
+      "ratio_transducer_over_direct": 1.0
+    },
+    {
+      "case": "mixed_take_32",
+      "count": 200000,
+      "take": 32,
+      "threshold_mode": "mixed",
+      "work_rounds": 0,
+      "expected": 35360,
+      "samples_ms": {
+        "transducers": [
+          39,
+          38,
+          39,
+          39,
+          39,
+          38,
+          38,
+          38,
+          41,
+          44
+        ],
+        "direct": [
+          44,
+          43,
+          44,
+          43,
+          44,
+          42,
+          43,
+          44,
+          44,
+          45
+        ]
+      },
+      "paired_samples_ms": [
+        [
+          39,
+          44
+        ],
+        [
+          38,
+          43
+        ],
+        [
+          39,
+          44
+        ],
+        [
+          39,
+          43
+        ],
+        [
+          39,
+          44
+        ],
+        [
+          38,
+          42
+        ],
+        [
+          38,
+          43
+        ],
+        [
+          38,
+          44
+        ],
+        [
+          41,
+          44
+        ],
+        [
+          44,
+          45
+        ]
+      ],
+      "program_sha256": {
+        "transducers": "8a78c761bd149dbe72a14e89321a37eb16c89f598bad986c5eee3ece1265d1d0",
+        "direct": "38b5a00b92af0913cf68da6425ec76f2d24ace6c8b5253ae7c0aca8afe0358df"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4832058750325814,
+          "js_bytes": 22101,
+          "c_bytes": 125937,
+          "guarded_loop_comments": 1,
+          "clo_apply_occurrences": 0
+        },
+        "direct": {
+          "seconds": 0.3977098329924047,
+          "js_bytes": 17086,
+          "c_bytes": 111034,
+          "guarded_loop_comments": 0,
+          "clo_apply_occurrences": 0
+        }
+      },
+      "median_ms": {
+        "transducers": 39.0,
+        "direct": 44.0
+      },
+      "bootstrap_95": {
+        "seed": 20260920,
+        "resamples": 2000,
+        "paired_samples": 10,
+        "lower_95": 0.8636363636363636,
+        "median": 0.8863636363636364,
+        "upper_95": 0.9090909090909091
+      },
+      "ratio_transducer_over_direct": 0.8863636363636364
+    },
+    {
+      "case": "dynamic_short",
+      "count": "dynamic",
+      "take": "dynamic",
+      "threshold_mode": "dynamic",
+      "work_rounds": 0,
+      "expected": 2826,
+      "samples_ms": {
+        "transducers": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "direct": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "paired_samples_ms": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "program_sha256": {
+        "transducers": "6c98f7b16d725d825234d5946e31a0ae4d356cf6997ebce754c2bf42f44c2cce",
+        "direct": "e34919c48fbed28be728631a4eea1e696e6a572cc5a62a2bac60f787e7c70220"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.43524112505838275,
+          "js_bytes": 23467,
+          "c_bytes": 112032,
+          "guarded_loop_comments": 1,
+          "clo_apply_occurrences": 0
+        },
+        "direct": {
+          "seconds": 0.3553556250408292,
+          "js_bytes": 18452,
+          "c_bytes": 97191,
+          "guarded_loop_comments": 0,
+          "clo_apply_occurrences": 0
+        }
+      },
+      "median_ms": {
+        "transducers": 0.0,
+        "direct": 0.0
+      },
+      "bootstrap_95": null,
+      "ratio_transducer_over_direct": null
+    },
+    {
+      "case": "expensive_take_32",
+      "count": 200000,
+      "take": 32,
+      "threshold_mode": "mixed",
+      "work_rounds": 256,
+      "expected": 1646770464,
+      "samples_ms": {
+        "transducers": [
+          38,
+          38,
+          39,
+          38,
+          39,
+          39,
+          39,
+          39,
+          39,
+          40
+        ],
+        "direct": [
+          39,
+          39,
+          38,
+          39,
+          39,
+          39,
+          39,
+          38,
+          40,
+          39
+        ]
+      },
+      "paired_samples_ms": [
+        [
+          38,
+          39
+        ],
+        [
+          38,
+          39
+        ],
+        [
+          39,
+          38
+        ],
+        [
+          38,
+          39
+        ],
+        [
+          39,
+          39
+        ],
+        [
+          39,
+          39
+        ],
+        [
+          39,
+          39
+        ],
+        [
+          39,
+          38
+        ],
+        [
+          39,
+          40
+        ],
+        [
+          40,
+          39
+        ]
+      ],
+      "program_sha256": {
+        "transducers": "8d6cd61be5a52893c79a3522ea4b342f87d2f4a8e996eeb962054c5a6b88b351",
+        "direct": "22b165ab4e3c2fe1f9dfe442afe870e7414fcf13971c1412b55efcc1002c6f5f"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4894362920895219,
+          "js_bytes": 21954,
+          "c_bytes": 126163,
+          "guarded_loop_comments": 1,
+          "clo_apply_occurrences": 0
+        },
+        "direct": {
+          "seconds": 0.40046908403746784,
+          "js_bytes": 16939,
+          "c_bytes": 111260,
+          "guarded_loop_comments": 0,
+          "clo_apply_occurrences": 0
+        }
+      },
+      "median_ms": {
+        "transducers": 39.0,
+        "direct": 39.0
+      },
+      "bootstrap_95": {
+        "seed": 20260920,
+        "resamples": 2000,
+        "paired_samples": 10,
+        "lower_95": 0.9743589743589743,
+        "median": 1.0,
+        "upper_95": 1.0129870129870129
+      },
+      "ratio_transducer_over_direct": 1.0
+    }
+  ]
+}

@@ -240,6 +240,11 @@ and report residual costs in extension/direct comparisons.
 
 ## 5. Recover loop and tree performance soundly
 
+Status: list-loop parity gate complete for the current isolated candidate;
+tree specialization remains refused and short-loop policy remains
+experimental. `bench/compiler/PROFITABILITY.md` records the fresh two-session
+List matrix and its open boundaries.
+
 **Purpose:** regain useful parity results without relying on invalid assumptions.
 
 **Work:**

@@ -5,12 +5,25 @@
 Read [PRIORITIES.md](PRIORITIES.md) and [DESIGN-WORK-PLAN.md](DESIGN-WORK-PLAN.md)
 before continuing implementation. They supersede the earlier execution order
 below. [DESIGN-REVIEW.md](DESIGN-REVIEW.md) records confirmed wrong-code behavior
-in the latest Array candidate, with a retained reproducer under `review/`.
-Earlier parity measurements remain historical performance observations; the
-candidate is not ready for promotion. The new plan starts with a permanent
-correctness gate and refusal of unproved rewrites, then semantic extension probes
-and general compiler improvements. The plan is written; its implementation has
-not started. Keep compiler experiments isolated.
+in the earlier Array candidate, with a retained reproducer under `review/`.
+Packages 0–5 now have committed checkpoints: the unproved tree rewrite is
+refused, `keep` and `partition_all` are exercised semantically, static
+composition and scoped facts have probes, representation costs are measured,
+and the current isolated List candidate passes the calibrated parity gate.
+The sibling `../bend` checkout remains unchanged. Tree proof, short-loop
+profitability, API stabilization, and final promotion gates are still open.
+
+## Checkpoint 2026-09-20: conservative loop/tree gate
+
+`bench/compiler/PROFITABILITY.md` records a fresh 20-block/two-session List
+matrix using compiler SHA
+`01adea0f6ef5bf13f76cfb222cc563d879440f873ea0070c0629dcc19da7c32e`. Three-map,
+type-changing, mixed full/early, and expensive-callback rows all have upper
+paired-bootstrap ratios between 0.990 and 1.024. The dynamic-short smoke row
+matches the oracle but is below timer resolution. The candidate's scalar/list
+loop remains isolated and experimental; tree lowering is generic by deliberate
+refusal, and the unresolved short-loop regressions remain in
+`bench/compiler/SHORT-LOOPS.md`.
 
 ## Checkpoint 2026-09-20: typed tree-control rewrite reaches timer parity
 
