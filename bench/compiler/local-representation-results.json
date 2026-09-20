@@ -1,0 +1,23 @@
+{
+  "compiler_sha256": "5f2548b7ccec683ca64dda954f011f8e9fcf09ba72199f9cfba3d81f0d33d1ed",
+  "source_sha256": "d54f36c29138441d50114bd8169263dbee3f6d7c5ecbe072a70d3379ceb73d77",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-local-representation-3jprbwan",
+  "expected": "6",
+  "original_native": "6",
+  "candidate_native": "6",
+  "candidate_js": "6",
+  "facts": {
+    "matches": 24,
+    "known": 2,
+    "selected": 2,
+    "rejected": 0,
+    "refused": 22
+  },
+  "original_c_bytes": 84421,
+  "candidate_c_bytes": 84336,
+  "original_js_bytes": 13999,
+  "candidate_js_bytes": 13999,
+  "matches": true,
+  "c_bytes_delta": -85,
+  "fact_rewrite": true
+}

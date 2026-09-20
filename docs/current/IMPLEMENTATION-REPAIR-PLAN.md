@@ -386,8 +386,11 @@ prototype and a minimized, reproducible Array blocker. Workset 3 now has the
 first isolated constructor-fact prototype, recorded in
 [SCOPED-FACTS.md](SCOPED-FACTS.md), with positive and dynamic-field refusal
 evidence. The full typed-region, join, recursion, and continuation work remains
-open. The next compiler change should use this boundary to measure one local
-representation cost before changing the public staging boundary. A surprising
-result should revise the explanation and tests before expanding the optimizer.
+open. Workset 4 now demonstrates one general tagged constructor-match rewrite,
+recorded in [LOCAL-REPRESENTATION.md](LOCAL-REPRESENTATION.md); the composed
+Maybe wrapper remains an explicit next target. The next compiler change should
+use this boundary to measure that Maybe cost before changing the public staging
+boundary. A surprising result should revise the explanation and tests before
+expanding the optimizer.
 This plan closes the identified gaps without assuming either universal fusion
 or a new language feature in advance.

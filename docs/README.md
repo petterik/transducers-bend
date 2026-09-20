@@ -16,6 +16,7 @@ These documents describe the accepted direction and the work still required:
 - [Handoff](current/HANDOFF.md) — created 2026-09-19, revised for the current review.
 - [Final validation](current/FINAL-VALIDATION.md) — created 2026-09-20.
 - [Scoped constructor facts](current/SCOPED-FACTS.md) — created 2026-09-20.
+- [Local representation elimination](current/LOCAL-REPRESENTATION.md) — created 2026-09-20.
 
 The repair plan and implementation review are the best starting points. The
 current work remains partial: the tree rewrite is refused, while static

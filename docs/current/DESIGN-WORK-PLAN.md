@@ -226,10 +226,13 @@ emitted or found in a call graph.
 
 ## 4. Eliminate local representation overhead
 
-Status: initial measurement complete. Static reducer/callback records are absent
-from the scalar and keep/partition probes, while buffered list storage remains a
-real cost. No local rewrite is promoted until a paired direct reference isolates
-one removable constructor/projection or nonescaping state transfer.
+Status: first general constructor-match rewrite demonstrated in an isolated
+compiler. [LOCAL-REPRESENTATION.md](LOCAL-REPRESENTATION.md) records a tagged
+two-constructor fixture where an exact static arm fact removes the generic arm
+branch and shrinks native C by 85 bytes, with equal JS/native output and UBSan
+coverage. The rule is general and does not name a transducer. The existing
+keep/partition probe still retains necessary buffering and has not yet shown a
+visible Maybe wrapper elimination; that is the next slice.
 
 **Purpose:** extend optimization beyond scalar filter/take/sum patterns.
 
