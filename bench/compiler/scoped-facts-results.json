@@ -1,0 +1,128 @@
+{
+  "compiler_sha256": "01adea0f6ef5bf13f76cfb222cc563d879440f873ea0070c0629dcc19da7c32e",
+  "source_sha256": "90b5aded247839996d50d9a2328a8de1c86f4a219706a2674feae9a3aa507752",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-scoped-facts-mz8ruc_i",
+  "expected": "[Ready{Memory{Open{4294967295}, 2n, 17}}, Finished{Memory{Open{1}, 0n, 17}}, Finished{Memory{Open{3}, 0n, 17}}, Finished{Memory{Closed{13}, 0n, 91}}, Finished{Memory{Closed{13}, 0n, 91}}, Finished{Memory{Closed{13}, 0n, 91}}]",
+  "original_native": "[Ready{Memory{Open{4294967295}, 2n, 17}}, Finished{Memory{Open{1}, 0n, 17}}, Finished{Memory{Open{3}, 0n, 17}}, Finished{Memory{Closed{13}, 0n, 91}}, Finished{Memory{Closed{13}, 0n, 91}}, Finished{Memory{Closed{13}, 0n, 91}}]",
+  "candidate_native": "[Ready{Memory{Open{4294967295}, 2n, 17}}, Finished{Memory{Open{1}, 0n, 17}}, Finished{Memory{Open{3}, 0n, 17}}, Finished{Memory{Closed{13}, 0n, 91}}, Finished{Memory{Closed{13}, 0n, 91}}, Finished{Memory{Closed{13}, 0n, 91}}]",
+  "candidate_js": "[Ready{Memory{Open{4294967295}, 2n, 17}}, Finished{Memory{Open{1}, 0n, 17}}, Finished{Memory{Open{3}, 0n, 17}}, Finished{Memory{Closed{13}, 0n, 91}}, Finished{Memory{Closed{13}, 0n, 91}}, Finished{Memory{Closed{13}, 0n, 91}}]",
+  "guarded_loop_markers": 1,
+  "generic_fallback_names": [
+    "spin_3"
+  ],
+  "proof_records": [
+    {
+      "callee": "spin",
+      "name": "spin_3",
+      "fast": "spin_4",
+      "guard": [
+        [
+          {
+            "op": "eq",
+            "a": [
+              {
+                "op": "var",
+                "a": [],
+                "id": 3
+              },
+              {
+                "op": "lit",
+                "a": [],
+                "n": 0
+              }
+            ],
+            "size": 3
+          },
+          false
+        ],
+        [
+          {
+            "op": "eq",
+            "a": [
+              {
+                "op": "var",
+                "a": [],
+                "id": 5
+              },
+              {
+                "op": "lit",
+                "a": [],
+                "n": 0
+              }
+            ],
+            "size": 3
+          },
+          false
+        ]
+      ],
+      "backEdges": 5,
+      "chain": [
+        "route",
+        "spin"
+      ],
+      "width": 7,
+      "trivialNatDomains": [
+        1
+      ],
+      "sourceGateSlot": null
+    },
+    {
+      "callee": "spin",
+      "name": "spin_3",
+      "fast": "spin_4",
+      "guard": [
+        [
+          {
+            "op": "eq",
+            "a": [
+              {
+                "op": "var",
+                "a": [],
+                "id": 3
+              },
+              {
+                "op": "lit",
+                "a": [],
+                "n": 0
+              }
+            ],
+            "size": 3
+          },
+          false
+        ],
+        [
+          {
+            "op": "eq",
+            "a": [
+              {
+                "op": "var",
+                "a": [],
+                "id": 5
+              },
+              {
+                "op": "lit",
+                "a": [],
+                "n": 0
+              }
+            ],
+            "size": 3
+          },
+          false
+        ]
+      ],
+      "backEdges": 5,
+      "chain": [
+        "route",
+        "spin"
+      ],
+      "width": 7,
+      "trivialNatDomains": [
+        1
+      ],
+      "sourceGateSlot": null
+    }
+  ],
+  "js_byte_identical": true,
+  "matches": true,
+  "scoped_fallback": true
+}

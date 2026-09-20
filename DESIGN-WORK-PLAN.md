@@ -178,6 +178,11 @@ shows why current templates cannot express the desired boundary cleanly.
 
 ## 3. Give optimization facts an explicit scope
 
+Status: boundary test complete. The same-layout exceptional caller fixture now
+requires a guarded loop plus a generic fallback and compares candidate JS/native
+against the original. The general typed-region representation and summary
+precondition API remain the next implementation slice.
+
 **Purpose:** make the authorization for a rewrite inspectable and testable.
 
 **Work:**

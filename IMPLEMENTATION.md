@@ -25,6 +25,14 @@ recipe breaks the independent tree adapter and retains records in the Array
 fixture. The delayed recipe remains until a general compiler staging boundary
 can cover built-ins and extensions together.
 
+## Scoped facts boundary
+
+`bench/compiler/SCOPED-FACTS.md` and `test_scoped_facts.py` add a same-layout
+exceptional caller to the guarded-loop experiment. The candidate must retain a
+guarded loop and its generic fallback while matching the original JS/native
+result. This validates the current loop boundary; it does not yet provide the
+general typed summary representation needed to re-enable tree specialization.
+
 ## Priority #3 follow-up
 
 The library now includes balanced-array, range, string, and list reduction implementations plus `into_list`, `count`, and streaming `cat`/`mapcat`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_array`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.
