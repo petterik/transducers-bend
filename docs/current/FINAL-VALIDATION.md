@@ -18,6 +18,7 @@ uses library hash
 | Check | Result |
 | --- | --- |
 | `python3 tests/run.py --bend-main /tmp/transduce-facts-current/main.ts` | 20/20 JS/native files, including laws, `api_surface`, `keep_partition`, and source contracts |
+| `python3 tests/run.py` | 20/20 JS/native files with the unchanged sibling reference compiler |
 | `static_composition_probe.py` | Native/JS `[9, 9, 7, 7, 3, 3]`; zero reducer/reduction records and closure-dispatch transfers |
 | `representation_probe.py` | Scalar, buffered, and dynamic-control outputs match on native/JS; expected dispatch remains visible in the negative controls |
 | `test_scoped_constructor_fact.py` | Output `4\n1`; 2 exact selections, 2 dynamic rejections, 30 conservative refusals |
