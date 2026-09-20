@@ -21,7 +21,10 @@ type GLState = {
   trivial:Map<string,{generic:string; doms:number[]}>;
 };
 const GL_ENABLE_LOOP = false;
-const GL_ENABLE_TREE = true;
+// Tree/FID re-emission currently lacks a proof for arbitrary incoming control
+// states and continuation entries. Keep the generic tree lowering until the
+// scoped summary work can establish those facts at each use.
+const GL_ENABLE_TREE = false;
 const GL_SOURCE_GATE = false;
 const GL_STATES = new WeakMap<object,GLState>();
 const GL_HOST = '#if !defined(__METAL_VERSION__) && !defined(__CUDACC__) && !defined(__CUDACC_RTC__)';

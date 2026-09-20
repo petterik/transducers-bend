@@ -35,7 +35,7 @@ cases = {
     'array': {
         'source': HERE / 'fixtures/array_transducer.bend',
         'guarded_loops': 0,
-        'guarded_trees': 1,
+        'guarded_trees': 0,
         'output': '0:9:22',
     },
     # into_list keeps a boxed reducer state and result; scalar loop analysis
@@ -45,6 +45,16 @@ cases = {
         'guarded_loops': 0,
         'guarded_trees': 0,
         'output': '[]\n[4, 5]\n[4, 5]',
+    },
+    # Tree traversal receives an arbitrary initialized control. The optimizer
+    # must preserve an incoming Stop, a continuing zero-count state, and a
+    # downstream Stop; no tree rewrite is currently justified for those
+    # entries.
+    'tree_entry_control': {
+        'source': HERE / 'fixtures/tree_entry_control.bend',
+        'guarded_loops': 0,
+        'guarded_trees': 0,
+        'output': '[9, 1000, 2000, 1017]',
     },
 }
 
