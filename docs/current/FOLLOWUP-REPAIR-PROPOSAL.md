@@ -310,6 +310,13 @@ Each implementation commit should state the changed behavior, tests run, exact
 identities, measured scope and remaining gaps. Preserve the historical review
 artifacts and add current regression tests rather than overwriting evidence.
 
+The first three repairs are now implemented in separate commits: the facts pass
+has a conservative shared-helper boundary, the direct keep oracle follows emitted
+values, and `partition_lifecycle.bend` observes completion, stopping, flushing,
+nested groups, repeated runs and affine closure payloads. The remaining acceptance
+work below is still open; the fixture is a foundation, not proof of every source
+and sentinel case.
+
 These six repairs restore a reliable foundation. They do not by themselves finish
 the earlier design: the eager Array/static-composition blocker, general visible
 Maybe elimination, broader checked summaries, and applicable upstream/device
