@@ -1,5 +1,56 @@
 # Hand-off: Bend transducers
 
+## Checkpoint 2026-09-20: boxed List source loop
+
+Commit this checkpoint after verifying the working tree. It extends the isolated
+typed loop experiment so a closed list transduction can reach the scalar fused
+transition while retaining the original generic list traversal as fallback. The
+public API and `../bend` checkout remain unchanged.
+
+The remaining gap was caused by the source driver carrying one boxed recursive
+List value. The loop-carried reducer state was already scalar after layout
+lowering; the experiment rejected the whole helper merely because its first
+source argument was boxed. `guarded_scalar.inc.ts` now admits exactly that shape
+in loop mode, models the initial boxed source match through typed constructor
+fields, and analyzes only the scalar state transition. `guarded_loop.inc.ts`
+uses the same narrow signature boundary. Open matches, extra boxed state or
+returns, multiple recursive sites, unsupported callbacks, and unproved paths
+still fall back unchanged.
+
+The new positive gate is
+`bench/compiler/fixtures/list_transducer.bend`, exercised by
+`bench/compiler/test_list_driver.py`. The candidate emits one `guarded_loop`
+region for it, no `Clo.apply`, and the original compiler emits none. The fixture
+passes native execution with `0:0:495:2820030815`.
+
+Validation completed:
+
+- `python3 tests/run.py --bend-main /tmp/transduce-next-candidate/main.ts` — 18/18.
+- `python3 bench/compiler/test_auto_loop.py --bend-main /tmp/transduce-next-candidate/main.ts --output ...` — all five cases pass.
+- `python3 bench/compiler/test_guarded.py --bend-main /tmp/transduce-next-scalar/main.ts --output ...` — scalar fallback and UBSan gates pass using the non-loop candidate.
+- `python3 bench/compiler/adversarial.py --bend-main /tmp/transduce-next-candidate/main.ts --output ...` — all 16 refusal/state variants pass.
+- `python3 bench/compiler/test_list_driver.py --bend-main /tmp/transduce-next-candidate/main.ts --output ...` — boxed List source gate passes.
+- Five-sample candidate composition run: three maps 13/13 ms, cheap full 10/10 ms, mixed full 14/14 ms, mixed early 40/41.5 ms (transducers/direct). The mixed full C has one `guarded_loop` region and no `Clo.apply`.
+
+### Handoff for the next session
+
+1. Verify this commit and a clean tree. Prepare a fresh isolated `--loop`
+   candidate; do not reuse an old `/tmp` compiler directory for final evidence.
+2. Rerun the 18-test gate, `test_auto_loop.py`, `adversarial.py`,
+   `test_list_driver.py`, and the five-sample composition control.
+3. Inspect the mixed full generated C and assembly. Confirm the fast wrapper is
+   guarded by the typed state conditions and the generic list helper remains
+   available for the fallback path.
+4. Add the balanced 20-block, two-session candidate-transducer versus
+   candidate-direct benchmark from `FUSION-EXECUTION-PLAN.md`, including short,
+   runtime-threshold, zero/one/max-count, and irregular-selectivity cases.
+5. Exercise other boxed recursive sources and boxed reducer states. They should
+   refuse the loop specialization and retain identical semantics. Do not widen
+   the source exception until those negative cases are explicit.
+6. Only after the candidate scope is complete, run the original compiler as the
+   final comparison. GPU/CUDA and production compiler promotion remain separate
+   gates; the generated host guard deliberately leaves device code unchanged.
+
 ## Checkpoint 2026-09-19: static list driver
 
 The current target is unchanged: a closed `transduce` pipeline should compile

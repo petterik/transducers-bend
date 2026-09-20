@@ -21,13 +21,15 @@ the transduce-bend repository root. New files explicitly marked "create" and new
 CLI interfaces explicitly marked "add" do not exist yet.
 
 The first candidate-only audit is now complete. Range cases are close to the direct
-reference, and three-map list composition reaches timer-level parity. The mixed
-list map/filter/take case is still open: the current candidate emits one native list
-loop, but its generic `Control`/`Taking` transition remains branch-heavy compared with
-the handwritten scalar update. The retained C artifacts and measurements are recorded
-in [COMPOSITION](bench/COMPOSITION.md). A product-valued control probe did not remove
-that cost, so the next change should target typed state/lowering rather than adding a
-second source driver.
+reference, and three-map list composition reaches timer-level parity. The September
+20 isolated loop extension now closes the mixed full list gap for the demonstrated
+scalar-state pipeline: it permits one boxed recursive source argument, proves the
+source match structurally, and applies the typed scalar transition under a guarded
+clone. The original list driver remains the fallback. Five-sample candidate timings
+and the proof boundary are recorded in [COMPOSITION](bench/COMPOSITION.md) and
+[AUTOMATIC](bench/compiler/AUTOMATIC.md). This is still an experimental host-CPU
+milestone; the balanced acceptance matrix, other boxed sources/states and device
+validation remain open.
 
 ## Performance acceptance rules
 

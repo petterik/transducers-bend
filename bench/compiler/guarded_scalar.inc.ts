@@ -30,7 +30,14 @@ class GReject extends Error {
 }
 function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original: string, loop?: GLProbe): string | null {
   const sig = sig_def(fl, ck.k);
-  if ([...sig.lays, sig.ret].some(l => l.ks.includes("box"))
+  // A recursive source driver may carry exactly one boxed source value while
+  // its loop-carried state remains scalar. The loop proof handles that source
+  // structurally; ordinary scalar regions still refuse boxes.
+  const source_box = loop && sig.lays.length > 0 && sig.lays[0].ks.length === 1
+    && sig.lays[0].ks[0] === "box"
+    && sig.lays.slice(1).every(l => !l.ks.includes("box"))
+    && !sig.ret.ks.includes("box");
+  if ((!source_box && [...sig.lays, sig.ret].some(l => l.ks.includes("box")))
     || sig.ret.ks.length > 8 || sig.lays.reduce((n, l) => n + l.ks.length, 0) > 12)
     return null;
   let fuel = 3000, leaves = 0, serial = 0;
@@ -173,7 +180,29 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
       const all = ty_all(fl.book, ty);
       if (!all)
         throw new GReject("match type");
-      const adt = mat_adt(fl.book, all.A), l = lay_of(fl.book, all.A), s = cast(vs[0], l);
+      const adt = mat_adt(fl.book, all.A), l = lay_of(fl.book, all.A);
+      // Cyclic source values such as List are boxed, but the loop proof only
+      // needs their constructor fields and the recursive tail. Model those
+      // fields as fresh typed inputs. No source tag or payload is used in a
+      // scalar guard, and all ordinary boxed matches retain the old refusal.
+      const boxed_source = loop && stack.length === 1 && l.ks.length === 1
+        && l.ks[0] === "box" && vs[0].xs.length === 1
+        && vs[0].xs[0].op === "var" && vs[0].xs[0].id === 0;
+      if (boxed_source) {
+        const { arms, end } = mat_arms(x);
+        if (Bend.term_strip(end).$ !== "Efq")
+          throw new GReject("boxed source open match");
+        const rows: GR[] = [];
+        for (const [k, h] of arms) {
+          const ctr = fl.book.ctrs[k];
+          if (!ctr)
+            throw new GReject("boxed source constructor");
+          const fields = ctr_doms(fl.book, ctr, adt.x).map(A => input(lay_of(fl.book, A)));
+          rows.push(...visit(h, null, es, [...fields, ...vs.slice(1)], new Map(env), pc, stack, tail));
+        }
+        return rows;
+      }
+      const s = cast(vs[0], l);
       if (l.ks.includes("box") || adt.k === "U32" || adt.k === "F32")
         throw new GReject("match representation");
       const { arms, end } = mat_arms(x);

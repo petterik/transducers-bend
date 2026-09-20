@@ -91,3 +91,27 @@ remaining work is therefore a typed transition/state representation or lowering 
 not another source-specific driver and not a claim that the current product signal
 probe has fused. The next implementation must preserve all stop origins and completion
 states while exposing that scalar transition to the existing lowering.
+
+## Candidate-only boxed-source loop extension (September 20, 2026)
+
+The checked isolated compiler experiment now admits one boxed first source
+argument when the loop-carried reducer state and return remain scalar. It proves
+the source constructor paths separately, then applies the existing typed scalar
+transition guard to the recursive list driver. The original generic driver stays
+available for every guard failure and for unsupported boxed layouts.
+
+With `python3 bench/compiler/prepare_guarded.py --loop` and five samples of the
+current composition harness, the candidate measured:
+
+| Workload | Candidate transducers | Candidate direct Bend |
+| --- | ---: | ---: |
+| Three maps | 13 ms | 13 ms |
+| Cheap map/filter/take-all/sum | 10 ms | 10 ms |
+| Mixed filter, take-all | **14 ms** | **14 ms** |
+| Mixed filter, take 32 | 40 ms | 41.5 ms |
+
+The mixed full generated C contains one typed `guarded_loop` region and no
+`Clo.apply` occurrence. The positive source-driver fixture also passes JS/native
+execution with outputs `0:0:495:2820030815`; the original compiler emits no
+guarded region for that fixture. These are candidate engineering measurements,
+not the final balanced 20-block acceptance run and not evidence for GPU parity.

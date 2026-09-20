@@ -52,9 +52,12 @@ The initial arithmetic allowlist contains wrapping U32 addition and proven Nat
 predecessor/successor operations. Scalar copies, constructor assembly and tag/Nat
 matches are supported. Boxed layouts, ownership conversions, indirect/foreign or
 recursive calls, parallel work, floating-point operations, unsupported intrinsics,
-open matches and unproven checked arithmetic are refused. Unsupported callbacks
-are not speculated. Even a discarded let value must be analyzed; its possible
-failure cannot be erased merely because its result is unused.
+open matches and unproven checked arithmetic are refused. Loop mode has one
+additional, narrower source-driver boundary described below: it may carry one
+boxed first source argument while every loop-carried state and return word stays
+scalar. Unsupported callbacks are not speculated. Even a discarded let value
+must be analyzed; its possible failure cannot be erased merely because its result
+is unused.
 
 Bounds per candidate: 12 input words, eight output words, 16 helper-call levels,
 3,000 extraction/simplification visits, 256 constructor results, 32 final paths,
@@ -66,6 +69,25 @@ narrow shape limits, not a general optimizer framework or a profitability proof.
 
 The generated preprocessor guard leaves the original helper on Metal/CUDA.
 JavaScript emission is unchanged. GPU execution has not been validated.
+
+## Boxed recursive source driver
+
+The September 20 extension covers the remaining list-driver boundary without
+making boxed scalar analysis general. In loop mode, a candidate may have exactly
+one boxed first argument, no other boxed input words, and no boxed return words.
+The proof recognizes the initial match on that source by its typed constructor
+fields, treats the recursive tail as an opaque source value, and analyzes only
+the scalar loop-carried transition. The source tag, constructor names and field
+positions do not enter the guard. Open matches, extra boxed state, multiple
+recursive sites and unknown boxed callbacks remain refusals.
+
+The generated helper keeps the original list traversal as a generic fallback and
+uses the scalar transition only under an expression-derived entry guard. This
+preserves source ownership, stop origins, callback order and checked failures.
+`bench/compiler/fixtures/list_transducer.bend` and
+`bench/compiler/test_list_driver.py` are the positive boxed-source gate; the
+existing automatic-loop and adversarial fixtures continue to exercise refusal
+and fallback behavior.
 
 ## Performance
 
@@ -100,6 +122,13 @@ ordinary List.map passes 117.5 ms. **The entire timed-function assembly is ident
 for three maps, one map, and the original compiler's three-map program.** The
 small timing variation is not evidence of a lost fusion optimization.
 
+The checked September 20 candidate, with the boxed recursive source extension,
+measured the current composition harness at 5 samples: mixed full list
+transducers/direct **14/14 ms**, mixed early **40/41.5 ms**, cheap full **10/10 ms**,
+and three maps **13/13 ms**. These are short candidate engineering samples, not
+the final 20-block acceptance protocol. The mixed full C contains one
+`guarded_loop` region and no `Clo.apply` occurrence.
+
 Additional six-sample checks: [huge early ranges and expensive mapping](automatic-extra-results.json)
 measured automatic/handwritten at 18/19 ms and 11/11 ms; a
 [runtime no-match filter](automatic-no-match-results.json) measured 36/34 ms.
@@ -112,6 +141,8 @@ controls. Timed runs were sequential, with no concurrent test/compile jobs.
 - The unchanged library suite passes **16/16** on JS and native CPU, including
   source/lifecycle counts, completion, ownership rejection, generic zero state,
   arithmetic boundaries and composed maps.
+- The current candidate gate passes **18/18**, including the static list-driver
+  fixture and the boxed-source loop gate.
 - Each of the four full/early mixed/predictable benchmark programs compares
   200,000 complete states against its original fallback, including both Boolean
   decisions, both inner tags, zero/one/two/three/max Nat, U32 wrap boundaries and
@@ -141,13 +172,16 @@ C, binaries, differential harnesses and assembly in their artifact directories.
 From the library root, using the sibling fork rather than `~/.bend`:
 
 ```sh
-python3 bench/compiler/prepare_guarded.py
-# Use the printed /absolute/temporary/path/main.ts below.
-python3 tests/run.py --bend-main /absolute/temporary/path/main.ts
-python3 bench/compiler/test_guarded.py --bend-main /absolute/temporary/path/main.ts
-python3 bench/compiler/ablate.py --automatic-compiler /absolute/temporary/path/main.ts --samples 5
-python3 bench/compiler/ablate.py --automatic-compiler /absolute/temporary/path/main.ts --early --samples 5
-python3 bench/composition.py --bend-main /absolute/temporary/path/main.ts --samples 3
+python3 bench/compiler/prepare_guarded.py --output-dir /tmp/guarded-scalar
+python3 bench/compiler/test_guarded.py --bend-main /tmp/guarded-scalar/main.ts
+python3 bench/compiler/prepare_guarded.py --loop --output-dir /tmp/guarded-loop
+# Use /tmp/guarded-loop/main.ts for the loop candidate below.
+python3 tests/run.py --bend-main /tmp/guarded-loop/main.ts
+python3 bench/compiler/test_auto_loop.py --bend-main /tmp/guarded-loop/main.ts --output loop.json
+python3 bench/compiler/ablate.py --automatic-compiler /tmp/guarded-loop/main.ts --samples 5
+python3 bench/compiler/ablate.py --automatic-compiler /tmp/guarded-loop/main.ts --early --samples 5
+python3 bench/composition.py --bend-main /tmp/guarded-loop/main.ts --samples 3
+python3 bench/compiler/test_list_driver.py --bend-main /tmp/guarded-loop/main.ts --output list-driver.json
 # With --output report.json on the preceding composition run:
 python3 bench/compiler/test_guarded.py --bend-main /absolute/temporary/path/main.ts --composition-report report.json
 ```

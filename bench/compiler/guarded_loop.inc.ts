@@ -63,7 +63,12 @@ function gl_finish(fl:File,ck:Call,ers:HTerm[],name:string,emitted:[string,strin
   // Only loops with bounded scalar signatures qualify. Unrelated helpers remain
   // byte-for-byte original in loop mode, including fallback-heavy direct calls.
   const sig=sig_def(fl,ck.k), width=sig.lays.flatMap(l=>l.ks).length;
-  if (width>12 || sig.ret.ks.length>8 || [...sig.lays,sig.ret].some(l=>l.ks.includes('box')))
+  const source_box = sig.lays.length > 0 && sig.lays[0].ks.length === 1
+    && sig.lays[0].ks[0] === 'box'
+    && sig.lays.slice(1).every(l => !l.ks.includes('box'))
+    && !sig.ret.ks.includes('box');
+  if (width>12 || sig.ret.ks.length>8
+    || ([...sig.lays,sig.ret].some(l=>l.ks.includes('box')) && !source_box))
     return;
   const def=fl.book.tlds[ck.k] as Def;
   if (!term_any(fl,def.h!,t=>call_kind(fl,t)?.k===ck.k)) return;
