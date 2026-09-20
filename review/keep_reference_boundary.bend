@@ -28,17 +28,13 @@ def keep_pipeline() -> T.Reducer<U32, U32>:
 def keep_direct_step(xs: List<U32>, m: Maybe<U32>, +left: Nat,
   acc: U32) -> U32:
   match xs m left:
-    case Nil{} None{} 0n:
+    case xs None{} 0n:
       acc
-    case Nil{} Some{value} 0n:
-      (acc + value : U32)
+    case xs Some{value} 0n:
+      acc
     case Nil{} None{} 1n+p:
       acc
     case Nil{} Some{value} 1n+p:
-      (acc + value : U32)
-    case h <> t None{} 0n:
-      acc
-    case h <> t Some{value} 0n:
       (acc + value : U32)
     case h <> t None{} 1n+p:
       keep_direct_step(t, maybe_keep(h), 1n+p, acc)
@@ -52,11 +48,11 @@ def keep_direct(xs: List<U32>, +left: Nat, acc: U32) -> U32:
     case Nil{} 1n+p:
       acc
     case h <> t 1n+p:
-      keep_direct_step(t, maybe_keep(h), p, acc)
+      keep_direct_step(t, maybe_keep(h), 1n+p, acc)
 
 def main() -> IO(Unit):
   do IO<Unit>:
     IO.print(U32.show(keep_direct(build(5n, []), 1n, 0)))
     IO.print(U32.show(T.transduce(~T.over_list(~U32, ~U32, ~keep_pipeline()), (1n, 0), build(5n, []))))
-#|0
+#|1
 #|1
