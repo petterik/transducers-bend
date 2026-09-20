@@ -129,6 +129,17 @@ and three maps **13/13 ms**. These are short candidate engineering samples, not
 the final 20-block acceptance protocol. The mixed full C contains one
 `guarded_loop` region and no `Clo.apply` occurrence.
 
+The new public-list parity harness (`bench/fusion_parity.py`) independently
+checks the same target across a named matrix. With three timed samples, 32
+reductions per sample and the current candidate, it measured mixed full
+transducers/direct **15/15 ms**, mixed take-one **36/38 ms**, mixed take-32
+**35/38 ms**, and expensive take-32 **36.5/37 ms**. Dynamic short source/count/
+threshold settings and zero/one-element cases passed their Python oracle; their
+timers read zero milliseconds and are correctness gates only. The generated
+transducer programs each contain one guarded loop and no `Clo.apply` occurrence.
+These are retained engineering artifacts, not the calibrated 100 ms/two-session
+acceptance run.
+
 Additional six-sample checks: [huge early ranges and expensive mapping](automatic-extra-results.json)
 measured automatic/handwritten at 18/19 ms and 11/11 ms; a
 [runtime no-match filter](automatic-no-match-results.json) measured 36/34 ms.
@@ -182,8 +193,8 @@ python3 bench/compiler/ablate.py --automatic-compiler /tmp/guarded-loop/main.ts 
 python3 bench/compiler/ablate.py --automatic-compiler /tmp/guarded-loop/main.ts --early --samples 5
 python3 bench/composition.py --bend-main /tmp/guarded-loop/main.ts --samples 3
 python3 bench/compiler/test_list_driver.py --bend-main /tmp/guarded-loop/main.ts --output list-driver.json
-# With --output report.json on the preceding composition run:
-python3 bench/compiler/test_guarded.py --bend-main /absolute/temporary/path/main.ts --composition-report report.json
+python3 bench/fusion_parity.py --bend-main /tmp/guarded-loop/main.ts --samples 3 --repeats 32 \
+  --artifact-dir /tmp/fusion-parity --output /tmp/fusion-parity/report.json
 ```
 
 `ablate.py --automatic-compiler` compiles the unchanged pipeline with that

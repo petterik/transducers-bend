@@ -16,9 +16,10 @@ Keep immediate `transduce`, closed callbacks and runtime configuration. Do not
 work on ergonomics, lazy execution, eduction, arbitrary captures, new buffered
 operators or a generic collection interface. Existing semantics remain required.
 
-This is a handoff plan, not completed implementation. Commands below are run from
-the transduce-bend repository root. New files explicitly marked "create" and new
-CLI interfaces explicitly marked "add" do not exist yet.
+This is a living execution plan. Commands below are run from the transduce-bend
+repository root. The isolated compiler experiment and the first public parity
+harness are checked in here; the balanced acceptance run and production
+promotion are still open.
 
 The first candidate-only audit is now complete. Range cases are close to the direct
 reference, and three-map list composition reaches timer-level parity. The September
@@ -30,6 +31,15 @@ and the proof boundary are recorded in [COMPOSITION](bench/COMPOSITION.md) and
 [AUTOMATIC](bench/compiler/AUTOMATIC.md). This is still an experimental host-CPU
 milestone; the balanced acceptance matrix, other boxed sources/states and device
 validation remain open.
+
+`bench/fusion_parity.py` now provides the first named public-list matrix. It
+compiles an unchanged transducer lane and an independently written direct Bend
+lane with the same source construction, callbacks, configuration and cleanup,
+then checks both against a Python oracle. The current matrix covers zero and
+one-element inputs, mixed full and early stopping, dynamic short source/count/
+threshold modes, and expensive callbacks. It records generated artifacts and
+hashes; rows that measure zero milliseconds are correctness gates only and are
+not performance evidence.
 
 ## Performance acceptance rules
 
@@ -139,15 +149,14 @@ Deliverable: fresh reports reproducing at least one long win and one short
 regression. If the old regression does not reproduce, document the difference
 and repeat controlled measurements before selecting a different failing case.
 
-## Step 3 — Build the missing public-API parity harness
+## Step 3 — Run and extend the public-API parity harness
 
-Create `bench/fusion_parity.py` and a small Bend fixture/template under
-`bench/fusion_parity/`. Reuse generation/oracles from `bench/range.py` and
-`bench/composition.py` where useful. Do not use patched generated C as a timed
-implementation in this harness.
+`bench/fusion_parity.py` is the first implementation of this step. It currently
+uses a generated Bend template rather than a separate fixture directory, and
+does not use patched generated C as a timed implementation.
 
-Add CLI arguments for candidate compiler, output/artifact directory, selected
-cases, sample blocks and minimum batch time. Compile both lanes before timing.
+The runner accepts the candidate compiler, output/artifact directory, selected
+cases, sample blocks and repetitions. Compile both lanes before timing.
 Preserve generated Bend, C, native binaries and assembly.
 Write source/compiler/library hashes, checksums, samples, ratios and uncertainty
 to JSON. Make each failing row individually rerunnable.
@@ -181,9 +190,12 @@ failing combinations from Step 2. Derive varying length, budget, selectivity and
 offset from disjoint seed bits as the independent sweep does. Preserve runtime
 variability across reductions and verify generated code still performs the work.
 
-Deliverable: a table of per-case ratios to direct Bend and preserved artifacts.
-Gate: this identifies the actual parity gaps; success against original helpers
-cannot substitute for this table.
+The current deliverable is a table of per-case ratios to direct Bend and
+preserved artifacts. Next, calibrate repetitions so timed rows exceed 100 ms,
+add the second session and paired-bootstrap interval, and extend coverage to
+three maps, a type-changing mapper, ranges and the other existing source
+adapters. This harness identifies the actual parity gaps; success against
+original helpers cannot substitute for this table.
 
 ## Step 4 — Reduce one parity gap and identify its cause
 

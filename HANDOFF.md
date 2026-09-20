@@ -1,8 +1,8 @@
 # Hand-off: Bend transducers
 
-## Checkpoint 2026-09-20: boxed List source loop
+## Checkpoint 2026-09-20: boxed List source loop and parity matrix
 
-Commit this checkpoint after verifying the working tree. It extends the isolated
+This checkpoint is committed as `c868553`. It extends the isolated
 typed loop experiment so a closed list transduction can reach the scalar fused
 transition while retaining the original generic list traversal as fallback. The
 public API and `../bend` checkout remain unchanged.
@@ -31,6 +31,8 @@ Validation completed:
 - `python3 bench/compiler/adversarial.py --bend-main /tmp/transduce-next-candidate/main.ts --output ...` — all 16 refusal/state variants pass.
 - `python3 bench/compiler/test_list_driver.py --bend-main /tmp/transduce-next-candidate/main.ts --output ...` — boxed List source gate passes.
 - Five-sample candidate composition run: three maps 13/13 ms, cheap full 10/10 ms, mixed full 14/14 ms, mixed early 40/41.5 ms (transducers/direct). The mixed full C has one `guarded_loop` region and no `Clo.apply`.
+- Runtime-threshold mixed range check: candidate/direct 85/88 ms full and 42/44 ms early, with one guarded loop and independent output checks.
+- `bench/fusion_parity.py` matrix: mixed full 15/15 ms, mixed take-one 36/38 ms, mixed take-32 35/38 ms, and expensive take-32 36.5/37 ms (transducers/direct); dynamic short and zero/one-element rows pass correctness but are below timer resolution.
 
 ### Handoff for the next session
 
@@ -41,9 +43,11 @@ Validation completed:
 3. Inspect the mixed full generated C and assembly. Confirm the fast wrapper is
    guarded by the typed state conditions and the generic list helper remains
    available for the fallback path.
-4. Add the balanced 20-block, two-session candidate-transducer versus
-   candidate-direct benchmark from `FUSION-EXECUTION-PLAN.md`, including short,
-   runtime-threshold, zero/one/max-count, and irregular-selectivity cases.
+4. Extend `bench/fusion_parity.py` with three-map, type-changing, range and
+   other source cases, then calibrate repetitions so timed rows exceed 100 ms.
+   Add the balanced 20-block, two-session run and paired-bootstrap interval from
+   `FUSION-EXECUTION-PLAN.md`, including short, runtime-threshold, zero/one/
+   max-count, and irregular-selectivity cases.
 5. Exercise other boxed recursive sources and boxed reducer states. They should
    refuse the loop specialization and retain identical semantics. Do not widen
    the source exception until those negative cases are explicit.
