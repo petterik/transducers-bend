@@ -16,6 +16,15 @@ groups. The full library suite now has 19 positive files and still runs on JS an
 native CPU. This is semantic evidence only; no compiler recognizer was added for
 either operation and buffered storage remains a real cost.
 
+## Static composition probe
+
+`bench/compiler/STATIC-COMPOSITION.md` records the controlled eager-binding
+experiment. A local direct-reducer binding works for representative scalar,
+configured, stopping, and buffered pipelines, but replacing the public delayed
+recipe breaks the independent tree adapter and retains records in the Array
+fixture. The delayed recipe remains until a general compiler staging boundary
+can cover built-ins and extensions together.
+
 ## Priority #3 follow-up
 
 The library now includes balanced-array, range, string, and list reduction implementations plus `into_list`, `count`, and streaming `cat`/`mapcat`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_array`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.

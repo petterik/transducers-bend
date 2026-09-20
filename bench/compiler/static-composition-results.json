@@ -1,0 +1,14 @@
+{
+  "compiler_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "source_sha256": "1ba4b6068c68cd9ad83093b9228fca2334d36bd0e10cc8c80b6ae6c5946c7942",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-static-composition-v4u9ksee",
+  "compile_ms": 165.8,
+  "native": "[9, 9, 7, 7, 3, 3]",
+  "js": "[9, 9, 7, 7, 3, 3]",
+  "expected": "[9, 9, 7, 7, 3, 3]",
+  "reducer_records_js": 0,
+  "reduction_records_js": 0,
+  "clo_apply_c": 0,
+  "reducer_symbols_c": 0,
+  "matches": true
+}

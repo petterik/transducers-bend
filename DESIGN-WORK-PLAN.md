@@ -136,6 +136,12 @@ not the goal of this package.
 
 ## 2. Make static composition systematic
 
+Status: probe complete, implementation deliberately deferred. The eager local
+binding works for scalar, configured, stopping, and buffered cases, but a direct
+replacement of the public delayed recipe retains records in the Array fixture and
+breaks the documented tree adapter. The next step is scoped static work in the
+compiler, not a second public API.
+
 **Purpose:** remove dependence on incidental callback spelling or delayed recipe
 construction, while preserving the clean code/settings distinction.
 
