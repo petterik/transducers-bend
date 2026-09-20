@@ -80,10 +80,9 @@ def mapcat(~A: Type, ~B: Type, ~R: Type, ~f: A -> List<B>,
   ~down: Reducer<B, R>) -> Reducer<A, R>:
   map(~A, ~List<B>, ~R, ~f, ~cat(~B, ~R, ~down))
 
-# Consume an input and optionally emit one value. Unlike filter, keep may
-# consume affine inputs because the callback owns the decision about whether
-# to return the value (or a transformed value) in Some.
-def keep_choose(~B: Type, ~R: Type, ~down: Reducer<B, R>,
+# Flatten one optional input into the downstream reducer. Matching the option
+# consumes it exactly once, so this works for affine payloads as well as Data.
+def cat_maybe_step(~B: Type, ~R: Type, ~down: Reducer<B, R>,
   m: Maybe<B>, inner: State(B, R, down)) -> Control<State(B, R, down)>:
   match m:
     case None{}:
@@ -91,16 +90,18 @@ def keep_choose(~B: Type, ~R: Type, ~down: Reducer<B, R>,
     case Some{x}:
       step(B, R, down, inner, x)
 
-def keep_step(~A: Type, ~B: Type, ~R: Type, ~f: A -> Maybe<B>,
-  ~down: Reducer<B, R>, inner: State(B, R, down), x: A) -> Control<State(B, R, down)>:
-  keep_choose(~B, ~R, ~down, f(x), inner)
-
-def keep(~A: Type, ~B: Type, ~R: Type, ~f: A -> Maybe<B>,
-  ~down: Reducer<B, R>) -> Reducer<A, R>:
+def cat_maybe(~B: Type, ~R: Type, ~down: Reducer<B, R>) -> Reducer<Maybe<B>, R>:
   Reducer{Config(B, R, down), State(B, R, down),
     c => start(B, R, down, c),
-    s => x => keep_step(~A, ~B, ~R, ~f, ~down, s, x),
+    s => m => cat_maybe_step(~B, ~R, ~down, m, s),
     s => finish(B, R, down, s)}
+
+# keep is ordinary static composition: map the input to an option, then consume
+# that option with cat_maybe. The option is a protocol value, not a collection
+# boundary, so the compiler can remove a visible Some/None constructor/match.
+def keep(~A: Type, ~B: Type, ~R: Type, ~f: A -> Maybe<B>,
+  ~down: Reducer<B, R>) -> Reducer<A, R>:
+  map(~A, ~Maybe<B>, ~R, ~f, ~cat_maybe(~B, ~R, ~down))
 
 # A consumer with an ordinary reducing callback and a separate completion.
 def reducing(~A: Type, ~S: Type, ~R: Type, ~f: S -> A -> S, ~done: S -> R) -> Reducer<A, R>:

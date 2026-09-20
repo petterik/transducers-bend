@@ -6,7 +6,8 @@
       "native": "[7, 0, 0, 0, 7]",
       "js": "[7, 0, 0, 0, 7]",
       "records_js": 0,
-      "clo_apply_c": 0,
+      "clo_apply_label_c": 0,
+      "closure_dispatch_transfers_c": 0,
       "heap_alloc_calls_c": 13,
       "term_pack_calls_c": 9,
       "c_bytes": 97589,
@@ -14,15 +15,28 @@
     },
     "buffered": {
       "source": "/Users/petter/Github/petterik/transduce-bend/tests/keep_partition.bend",
-      "native": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[7, 8]\n[15]",
-      "js": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[7, 8]\n[15]",
+      "native": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[11, 12, 13, 14, 15]\n7\n2\n[]\n[[[1, 2], [3, 4]], [[5]]]\n[7, 8]\n[15]",
+      "js": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[11, 12, 13, 14, 15]\n7\n2\n[]\n[[[1, 2], [3, 4]], [[5]]]\n[7, 8]\n[15]",
       "records_js": 0,
-      "clo_apply_c": 0,
-      "heap_alloc_calls_c": 44,
-      "term_pack_calls_c": 45,
-      "c_bytes": 182545,
-      "js_bytes": 45032
+      "clo_apply_label_c": 0,
+      "closure_dispatch_transfers_c": 5,
+      "heap_alloc_calls_c": 66,
+      "term_pack_calls_c": 77,
+      "c_bytes": 246106,
+      "js_bytes": 71424
+    },
+    "dynamic_dispatch_control": {
+      "source": "/Users/petter/Github/petterik/transduce-bend/tests/ownership.bend",
+      "native": "[False, True, False]\n6\n23\n13",
+      "js": "[False, True, False]\n6\n23\n13",
+      "records_js": 2,
+      "clo_apply_label_c": 0,
+      "closure_dispatch_transfers_c": 11,
+      "heap_alloc_calls_c": 36,
+      "term_pack_calls_c": 19,
+      "c_bytes": 119407,
+      "js_bytes": 21057
     }
   },
-  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-representation-probe-03h4ojom"
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-representation-probe-97hd93_g"
 }

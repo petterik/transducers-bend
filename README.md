@@ -82,8 +82,9 @@ These examples execute in [tests/range.bend](tests/range.bend). `into_list` is a
 | `identity(~A, ~R, ~down)` | Use downstream unchanged | Downstream configuration |
 | `map(~A, ~B, ~R, ~f, ~down)` | Transform A to B | Downstream configuration |
 | `cat(~B, ~R, ~down)` | Flatten each list-valued input into downstream B values | Downstream configuration |
+| `cat_maybe(~B, ~R, ~down)` | Consume an optional B and emit zero or one downstream B values | Downstream configuration |
 | `mapcat(~A, ~B, ~R, ~f, ~down)` | Map each A to a list of B values and flatten it | Downstream configuration |
-| `keep(~A, ~B, ~R, ~f, ~down)` | Consume A and emit each optional B returned by `f` | Downstream configuration |
+| `keep(~A, ~B, ~R, ~f, ~down)` | Compose `map(f)` with consuming `cat_maybe` | Downstream configuration |
 | `map_with(~A, ~B, ~R, ~C, ~f, ~down)` | Transform using runtime Data configuration C | `(local, downstream)` |
 | `filter(~A, ~R, ~C, ~predicate, ~down)` | Retain Data elements satisfying `predicate(config, element)` | `(local, downstream)` |
 | `take(~A, ~R, ~down)` | Limit values reaching this stage | `(Nat count, downstream)` |
@@ -102,7 +103,7 @@ Array traversal follows the leaves of Bend's balanced array tree from left to ri
 
 A predicate without configuration can use `Unit` for C. Mapping may change types and produce affine elements. Conventional filtering requires Data elements because it inspects and retains them. Accumulators may be affine.
 
-Composition is nesting reducer adapters or declaring a reusable template, as above. There is no separate runtime `compose` function. An `over_*` adapter binds the complete reducer description to a source implementation; the initial accumulator is part of the consumer's configuration rather than another independent argument.
+Composition is nesting reducer adapters or declaring a reusable template, as above. There is no separate runtime `compose` function. `keep(f)` is ordinary composition: `map(f)` produces `Maybe<B>`, and `cat_maybe` consumes that option and emits zero or one `B`. This consuming match preserves affine values; `filter(some?)` would retain the option and cannot provide the same general contract. An `over_*` adapter binds the complete reducer description to a source implementation; the initial accumulator is part of the consumer's configuration rather than another independent argument.
 
 The stable composition boundary is one reusable typed declaration. For example,
 `tests/api_surface.bend` declares a single `U32 -> Maybe<Nat>` pipeline and

@@ -70,7 +70,7 @@ The contract is a documented obligation, not a proof imposed by the type of an a
 
 ## Test an extension with stateful and affine transformations
 
-`keep` consumes an input and returns `None` or `Some` rather than inspecting an
+`keep` composes `map(f)` with the consuming `cat_maybe` adapter. It consumes an input and returns `None` or `Some` rather than inspecting an
 affine value and then retaining it. `partition_all` owns a list buffer and emits
 full groups during stepping; completion emits one final partial group only while
 the downstream reducer remains in `Continue`. A downstream stop discards the

@@ -8,9 +8,10 @@ status: foundation
 ## Public lifecycle extension: keep and partition-all
 
 The semantic extension probe now includes `keep` and `partition_all`. `keep`
-consumes an input and emits the optional value returned by its callback, so it
-can support affine inputs without the inspect-then-retain restriction of
-`filter`. `partition_all` owns a list buffer, emits complete groups during the
+is implemented as `map(f)` followed by the consuming `cat_maybe` adapter. It
+emits the optional value returned by its callback, so it can support affine
+inputs without the inspect-then-retain restriction of `filter`. `partition_all`
+owns a list buffer, emits complete groups during the
 source fold, flushes one partial group during completion while downstream is
 open, and discards pending output after downstream stops. Width zero stops during
 initialization.
