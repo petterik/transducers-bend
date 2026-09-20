@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import random
 import statistics
 import subprocess
 import tempfile
@@ -30,9 +31,25 @@ p.add_argument('--runtime-threshold', action='store_true',
                help='Read the threshold from IO.args outside the timed region')
 p.add_argument('--predicate', choices=['above', 'mixed'], default='above',
                help='Compare mapped values directly, or mix their bits before comparing')
+p.add_argument('--sessions', type=int, default=1,
+               help='independent timing sessions; each has forward/reverse orders')
+p.add_argument('--repeat-multiplier', type=int, default=1,
+               help='multiply each case repetition count for duration calibration')
+p.add_argument('--min-batch-ms', type=float, default=0,
+               help='require every retained timed sample to meet this duration')
+p.add_argument('--bootstrap-seed', type=int, default=20260920)
+p.add_argument('--bootstrap-resamples', type=int, default=2000)
 a = p.parse_args()
 if a.samples < 1:
     p.error('samples must be positive')
+if a.sessions < 1:
+    p.error('sessions must be positive')
+if a.repeat_multiplier < 1:
+    p.error('repeat-multiplier must be positive')
+if a.min_batch_ms < 0:
+    p.error('min-batch-ms cannot be negative')
+if a.bootstrap_resamples < 1:
+    p.error('bootstrap-resamples must be positive')
 if not 0 <= a.threshold <= 4294967295:
     p.error('threshold must fit U32')
 if a.artifact_dir:
@@ -46,6 +63,11 @@ report = {'timing': 'IO.now milliseconds per batch; excludes process startup; on
           'benchmark_source_sha256': hashlib.sha256(a.source.read_bytes()).hexdigest(),
           'library_sha256': hashlib.sha256((ROOT / 'transduce.bend').read_bytes()).hexdigest(),
           'artifacts': str(a.artifact_dir) if a.artifact_dir else None,
+          'sessions': a.sessions,
+          'repeat_multiplier': a.repeat_multiplier,
+          'minimum_batch_ms': a.min_batch_ms,
+          'bootstrap': {'seed': a.bootstrap_seed, 'resamples': a.bootstrap_resamples,
+                        'statistic': 'paired median(library) / median(direct)'},
           'results': []}
 cases = [('cheap_full', 0, 2000000, 2000000, 0, 32),
          ('cheap_early', 0, 2000000, 32, 0, 1000000),
@@ -53,6 +75,31 @@ cases = [('cheap_full', 0, 2000000, 2000000, 0, 32),
          ('expensive_early', 0, 2000000, 32, 256, 1000)]
 if a.cases:
     cases = [case for case in cases if case[0] in a.cases]
+
+
+def bootstrap_ratio(pairs, seed, resamples):
+    if not pairs or not any(direct for _, direct in pairs):
+        return None
+    rng = random.Random(seed)
+    ratios = []
+    for _ in range(resamples):
+        sample = [pairs[rng.randrange(len(pairs))] for _ in pairs]
+        library = statistics.median(value for value, _ in sample)
+        direct = statistics.median(value for _, value in sample)
+        if direct:
+            ratios.append(library / direct)
+    ratios.sort()
+    if not ratios:
+        return None
+    quantile = lambda p: ratios[int(p * (len(ratios) - 1))]
+    return {'seed': seed, 'resamples': resamples, 'paired_samples': len(pairs),
+            'lower_95': quantile(0.025), 'median': quantile(0.5),
+            'upper_95': quantile(0.975)}
+
+
+if a.repeat_multiplier != 1:
+    cases = [(label, begin, end, take, work, repeats * a.repeat_multiplier)
+             for label, begin, end, take, work, repeats in cases]
 directory_context = (contextlib.nullcontext(str(a.artifact_dir)) if a.artifact_dir
                      else tempfile.TemporaryDirectory(prefix='transduce-range-'))
 with directory_context as directory:
@@ -103,7 +150,8 @@ with directory_context as directory:
                'repeats_per_sample': repeats, 'expected_batch_sum': expected, 'builds': {},
                'oracle_inputs_per_sample': expected_inputs,
                'oracle_accepted_per_sample': expected_outputs,
-               'samples_ms': {name: [] for name in bodies}}
+               'samples_ms': {name: [] for name in bodies},
+               'paired_samples_ms': []}
         for name, body in bodies.items():
             stem = out / name
             offset_expr = 'U32.and(U32.from_nat(p), 65535)' if varying else str(begin)
@@ -167,18 +215,36 @@ def main() -> IO(Unit):
                                   'js_bytes': len(emitted.encode()),
                                   'c_bytes': stem.with_suffix('.c').stat().st_size}
         # Reverse order in the second round to reduce order bias.
-        for names in (list(bodies), list(reversed(bodies))):
-            for name in names:
-                run = subprocess.run([str(out/name), '--threads', '1', '--gpu', 'off']
-                                     + (['--', str(a.threshold)] if a.runtime_threshold else []),
-                                     capture_output=True, text=True, timeout=60)
-                assert run.returncode == 0, run.stderr
-                pairs = [line.split(':') for line in run.stdout.splitlines()]
-                assert len(pairs) == a.samples + 1 and all(int(v) == expected for v, _ in pairs), run.stdout
-                row['samples_ms'][name].extend(int(ms) for _, ms in pairs[1:])
+        for _session in range(a.sessions):
+            for names in (list(bodies), list(reversed(bodies))):
+                timed = {}
+                for name in names:
+                    run = subprocess.run([str(out/name), '--threads', '1', '--gpu', 'off']
+                                         + (['--', str(a.threshold)] if a.runtime_threshold else []),
+                                         capture_output=True, text=True, timeout=60)
+                    assert run.returncode == 0, run.stderr
+                    pairs = [line.split(':') for line in run.stdout.splitlines()]
+                    assert len(pairs) == a.samples + 1 and all(int(v) == expected for v, _ in pairs), run.stdout
+                    samples = [int(ms) for _, ms in pairs[1:]]
+                    timed[name] = samples
+                    row['samples_ms'][name].extend(samples)
+                row['paired_samples_ms'].extend(zip(timed['library'], timed['direct']))
         row['median_batch_ms'] = {k: statistics.median(v) for k, v in row['samples_ms'].items()}
         row['median_us_per_transduction'] = {k: ms * 1000 / repeats for k, ms in row['median_batch_ms'].items()}
+        if a.min_batch_ms:
+            minimum = min(ms for values in row['samples_ms'].values() for ms in values)
+            assert minimum >= a.min_batch_ms, (label, minimum, a.min_batch_ms)
+            row['minimum_observed_ms'] = minimum
+        row['bootstrap_95'] = bootstrap_ratio(
+            row['paired_samples_ms'], a.bootstrap_seed, a.bootstrap_resamples)
+        row['ratio_library_over_direct'] = (
+            row['median_batch_ms']['library'] / row['median_batch_ms']['direct']
+            if row['median_batch_ms']['direct'] else None)
         report['results'].append(row)
+        interval = row['bootstrap_95']
+        interval_text = ('n/a' if interval is None else
+                         f"95%=[{interval['lower_95']:.3f},{interval['upper_95']:.3f}]")
+        print(label, row['median_batch_ms'], interval_text, flush=True)
 text = json.dumps(report, indent=2) + '\n'
 if a.output:
     a.output.write_text(text)
