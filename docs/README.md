@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-20T20:26:35+02:00
+status: current
+---
+
 # Transducer documentation
 
 Every document carries a `created_at` timestamp taken from the first Git commit
