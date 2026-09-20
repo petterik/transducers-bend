@@ -1,62 +1,63 @@
 # Hand-off: Bend transducers
 
-## Checkpoint 2026-09-20: calibrated range and list acceptance
+## Checkpoint 2026-09-20: conservative Array tree specialization
 
-The candidate-only host-CPU acceptance protocol is now complete for the
-demonstrated scalar-state List pipeline and the sequential U32 range pipeline.
-The range statistics and evidence are in
-[`bench/range-parity-results.json`](bench/range-parity-results.json); the list
-evidence remains in [`bench/fusion-parity-results.json`](bench/fusion-parity-results.json).
-The range run used 20 retained blocks in each of two sessions, balanced
-forward/reverse order, fourfold repetition, 80 paired observations per row and
-a 100 ms minimum batch. Both runtime-threshold controls matched the Python
-oracle and passed the provisional 1.05 upper-bootstrap gate:
+Commit `16b7e2a` adds the first positive Array-tree source case to the isolated
+host-CPU experiment. The existing List and range evidence remains in
+[`bench/fusion-parity-results.json`](bench/fusion-parity-results.json) and
+[`bench/range-parity-results.json`](bench/range-parity-results.json). The
+sibling `../bend` checkout remains untouched.
 
-- `cheap_full`: library/direct 340/354 ms, ratio interval 0.960–0.965.
-- `cheap_early`: library/direct 174/179 ms, ratio interval 0.967–0.972.
+The Array reducer driver is a balanced, non-tail tree: it reduces the left
+child, threads the returned state into the right child, and checks downstream
+control before entering either branch. That shape cannot use the tail-loop
+proof. The new path instead re-emits the unchanged tree helper while the typed
+context substitutes one reachable, already-proved scalar callback chain. The
+host wrapper calls the fast callback clone; the original tree helper remains a
+generic fallback and the device branch is unchanged. The gate is structural:
+the source starts with one boxed layout, stays within bounded layouts, has the
+two-branch recursive shape, has no bang calls or multi-binding let, and has
+exactly one reachable scalar summary. It does not recognize Array names or
+generated tags.
 
-The statistics protocol is committed in `d09ff76`; the evidence/documentation
-follow-up is the next commit in this checkpoint. The isolated compiler hash is
-`22001d8c…`, and the library hash is `24c8b459…`. The sibling `../bend`
-checkout remains untouched.
+`test_source_shapes.py` now checks one `guarded_tree` for the simple Array
+filter/take/sum fixture, one `guarded_loop` for String, and no tree for boxed
+reducer state. The full 18-test suite, automatic-loop checks, 16 adversarial
+variants, boxed List driver, and source-shape JS/native differential checks all
+pass with a fresh candidate. The richer Array `mapcat` workload also compiles
+and runs with no tree marker because its callback graph has no proven scalar
+summary; it remains a generic fallback by design.
 
-What we learned is narrower than “all transducers are fused”: the typed guarded
-loop can reach direct-Bend speed when reducer state is scalar and the source
-has one structurally provable recursive boxed argument. The same proof rejects
-Array-tree traversal and boxed reducer state conservatively. String has a
-positive source-shape gate. Simple scalar map/type-change chains are already
-handled by ordinary static specialization and do not need a guarded-loop
-wrapper.
+This is a proof and correctness checkpoint, not a final Array performance
+acceptance result. `bench/array_parity.py` now provides the paired measurement
+protocol and the same Python-oracle checks as the List runner. A depth-10 smoke
+run (two retained samples) produced matching checksums; the full row was
+189/183.5 ms with an upper ratio bound of 1.044, and the early row was
+128/131 ms with an upper bound of 0.985. Those short samples are directional;
+the required 20-block/two-session/100-ms report is still outstanding.
 
 ### Handoff for the next session
 
-1. Start with `git status --short`, verify the two checkpoint commits and keep
-   `../bend` unchanged. Re-run `python3 tests/run.py` with the fresh isolated
-   `--loop` candidate, then run `test_auto_loop.py`, `adversarial.py`,
-   `test_list_driver.py` and `test_source_shapes.py` before changing the proof.
-2. Reproduce the calibrated controls from the repository root. The list command
-   is the one recorded in `FUSION-EXECUTION-PLAN.md`; for ranges use:
-   `python3 bench/range.py --bend-main CANDIDATE --samples 20 --sessions 2
-   --repeat-multiplier 4 --cases cheap_full cheap_early --runtime-threshold
-   --predicate mixed --min-batch-ms 100 --artifact-dir OUT --output OUT/report.json`.
-   Keep the generated artifacts and hashes with the report.
-3. Make Array the next compiler experiment. First inspect the emitted
-   `reduce_array` signature and its recursive match in the source-shape fixture;
-   record every boxed layout in source, state and return. Do not widen the
-   existing “one boxed first source argument” exception by position alone. Add
-   a typed structural case only if the Array node representation, constructor
-   fields, recursive sites, scalar state transition, ownership and checked
-   failure paths can all be proved. Preserve generic fallback and add a positive
-   Array fixture only with JS/native differential output checks.
-4. Add a named Array parity row only after the proof emits a guarded loop. Use
-   an independently written direct traversal, the same callbacks and cleanup,
-   an oracle, cheap/full and expensive/early variants, and the same 20×2 paired
-   100 ms protocol. If it remains slower, keep the refusal as an explicit gate
-   and diagnose the first boxed state/source boundary instead of guessing.
-5. Then cover String and the remaining existing adapters with the same protocol.
-   Keep List and range rows as controls. Do not compare the original compiler,
-   touch GPU/CUDA, or promote the isolated pass until the candidate matrix is
-   complete and every accepted region has semantic/refusal tests.
+1. Start with `git status --short`, verify `16b7e2a`, and keep `../bend`
+   unchanged. Prepare a fresh isolated `--loop` candidate before collecting
+   evidence; do not reuse an old `/tmp` compiler directory.
+2. Run `bench/array_parity.py` with a fresh candidate. It generates the same
+   balanced Array source and callbacks for the public transducer lane and an
+   independently written direct tree traversal. Keep full and early stopping,
+   runtime-varying seeds/configuration, the Python oracle, and compiler/library
+   hashes in the artifact report.
+3. Calibrate repetitions so every retained Array batch is at least 100 ms, then
+   run 20 blocks in each of two sessions with balanced lane order and the paired
+   bootstrap gate from `FUSION-EXECUTION-PLAN.md`. Report the tree marker and
+   compare directly with the handwritten lane; do not use the generic candidate
+   as the reference.
+4. Keep a richer Array `mapcat` case as an explicit generic fallback control.
+   If the simple tree row is slower, inspect the generated helper and callback
+   chain first; do not widen the proof by source position or add a profitability
+   exception without a typed invariant.
+5. Then investigate boxed reducer state and remaining adapters. Keep List and
+   range rows as controls. Defer the original compiler comparison, GPU/CUDA,
+   and promotion until the candidate matrix and refusal tests are complete.
 
 ## Checkpoint 2026-09-20: boxed List source loop and parity matrix
 

@@ -87,11 +87,26 @@ preserves source ownership, stop origins, callback order and checked failures.
 `bench/compiler/fixtures/list_transducer.bend` and
 `bench/compiler/test_list_driver.py` are the positive boxed-source gate; the
 existing automatic-loop and adversarial fixtures continue to exercise refusal
-and fallback behavior. `test_source_shapes.py` adds a structurally different
-positive String source (one guarded loop, JS/native result parity) plus explicit
-Array-tree and boxed-reducer-state refusals with JS/native result checks. The
-Array representation is deliberately outside the current single-box proof; this
-does not imply that Array fusion is impossible.
+and fallback behavior.
+
+### Array tree driver
+
+Array traversal is a different proof case from the List tail loop. `reduce_array`
+has two non-tail recursive branches: the right child receives the state returned
+by the left child, and each node checks downstream control before entering the
+next branch. In loop mode, the candidate recognizes this shape from typed terms
+and layouts, then re-emits the same tree helper while substituting one reachable,
+already-proved scalar callback chain. The host wrapper calls the guarded callback
+clone; the original tree helper remains available as the generic fallback and
+the device branch is unchanged.
+
+The tree gate requires one boxed source layout, bounded input/return layouts, no
+bang calls or multi-binding lets, the structural two-branch recursion, and
+exactly one reachable scalar summary. It does not use Array names, generated
+tags or fixed field positions. A richer Array `mapcat` graph with no scalar
+summary and a reducer with boxed state both remain refusals. The positive and
+negative source-shape checks live in `test_source_shapes.py`; they compare native
+and JavaScript outputs and count `guarded_tree` markers.
 
 ## Performance
 

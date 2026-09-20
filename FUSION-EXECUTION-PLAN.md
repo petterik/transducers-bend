@@ -31,9 +31,12 @@ clone. The original list driver remains the fallback. Five-sample candidate timi
 and the proof boundary are recorded in [COMPOSITION](bench/COMPOSITION.md) and
 [AUTOMATIC](bench/compiler/AUTOMATIC.md). This is still an experimental host-CPU
 milestone; the balanced acceptance matrix, other boxed sources/states and device
-validation remain open. String now has an explicit positive source-shape gate;
-Array-tree traversal and boxed reducer state have explicit conservative refusal
-gates. The calibrated range gate is now complete for the two sequential
+validation remain open. String now has an explicit positive source-shape gate.
+Array now has a separate conservative tree-driver specialization for the simple
+scalar callback fixture: it preserves the balanced source/control tree and
+substitutes only a previously proved scalar callback chain under a host guard.
+Richer Array `mapcat` trees and boxed reducer state remain explicit fallback
+boundaries. The calibrated range gate is now complete for the two sequential
 runtime-threshold controls: both rows pass the provisional 1.05 upper-interval
 limit, with the worst upper bound at 0.972. This is candidate-only evidence for
 the demonstrated U32 range shape, not a universal range or backend claim.
@@ -219,11 +222,12 @@ variability across reductions and verify generated code still performs the work.
 
 The current deliverable is a table of per-case ratios to direct Bend and
 preserved artifacts. The calibrated list and range controls now pass the
-provisional gate. Next, extend the same protocol to the source shapes that are
-currently conservative fallbacks, starting with Array-tree traversal and boxed
-reducer state, then cover String and the remaining existing adapters. This
-harness identifies the actual parity gaps; success against original helpers
-cannot substitute for this table.
+provisional gate. `bench/array_parity.py` provides the corresponding Array
+measurement with an independent direct tree lane; its final 20-block/two-session
+report is the next evidence checkpoint. Then cover richer Array callbacks and
+boxed reducer state, followed by String and the remaining existing adapters.
+This harness identifies the actual parity gaps; success against original
+helpers cannot substitute for this table.
 
 ## Step 4 — Reduce one parity gap and identify its cause
 
