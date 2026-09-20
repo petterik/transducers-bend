@@ -49,7 +49,8 @@ report = {
     'expected': expected,
     'reducer_records_js': js_text.count('{$: "Reducer"'),
     'reduction_records_js': js_text.count('{$: "Reduction"'),
-    'clo_apply_c': c_text.count('Clo.apply'),
+    'clo_apply_label_c': c_text.count('Clo.apply'),
+    'closure_dispatch_transfers_c': c_text.count('WL_JMP(FID_CLO_APPLY)'),
     'reducer_symbols_c': c_text.count('Reducer'),
     'matches': native_run.stdout.strip() == js_run.stdout.strip() == expected,
 }

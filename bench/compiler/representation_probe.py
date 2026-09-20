@@ -26,6 +26,13 @@ cases = {
                  '\n'.join(line[2:] for line in
                            (ROOT / 'tests/keep_partition.bend').read_text().splitlines()
                            if line.startswith('#|'))),
+    # Deliberately retains affine function application. This is the negative
+    # control for the native dispatch detector: a report that claims zero
+    # dispatch sites must fail on this program.
+    'dynamic_dispatch_control': (ROOT / 'tests/ownership.bend',
+                                 '\n'.join(line[2:] for line in
+                                           (ROOT / 'tests/ownership.bend').read_text().splitlines()
+                                           if line.startswith('#|'))),
 }
 
 def run(command):
@@ -51,17 +58,26 @@ for name, (source, expected) in cases.items():
     js = run(['bun', stem.with_suffix('.js')]).stdout.strip()
     assert native == js == expected, (name, native, js, expected)
     records = js_text.count('{$: "Reducer"') + js_text.count('{$: "Reduction"')
+    closure_dispatch = c_text.count('WL_JMP(FID_CLO_APPLY)')
     report['cases'][name] = {
         'source': str(source),
         'native': native,
         'js': js,
         'records_js': records,
-        'clo_apply_c': c_text.count('Clo.apply'),
+        # `Clo.apply` is an internal compiler label and is not emitted in
+        # native C. The runtime transfer is FID_CLO_APPLY; keep both fields so
+        # old reports remain interpretable, but use the latter for conclusions.
+        'clo_apply_label_c': c_text.count('Clo.apply'),
+        'closure_dispatch_transfers_c': closure_dispatch,
         'heap_alloc_calls_c': c_text.count('heap_alloc('),
         'term_pack_calls_c': c_text.count('term_pak('),
         'c_bytes': len(c_text),
         'js_bytes': len(js_text),
     }
-    assert records == 0 and report['cases'][name]['clo_apply_c'] == 0
+    if name != 'dynamic_dispatch_control':
+        assert records == 0
+    else:
+        assert records > 0, 'negative control unexpectedly specialized all reducer records'
+        assert closure_dispatch > 0, 'negative control did not retain closure dispatch'
 args.output.write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report, indent=2))
