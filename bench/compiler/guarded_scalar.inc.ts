@@ -473,6 +473,7 @@ function guarded_scalar(fl: File, ck: Call, ers: HTerm[], name: string, original
             lines.push("  return 1;", "}");
             gl_state(fl).summaries.set(gl_key(fl,ck,ers), {
               k:ck.k, pc, inputs:new Set(pc.flatMap(([c])=>gl_vars(c))),
+              ret:sig.ret, outputs,
               fast:(fastName:string) => [
                 `INLINE Term ${fastName}(Env e, THR Term* o${decl}) {`,
                 ...outputs.flatMap((x,j)=> x.op === "outzero" ? [] : [`  Term g${j} = ${render(x)};`]),

@@ -40,10 +40,19 @@ boundaries. Commit `0bef762` keeps that tree driver non-flat and re-emits its
 ordinary continuation-based work-loop FID under the typed callback context;
 this removes the recursive C helper that made the first tree implementation
 slow. The calibrated Array acceptance matrix now passes the provisional 1.05
-upper-interval gate for both full and early stopping (upper bounds 1.021 and
-1.015). The fast FID, generic FID fallback, and source-shape checks are recorded
-in `bench/array-parity-results.json`. The remaining small gap is the extra
-Control/configuration state carried by the public transducer representation.
+upper-interval gate for both full and early stopping (the current paired
+bootstrap upper bounds are 1.044 and 1.021). The fast FID, generic FID
+fallback, and source-shape checks are recorded in
+`bench/array-parity-results.json`. The typed step now proves the concrete
+tree-control relation from the callback return layout: the stop tag is the
+zero test of the carried `left` word, so the optimized host FID tests that
+word directly and removes the redundant outer Control-tag test. The ordinary
+tag match remains in the generic branch. This is a closed, typed reachable
+state proof; arbitrary independently constructed Control values are outside
+this optimization's acceptance boundary. A runtime fallback inside the same
+work-loop entry was rejected because continuation entries can carry raw
+register frames with a different root shape. The generic lowering still
+handles tree shapes that do not pass the proof.
 The calibrated range gate is now complete for the two sequential
 runtime-threshold controls: both rows pass the provisional 1.05 upper-interval
 limit, with the worst upper bound at 0.972. This is candidate-only evidence for

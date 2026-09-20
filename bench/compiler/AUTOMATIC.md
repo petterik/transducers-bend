@@ -109,6 +109,16 @@ summary and a reducer with boxed state both remain refusals. The positive and
 negative source-shape checks live in `test_source_shapes.py`; they compare native
 and JavaScript outputs and count `guarded_tree` markers.
 
+The current tree proof also checks the callback's typed return layout. When its
+first output is the Boolean zero test of a later scalar word in the concrete
+tree Control layout, the fast host FID rewrites the stop and continue arms to
+`left == 0` and `left != 0`. The original Control-tag match remains in the
+generic branch. This is a closed reachable-state proof for the re-emitted
+pipeline; it does not widen the accepted source shape to arbitrary externally
+constructed Control values. A runtime branch inside this FID is deliberately
+not used, because the flat work-loop continuation entries may carry raw frames
+that are not the root's typed argument layout.
+
 ## Performance
 
 Apple Clang 17, `-O3`, sequential CPU, GPU off, runtime predicate thresholds.

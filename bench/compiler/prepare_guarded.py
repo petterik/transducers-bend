@@ -42,6 +42,9 @@ patched = patched.replace('function emit_native(', 'function emit_native_core(',
 call_anchor = '  const name = emit_native(fl, ck, ers);'
 assert patched.count(call_anchor) == 1
 patched = patched.replace(call_anchor, '  const name = gl_call_name(fl, emit_native(fl, ck, ers), ck);')
+match_anchor = "  const spares = fl.spares;\n  const arms2 = lv.map(([, h, fs]) => () => {"
+assert patched.count(match_anchor) == 1
+patched = patched.replace(match_anchor, "  gl_tree_match_rewrite(fl, x, lay, args, lv);\n  const spares = fl.spares;\n  const arms2 = lv.map(([, h, fs]) => () => {")
 flat_anchor = '  const flat = flat_of(ck.k);'
 assert patched.count(flat_anchor) == 1
 call_flat_anchor = '  return ck !== null && ck.bang !== true && flat_of(ck.k);'

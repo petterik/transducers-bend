@@ -1,5 +1,46 @@
 # Hand-off: Bend transducers
 
+## Checkpoint 2026-09-20: typed tree-control rewrite reaches timer parity
+
+The tree specialization now retains the scalar callback's typed return layout
+and output expressions. When that proof shows that the concrete `Control` stop
+tag is the zero test of the carried `left` word, the fast host FID rewrites the
+two tree matches to `left == 0` and `left != 0`. The original tag match remains
+in the generic branch. This removes the redundant outer Control-tag test from
+the closed, reachable Array filter/take/sum pipeline while preserving the
+ordinary continuation-based work loop. A runtime fallback inside the same FID
+was tested and removed: continuation entries can carry raw frames that do not
+have the root's typed argument shape, so dispatching those states to a second
+generic FID is unsafe. The tree gate still rejects shapes without the proof.
+
+The fresh two-session Array matrix remains inside the provisional parity gate:
+full traversal is 261/256 ms with a paired-bootstrap upper bound of 1.044, and
+early stopping is 173/173 ms with an upper bound of 1.021. The generated
+program hashes are unchanged from the earlier timer-level run; this latest
+matrix records the exact compiler hash after the defensive layout check. The
+report is condensed in
+[`bench/array-parity-results.json`](bench/array-parity-results.json), using
+compiler SHA `96451e7383a8634bc7efe554564b6310c3eb7803b07ac13d3c2a887486c5831e`.
+The 18-test suite, five automatic-loop checks, 16 adversarial variants, boxed
+List driver, and native/JS source-shape checks all pass. Original-compiler,
+GPU, and promotion comparisons remain deferred.
+
+### Handoff for the next session
+
+1. Start with `git status --short` and verify the checkpoint commit; keep the
+   sibling `../bend` checkout unchanged. Run `bend guide` if the affine and
+   continuation rules need a refresher.
+2. Treat the Array report as the current acceptance record. Do not replace the
+   paired two-session matrix with short samples, and do not compare the
+   original compiler before the final candidate is complete.
+3. If broadening the proof, keep the typed layout/arm checks and the structural
+   tree gate. Any support for independently constructed Control states needs a
+   continuation-aware design; do not add a runtime branch to the current root
+   FID without proving the frame layout at every entry.
+4. Rerun `tests/run.py`, `test_auto_loop.py`, `adversarial.py`,
+   `test_list_driver.py`, and `test_source_shapes.py` after compiler edits,
+   then rerun the full Array matrix before claiming a new speed result.
+
 ## Checkpoint 2026-09-20: guarded Array trees use work-loop FIDs
 
 Commit `0bef762` closes the remaining lowering bug in the conservative Array

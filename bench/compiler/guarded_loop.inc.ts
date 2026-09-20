@@ -1,13 +1,20 @@
 // Isolated CPU experiment. Recognition and proof use typed terms only.
 // No generated-C matching, source names, or fixed state/tag positions.
-type GLSummary = {k:string; pc:GP; inputs:Set<number>; fast:(name:string)=>string};
+type GLSummary = {
+  k:string; pc:GP; inputs:Set<number>; ret:Lay; outputs:GX[];
+  fast:(name:string)=>string
+};
 type GLRecord = {key:string; k:string; refs:Set<string>};
 type GLProbe = {
   candidate:GLSummary; chain:Set<string>; keys:Map<string,string>;
   width:number; sites:Set<HTerm>; edges:{pc:GP; xs:GX[]}[];
   calls:number; callPaths:GP[]; guard?:GP; proved:boolean; rejection?:string;
 };
-type GLContext = {id:string; keys:Set<string>; candidateKey:string; candidate:GLSummary; treeK?:string};
+type GLTreeControl = {lay:Lay; left:number};
+type GLContext = {
+  id:string; keys:Set<string>; candidateKey:string; candidate:GLSummary;
+  treeK?:string; control?:GLTreeControl
+};
 type GLState = {
   summaries:Map<string,GLSummary>; records:Map<string,GLRecord>;
   context?:GLContext; attempts:number; clones:number; suppress:number;
@@ -171,8 +178,52 @@ function gl_tree_context_for_def(fl:File,k:Bend.Name,tld:Def,root:Seg):GLContext
       throw new GReject('polymorphic tree chain');
     keys.set(r.k,r.key);
   }
+  // A callback summary whose control tag is the zero test of one returned
+  // scalar state word gives the tree driver a typed stop invariant. The
+  // emitter uses this only for the concrete control match in this re-emitted
+  // FID; generic callers and the fallback FID still inspect the tag itself.
+  let control:GLTreeControl|undefined;
+  const tag=candidate.outputs.findIndex(x=>x.op==='outzero');
+  const left=tag < 0 ? -1 : candidate.outputs[tag].id ?? -1;
+  const controlLay=sig_def(fl,k).lays[1];
+  if (controlLay !== undefined && tag===0 && left>0 && left<controlLay.ks.length
+    && candidate.ret.arms!==null && controlLay.arms!==null
+    && lay_eq(candidate.ret,controlLay)
+    && controlLay.ks[left]==='w64') {
+    control={lay:controlLay,left};
+  }
   return {id:root.fid,keys:new Set(keys.values()),candidateKey:record.key,
-    candidate,treeK:k};
+    candidate,treeK:k,control};
+}
+
+// In the scoped tree proof, a returned Control tag is the Boolean zero test
+// of the carried scalar counter.  The source driver still has a generic
+// Control match; rewrite only its two typed arm conditions to read that
+// counter.  The stop arm is identified by its branch shape: it contains no
+// call, while the continuing arm must call the already-emitted callback or
+// recurse.  If the shape, layout, or tag relation is not exact, the ordinary
+// tag test remains in place.
+function gl_tree_match_rewrite(fl:File,x:Of<"Mat">,lay:Lay,args:Val[],lv:Level[]):void {
+  const cx=gl_state(fl).context, fact=cx?.control;
+  if (!fact || cx?.treeK!==fl.def || !lay_eq(lay,fact.lay)
+    || args.length===0 || lv.length!==2 || lay.arms===null
+    || lay.arms.length!==2 || args[0].ws.length<=fact.left) return;
+  const {arms,end}=mat_arms(x);
+  if (arms.length!==2 || Bend.term_strip(end).$!=="Efq") return;
+  const active=arms.map(([,h])=>term_any(fl,h,t=>call_kind(fl,t)!==null));
+  if (active.filter(Boolean).length!==1) return;
+  const stop=active.indexOf(false), cont=active.indexOf(true);
+  const stopTag=lay.arms.findIndex(a=>a.k===arms[stop][0]);
+  const contTag=lay.arms.findIndex(a=>a.k===arms[cont][0]);
+  // `outzero` is the Boolean literal 1 for a zero counter.  The typed
+  // relation is useful only when that value selects the stopping arm and the
+  // other arm is the ordinary zero tag.
+  if (stopTag!==1 || contTag!==0) return;
+  const left=args[0].ws[fact.left];
+  lv[stop][0]=`(${left} == 0)`;
+  lv[cont][0]=`(${left} != 0)`;
+  if (process.env.BEND_LOOP_REPORT) process.stderr.write(
+    JSON.stringify({treeControl:true,def:fl.def,left:fact.left})+'\n');
 }
 
 // Compile every definition normally first so the generic FID remains the
