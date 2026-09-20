@@ -38,13 +38,22 @@ historical guarded-loop/tree pass.
 ## Measured representation and cost boundaries
 
 The current scalar probe emits 91,720 bytes of C and 16,652 bytes of JS, with
-13 `heap_alloc` and 9 `term_pak` occurrences. The buffered probe emits 245,306
-bytes of C and 71,424 bytes of JS, with 66 `heap_alloc`, 73 `term_pak`, and 5
+13 `heap_alloc` and 9 `term_pak` occurrences. The buffered probe emits 246,106
+bytes of C and 71,424 bytes of JS, with 66 `heap_alloc`, 77 `term_pak`, and 5
 closure-dispatch transfers. The dynamic-control negative control emits 119,407
 bytes of C and 21,057 bytes of JS, with 2 reducer records and 11
 closure-dispatch transfers. These are code-shape counts, not allocation or peak
 heap measurements. Partition buffers are required state and remain an explicit
 cost.
+
+The representation harness now asks the isolated compiler for structured
+call-site records. The report carries compiler, library and harness hashes and
+records caller, target, segment, and site kind. The scalar case has 200 known
+records and no dynamic closure targets; the buffered case has 1,306 known
+records and 10 `Clo.apply` sites; the dynamic-control case has 304 known records
+and 26 `Clo.apply` sites. These are compiler-emitted site counts, not execution
+frequencies. Unknown records are reported as inconclusive; no unknown record
+appeared in this run. Whole-file C counts remain supplementary diagnostics.
 
 ## Extension/direct parity
 

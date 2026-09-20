@@ -21,6 +21,8 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output-dir', type=Path)
 parser.add_argument('--facts', action='store_true',
                     help='also enable the scoped constructor-match fact pass')
+parser.add_argument('--diagnostics', action='store_true',
+                    help='emit structured call-site records during compilation')
 args = parser.parse_args()
 
 original = (SOURCE / 'comp.ts').read_text()
@@ -76,6 +78,46 @@ function static_fun(book: Book, t: HTerm): HTerm | null {
 
 '''
 patched = patched.replace(anchor, cache + anchor, 1)
+
+if args.diagnostics:
+    emit_anchor = '// Emit\n// ====\n'
+    assert patched.count(emit_anchor) == 1
+    diagnostics = '''// Structured code-generation records. These describe emitted
+// sites, not runtime execution counts. A record is only used for attribution
+// when its caller and target are known; consumers must treat unknown edges as
+// inconclusive rather than as zero cost.
+const CALLSITE_REPORT: {
+  kind: string; caller: string; target: string; segment: string;
+  flat?: boolean; helper?: string;
+}[] = [];
+function callsite(kind: string, caller: string, target: string,
+  segment: string, extra: { flat?: boolean; helper?: string } = {}): void {
+  CALLSITE_REPORT.push({ kind, caller, target, segment, ...extra });
+}
+if (process.env.BEND_CALLSITE_REPORT) {
+  process.on("exit", () => fs.writeFileSync(process.env.BEND_CALLSITE_REPORT!,
+    JSON.stringify(CALLSITE_REPORT) + "\\n"));
+}
+
+'''
+    patched = patched.replace(emit_anchor, diagnostics + emit_anchor, 1)
+    fuse_emit_anchor = 'function emit_fuse(fl: File, ck: Call, dst: Dst, tail = false): void {\n'
+    assert patched.count(fuse_emit_anchor) == 1
+    patched = patched.replace(fuse_emit_anchor,
+        fuse_emit_anchor + '  callsite("fuse", fl.seg.def, ck.k, fl.seg.fid,\n'
+        '    { flat: flat_of(ck.k) });\n', 1)
+    jump_emit_anchor = 'function emit_jump(fl: File, args: string[], k: Bend.Name): void {\n'
+    assert patched.count(jump_emit_anchor) == 1
+    patched = patched.replace(jump_emit_anchor,
+        jump_emit_anchor + '  callsite("jump", fl.seg.def, k, fl.seg.fid);\n', 1)
+    native_emit_anchor = 'function emit_native(fl: File, ck: Call, ers: HTerm[]): string {\n'
+    assert patched.count(native_emit_anchor) == 1
+    patched = patched.replace(native_emit_anchor,
+        native_emit_anchor + '  callsite("native", fl.seg.def, ck.k, fl.seg.fid);\n', 1)
+    closure_emit_anchor = 'function emit_clo(fl: File, x: HTerm, ty: HTerm | null): Val {\n'
+    assert patched.count(closure_emit_anchor) == 1
+    patched = patched.replace(closure_emit_anchor,
+        closure_emit_anchor + '  callsite("closure", fl.seg.def, "closure", fl.seg.fid);\n', 1)
 
 if args.facts:
     args_anchor = 'function emit_args(fl: File, ck: Call, jump = false, fork = false): string[] {'
