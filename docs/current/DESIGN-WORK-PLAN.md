@@ -257,8 +257,8 @@ and report residual costs in extension/direct comparisons.
 
 ## 5. Recover loop and tree performance soundly
 
-Status: the established map/list loop gate remains complete for the current
-isolated candidate, and the extension/direct checkpoint is now recorded in
+Status: the established map/list loop gate is historical evidence from a
+separate isolated candidate, and the extension/direct checkpoint is now recorded in
 [`EXTENSION-PARITY.md`](EXTENSION-PARITY.md). Early `keep` and bounded
 partitioning are near the provisional target; full `keep` and full partitioning
 remain slower and open. Tree specialization remains refused and short-loop
@@ -320,10 +320,12 @@ and measured lowering survive the API simplification.
 
 ## 7. Validate and prepare promotion
 
-Status: candidate and reference validation are recorded in
-`FINAL-VALIDATION.md`. The host-CPU List gate passes and no maintained
-wrong-code failure remains; GPU execution, full upstream project gates, and
-tree promotion remain outstanding.
+Status: current facts-compiler validation is recorded in
+`FINAL-VALIDATION.md`: the 20-file JS/native suite and the scoped-fact,
+representation, and extension probes pass their stated checks. Historical
+guarded-loop/tree artifacts retain separate compiler identities, including a
+tree-entry mismatch; GPU execution, full upstream project gates, and tree
+promotion remain outstanding.
 
 **Purpose:** produce reviewable, independently justified language contributions.
 

@@ -12,8 +12,9 @@ The latest next-work specification is
 [implementation review](../review/IMPLEMENTATION-REVIEW.md). Packages 0–6 were not
 fully completed: static composition, scoped facts, and local representation
 received probes while their general compiler implementation remains open.
-The new plan also proposes keep as map followed by consuming optional flattening.
-It is a plan for review, not an implemented API change.
+The library now implements the proposed `keep` shape as `map` followed by
+consuming optional flattening (`cat_maybe`); the remaining work is compiler
+generality and measured performance, not a second `keep` implementation.
 
 Read [PRIORITIES.md](PRIORITIES.md) and [DESIGN-WORK-PLAN.md](DESIGN-WORK-PLAN.md)
 before continuing implementation. They supersede the earlier execution order
@@ -22,10 +23,10 @@ in the earlier Array candidate, with a retained reproducer under `../../review/`
 Packages 0–6 now have committed checkpoints: the unproved tree rewrite is
 refused, `keep` and `partition_all` are exercised semantically, static
 composition and scoped facts have probes, representation costs are measured,
-and the current isolated List candidate passes the calibrated parity gate. The
-reusable public API fixture also passes with the reference compiler. The sibling
-`../bend` checkout remains unchanged. Tree proof, short-loop profitability, and
-final promotion gates are still open.
+and the extension/direct matrix is measured. The current facts compiler passes
+the 20-file semantic suite, while full `keep` and partition rows remain open
+performance gaps. The sibling `../bend` checkout remains unchanged. Tree proof,
+short-loop profitability, and final promotion gates are still open.
 
 ## Checkpoint 2026-09-20: extension parity is measured, not yet accepted
 
@@ -46,15 +47,15 @@ current checker. Keep the tuple API until a concrete named wrapper is proven
 with multiple downstream configuration types; do not introduce a runtime stage
 registry to improve spelling.
 
-## Checkpoint 2026-09-20: final candidate validation
+## Checkpoint 2026-09-20: current facts validation
 
-`FINAL-VALIDATION.md` records the 20-file JS/native suite, source-shape and
-adversarial gates, scoped-fact fallback, representation/static-composition
-probes, tree-entry reproducer, and the calibrated List parity matrix. The
-candidate and sibling reference compiler both pass the semantic suite. The
-current deliverable is review-ready host-CPU evidence, not a promotion: tree
-specialization remains refused, GPU execution is unavailable, and the full
-upstream project gates still need to run in their normal environment.
+`FINAL-VALIDATION.md` records the current facts compiler SHA, the 20-file
+JS/native suite, scoped-fact and local-representation probes, static-composition
+evidence, and the extension/direct matrix. The separate guarded-loop and tree
+artifacts retain their own compiler hashes; one historical tree-entry report
+shows a native/JS mismatch, so tree specialization remains refused. This is
+review-ready host-CPU evidence, not a promotion; GPU execution and full
+upstream project gates remain outstanding.
 
 ## Checkpoint 2026-09-20: conservative loop/tree gate
 

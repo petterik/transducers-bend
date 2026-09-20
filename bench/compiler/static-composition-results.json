@@ -1,8 +1,8 @@
 {
-  "compiler_sha256": "01adea0f6ef5bf13f76cfb222cc563d879440f873ea0070c0629dcc19da7c32e",
+  "compiler_sha256": "5f2548b7ccec683ca64dda954f011f8e9fcf09ba72199f9cfba3d81f0d33d1ed",
   "source_sha256": "1ba4b6068c68cd9ad83093b9228fca2334d36bd0e10cc8c80b6ae6c5946c7942",
-  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-static-composition-pxm1as4u",
-  "compile_ms": 188.364,
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-static-composition-3bz6rhdd",
+  "compile_ms": 244.656,
   "native": "[9, 9, 7, 7, 3, 3]",
   "js": "[9, 9, 7, 7, 3, 3]",
   "expected": "[9, 9, 7, 7, 3, 3]",

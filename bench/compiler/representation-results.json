@@ -1,5 +1,5 @@
 {
-  "compiler_sha256": "01adea0f6ef5bf13f76cfb222cc563d879440f873ea0070c0629dcc19da7c32e",
+  "compiler_sha256": "5f2548b7ccec683ca64dda954f011f8e9fcf09ba72199f9cfba3d81f0d33d1ed",
   "cases": {
     "scalar": {
       "source": "/Users/petter/Github/petterik/transduce-bend/tests/pipeline.bend",
@@ -10,7 +10,7 @@
       "closure_dispatch_transfers_c": 0,
       "heap_alloc_calls_c": 13,
       "term_pack_calls_c": 9,
-      "c_bytes": 97589,
+      "c_bytes": 91720,
       "js_bytes": 16652
     },
     "buffered": {
@@ -21,8 +21,8 @@
       "clo_apply_label_c": 0,
       "closure_dispatch_transfers_c": 5,
       "heap_alloc_calls_c": 66,
-      "term_pack_calls_c": 77,
-      "c_bytes": 246106,
+      "term_pack_calls_c": 73,
+      "c_bytes": 245306,
       "js_bytes": 71424
     },
     "dynamic_dispatch_control": {
@@ -38,5 +38,5 @@
       "js_bytes": 21057
     }
   },
-  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-representation-probe-97hd93_g"
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-representation-probe-683wog28"
 }
