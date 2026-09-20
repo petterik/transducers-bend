@@ -1,5 +1,17 @@
 # Hand-off: Bend transducers
 
+## Current direction: architecture review and prioritized work
+
+Read [PRIORITIES.md](PRIORITIES.md) and [DESIGN-WORK-PLAN.md](DESIGN-WORK-PLAN.md)
+before continuing implementation. They supersede the earlier execution order
+below. [DESIGN-REVIEW.md](DESIGN-REVIEW.md) records confirmed wrong-code behavior
+in the latest Array candidate, with a retained reproducer under `review/`.
+Earlier parity measurements remain historical performance observations; the
+candidate is not ready for promotion. The new plan starts with a permanent
+correctness gate and refusal of unproved rewrites, then semantic extension probes
+and general compiler improvements. The plan is written; its implementation has
+not started. Keep compiler experiments isolated.
+
 ## Checkpoint 2026-09-20: typed tree-control rewrite reaches timer parity
 
 The tree specialization now retains the scalar callback's typed return layout

@@ -1,5 +1,45 @@
 # Implementation priorities
 
+## Current ranking — design review, 2026-09-20
+
+This ranking supersedes the historical build orders below and the earlier
+benchmark-driven execution order. The [adversarial review](DESIGN-REVIEW.md)
+explains the findings; [the work plan](DESIGN-WORK-PLAN.md) specifies tasks,
+dependencies, acceptance criteria, and implementation boundaries. These are
+planned tasks, not completed compiler changes.
+
+Impact measures correctness, extension independence, and progress toward direct
+Bend performance. Effort measures semantic complexity, proof obligations, API
+commitments, and maintenance—not lines of code, typing time, or familiarity with
+the library. Value includes how much uncertainty a task removes before further
+investment. Ratings are qualitative; critical correctness work takes precedence
+over a numerical impact/effort ratio.
+
+| Order | Work | Impact | Effort | Value | Decision |
+| --- | --- | --- | --- | --- | --- |
+| 0 | Make the Array counterexample a permanent gate; stop applying unproved tree rewrites | Critical: removes known wrong-code behavior | Low–medium for conservative refusal; high for a complete tree proof | Highest, mandatory | First; retain the lost performance as an open item |
+| 1 | Specify extension contracts and exercise keep, partition-all, and a custom source | High: tests whether the architecture serves new operations | Medium: ownership, buffering, completion, configuration | Very high: challenges the design before compiler investment | Build the semantic design probes next |
+| 2 | Make static callback composition systematic with existing templates | High: benefits every pipeline and other Bend abstractions | Medium–high: strictness, type metadata, sharing, specialization budgets | Very high: removes compiler-driven library workarounds | First general compiler improvement |
+| 3 | Establish typed regions and explicit, scoped optimization facts | Critical: prevents the class of error found in the review | High: binding identity, preconditions, joins, recursion, failure semantics | Very high: foundation for sound extension | Build the smallest useful analysis boundary |
+| 4 | Eliminate local wrapper and state-transfer overhead | High: generalizes fusion beyond the current scalar pattern | Medium–high: escape, ownership, layouts, unknown calls | High: broad benefit without a transducer vocabulary | Apply small general rewrites within that boundary |
+| 5 | Recover profitable loop/tree optimization using proved facts | High: restores and broadens direct-Bend parity | High: induction, tree state flow, continuation entries, backend costs | High after 0–4; poor value as more ad hoc recognition now | Separate correctness proof from profitability |
+| 6 | Simplify public composition and configuration | High usability; little demonstrated direct speed impact | Medium: type packaging and public API commitments | High after the representation works | Prototype during 1–2; stabilize after 4 |
+| 7 | Complete performance/backend gates and prepare upstreamable changes | Critical before promotion | Medium–high: evidence, infrastructure, integration | Mandatory at release boundary | Run targeted checks throughout; full gates before promotion |
+| Later | More operations: remove, drop, indexing, partition-by, dedupe, distinct | Medium–high feature breadth | Low–high depending on retained state and ownership | Higher after extension independence is demonstrated | Add as library work; remove may serve as a small control case now |
+| Later | IO/file/channel execution contracts | High long-term reach | High: effects, cleanup, cancellation, suspension | Lower now; independent design effort later | Preserve room; do not force into the pure fold signature |
+| Later | Parallel reduction contracts | High potential on Bend | Very high: combination laws and global stage state | Uncertain until the sequential foundation is sound | Separate proposal and evidence |
+| Conditional | New language-level staging/module features | Potentially high across Bend | Very high: language/checker/API commitment | Unknown until existing-template limits are demonstrated | Require a reduced failing design probe first |
+| Conditional | Mechanized proofs | High assurance for stable rules | High: model fidelity and proof maintenance | Best for stable, narrowly specified rewrites | State obligations now; formalize after their shape settles |
+| Reject | Closed compiler vocabulary of transducers; more benchmark-shaped recognizers as the architecture | Narrow short-term wins | High lasting coupling and extension cost | Low | Keep operations as ordinary library code |
+
+The first milestone is **a correct, extensible composition foundation**: the
+counterexample passes, new operations compose through the same lifecycle, and
+static descriptions specialize without user-managed representation tricks.
+The next milestone removes residual local overhead. Direct-Bend parity and
+upstream readiness remain explicit later gates, not assumptions.
+
+## Historical priorities
+
 Current implementation: priorities #1–#3 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md). The original ranking and scope decision below are historical; later user authorization included compiler specialization.
 
 ## Priority #3 follow-up ranking

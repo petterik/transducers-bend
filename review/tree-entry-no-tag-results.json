@@ -1,0 +1,10 @@
+{
+  "compiler_sha256": "851add7e59ab54e0ec75138964279a0bc55a3528c1f44770acf3e563f2f38a9c",
+  "source_sha256": "67a67b784fc309b1174ca48f2b7c178be9c1edc24e8001f34562c17890284066",
+  "artifacts": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/transducer-tree-entry-review-2xxsjrp_",
+  "expected": "[9, 1000, 2000, 1017]",
+  "js": "[9, 1000, 2000, 1017]",
+  "native": "[9, 1000, 1000, 1026]",
+  "guarded_tree_markers": 1,
+  "matches": false
+}
