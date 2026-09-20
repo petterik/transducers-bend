@@ -66,6 +66,13 @@ configuration stays explicit because it is the form the existing Bend type
 syntax expresses directly; introducing named configuration records would be a
 separate type-system/API proposal rather than a compatibility wrapper.
 
+## Final validation
+
+The complete candidate/reference validation matrix is recorded in
+[FINAL-VALIDATION.md](FINAL-VALIDATION.md). It separates passing host-CPU
+correctness and parity evidence from the tree proof, GPU, and upstream project
+gates that remain open.
+
 ## Priority #3 follow-up
 
 The library now includes balanced-array, range, string, and list reduction implementations plus `into_list`, `count`, and streaming `cat`/`mapcat`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_array`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.

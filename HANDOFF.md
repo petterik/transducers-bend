@@ -6,12 +6,23 @@ Read [PRIORITIES.md](PRIORITIES.md) and [DESIGN-WORK-PLAN.md](DESIGN-WORK-PLAN.m
 before continuing implementation. They supersede the earlier execution order
 below. [DESIGN-REVIEW.md](DESIGN-REVIEW.md) records confirmed wrong-code behavior
 in the earlier Array candidate, with a retained reproducer under `review/`.
-Packages 0–5 now have committed checkpoints: the unproved tree rewrite is
+Packages 0–6 now have committed checkpoints: the unproved tree rewrite is
 refused, `keep` and `partition_all` are exercised semantically, static
 composition and scoped facts have probes, representation costs are measured,
-and the current isolated List candidate passes the calibrated parity gate.
-The sibling `../bend` checkout remains unchanged. Tree proof, short-loop
-profitability, API stabilization, and final promotion gates are still open.
+and the current isolated List candidate passes the calibrated parity gate. The
+reusable public API fixture also passes with the reference compiler. The sibling
+`../bend` checkout remains unchanged. Tree proof, short-loop profitability, and
+final promotion gates are still open.
+
+## Checkpoint 2026-09-20: final candidate validation
+
+`FINAL-VALIDATION.md` records the 20-file JS/native suite, source-shape and
+adversarial gates, scoped-fact fallback, representation/static-composition
+probes, tree-entry reproducer, and the calibrated List parity matrix. The
+candidate and sibling reference compiler both pass the semantic suite. The
+current deliverable is review-ready host-CPU evidence, not a promotion: tree
+specialization remains refused, GPU execution is unavailable, and the full
+upstream project gates still need to run in their normal environment.
 
 ## Checkpoint 2026-09-20: conservative loop/tree gate
 

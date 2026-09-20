@@ -300,6 +300,11 @@ and measured lowering survive the API simplification.
 
 ## 7. Validate and prepare promotion
 
+Status: candidate and reference validation are recorded in
+`FINAL-VALIDATION.md`. The host-CPU List gate passes and no maintained
+wrong-code failure remains; GPU execution, full upstream project gates, and
+tree promotion remain outstanding.
+
 **Purpose:** produce reviewable, independently justified language contributions.
 
 **Work:**
@@ -345,6 +350,9 @@ semantics, or silently change the source contract. A correct fallback establishe
 safety, not performance success. Conversely, removing real buffering is not a
 requirement for successful fusion.
 
-The immediate execution slice is package 0 followed by package 1. Its outcome
-should decide the precise first static-composition and local-representation
-improvements, rather than committing now to a large compiler rewrite.
+The current execution slice has completed packages 0–6 and recorded package 7's
+candidate/reference validation. The remaining work is deliberately bounded:
+prove the tree/continuation region before considering a fast tree path, measure
+any representation rewrite against a paired direct reference, and complete the
+device/upstream gates before promotion. No broad compiler rewrite is implied by
+the passing host-CPU List matrix.
