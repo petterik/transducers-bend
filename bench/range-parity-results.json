@@ -1,0 +1,41 @@
+{
+  "scope": "candidate compiler; sequential U32 range source; CPU threads=1; GPU off",
+  "compiler_sha256": "22001d8c1dd639ac31a6140c27a5830af9561fcd7f407109ec2fe133d2aca475",
+  "benchmark_source_sha256": "823f9f88ffc8d2cf2235321e847181fd303f0eefc15a7e27cf0f7415a9c825c2",
+  "library_sha256": "24c8b459a83247a4b6025cc5a3a2b6e94a04d77358754a75f3a19f78a0b098eb",
+  "harness_sha256": "c6cebde8ca1e9af38c34a66d196b7ab5daed8846a67a66549958327915b253a1",
+  "sessions": 2,
+  "samples_per_session": 20,
+  "paired_samples": 80,
+  "repeat_multiplier": 4,
+  "minimum_batch_ms": 100,
+  "bootstrap": {
+    "seed": 20260920,
+    "resamples": 2000,
+    "statistic": "paired median(library) / median(direct)"
+  },
+  "results": [
+    {
+      "case": "cheap_full",
+      "repeats_per_sample": 128,
+      "expected_batch_sum": 2899386368,
+      "oracle_inputs_per_sample": 256000000,
+      "oracle_accepted_per_sample": 256000000,
+      "minimum_observed_ms": 339,
+      "median_ms": {"library": 340, "direct": 354},
+      "ratio": 0.9604519774,
+      "bootstrap_95": [0.9604519774, 0.9646393211]
+    },
+    {
+      "case": "cheap_early",
+      "repeats_per_sample": 4000000,
+      "expected_batch_sum": 2132997120,
+      "oracle_inputs_per_sample": 128000000,
+      "oracle_accepted_per_sample": 128000000,
+      "minimum_observed_ms": 169,
+      "median_ms": {"library": 174, "direct": 179},
+      "ratio": 0.9720670391,
+      "bootstrap_95": [0.9666666667, 0.9720670391]
+    }
+  ]
+}

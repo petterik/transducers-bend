@@ -161,6 +161,16 @@ The same harness's three-map and U32→Nat→U32 type-changing controls measured
 simple scalar chains are already exposed by ordinary static specialization and
 do not require a `guarded_loop` wrapper.
 
+The calibrated range acceptance snapshot is recorded in
+[`range-parity-results.json`](../range-parity-results.json). It uses the same
+candidate/direct lanes, two sessions, 20 retained blocks per session, balanced
+forward/reverse order, fourfold repetition and a 100 ms minimum batch. The cheap
+full and cheap early runtime-threshold controls measure **340/354 ms** and
+**174/179 ms** (library/direct); their deterministic paired-bootstrap upper 95%
+ratio bounds are **0.965** and **0.972**. Both rows pass the provisional 1.05
+gate and every batch matches the independent Python oracle. Raw artifacts are
+retained under `/tmp/transduce-range-final-20260920` on the measurement host.
+
 Additional six-sample checks: [huge early ranges and expensive mapping](automatic-extra-results.json)
 measured automatic/handwritten at 18/19 ms and 11/11 ms; a
 [runtime no-match filter](automatic-no-match-results.json) measured 36/34 ms.

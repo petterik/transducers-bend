@@ -17,12 +17,13 @@ work on ergonomics, lazy execution, eduction, arbitrary captures, new buffered
 operators or a generic collection interface. Existing semantics remain required.
 
 This is a living execution plan. Commands below are run from the transduce-bend
-repository root. The isolated compiler experiment and the first public parity
-harness are checked in here; the balanced acceptance run and production
-promotion are still open.
+repository root. The isolated compiler experiment and the public parity harness
+are checked in here; production promotion and broader source/backend coverage
+are still open.
 
-The first candidate-only audit is now complete. Range cases are close to the direct
-reference, and three-map list composition reaches timer-level parity. The September
+The first candidate-only audit is now complete. The demonstrated range controls
+pass the provisional timing gate, and three-map list composition reaches timer-level
+parity. The September
 20 isolated loop extension now closes the mixed full list gap for the demonstrated
 scalar-state pipeline: it permits one boxed recursive source argument, proves the
 source match structurally, and applies the typed scalar transition under a guarded
@@ -32,7 +33,10 @@ and the proof boundary are recorded in [COMPOSITION](bench/COMPOSITION.md) and
 milestone; the balanced acceptance matrix, other boxed sources/states and device
 validation remain open. String now has an explicit positive source-shape gate;
 Array-tree traversal and boxed reducer state have explicit conservative refusal
-gates.
+gates. The calibrated range gate is now complete for the two sequential
+runtime-threshold controls: both rows pass the provisional 1.05 upper-interval
+limit, with the worst upper bound at 0.972. This is candidate-only evidence for
+the demonstrated U32 range shape, not a universal range or backend claim.
 
 `bench/fusion_parity.py` now provides the first named public-list matrix. It
 compiles an unchanged transducer lane and an independently written direct Bend
@@ -55,7 +59,14 @@ The first full list acceptance run is retained in
 blocks in two sessions, 320 reductions per batch and an observed minimum of
 100 ms. Every row's upper 95% ratio bound was at most 1.036, so the provisional
 1.05 engineering gate passed for this candidate-only host-CPU matrix. This is
-not yet a claim for ranges, arrays, GPU/CUDA, or the production compiler.
+not yet a claim for arrays, GPU/CUDA, or the production compiler.
+
+The calibrated range acceptance snapshot is retained in
+[range-parity-results.json](bench/range-parity-results.json). It used 20 blocks
+in each of two sessions, balanced order, fourfold repetition and an observed
+minimum of 169 ms. Cheap full and cheap early runtime-threshold rows had upper
+95% ratio bounds of 0.965 and 0.972 respectively. Both pass the same provisional
+1.05 gate, with checked Python-oracle outputs and 80 paired observations per row.
 
 ## Performance acceptance rules
 
@@ -207,11 +218,12 @@ offset from disjoint seed bits as the independent sweep does. Preserve runtime
 variability across reductions and verify generated code still performs the work.
 
 The current deliverable is a table of per-case ratios to direct Bend and
-preserved artifacts. Next, calibrate repetitions so timed rows exceed 100 ms,
-run 20 retained blocks in two sessions with the paired interval, and extend
-coverage to ranges and the other existing source adapters. This harness
-identifies the actual parity gaps; success against original helpers cannot
-substitute for this table.
+preserved artifacts. The calibrated list and range controls now pass the
+provisional gate. Next, extend the same protocol to the source shapes that are
+currently conservative fallbacks, starting with Array-tree traversal and boxed
+reducer state, then cover String and the remaining existing adapters. This
+harness identifies the actual parity gaps; success against original helpers
+cannot substitute for this table.
 
 ## Step 4 — Reduce one parity gap and identify its cause
 
