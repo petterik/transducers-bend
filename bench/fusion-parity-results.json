@@ -1,0 +1,66 @@
+{
+  "scope": "candidate compiler; sequential List source; CPU threads=1; GPU off",
+  "compiler_sha256": "22001d8c1dd639ac31a6140c27a5830af9561fcd7f407109ec2fe133d2aca475",
+  "library_sha256": "24c8b459a83247a4b6025cc5a3a2b6e94a04d77358754a75f3a19f78a0b098eb",
+  "harness_sha256": "639e795e39a08c3caf758457ca9664f7cafbf2aa8fccf14862f0439876ab15c2",
+  "repeats_per_sample": 320,
+  "sessions": 2,
+  "samples_per_session": 20,
+  "paired_samples": 80,
+  "minimum_batch_ms": 100,
+  "bootstrap": {
+    "seed": 20260920,
+    "resamples": 2000,
+    "statistic": "paired median(transducers) / median(direct)"
+  },
+  "results": [
+    {
+      "case": "map_chain",
+      "expected_batch_sum": 850728960,
+      "minimum_observed_ms": 116,
+      "median_ms": {"transducers": 129, "direct": 126},
+      "ratio": 1.0238095238,
+      "bootstrap_95": [1.0158730159, 1.0361445783]
+    },
+    {
+      "case": "type_change",
+      "expected_batch_sum": 466728960,
+      "minimum_observed_ms": 110,
+      "median_ms": {"transducers": 125, "direct": 127},
+      "ratio": 0.9842519685,
+      "bootstrap_95": [0.96875, 1.008]
+    },
+    {
+      "case": "mixed_full",
+      "expected_batch_sum": 2794455488,
+      "minimum_observed_ms": 138,
+      "median_ms": {"transducers": 144, "direct": 142},
+      "ratio": 1.0140845070,
+      "bootstrap_95": [1.0070422535, 1.0212765957]
+    },
+    {
+      "case": "mixed_take_one",
+      "expected_batch_sum": 1600,
+      "minimum_observed_ms": 365,
+      "median_ms": {"transducers": 371, "direct": 375},
+      "ratio": 0.9893333333,
+      "bootstrap_95": [0.9866666667, 0.992]
+    },
+    {
+      "case": "mixed_take_32",
+      "expected_batch_sum": 353600,
+      "minimum_observed_ms": 363,
+      "median_ms": {"transducers": 367, "direct": 377},
+      "ratio": 0.9734748011,
+      "bootstrap_95": [0.9708222812, 0.9774236388]
+    },
+    {
+      "case": "expensive_take_32",
+      "expected_batch_sum": 3582802752,
+      "minimum_observed_ms": 375,
+      "median_ms": {"transducers": 378, "direct": 381},
+      "ratio": 0.9921259843,
+      "bootstrap_95": [0.9895287958, 0.9973684211]
+    }
+  ]
+}

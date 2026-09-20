@@ -149,6 +149,13 @@ The duration/statistics path was exercised separately with 256 reductions and a
 four paired samples; the deterministic 95% bootstrap interval was **0.983–1.009**.
 It is a protocol smoke check, not the final 20-block/two-session acceptance run.
 
+The first full candidate-only list acceptance snapshot is recorded in
+[`bench/fusion-parity-results.json`](../fusion-parity-results.json). It used 20
+blocks in each of two sessions, 320 reductions per batch and a 100 ms minimum.
+All six timed rows passed the provisional 1.05 upper-interval gate; the worst
+upper bound was **1.036** for the three-map chain. Raw generated artifacts are
+retained under `/tmp/transduce-fusion-final-20260920b` on the measurement host.
+
 The same harness's three-map and U32→Nat→U32 type-changing controls measured
 **14/14 ms** and **14/14.5 ms** respectively. Their C has no `Clo.apply`; the
 simple scalar chains are already exposed by ordinary static specialization and

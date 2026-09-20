@@ -35,6 +35,7 @@ Validation completed:
 - `bench/fusion_parity.py` matrix: mixed full 15/15 ms, mixed take-one 36/38 ms, mixed take-32 35/38 ms, and expensive take-32 36.5/37 ms (transducers/direct); dynamic short and zero/one-element rows pass correctness but are below timer resolution.
 - The same matrix now includes three-map 14/14 ms and U32→Nat→U32 type-changing 14/14.5 ms. Both have no `Clo.apply`; their simple scalar chains do not need the guarded-loop marker.
 - The harness now records paired samples and deterministic bootstrap intervals. A 256-reduction mixed-full smoke run measured 114.5/114.5 ms with a 0.983–1.009 95% ratio interval and passed the 50 ms minimum-duration check.
+- Full list acceptance snapshot: 20 blocks × 2 sessions, 320 reductions, all rows over 100 ms; the worst upper 95% ratio is 1.036 (three maps). See `bench/fusion-parity-results.json` and raw artifacts in `/tmp/transduce-fusion-final-20260920b`.
 - `bench/compiler/test_source_shapes.py` passes: String reaches one guarded loop, while Array-tree traversal and boxed `into_list` state stay on the generic path with matching JS/native outputs.
 
 ### Handoff for the next session

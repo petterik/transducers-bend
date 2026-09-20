@@ -50,6 +50,13 @@ run with 256 reductions per sample kept the mixed-full batch above 113 ms and
 reported a 95% ratio interval of 0.983–1.009; this is a protocol check, not the
 required 20-block/two-session acceptance result.
 
+The first full list acceptance run is retained in
+[fusion-parity-results.json](bench/fusion-parity-results.json). It used 20
+blocks in two sessions, 320 reductions per batch and an observed minimum of
+100 ms. Every row's upper 95% ratio bound was at most 1.036, so the provisional
+1.05 engineering gate passed for this candidate-only host-CPU matrix. This is
+not yet a claim for ranges, arrays, GPU/CUDA, or the production compiler.
+
 ## Performance acceptance rules
 
 During development, measure these two lanes using the same candidate backend,
