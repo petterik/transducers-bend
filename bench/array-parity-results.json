@@ -7,7 +7,7 @@
   "leaves_per_reduction": 1024,
   "repeats_per_sample": 15000,
   "sessions": 2,
-  "paired_samples": 160,
+  "paired_samples_per_case": 80,
   "minimum_batch_ms": 100.0,
   "bootstrap": {
     "seed": 20260920,
