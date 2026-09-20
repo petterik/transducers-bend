@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-20T19:31:00+02:00
+status: current
+---
+
 # Adversarial design review — 2026-09-20
 
 ## Recommendation
@@ -76,7 +81,7 @@ with this use of `fast`. Disabling only the tag rewrite does not fix the bug.
 
 ### Reproducer and observations
 
-[Source](review/tree-entry-control.bend) calls the public `reduce_array` with
+[Source](../../review/tree-entry-control.bend) calls the public `reduce_array` with
 well-typed controls. These inputs need not arise from the standard initializer:
 the source contract explicitly accepts initialized control and must preserve an
 initial Stop. Bend does not encode a narrower refinement on this argument.
@@ -96,7 +101,7 @@ or downstream stopping in the other cases. These are semantic differences, not
 benchmark noise. A temporary diagnostic with only tag rewriting disabled returns
 `[9, 1000, 1000, 1026]`, confirming the second gap survives independently.
 
-[Recorded evidence](review/tree-entry-results.json) includes compiler/source hashes.
+[Recorded evidence](../../review/tree-entry-results.json) includes compiler/source hashes.
 Reproduce with a fresh empty output directory:
 
 ```sh

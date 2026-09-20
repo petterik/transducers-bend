@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-20T20:05:38+02:00
+status: current
+---
+
 # Final validation checkpoint
 
 Date: 2026-09-20. This report covers the committed design and library work
@@ -57,4 +62,3 @@ installed and the historical cluster gate is unavailable in this environment.
 These are release blockers, not passes. The next compiler work should either
 complete the typed tree/continuation proof or leave generic tree lowering as
 the stable fallback, then rerun the full backend matrix before promotion.
-

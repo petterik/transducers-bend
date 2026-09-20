@@ -1,12 +1,17 @@
+---
+created_at: 2026-09-19T13:57:21+02:00
+status: foundation
+---
+
 # Optimization decision: confidence and priorities
 
 ## Scope and strategy review
 
 The explicit target is **parity with equivalent handwritten fused Bend**.
-[The execution plan](FUSION-EXECUTION-PLAN.md) gives an ordered agent handoff,
+[The execution plan](../archive/FUSION-EXECUTION-PLAN.md) gives an ordered agent handoff,
 including the missing direct-Bend short-loop comparison and per-case gates.
 
-[Fusion direction](FUSION.md) records the September 19 clarification: immediate
+[Fusion direction](../archive/FUSION.md) records the September 19 clarification: immediate
 `transduce`, closed callbacks, and fusion before ergonomics. It separates static
 composition elimination, ownership/layout work and loop profitability, reviews
 their known loopholes, and defines the next diagnostic experiment.

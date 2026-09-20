@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-19T11:25:47+02:00
+status: foundation
+---
+
 # Initial implementation: priorities #1–#3
 
 ## Public lifecycle extension: keep and partition-all
@@ -69,7 +74,7 @@ separate type-system/API proposal rather than a compatibility wrapper.
 ## Final validation
 
 The complete candidate/reference validation matrix is recorded in
-[FINAL-VALIDATION.md](FINAL-VALIDATION.md). It separates passing host-CPU
+[FINAL-VALIDATION.md](../current/FINAL-VALIDATION.md). It separates passing host-CPU
 correctness and parity evidence from the tree proof, GPU, and upstream project
 gates that remain open.
 

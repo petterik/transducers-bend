@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-20T20:14:01+02:00
+status: current-review
+---
+
 # Review of the design-plan implementation
 
 Reviewed 2026-09-20, at `684c49a`, against the plan committed in `267c257`.

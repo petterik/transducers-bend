@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-19T11:25:47+02:00
+status: current
+---
+
 # Implementation priorities
 
 ## Current ranking — design review, 2026-09-20
@@ -40,7 +45,7 @@ upstream readiness remain explicit later gates, not assumptions.
 
 ## Historical priorities
 
-Current implementation: priorities #1–#3 are implemented experimentally; see [implementation status and validation](IMPLEMENTATION.md). The original ranking and scope decision below are historical; later user authorization included compiler specialization.
+Current implementation: priorities #1–#3 are implemented experimentally; see [implementation status and validation](../foundation/IMPLEMENTATION.md). The original ranking and scope decision below are historical; later user authorization included compiler specialization.
 
 ## Priority #3 follow-up ranking
 

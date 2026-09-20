@@ -1,7 +1,12 @@
+---
+created_at: 2026-09-20T19:31:00+02:00
+status: current
+---
+
 # Transducer architecture work plan
 
 Status: partially implemented, reviewed 2026-09-20. The
-[implementation review](review/IMPLEMENTATION-REVIEW.md) found that several
+[implementation review](../review/IMPLEMENTATION-REVIEW.md) found that several
 checkpoints below are probes, not completion of their work packages. The
 [repair and completion plan](IMPLEMENTATION-REPAIR-PLAN.md) details the next
 worksets and the proposed compositional keep design. The original acceptance

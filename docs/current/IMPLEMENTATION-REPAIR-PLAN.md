@@ -1,7 +1,12 @@
+---
+created_at: 2026-09-20T20:19:47+02:00
+status: current
+---
+
 # Completing the transducer design
 
 Proposed execution plan, 2026-09-20. Prepared after the
-[implementation review](review/IMPLEMENTATION-REVIEW.md), for discussion before
+[implementation review](../review/IMPLEMENTATION-REVIEW.md), for discussion before
 the next implementation worksets. This document specifies work; it does not
 claim the work has been performed.
 

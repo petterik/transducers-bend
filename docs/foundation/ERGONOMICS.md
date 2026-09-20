@@ -1,9 +1,14 @@
+---
+created_at: 2026-09-19T22:09:39+02:00
+status: foundation
+---
+
 # Deferred transduce ergonomics
 
 September 19 scope: Clojure illustrates clarity, not required syntax. The target
 is immediate `transduce` with statically known operations. Arbitrary runtime
 captures, eduction, lazy sequence production and a generic `conj` interface are
-not goals. Fusion takes priority; see [the strategy](FUSION.md).
+not goals. Fusion takes priority; see [the strategy](../archive/FUSION.md).
 
 ## What should become simpler
 

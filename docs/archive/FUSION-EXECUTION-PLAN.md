@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-19T22:09:39+02:00
+status: historical
+---
+
 # Execution plan: transducers at handwritten fused Bend speed
 
 ## Required outcome

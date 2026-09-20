@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-19T22:09:39+02:00
+status: historical
+---
+
 # Fusion direction and confidence review
 
 **Clarified performance target:** transducers must be as fast as equivalent
@@ -9,7 +14,7 @@ This review records the September 19 scope clarification. Immediate `transduce`
 is the execution target. Clojure was an example of ergonomics, not a syntax or
 feature specification. Arbitrary runtime captures, eduction, lazy sequences and
 a generic `conj`/`into` interface are not goals. Ergonomics work is deferred;
-[its design notes](ERGONOMICS.md) preserve the useful directions.
+[its design notes](../foundation/ERGONOMICS.md) preserve the useful directions.
 
 ## Objective
 

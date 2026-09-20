@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-19T12:42:51+02:00
+status: foundation
+---
+
 # Laws and proof status
 
 These are intended semantic laws of the public adapters and sequential drivers, not machine-checked theorems. Tests and generated-code inspection support them over explicitly bounded cases. The compiler specialization and backend runtimes remain separate trust obligations. No Lean proof or end-to-end compiler correctness proof has been added.

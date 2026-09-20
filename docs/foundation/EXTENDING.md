@@ -1,3 +1,8 @@
+---
+created_at: 2026-09-19T12:42:51+02:00
+status: foundation
+---
+
 # Adding a reducible source
 
 A source owns its traversal. The library owns reducer initialization and completion. Sources are selected explicitly at compile time; data, bounds, and reducer configuration remain runtime values. There is no registry, closed source enum, or requirement to edit `transduce.bend`.
