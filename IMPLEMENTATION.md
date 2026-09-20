@@ -1,5 +1,21 @@
 # Initial implementation: priorities #1–#3
 
+## Public lifecycle extension: keep and partition-all
+
+The semantic extension probe now includes `keep` and `partition_all`. `keep`
+consumes an input and emits the optional value returned by its callback, so it
+can support affine inputs without the inspect-then-retain restriction of
+`filter`. `partition_all` owns a list buffer, emits complete groups during the
+source fold, flushes one partial group during completion while downstream is
+open, and discards pending output after downstream stops. Width zero stops during
+initialization.
+
+`tests/keep_partition.bend` exercises both operations through the independent
+tree source, plus affine function values and a reducer that consumes buffered
+groups. The full library suite now has 19 positive files and still runs on JS and
+native CPU. This is semantic evidence only; no compiler recognizer was added for
+either operation and buffered storage remains a real cost.
+
 ## Priority #3 follow-up
 
 The library now includes balanced-array, range, string, and list reduction implementations plus `into_list`, `count`, and streaming `cat`/`mapcat`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_array`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.

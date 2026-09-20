@@ -62,3 +62,18 @@ Also test your representation's particular obligations: affine inputs/state, num
 Run `python3 tests/run.py` from the repository root. The runner uses the sibling fork at `../bend/bend2/main.ts` and checks JS plus native CPU. Representative library and extension fixtures assert that generated JS contains neither Reducer nor Reduction records. This is a code-generation check, not a universal guarantee: large expressions or unsupported callback shapes can exceed specialization's limits. In custom `Reducer` constructors, explicit forwarding lambdas around pattern-matching callbacks let the current pass resolve callable heads; the lifecycle fixture demonstrates this form.
 
 The contract is a documented obligation, not a proof imposed by the type of an arbitrary third-party fold. [LAWS.md](LAWS.md) distinguishes executable evidence from outstanding formal proofs.
+
+## Test an extension with stateful and affine transformations
+
+`keep` consumes an input and returns `None` or `Some` rather than inspecting an
+affine value and then retaining it. `partition_all` owns a list buffer and emits
+full groups during stepping; completion emits one final partial group only while
+the downstream reducer remains in `Continue`. A downstream stop discards the
+pending group. Width zero stops during initialization and does not request a
+source value.
+
+`tests/keep_partition.bend` applies both operations through the independent tree
+source. It covers type-changing `keep`, affine function values, full and partial
+groups, upstream truncation, downstream stopping, zero width, and fresh source
+ownership. Add a source-specific conformance case when a new source has cleanup,
+ordering, or representation rules beyond the generic stopping-fold contract.

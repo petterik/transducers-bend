@@ -80,6 +80,28 @@ def mapcat(~A: Type, ~B: Type, ~R: Type, ~f: A -> List<B>,
   ~down: Reducer<B, R>) -> Reducer<A, R>:
   map(~A, ~List<B>, ~R, ~f, ~cat(~B, ~R, ~down))
 
+# Consume an input and optionally emit one value. Unlike filter, keep may
+# consume affine inputs because the callback owns the decision about whether
+# to return the value (or a transformed value) in Some.
+def keep_choose(~B: Type, ~R: Type, ~down: Reducer<B, R>,
+  m: Maybe<B>, inner: State(B, R, down)) -> Control<State(B, R, down)>:
+  match m:
+    case None{}:
+      Continue{inner}
+    case Some{x}:
+      step(B, R, down, inner, x)
+
+def keep_step(~A: Type, ~B: Type, ~R: Type, ~f: A -> Maybe<B>,
+  ~down: Reducer<B, R>, inner: State(B, R, down), x: A) -> Control<State(B, R, down)>:
+  keep_choose(~B, ~R, ~down, f(x), inner)
+
+def keep(~A: Type, ~B: Type, ~R: Type, ~f: A -> Maybe<B>,
+  ~down: Reducer<B, R>) -> Reducer<A, R>:
+  Reducer{Config(B, R, down), State(B, R, down),
+    c => start(B, R, down, c),
+    s => x => keep_step(~A, ~B, ~R, ~f, ~down, s, x),
+    s => finish(B, R, down, s)}
+
 # A consumer with an ordinary reducing callback and a separate completion.
 def reducing(~A: Type, ~S: Type, ~R: Type, ~f: S -> A -> S, ~done: S -> R) -> Reducer<A, R>:
   Reducer{S, S, s => Continue{s}, s => x => Continue{f(s, x)}, done}
@@ -184,6 +206,90 @@ def take(~A: Type, ~R: Type, ~down: Reducer<A, R>) -> Reducer<A, R>:
     c => take_start(~A, ~R, ~down, c),
     s => x => take_step(~A, ~R, ~down, s, x),
     s => take_finish(~A, ~R, ~down, s)}
+
+# A non-overlapping completion-aware partition. A zero width is an explicitly
+# empty partition: initialization stops before the source is touched. Positive
+# widths retain the unfinished group and flush it exactly once on completion
+# while downstream remains open.
+type Partitioning<-A: Type, -S: Type> is Type:
+  Partitioning{size: Nat, left: Nat, items: List<A>, inner: Control<S>}
+
+def partition_start_control(~A: Type, ~S: Type, size: Nat,
+  c: Control<S>) -> Control<Partitioning<A, S>>:
+  match size c:
+    case 0n Stop{s}:
+      Stop{Partitioning{0n, 0n, [], Stop{s}}}
+    case 0n Continue{s}:
+      Stop{Partitioning{0n, 0n, [], Continue{s}}}
+    case 1n++p Stop{s}:
+      Stop{Partitioning{1n+p, 1n+p, [], Stop{s}}}
+    case 1n++p Continue{s}:
+      Continue{Partitioning{1n+p, 1n+p, [], Continue{s}}}
+
+def partition_start(~A: Type, ~R: Type, ~down: Reducer<List<A>, R>,
+  config: Nat & Config(List<A>, R, down)) ->
+  Control<Partitioning<A, State(List<A>, R, down)>>:
+  (size, inner) = config
+  partition_start_control(~A, ~State(List<A>, R, down), size,
+    start(List<A>, R, down, inner))
+
+def partition_after_step(~A: Type, ~R: Type, ~down: Reducer<List<A>, R>,
+  +size: Nat, c: Control<State(List<A>, R, down)>) ->
+  Control<Partitioning<A, State(List<A>, R, down)>>:
+  match c:
+    case Stop{s}:
+      Stop{Partitioning{size, size, [], Stop{s}}}
+    case Continue{s}:
+      Continue{Partitioning{size, size, [], Continue{s}}}
+
+def partition_emit(~A: Type, ~R: Type, ~down: Reducer<List<A>, R>,
+  +size: Nat, inner: Control<State(List<A>, R, down)>, group: List<A>) ->
+  Control<Partitioning<A, State(List<A>, R, down)>>:
+  match inner:
+    case Stop{s}:
+      Stop{Partitioning{size, size, [], Stop{s}}}
+    case Continue{s}:
+      partition_after_step(~A, ~R, ~down, size, step(List<A>, R, down, s, group))
+
+def partition_step_nonzero(~A: Type, ~R: Type, ~down: Reducer<List<A>, R>,
+  +size: Nat, p: Nat, items: List<A>, s: State(List<A>, R, down), x: A) ->
+  Control<Partitioning<A, State(List<A>, R, down)>>:
+  match p:
+    case 0n:
+      partition_emit(~A, ~R, ~down, size, Continue{s},
+        List.reverse(&1, A, x <> items))
+    case 1n+q:
+      Continue{Partitioning{size, 1n+q, x <> items, Continue{s}}}
+
+def partition_step(~A: Type, ~R: Type, ~down: Reducer<List<A>, R>,
+  state: Partitioning<A, State(List<A>, R, down)>, x: A) ->
+  Control<Partitioning<A, State(List<A>, R, down)>>:
+  match state:
+    case Partitioning{size, left, items, Stop{s}}:
+      Stop{Partitioning{size, left, items, Stop{s}}}
+    case Partitioning{size, 0n, items, Continue{s}}:
+      Stop{Partitioning{size, 0n, items, Continue{s}}}
+    case Partitioning{size, 1n+p, items, Continue{s}}:
+      partition_step_nonzero(~A, ~R, ~down, size, p, items, s, x)
+
+def partition_finish(~A: Type, ~R: Type, ~down: Reducer<List<A>, R>,
+  state: Partitioning<A, State(List<A>, R, down)>) -> R:
+  match state:
+    case Partitioning{size, left, items, Stop{s}}:
+      finish(List<A>, R, down, s)
+    case Partitioning{size, left, [], Continue{s}}:
+      finish(List<A>, R, down, s)
+    case Partitioning{size, left, items, Continue{s}}:
+      finish_control(~List<A>, ~R, ~down,
+        step(List<A>, R, down, s, List.reverse(&1, A, items)))
+
+def partition_all(~A: Type, ~R: Type, ~down: Reducer<List<A>, R>) ->
+  Reducer<A, R>:
+  Reducer{Nat & Config(List<A>, R, down),
+    Partitioning<A, State(List<A>, R, down)>,
+    c => partition_start(~A, ~R, ~down, c),
+    s => x => partition_step(~A, ~R, ~down, s, x),
+    s => partition_finish(~A, ~R, ~down, s)}
 
 # Identity composition is the downstream description itself.
 def identity(~A: Type, ~R: Type, ~down: Reducer<A, R>) -> Reducer<A, R>:

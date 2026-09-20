@@ -53,6 +53,10 @@ follows semantic acceptance of the revision being measured.
 
 ## 0. Establish a correct compiler baseline
 
+Status: completed conservatively. The candidate now refuses the unproved tree
+rewrite, and `tree_entry_control.bend` is part of the source-shape gate. Tree
+performance remains open for package 5.
+
 **Purpose:** prevent known wrong code from contaminating architectural or timing
 conclusions.
 
@@ -83,6 +87,11 @@ shared callers so the standard transduction cannot lend facts to a generic fold.
 No claim that the remaining optimizer is fully proved follows from these checks.
 
 ## 1. Challenge the abstraction with independent extensions
+
+Status: completed as the first public semantic probe. `keep` and
+`partition_all` run through the independent tree source, including affine
+values, partial completion, both stopping orders, zero width, and fresh state.
+The remaining operations in this package are future extension probes.
 
 **Purpose:** determine which general compiler behavior is actually needed before
 building more optimization machinery.

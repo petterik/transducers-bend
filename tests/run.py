@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
         else:
             assert build.returncode == 0, (file.name, build.stdout + build.stderr)
             source = Path(str(out) + '.js').read_text()
-            if file.stem in {'pipeline', 'range', 'sources', 'extensions', 'lifecycle', 'array'}:
+            if file.stem in {'pipeline', 'range', 'sources', 'extensions', 'lifecycle', 'array', 'keep_partition'}:
                 assert '{$: "Reducer"' not in source, (file.name, 'callback records remain')
                 assert '{$: "Reduction"' not in source, (file.name, 'source binding records remain')
             for lane, command in [('JS', ['bun', str(out) + '.js']),

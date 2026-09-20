@@ -18,7 +18,7 @@ over a numerical impact/effort ratio.
 | Order | Work | Impact | Effort | Value | Decision |
 | --- | --- | --- | --- | --- | --- |
 | 0 | Make the Array counterexample a permanent gate; stop applying unproved tree rewrites | Critical: removes known wrong-code behavior | Low–medium for conservative refusal; high for a complete tree proof | Highest, mandatory | First; retain the lost performance as an open item |
-| 1 | Specify extension contracts and exercise keep, partition-all, and a custom source | High: tests whether the architecture serves new operations | Medium: ownership, buffering, completion, configuration | Very high: challenges the design before compiler investment | Build the semantic design probes next |
+| 1 | Specify extension contracts and exercise keep, partition-all, and a custom source | High: tests whether the architecture serves new operations | Medium: ownership, buffering, completion, configuration | Very high: challenges the design before compiler investment | Implemented as a public semantic probe; extend with more operations later |
 | 2 | Make static callback composition systematic with existing templates | High: benefits every pipeline and other Bend abstractions | Medium–high: strictness, type metadata, sharing, specialization budgets | Very high: removes compiler-driven library workarounds | First general compiler improvement |
 | 3 | Establish typed regions and explicit, scoped optimization facts | Critical: prevents the class of error found in the review | High: binding identity, preconditions, joins, recursion, failure semantics | Very high: foundation for sound extension | Build the smallest useful analysis boundary |
 | 4 | Eliminate local wrapper and state-transfer overhead | High: generalizes fusion beyond the current scalar pattern | Medium–high: escape, ownership, layouts, unknown calls | High: broad benefit without a transducer vocabulary | Apply small general rewrites within that boundary |
@@ -115,6 +115,6 @@ Exit condition: the documented initial scope works on JS and native backends, li
 
 The initial implementation includes the reducer lifecycle, practical static composition, identity/map/filter/take, sequential list and finite range drivers, transduce, into_list, sum/count consumers, focused validation, and a small performance comparison.
 
-It excludes public buffered transformations, batching, parallelism, IO, runtime pipeline construction, compiler changes, and promises of allocation-free execution. Streaming `cat`/`mapcat` and ordered array traversal are now included. Bounded speculative pure work remains an allowed future strategy; exact sequential stopping must not accidentally become a universal restriction on all drivers.
+It now includes the first public buffered transformation, `partition_all`, as a semantic probe. It still excludes general buffering, batching, parallelism, IO, runtime pipeline construction, compiler changes, and promises of allocation-free execution. Streaming `cat`/`mapcat` and ordered array traversal are included. Bounded speculative pure work remains an allowed future strategy; exact sequential stopping must not accidentally become a universal restriction on all drivers.
 
 The most valuable first deliverable is evidence that the abstraction is both usable and efficient. Feature breadth follows that evidence.

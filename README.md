@@ -1,6 +1,6 @@
 # transduce-bend
 
-An experimental Bend library for composing pure data transformations without intermediate stage collections. It provides an owned reducer protocol, extensible source-owned reduction, map/filter/take/mapcat, and sum/count/ordered-list consumers. Built-in sources are lists, balanced arrays, finite ranges, and strings; other modules can add sources without changing this library.
+An experimental Bend library for composing pure data transformations without intermediate stage collections. It provides an owned reducer protocol, extensible source-owned reduction, map/filter/keep/take/partition-all/mapcat, and sum/count/ordered-list consumers. Built-in sources are lists, balanced arrays, finite ranges, and strings; other modules can add sources without changing this library.
 
 ## Example
 
@@ -83,9 +83,11 @@ These examples execute in [tests/range.bend](tests/range.bend). `into_list` is a
 | `map(~A, ~B, ~R, ~f, ~down)` | Transform A to B | Downstream configuration |
 | `cat(~B, ~R, ~down)` | Flatten each list-valued input into downstream B values | Downstream configuration |
 | `mapcat(~A, ~B, ~R, ~f, ~down)` | Map each A to a list of B values and flatten it | Downstream configuration |
+| `keep(~A, ~B, ~R, ~f, ~down)` | Consume A and emit each optional B returned by `f` | Downstream configuration |
 | `map_with(~A, ~B, ~R, ~C, ~f, ~down)` | Transform using runtime Data configuration C | `(local, downstream)` |
 | `filter(~A, ~R, ~C, ~predicate, ~down)` | Retain Data elements satisfying `predicate(config, element)` | `(local, downstream)` |
 | `take(~A, ~R, ~down)` | Limit values reaching this stage | `(Nat count, downstream)` |
+| `partition_all(~A, ~R, ~down)` | Group consecutive inputs into non-overlapping lists and flush a final partial group | `(Nat width, downstream configuration)`; zero stops during initialization |
 | `transduce(~reduction, config, source)` | Initialize, run the bound source fold, complete once | Consumer/pipeline configuration |
 | `over_list(~A, ~R, ~recipe)` | Bind a pipeline to owned `List<A>` traversal | Passed to transduce |
 | `over_array(~A, ~R, ~recipe)` | Bind a pipeline to ordered balanced `Array<A>` traversal | Passed to transduce |
@@ -133,7 +135,15 @@ The test runner compares emitted JS and native output against each Bend file's `
 
 ## Current limits
 
-Public buffered operations, parallel collection drivers, and IO drivers are not implemented. `cat` and `mapcat` are streaming list-fragment reducers; they do not provide arbitrary buffered grouping or a parallel collection driver. Existing sequential pipelines can run inside caller-defined parallel batches; see [CPU/GPU measurements](bench/PARALLEL.md) and the [array mapcat benchmark](bench/wordscan/README.md). The completion suite contains test-only buffering adapters to validate the protocol. No allocation-free guarantee is made: JS still constructs state/control objects, and native layout/reuse depends on the compiler.
+`partition_all` is the first public buffered transformation: it owns a group
+buffer, flushes one partial group during completion, and honors downstream
+stopping. Arbitrary buffered transformations, parallel collection drivers, and
+IO drivers are not implemented. `cat` and `mapcat` are streaming list-fragment
+reducers; fragment construction remains a real cost. Existing sequential
+pipelines can run inside caller-defined parallel batches; see [CPU/GPU
+measurements](bench/PARALLEL.md) and the [array mapcat benchmark](bench/wordscan/README.md).
+No allocation-free guarantee is made: JS still constructs state/control objects,
+and native layout/reuse depends on the compiler.
 
 - [CPU threads and Metal GPU performance](bench/PARALLEL.md)
 - [Generated range performance](bench/RANGE.md)
