@@ -144,11 +144,12 @@ not the goal of this package.
 
 ## 2. Make static composition systematic
 
-Status: probe complete, implementation deliberately deferred. The eager local
-binding works for scalar, configured, stopping, and buffered cases, but a direct
-replacement of the public delayed recipe retains records in the Array fixture and
-breaks the documented tree adapter. The next step is scoped static work in the
-compiler, not a second public API.
+Status: partial implementation. The eager migration is now systematic across
+built-ins and the external tree, and an isolated compiler prototype memoizes
+normalized static terms with scoped diagnostics. It preserves the full suite and
+reduces repeated evaluator work, but the eager Array fixture still retains three
+Reducer records and one Reduction record. The public delayed recipe remains while
+the reduced Array static-head/driver blocker is investigated.
 
 **Purpose:** remove dependence on incidental callback spelling or delayed recipe
 construction, while preserving the clean code/settings distinction.

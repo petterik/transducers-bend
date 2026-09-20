@@ -381,7 +381,9 @@ commands and retained results, counterexamples/refusals, and remaining gaps.
 Label each item implemented, demonstrated already optimized, unsupported with
 reproducer, or blocked by a named external dependency. The latter two remain open.
 
-The next implementation starts with 0 and 1, then the minimized Array blocker in
-2. A surprising result should revise the explanation and tests before expanding
-the optimizer. This plan closes the identified gaps without assuming either
+Worksets 0 and 1 are now implemented. Workset 2 has a scoped memoization
+prototype and a minimized, reproducible Array blocker; the next compiler change
+must explain that blocker before changing the public staging boundary. A
+surprising result should revise the explanation and tests before expanding the
+optimizer. This plan closes the identified gaps without assuming either
 universal fusion or a new language feature in advance.

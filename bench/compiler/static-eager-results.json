@@ -1,0 +1,108 @@
+{
+  "compiler_sha256": "fa9f140564af1c33cba37ca2c5d477acfa2388bdc9e6bf7f2987cd920722124e",
+  "cases": {
+    "array.bend": {
+      "delayed": {
+        "expected": "72\n72\n72\n17\n5\n[1, 11, 5, 15, 3, 13, 7, 17]",
+        "native": "72\n72\n72\n17\n5\n[1, 11, 5, 15, 3, 13, 7, 17]",
+        "js": "72\n72\n72\n17\n5\n[1, 11, 5, 15, 3, 13, 7, 17]",
+        "reducer_records_js": 0,
+        "reduction_records_js": 0,
+        "closure_dispatch_transfers_c": 3,
+        "c_bytes": 231849,
+        "js_bytes": 113873,
+        "static_fun_stats": {
+          "queries": 10902,
+          "hits": 10146,
+          "misses": 756,
+          "refusals": 532
+        }
+      },
+      "eager": {
+        "expected": "72\n72\n72\n17\n5\n[1, 11, 5, 15, 3, 13, 7, 17]",
+        "native": "72\n72\n72\n17\n5\n[1, 11, 5, 15, 3, 13, 7, 17]",
+        "js": "72\n72\n72\n17\n5\n[1, 11, 5, 15, 3, 13, 7, 17]",
+        "reducer_records_js": 3,
+        "reduction_records_js": 1,
+        "closure_dispatch_transfers_c": 5,
+        "c_bytes": 256366,
+        "js_bytes": 116619,
+        "static_fun_stats": {
+          "queries": 10754,
+          "hits": 9956,
+          "misses": 798,
+          "refusals": 576
+        }
+      }
+    },
+    "keep_partition.bend": {
+      "delayed": {
+        "expected": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[11, 12, 13, 14, 15]\n7\n2\n[]\n[[[1, 2], [3, 4]], [[5]]]\n[7, 8]\n[15]",
+        "native": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[11, 12, 13, 14, 15]\n7\n2\n[]\n[[[1, 2], [3, 4]], [[5]]]\n[7, 8]\n[15]",
+        "js": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[11, 12, 13, 14, 15]\n7\n2\n[]\n[[[1, 2], [3, 4]], [[5]]]\n[7, 8]\n[15]",
+        "reducer_records_js": 0,
+        "reduction_records_js": 0,
+        "closure_dispatch_transfers_c": 5,
+        "c_bytes": 246106,
+        "js_bytes": 71424,
+        "static_fun_stats": {
+          "queries": 13318,
+          "hits": 11718,
+          "misses": 1600,
+          "refusals": 1274
+        }
+      },
+      "eager": {
+        "expected": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[11, 12, 13, 14, 15]\n7\n2\n[]\n[[[1, 2], [3, 4]], [[5]]]\n[7, 8]\n[15]",
+        "native": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[11, 12, 13, 14, 15]\n7\n2\n[]\n[[[1, 2], [3, 4]], [[5]]]\n[7, 8]\n[15]",
+        "js": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[11, 12, 13, 14, 15]\n7\n2\n[]\n[[[1, 2], [3, 4]], [[5]]]\n[7, 8]\n[15]",
+        "reducer_records_js": 0,
+        "reduction_records_js": 0,
+        "closure_dispatch_transfers_c": 5,
+        "c_bytes": 246106,
+        "js_bytes": 71424,
+        "static_fun_stats": {
+          "queries": 13318,
+          "hits": 11718,
+          "misses": 1600,
+          "refusals": 1274
+        }
+      }
+    },
+    "api_surface.bend": {
+      "delayed": {
+        "expected": "3\n[4, 5]\n3",
+        "native": "3\n[4, 5]\n3",
+        "js": "3\n[4, 5]\n3",
+        "reducer_records_js": 0,
+        "reduction_records_js": 0,
+        "closure_dispatch_transfers_c": 3,
+        "c_bytes": 100988,
+        "js_bytes": 18635,
+        "static_fun_stats": {
+          "queries": 4196,
+          "hits": 3832,
+          "misses": 364,
+          "refusals": 284
+        }
+      },
+      "eager": {
+        "expected": "3\n[4, 5]\n3",
+        "native": "3\n[4, 5]\n3",
+        "js": "3\n[4, 5]\n3",
+        "reducer_records_js": 0,
+        "reduction_records_js": 0,
+        "closure_dispatch_transfers_c": 3,
+        "c_bytes": 100988,
+        "js_bytes": 18635,
+        "static_fun_stats": {
+          "queries": 4196,
+          "hits": 3832,
+          "misses": 364,
+          "refusals": 284
+        }
+      }
+    }
+  },
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-static-eager-c0_27otn"
+}

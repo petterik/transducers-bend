@@ -1,6 +1,7 @@
 # Static composition probe
 
-Status: probe completed; the public delayed recipe remains in place.
+Status: memoization prototype completed; the public delayed recipe remains in
+place. The reduced eager migration remains an open Array-specific blocker.
 
 The current binding uses `~(u => r)` for the reducer recipe and delays the
 associated type metadata. This looks like an implementation detail, but it is
@@ -32,6 +33,24 @@ called the documented delayed-recipe form and failed to typecheck. The direct
 form is a source/API migration, not a drop-in compiler improvement. The current
 staging also matters for larger compositions whose specializations share type
 metadata.
+
+## Memoized static prototype
+
+`prepare_static.py` builds an isolated compiler that memoizes normalized static
+terms per compiler `Book`. The cache is scoped to one compilation, preserves a
+null refusal result, and reports queries, hits, misses, and refusals through
+`BEND_STATIC_REPORT`. `static_eager_probe.py` migrates every built-in adapter and
+the external tree together, then compares delayed and eager forms on Array,
+`keep`/`partition_all`, and the reusable API fixture.
+
+The current prototype is semantically clean and useful: the full 20-file suite
+passes, and the probe records thousands of repeated queries with high hit rates.
+It does not remove the Array records: the eager Array lane still retains three
+`Reducer` records and one `Reduction` record, while eager `keep_partition` and
+`api_surface` have none. The cache reduces repeated evaluator work but does not
+solve the Array driver’s unresolved static shape. The delayed recipe therefore
+remains the public boundary until that reduced case receives a separate static
+head/driver explanation.
 
 ## Decision
 
