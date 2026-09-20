@@ -14,10 +14,15 @@ found a reproduced wrong-code bug in the isolated facts compiler and an incorrec
 direct keep benchmark reference. Its acceptance assessment supersedes the earlier
 checkpoint summaries.
 
+The [proposed repairs](current/FOLLOWUP-REPAIR-PROPOSAL.md) compare options for
+each finding, prioritize them by impact/effort/value, and specify acceptance
+conditions. This is a proposal for review, not an implementation completion record.
+
 ## Current
 
 These documents describe the accepted direction and the work still required:
 
+- [Follow-up repair proposal](current/FOLLOWUP-REPAIR-PROPOSAL.md) — proposed 2026-09-20.
 - [Adversarial design review](current/DESIGN-REVIEW.md) — created 2026-09-20.
 - [Architecture work plan](current/DESIGN-WORK-PLAN.md) — created 2026-09-20.
 - [Implementation repair plan](current/IMPLEMENTATION-REPAIR-PLAN.md) — created 2026-09-20.
