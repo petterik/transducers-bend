@@ -1,7 +1,7 @@
 {
-  "compiler_sha256": "f467e0aba1e3bcc806ab24b5080355bbf5fc4847cd59709784756201a7c8d5e7",
+  "compiler_sha256": "5f2548b7ccec683ca64dda954f011f8e9fcf09ba72199f9cfba3d81f0d33d1ed",
   "source_sha256": "eed5c923f3bab12af5cdff934c4edeaa111c43d15efb6189504672d607df8921",
-  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-scoped-constructor-fact-2_jxdgj_",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-scoped-constructor-fact-g1t_c52z",
   "expected": "4\n1",
   "original_native": "4\n1",
   "candidate_native": "4\n1",

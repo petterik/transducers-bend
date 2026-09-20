@@ -125,7 +125,7 @@ if args.facts:
     val_anchor = 'type Val = { ws: string[]; lay: Lay; stat: boolean };'
     assert patched.count(val_anchor) == 1
     patched = patched.replace(val_anchor,
-        'type Fact = { k: Bend.Name; fields: Val[] };\n'
+        'type Fact = { k: Bend.Name; lay: Lay; fields: Val[] };\n'
         'type Val = { ws: string[]; lay: Lay; stat: boolean; fact?: Fact };', 1)
     val_new_anchor = 'function val_new(ws: string[], lay: Lay, stat = false): Val {\n  return { ws, lay, stat };\n}'
     assert patched.count(val_new_anchor) == 1
@@ -136,18 +136,21 @@ if args.facts:
     helper_anchor = 'function val_field(v: Val, f: Field): Val {'
     assert patched.count(helper_anchor) == 1
     helper_code = '''function fact_rebind(f: Fact, ws: string[]): Fact | undefined {
-  let at = 0;
-  const fields = f.fields.map((src) => {
-    const n = src.ws.length;
-    if (at + n > ws.length) return undefined;
+  const arm = f.lay.arms?.find((a) => a.k === f.k);
+  if (arm === undefined || arm.fs.length !== f.fields.length
+      || f.lay.ks.length !== ws.length) return undefined;
+  const fields = f.fields.map((src, i) => {
+    const field = arm.fs[i];
+    if (!lay_eq(src.lay, field.lay)) return undefined;
+    const at = field.at;
+    const n = field.lay.ks.length;
     const out = val_new(ws.slice(at, at + n), src.lay, src.stat,
       src.fact === undefined ? undefined : fact_rebind(src.fact,
         ws.slice(at, at + n)));
-    at += n;
     return out;
   });
-  return fields.some((v) => v === undefined) || at !== ws.length
-    ? undefined : { k: f.k, fields: fields as Val[] };
+  return fields.some((v) => v === undefined)
+    ? undefined : { k: f.k, lay: f.lay, fields: fields as Val[] };
 }
 
 '''
@@ -171,7 +174,7 @@ if args.facts:
     assert patched.count(ctr_anchor) == 1
     patched = patched.replace(ctr_anchor,
         '  const stat = vs.every((v) => v.stat);\n'
-        '  const fact = { k: x.k, fields: vs };\n', 1)
+        '  const fact = { k: x.k, lay, fields: vs };\n', 1)
     node_anchor = '    return val_new([node_build(fl, x.k, vs)], BOX, stat);'
     assert patched.count(node_anchor) == 1
     patched = patched.replace(node_anchor,
