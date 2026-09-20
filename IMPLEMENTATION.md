@@ -33,6 +33,14 @@ guarded loop and its generic fallback while matching the original JS/native
 result. This validates the current loop boundary; it does not yet provide the
 general typed summary representation needed to re-enable tree specialization.
 
+## Representation probe
+
+`bench/compiler/REPRESENTATION.md` records the first residual-cost inspection
+for scalar and buffered extensions. Reducer/Reduction records and closure
+dispatch disappear in both generated programs. The buffered case still retains
+necessary group storage; the probe intentionally does not convert source counts
+into allocation claims. A paired local rewrite remains open.
+
 ## Priority #3 follow-up
 
 The library now includes balanced-array, range, string, and list reduction implementations plus `into_list`, `count`, and streaming `cat`/`mapcat`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_array`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.

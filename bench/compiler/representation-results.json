@@ -1,0 +1,28 @@
+{
+  "compiler_sha256": "01adea0f6ef5bf13f76cfb222cc563d879440f873ea0070c0629dcc19da7c32e",
+  "cases": {
+    "scalar": {
+      "source": "/Users/petter/Github/petterik/transduce-bend/tests/pipeline.bend",
+      "native": "[7, 0, 0, 0, 7]",
+      "js": "[7, 0, 0, 0, 7]",
+      "records_js": 0,
+      "clo_apply_c": 0,
+      "heap_alloc_calls_c": 13,
+      "term_pack_calls_c": 9,
+      "c_bytes": 97589,
+      "js_bytes": 16652
+    },
+    "buffered": {
+      "source": "/Users/petter/Github/petterik/transduce-bend/tests/keep_partition.bend",
+      "native": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[7, 8]\n[15]",
+      "js": "[11, 12, 13, 14, 15]\n[42, 42]\n[[1, 2], [3, 4], [5]]\n[[1, 2], [3]]\n[[1, 2]]\n[]\n[7, 8]\n[15]",
+      "records_js": 0,
+      "clo_apply_c": 0,
+      "heap_alloc_calls_c": 44,
+      "term_pack_calls_c": 45,
+      "c_bytes": 182545,
+      "js_bytes": 45032
+    }
+  },
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-representation-probe-03h4ojom"
+}

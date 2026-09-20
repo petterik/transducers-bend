@@ -212,6 +212,11 @@ emitted or found in a call graph.
 
 ## 4. Eliminate local representation overhead
 
+Status: initial measurement complete. Static reducer/callback records are absent
+from the scalar and keep/partition probes, while buffered list storage remains a
+real cost. No local rewrite is promoted until a paired direct reference isolates
+one removable constructor/projection or nonescaping state transfer.
+
 **Purpose:** extend optimization beyond scalar filter/take/sum patterns.
 
 **Work:**
