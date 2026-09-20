@@ -382,8 +382,12 @@ Label each item implemented, demonstrated already optimized, unsupported with
 reproducer, or blocked by a named external dependency. The latter two remain open.
 
 Worksets 0 and 1 are now implemented. Workset 2 has a scoped memoization
-prototype and a minimized, reproducible Array blocker; the next compiler change
-must explain that blocker before changing the public staging boundary. A
-surprising result should revise the explanation and tests before expanding the
-optimizer. This plan closes the identified gaps without assuming either
-universal fusion or a new language feature in advance.
+prototype and a minimized, reproducible Array blocker. Workset 3 now has the
+first isolated constructor-fact prototype, recorded in
+[SCOPED-FACTS.md](SCOPED-FACTS.md), with positive and dynamic-field refusal
+evidence. The full typed-region, join, recursion, and continuation work remains
+open. The next compiler change should use this boundary to measure one local
+representation cost before changing the public staging boundary. A surprising
+result should revise the explanation and tests before expanding the optimizer.
+This plan closes the identified gaps without assuming either universal fusion
+or a new language feature in advance.

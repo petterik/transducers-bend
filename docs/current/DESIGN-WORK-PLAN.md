@@ -187,10 +187,15 @@ shows why current templates cannot express the desired boundary cleanly.
 
 ## 3. Give optimization facts an explicit scope
 
-Status: boundary test complete. The same-layout exceptional caller fixture now
-requires a guarded loop plus a generic fallback and compares candidate JS/native
-against the original. The general typed-region representation and summary
-precondition API remain the next implementation slice.
+Status: first local constructor fact prototype complete in an isolated compiler;
+the general typed-region and summary API remain open. The prototype is recorded
+in [SCOPED-FACTS.md](SCOPED-FACTS.md). It attaches exact constructor provenance
+to emitted values, rebinds it across the two fused-call paths, specializes only
+unboxed all-static scalar fields, and falls back for dynamic or boxed fields.
+The focused fixture reports positive selection and dynamic-field rejection, and
+the full 20-file suite passes in both output orders. This is a useful local
+rewrite boundary, not a claim that joins, recursion, or continuation facts are
+implemented.
 
 **Purpose:** make the authorization for a rewrite inspectable and testable.
 

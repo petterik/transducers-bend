@@ -1,0 +1,22 @@
+{
+  "compiler_sha256": "f467e0aba1e3bcc806ab24b5080355bbf5fc4847cd59709784756201a7c8d5e7",
+  "source_sha256": "eed5c923f3bab12af5cdff934c4edeaa111c43d15efb6189504672d607df8921",
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-scoped-constructor-fact-2_jxdgj_",
+  "expected": "4\n1",
+  "original_native": "4\n1",
+  "candidate_native": "4\n1",
+  "candidate_js": "4\n1",
+  "facts": {
+    "matches": 32,
+    "known": 4,
+    "selected": 2,
+    "rejected": 2,
+    "refused": 30
+  },
+  "candidate_c_bytes": 88702,
+  "original_c_bytes": 88624,
+  "candidate_js_bytes": 15051,
+  "original_js_bytes": 15051,
+  "matches": true,
+  "scoped_boundary": true
+}
