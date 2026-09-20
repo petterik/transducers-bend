@@ -27,6 +27,15 @@ reusable public API fixture also passes with the reference compiler. The sibling
 `../bend` checkout remains unchanged. Tree proof, short-loop profitability, and
 final promotion gates are still open.
 
+## Checkpoint 2026-09-20: extension parity is measured, not yet accepted
+
+[`EXTENSION-PARITY.md`](EXTENSION-PARITY.md) records the first calibrated
+`keep`/`partition_all` matrix. Native and JS agree on all five rows. Early
+`keep` is 1.004× the direct loop and bounded partitioning is 0.985×, while full
+`keep` is 1.636× and full partitioning is 1.866–3.019×. The latter remain open
+performance gaps; the 1.05 target was not relaxed. The next work should remove a
+general option/control or group-boundary cost and rerun the same matrix.
+
 ## Checkpoint 2026-09-20: final candidate validation
 
 `FINAL-VALIDATION.md` records the 20-file JS/native suite, source-shape and

@@ -37,6 +37,14 @@ expensive-callback rows had upper 95% transducer/direct ratios of 1.022, 1.023,
 dynamic-short smoke row is a correctness check only because its timer is below
 resolution.
 
+The extension/direct checkpoint is
+[EXTENSION-PARITY.md](EXTENSION-PARITY.md), with its raw report in
+`bench/extension-parity-results.json`. Native and JS agree for all five rows.
+Early `keep` and bounded partitioning are within the provisional 1.05 ratio;
+full `keep` and full partitioning remain open regressions. The direct partition
+counter is a lower-bound diagnostic because a count consumer does not inspect
+the group values, so no allocation-free or universal parity claim follows.
+
 ## Measured representation and cost boundaries
 
 The scalar probe emitted 97,589 bytes of C and 16,652 bytes of JS, with 13

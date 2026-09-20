@@ -286,7 +286,13 @@ excluded from reports. Existing map-chain behavior remains protected.
 
 ## 5. Establish extension performance, with honest statistics
 
-**Files:** `bench/fusion_parity.py`, extension/direct fixtures, retained reports.
+Status: measurement checkpoint complete. The retained List matrix is in
+`EXTENSION-PARITY.md`. `keep` with an early budget and bounded partitioning are
+within the provisional 1.05 ratio, while full `keep` and full partitioning are
+slower than the independent direct loops. Those rows stay open; the target was
+not changed after seeing the result.
+
+**Files:** `bench/extension_parity.py`, extension/direct fixtures, retained reports.
 
 1. Preserve the five existing rows. Add cheap type-changing keep with mixed
    Some/None results, full and early-stop runs, and composed versus direct forms.
@@ -309,9 +315,11 @@ excluded from reports. Existing map-chain behavior remains protected.
    items rather than changing the target afterward. Keep original/reference and
    candidate lanes for the compiler changes under evaluation.
 
-**Exit:** every claimed extension row has semantic agreement, calibrated samples,
-and a stated result against the predeclared target. Report source/backend scope
-and all regressions. No general all-source or GPU claim follows from List timings.
+**Exit:** every retained row has semantic agreement, calibrated samples, and a
+stated result against the predeclared target. The current checkpoint satisfies
+that evidence requirement, but it does not close the three full-traversal
+performance gaps. Report source/backend scope and all regressions. No general
+all-source or GPU claim follows from List timings.
 
 ## 6. Simplify the actual configured user experience
 

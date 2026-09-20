@@ -1,0 +1,236 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler_sha256": "5f2548b7ccec683ca64dda954f011f8e9fcf09ba72199f9cfba3d81f0d33d1ed",
+  "library_sha256": "98285606bf5c33bf17e9e703a164060b09666dac755ef9c1562781c3e4b4db14",
+  "harness_sha256": "b0873b284d2e657e9caf0f24f1eb3d6ad25619825708a7cfbae7afe0bf905ef1",
+  "scope": "candidate compiler; sequential List source; CPU threads=1; GPU off; source construction and cleanup included",
+  "timing": "IO.now milliseconds per repeated batch; one warmup discarded",
+  "samples": 5,
+  "repeats_per_sample": 64,
+  "artifacts": "/private/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/bend-extension-parity-k9uv89zx",
+  "results": [
+    {
+      "case": "keep_full",
+      "kind": "keep",
+      "count": 200000,
+      "budget": 200000,
+      "expected": 12799936,
+      "samples_ms": {
+        "transducers": [
+          114,
+          108,
+          109,
+          95,
+          89
+        ],
+        "direct": [
+          66,
+          66,
+          66,
+          72,
+          87
+        ]
+      },
+      "program_sha256": {
+        "transducers": "8cae3101f70265ad4f8b5b9b13b16b46467a68ee4553242801da50b938111d42",
+        "direct": "2bc339054d96c0252d553c6f65642d21acf33f2a4d95e5b50754d46a11527c90"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 1.926579499966465,
+          "c_bytes": 98990,
+          "js_bytes": 18488
+        },
+        "direct": {
+          "seconds": 1.8511871659429744,
+          "c_bytes": 95269,
+          "js_bytes": 16819
+        }
+      },
+      "median_ms": {
+        "transducers": 108,
+        "direct": 66
+      },
+      "ratio_transducer_over_direct": 1.6363636363636365
+    },
+    {
+      "case": "keep_take_32",
+      "kind": "keep",
+      "count": 200000,
+      "budget": 32,
+      "expected": 2048,
+      "samples_ms": {
+        "transducers": [
+          273,
+          312,
+          297,
+          269,
+          258
+        ],
+        "direct": [
+          271,
+          288,
+          321,
+          272,
+          270
+        ]
+      },
+      "program_sha256": {
+        "transducers": "1cafcf9fe5a1c24045e654a1a384033f46ed9e2d77d7ffa0bf9841c97964ff07",
+        "direct": "44f26cfea35e8e4728b1c6c709eb3f07f56ff0039463c21a3308e954061976b7"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 1.9126022499985993,
+          "c_bytes": 98986,
+          "js_bytes": 18477
+        },
+        "direct": {
+          "seconds": 1.6948340000817552,
+          "c_bytes": 95265,
+          "js_bytes": 16808
+        }
+      },
+      "median_ms": {
+        "transducers": 273,
+        "direct": 272
+      },
+      "ratio_transducer_over_direct": 1.0036764705882353
+    },
+    {
+      "case": "partition_width_1",
+      "kind": "partition",
+      "count": 200000,
+      "size": 1,
+      "budget": 200000,
+      "expected": 12800000,
+      "samples_ms": {
+        "transducers": [
+          336,
+          340,
+          323,
+          323,
+          323
+        ],
+        "direct": [
+          102,
+          105,
+          107,
+          127,
+          135
+        ]
+      },
+      "program_sha256": {
+        "transducers": "cf9b2b6e8bad00be11af9f0edd657503cbbf95c982836ecaf62c8217ce78dcd0",
+        "direct": "8792321915379836b17dec614b5eabd83b41b1f04db377581011995cc45a0987"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 2.278246790985577,
+          "c_bytes": 111240,
+          "js_bytes": 23194
+        },
+        "direct": {
+          "seconds": 2.159524750080891,
+          "c_bytes": 93505,
+          "js_bytes": 16289
+        }
+      },
+      "median_ms": {
+        "transducers": 323,
+        "direct": 107
+      },
+      "ratio_transducer_over_direct": 3.0186915887850465
+    },
+    {
+      "case": "partition_width_8",
+      "kind": "partition",
+      "count": 200000,
+      "size": 8,
+      "budget": 200000,
+      "expected": 1600000,
+      "samples_ms": {
+        "transducers": [
+          379,
+          315,
+          377,
+          376,
+          399
+        ],
+        "direct": [
+          247,
+          241,
+          200,
+          179,
+          202
+        ]
+      },
+      "program_sha256": {
+        "transducers": "4475d06081ce70487471ec516f69f144af54f2bae47b26afa247d631cb6c3103",
+        "direct": "cd50f63d15a85c4a0147f072e4a7d512ee739600385d0d4277cff6a5ca2d1b62"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 2.147279082913883,
+          "c_bytes": 111240,
+          "js_bytes": 23194
+        },
+        "direct": {
+          "seconds": 1.9064177500549704,
+          "c_bytes": 93505,
+          "js_bytes": 16289
+        }
+      },
+      "median_ms": {
+        "transducers": 377,
+        "direct": 202
+      },
+      "ratio_transducer_over_direct": 1.8663366336633664
+    },
+    {
+      "case": "partition_take_2",
+      "kind": "partition",
+      "count": 200000,
+      "size": 8,
+      "budget": 2,
+      "expected": 128,
+      "samples_ms": {
+        "transducers": [
+          227,
+          263,
+          270,
+          269,
+          295
+        ],
+        "direct": [
+          302,
+          273,
+          272,
+          273,
+          263
+        ]
+      },
+      "program_sha256": {
+        "transducers": "098c5290f5139311a8721c4faba7bf295437d9e1abd3c39616c4fd5ea7eb9331",
+        "direct": "d82be1f526a94cc09dfece7216991ccd9b270f44e76f38f29d81a2f368063d34"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 1.998604332911782,
+          "c_bytes": 111235,
+          "js_bytes": 23182
+        },
+        "direct": {
+          "seconds": 1.6360777909867465,
+          "c_bytes": 93500,
+          "js_bytes": 16277
+        }
+      },
+      "median_ms": {
+        "transducers": 269,
+        "direct": 273
+      },
+      "ratio_transducer_over_direct": 0.9853479853479854
+    }
+  ]
+}
