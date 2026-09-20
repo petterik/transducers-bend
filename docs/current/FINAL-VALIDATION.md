@@ -5,74 +5,83 @@ status: current
 
 # Final validation checkpoint
 
-> Review update: the [follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
-> reproduces wrong code in the facts compiler and a broken direct keep oracle.
-> Its workset assessment supersedes the completion/acceptance claims below;
-> historical individual test results remain recorded evidence.
+The follow-up review found two concrete defects in the earlier checkpoint: a
+caller-specific fact could cross a shared native-helper boundary, and the
+independent direct `keep` oracle mishandled its first budget value. Those
+defects are now repaired. The lifecycle fixture, structured compiler
+call-site report, and calibrated extension matrix are also retained below.
 
-
-Date: 2026-09-20. The preceding library/API checkpoint is `66aefd6`; this
-validation workset uses the current isolated facts compiler for the semantic and
-representation probes has compiler SHA
-`5f2548b7ccec683ca64dda954f011f8e9fcf09ba72199f9cfba3d81f0d33d1ed`.
-The sibling `../bend` checkout remained unchanged. The extension parity report
-uses library hash
+The semantic suite uses the contained facts compiler with compiler SHA
+`a393e4f315a2c7a3286b241cee8c11a2fb346b5cdf530e3904c601953a1215d8`. The
+structured representation probe uses its diagnostics-enabled compiler with
+SHA `4560590cc170ea02f13a0a509ed98fd05e7b320b6848e649f58baf1fce18d35d`.
+The extension report uses library hash
 `98285606bf5c33bf17e9e703a164060b09666dac755ef9c1562781c3e4b4db14`.
 
 ## Current checks
 
 | Check | Result |
 | --- | --- |
-| `python3 tests/run.py --bend-main /tmp/transduce-facts-current/main.ts` | 20/20 JS/native files, including laws, `api_surface`, `keep_partition`, and source contracts |
-| `python3 tests/run.py` | 20/20 JS/native files with the unchanged sibling reference compiler |
+| `python3 tests/run.py --bend-main /tmp/transduce-facts-contained/main.ts` | 21/21 JS/native files, including laws, API surface, lifecycle, partition lifecycle, and source contracts |
+| `python3 tests/run.py` | 21/21 JS/native files with the unchanged sibling reference compiler |
 | `static_composition_probe.py` | Native/JS `[9, 9, 7, 7, 3, 3]`; zero reducer/reduction records and closure-dispatch transfers |
-| `representation_probe.py` | Scalar, buffered, and dynamic-control outputs match on native/JS; expected dispatch remains visible in the negative controls |
-| `test_scoped_constructor_fact.py` | Output `4\n1`; 2 exact selections, 2 dynamic rejections, 30 conservative refusals |
+| `representation_probe.py --diagnostics` | Scalar, buffered, and dynamic-control outputs match on native/JS; structured call-site attribution has no unknown records |
+| `test_scoped_constructor_fact.py` | Output `4\n1`; 2 exact selections, 2 dynamic rejections, conservative refusals retained |
 | `local_representation_probe.py` | Output `6`; exact tagged-arm fact removes 85 native C bytes with equal JS/native output |
-| `extension_parity.py` | Five rows compile and agree on native/JS output; early/bounded rows meet the provisional 1.05 target |
+| `extension_parity.py` | Eleven calibrated rows with independent native/JS oracles; status recorded per row below |
 
 The current suite is a semantic and code-shape checkpoint for the facts
-compiler. It does not claim that the facts compiler also contains the separate
-historical guarded-loop/tree pass.
+compiler. It does not claim that the facts compiler also contains the
+separate historical guarded-loop/tree pass.
 
 ## Measured representation and cost boundaries
 
 The current scalar probe emits 91,720 bytes of C and 16,652 bytes of JS, with
-13 `heap_alloc` and 9 `term_pak` occurrences. The buffered probe emits 246,106
-bytes of C and 71,424 bytes of JS, with 66 `heap_alloc`, 77 `term_pak`, and 5
-closure-dispatch transfers. The dynamic-control negative control emits 119,407
-bytes of C and 21,057 bytes of JS, with 2 reducer records and 11
-closure-dispatch transfers. These are code-shape counts, not allocation or peak
-heap measurements. Partition buffers are required state and remain an explicit
-cost.
+13 `heap_alloc` and 9 `term_pak` occurrences. The buffered probe emits
+246,106 bytes of C and 71,424 bytes of JS, with 66 `heap_alloc`, 77
+`term_pak`, and 5 closure-dispatch transfers. The dynamic-control negative
+control emits 119,407 bytes of C and 21,057 bytes of JS, with 2 reducer
+records and 11 closure-dispatch transfers. These are code-shape counts, not
+allocation or peak-heap measurements. Partition buffers are required state and
+remain an explicit cost.
 
-The representation harness now asks the isolated compiler for structured
-call-site records. The report carries compiler, library and harness hashes and
-records caller, target, segment, and site kind. The scalar case has 200 known
-records and no dynamic closure targets; the buffered case has 1,306 known
-records and 10 `Clo.apply` sites; the dynamic-control case has 304 known records
-and 26 `Clo.apply` sites. These are compiler-emitted site counts, not execution
-frequencies. Unknown records are reported as inconclusive; no unknown record
-appeared in this run. Whole-file C counts remain supplementary diagnostics.
+The representation harness asks the isolated compiler for structured call-site
+records. Each record carries caller, target, segment, flatness, and site kind;
+the report also carries compiler, library, and harness hashes. The scalar case
+has 200 known records and no dynamic closure targets. The buffered case has
+1,306 known records and 10 `Clo.apply` sites. The dynamic-control case has 304
+known records and 26 `Clo.apply` sites. These are compiler-emitted site
+counts, not execution frequencies. Unknown records are reported as
+inconclusive; none appeared in this run. Whole-file C counts remain
+supplementary diagnostics.
 
 ## Extension/direct parity
 
 [`EXTENSION-PARITY.md`](EXTENSION-PARITY.md) and
-`bench/extension-parity-results.json` record the calibrated List comparison
-(five samples, 64 repeated batches, one warmup, CPU threads 1, GPU off):
+[`bench/extension-parity-results.json`](../../bench/extension-parity-results.json)
+record ten sessions of five paired process launches per row. Repetition
+counts are calibrated to a 100 ms floor, the first lane alternates, and a row
+passes only when its bootstrap upper 95% ratio is at most 1.05.
 
-| Row | Transducers/direct median | Status |
+| Row | Ratio upper bound | Status |
 | --- | ---: | --- |
-| `keep_full` | 1.636× | open regression |
-| `keep_take_32` | 1.004× | within 1.05 checkpoint |
-| `partition_width_1` | 3.019× | open diagnostic |
-| `partition_width_8` | 1.866× | open diagnostic |
-| `partition_take_2` | 0.985× | within 1.05 checkpoint |
+| `keep_full` | 0.935 | passes |
+| `keep_take_32` | 1.019 | passes |
+| `keep_type_change` | 6.137 | open regression |
+| `keep_type_change_take_32` | 1.013 | passes |
+| `partition_width_1` | 4.980 | open diagnostic |
+| `partition_width_8` | 1.433 | open diagnostic |
+| `partition_take_2` | 1.010 | diagnostic passes |
+| `partition_sum_width_1` | 1.573 | open equivalent-consumer regression |
+| `partition_sum_width_2` | 1.469 | open equivalent-consumer regression |
+| `partition_sum_width_8` | 1.466 | open equivalent-consumer regression |
+| `partition_sum_take_2` | 1.010 | passes |
 
-All native and JS outputs agree. The full partition rows use a direct lower
-bound whose count consumer does not inspect group values; they are useful
-diagnostics, not an allocation-free or universal parity claim. The full
-`keep` row remains a real gap and the target was not relaxed after measuring it.
+All native and JS outputs agree with their independent expected values. The
+full type-changing `keep` row and the full equivalent-consumer partition rows
+remain real performance gaps. Count-only partition rows are lower-bound
+diagnostics because their direct loop does not inspect group values. The target
+was not relaxed after measuring any of these rows.
 
 ## Historical compiler probes
 
@@ -82,13 +91,14 @@ by earlier isolated candidates with different compiler hashes. They remain
 useful evidence for the guarded-loop investigation, but are not results from
 the current facts compiler. In particular, the retained tree-entry reproducer
 contains a native/JS mismatch in its historical report; tree specialization is
-therefore still refused and must not be described as promoted.
+still refused and must not be described as promoted.
 
 ## Promotion status
 
 The current deliverable is review-ready host-CPU evidence for the library,
-scoped facts, local representation rewrite, and extension matrix. The tuple
-configuration API remains the supported public form while the named-settings
-experiment is open. Tree specialization, short-loop profitability, GPU
-execution, and full upstream project gates remain outstanding. No all-source,
-all-backend, or GPU performance claim follows from these List measurements.
+scoped facts, local representation rewrite, lifecycle behavior, and extension
+matrix. The tuple configuration API remains the supported public form while
+the named-settings experiment is open. Tree specialization, short-loop
+profitability, GPU execution, and full upstream project gates remain
+outstanding. No all-source, all-backend, or GPU performance claim follows from
+these List measurements.
