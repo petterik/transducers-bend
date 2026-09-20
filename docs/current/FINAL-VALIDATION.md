@@ -22,13 +22,14 @@ The extension report uses library hash
 
 | Check | Result |
 | --- | --- |
-| `python3 tests/run.py --bend-main /tmp/transduce-facts-contained/main.ts` | 21/21 JS/native files, including laws, API surface, lifecycle, partition lifecycle, and source contracts |
-| `python3 tests/run.py` | 21/21 JS/native files with the unchanged sibling reference compiler |
+| `python3 tests/run.py --bend-main /tmp/transduce-facts-contained/main.ts` | 22/22 JS/native files, including named settings, laws, API surface, lifecycle, partition lifecycle, and source contracts |
+| `python3 tests/run.py` | 22/22 JS/native files with the unchanged sibling reference compiler |
 | `static_composition_probe.py` | Native/JS `[9, 9, 7, 7, 3, 3]`; zero reducer/reduction records and closure-dispatch transfers |
 | `representation_probe.py --diagnostics` | Scalar, buffered, and dynamic-control outputs match on native/JS; structured call-site attribution has no unknown records |
 | `test_scoped_constructor_fact.py` | Output `4\n1`; 2 exact selections, 2 dynamic rejections, conservative refusals retained |
 | `local_representation_probe.py` | Output `6`; exact tagged-arm fact removes 85 native C bytes with equal JS/native output |
 | `extension_parity.py` | Eleven calibrated rows with independent native/JS oracles; status recorded per row below |
+| `configured_pipeline.bend` | Named settings wrapper works with count, ordered collection, non-`Unit` consumer configuration, List/range/tree sources, initial Stop, partial flush, and fresh repeated runs |
 
 The current suite is a semantic and code-shape checkpoint for the facts
 compiler. It does not claim that the facts compiler also contains the
@@ -96,9 +97,11 @@ still refused and must not be described as promoted.
 ## Promotion status
 
 The current deliverable is review-ready host-CPU evidence for the library,
-scoped facts, local representation rewrite, lifecycle behavior, and extension
-matrix. The tuple configuration API remains the supported public form while
-the named-settings experiment is open. Tree specialization, short-loop
-profitability, GPU execution, and full upstream project gates remain
+scoped facts, local representation rewrite, lifecycle behavior, named-settings
+feasibility, and extension matrix. The named wrapper is a concrete application
+pattern, not yet a derived library abstraction: its generated JS still
+materializes reducer records, so it carries no performance or allocation
+claim. Tree specialization, short-loop profitability, GPU execution, a
+general configuration builder, and full upstream project gates remain
 outstanding. No all-source, all-backend, or GPU performance claim follows from
 these List measurements.

@@ -329,10 +329,12 @@ all-source or GPU claim follows from List timings.
 
 ## 6. Simplify the actual configured user experience
 
-Status: semantic acceptance remains complete through `tests/api_surface.bend`;
-the named-settings experiment is still open. `CONFIGURED-API.md` records the
-failed generic `comp` and dependent-record probes and keeps the tuple API until
-a concrete wrapper works for multiple downstream configuration types.
+Status: the concrete named-settings experiment is complete in
+`tests/configured_pipeline.bend`. The generic `comp` and derived dependent
+configuration remain open language questions; the tuple API remains the
+internal implementation, while applications can use the tested named wrapper
+pattern at their initialization boundary. `CONFIGURED-API.md` records both
+the passing wrapper and the retained generic-composition blockers.
 
 **Files:** `transduce.bend`, `tests/api_surface.bend`, README and extension examples.
 
@@ -357,10 +359,12 @@ a concrete wrapper works for multiple downstream configuration types.
 6. Migrate examples coherently, remove redundant provisional paths where possible,
    and rerun semantic/codegen/performance acceptance after the API changes.
 
-**Exit:** a configured, reusable type-changing composition works with multiple
-consumers/sources, settings are typechecked without caller-maintained internal
-state shapes, and result-type repetition is either removed or explicitly explained
-by a retained language limitation. Unit-only examples do not close this workset.
+**Exit:** met for the concrete wrapper in `tests/configured_pipeline.bend`:
+multiple consumers and sources work, settings are typechecked without callers
+constructing the internal nested tuple, and a non-`Unit` consumer configuration
+is covered. The remaining result-type repetition and generic builder question
+are recorded as language limitations in `CONFIGURED-API.md`; they are not
+silently counted as solved.
 
 ## 7. Control-flow performance and promotion
 

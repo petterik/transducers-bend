@@ -1,19 +1,39 @@
 ---
 created_at: 2026-09-20T22:54:05+02:00
-status: proposed
+status: current
 ---
 
 # Proposed repairs after the follow-up review
 
 Make the compiler safe, make the comparisons fair, then use that evidence to
-decide which optimizations and API changes deserve to stay.
+decide which optimizations and API changes deserve to stay. The implementation
+worksets below are now landed as separate commits; this document remains the
+decision record for the open performance and language-design follow-ups.
 
-This proposal addresses all six findings in the
+This proposal addressed all six findings in the
 [follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md) of `cd2bcb7`.
-It specifies work for review; the repairs have not been implemented. Keep the
-existing source-independent reducer protocol and `keep = map(f) → cat_maybe`.
-Continue compiler experiments in isolated copies. Each workset ends with its
-own commit and a record of which original acceptance conditions passed.
+Keep the existing source-independent reducer protocol and
+`keep = map(f) → cat_maybe`. Compiler experiments remain in isolated copies.
+Each workset ended with its own commit; open rows and limits are recorded
+instead of being promoted by implication.
+
+## Landed worksets
+
+Worksets 1–5 are complete as repairs and evidence checkpoints:
+
+- shared native helpers no longer inherit caller-specific constructor facts;
+- the direct `keep` reference has an independent stopping oracle;
+- public partition lifecycle and affine tests cover start, step, stop and finish;
+- compiler call sites have structured attribution with unknowns treated as
+  inconclusive; and
+- the extension matrix uses paired, calibrated sessions with an explicit
+  bootstrap upper bound.
+
+Workset 6 is complete as a concrete API feasibility experiment. The named
+`PipelineConfig<D>` wrapper passes across consumers and List/range/tree sources,
+while generic composition and derived configuration remain open. Full
+type-changing `keep` and full equivalent-consumer partition rows remain open
+performance work under the unchanged 1.05 target.
 
 ## Priority
 

@@ -29,33 +29,36 @@ in the earlier Array candidate, with a retained reproducer under `../../review/`
 Packages 0–6 now have committed checkpoints: the unproved tree rewrite is
 refused, `keep` and `partition_all` are exercised semantically, static
 composition and scoped facts have probes, representation costs are measured,
-and the extension/direct matrix is measured. The current facts compiler passes
-the 20-file semantic suite, while full `keep` and partition rows remain open
-performance gaps. The sibling `../bend` checkout remains unchanged. Tree proof,
-short-loop profitability, and final promotion gates are still open.
+the extension/direct matrix uses paired calibrated sessions, and a concrete
+named-settings wrapper is exercised across consumers and sources. The current
+facts compiler passes the 22-file semantic suite. Full type-changing `keep`
+and equivalent-consumer partition rows remain open performance gaps. The
+sibling `../bend` checkout remains unchanged. Generic configuration derivation,
+tree proof, short-loop profitability, and final promotion gates are still open.
 
 ## Checkpoint 2026-09-20: extension parity is measured, not yet accepted
 
-[`EXTENSION-PARITY.md`](EXTENSION-PARITY.md) records the first calibrated
-`keep`/`partition_all` matrix. Native and JS agree on all five rows. Early
-`keep` is 1.004× the direct loop and bounded partitioning is 0.985×, while full
-`keep` is 1.636× and full partitioning is 1.866–3.019×. The latter remain open
-performance gaps; the 1.05 target was not relaxed. The next work should remove a
-general option/control or group-boundary cost and rerun the same matrix.
+[`EXTENSION-PARITY.md`](EXTENSION-PARITY.md) records eleven calibrated
+`keep`/`partition_all` rows. Native and JS agree on every row. Same-type full
+and bounded `keep` pass the 1.05 upper-ratio target; full type-changing `keep`
+and full equivalent-consumer partitioning remain open regressions. Bounded
+partitioning passes. Count-only partition rows remain lower-bound diagnostics;
+the 1.05 target was not relaxed. The next work should remove a general
+option/control or group-boundary cost and rerun the same matrix.
 
 ## Checkpoint 2026-09-20: configured API boundary
 
-[`CONFIGURED-API.md`](CONFIGURED-API.md) records the package 6 probe. The
-existing reusable type-changing pipeline remains correct. A generic static
-`comp` cannot pass a runtime downstream binder to the closed `~down` template
-parameters, and the first dependent settings-record wrapper is rejected by the
-current checker. Keep the tuple API until a concrete named wrapper is proven
-with multiple downstream configuration types; do not introduce a runtime stage
-registry to improve spelling.
+[`CONFIGURED-API.md`](CONFIGURED-API.md) records the package 6 experiment. A
+concrete `PipelineConfig<D>` wrapper hides the nested tuple at initialization,
+works with count, ordered collection and non-`Unit` consumer configuration, and
+passes on List, range and tree with initial Stop, partial flush and fresh runs.
+A generic static `comp` still cannot pass a runtime downstream binder to the
+closed `~down` template parameters, so automatic derivation remains open. Do
+not introduce a runtime stage registry to improve spelling.
 
 ## Checkpoint 2026-09-20: current facts validation
 
-`FINAL-VALIDATION.md` records the current facts compiler SHA, the 20-file
+`FINAL-VALIDATION.md` records the current facts compiler SHA, the 22-file
 JS/native suite, scoped-fact and local-representation probes, static-composition
 evidence, and the extension/direct matrix. The separate guarded-loop and tree
 artifacts retain their own compiler hashes; one historical tree-entry report

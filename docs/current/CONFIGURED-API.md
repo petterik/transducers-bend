@@ -5,92 +5,82 @@ status: current
 
 # Configured composition checkpoint
 
-The existing API fixture remains the successful baseline: one type-changing
-`keep` declaration is reused with `count` and `into_list` over range, list, and
-the independent tree source. The reducer description is static and the
-consumer configuration is fresh on every call. That closes the semantic part
-of the configured API work, but callers still construct the reducer's dependent
-configuration explicitly when a pipeline contains `filter`, `take`, or other
-configured stages.
+The concrete named-settings experiment now passes. A pipeline can expose one
+runtime settings value while keeping the selected consumer's configuration
+separate and typed. The fixture is
+[`tests/configured_pipeline.bend`](../../tests/configured_pipeline.bend).
 
-## Target call shape
+## The public shape
 
-The desired shape is a pipeline-specific settings value whose fields describe
-the public choices, while the pipeline hides its internal nested configuration:
-
-```text
-settings = PipelineSettings{threshold, limit}
-pipeline_config(settings, downstream_config)
-transduce(over_list(pipeline), pipeline_config, source)
-```
-
-The settings record must remain ordinary runtime data. The downstream
-configuration must remain separate from the fresh reducer state, so a single
-description can run with a scalar consumer and a collection consumer.
-
-## What the language currently permits
-
-The direct nested pipeline works and is the current public form:
+The experiment declares the settings once:
 
 ```bend
-def pipeline(~R: Type, ~down: T.Reducer<Nat, R>) -> T.Reducer<U32, R>:
-  T.filter(~U32, ~R, ~U32, ~above,
-    ~T.keep(~U32, ~Nat, ~R, ~to_nat,
-      ~T.take(~Nat, ~R, ~down)))
+type PipelineSettings is Data:
+  PipelineSettings{threshold: U32, limit: Nat, width: Nat}
+
+type PipelineConfig<-D: Type> is Type:
+  PipelineConfig{settings: PipelineSettings, consumer: D}
 ```
 
-The first generic composition attempt used a transformation value:
-
-```bend
-def comp(~A: Type, ~B: Type, ~C: Type, ~R: Type,
-  ~outer: T.Reducer<B, R> -> T.Reducer<A, R>,
-  ~inner: T.Reducer<C, R> -> T.Reducer<B, R>,
-  ~down: T.Reducer<C, R>) -> T.Reducer<A, R>:
-  outer(inner(down))
-```
-
-Passing a lambda that calls `T.map` or `T.cat_maybe` fails before lowering:
+The wrapper's reducer configuration is `PipelineConfig<D>`, where `D` is the
+selected downstream configuration type. At initialization it matches the
+named settings and translates them into the private tuple expected by the
+existing stages:
 
 ```text
-a template applied to closed ~ arguments (a def parameter is not comptime)
+PipelineConfig{settings, consumer}
+  -> (threshold, (limit, (width, consumer)))
 ```
 
-The lambda's downstream parameter is a runtime binder, so it cannot be passed
-as the closed `~down` argument required by the existing reducer templates. A
-runtime stage object or a compiler registry would hide this boundary, but would
-give up the static composition property that makes the current library fast.
+The concrete pipeline is configured filter → type-changing keep → take →
+partition. Step and finish delegate to that already-declared reducer. The
+translation happens once at start; settings are not interpreted on every
+element.
 
-A second probe packaged `threshold`, `limit`, and a downstream configuration in
-a `Data` record and returned `U32 & (Nat & R)`. Ordinary functions returning that
-pair type work when their fields are supplied directly. When a function first
-matches a runtime settings record and its result is supplied as a transducer
-configuration, the current checker rejects the dependent pair at the call site
-with an `expected Nat / observed U32` mismatch. The sibling compiler produces
-the same diagnostic. This is a type-elaboration boundary, not evidence that a
-runtime record should be added without a proof of its dependent field order.
+The same pipeline declaration is exercised with:
 
-## Decision
+- a count consumer, which returns the number of groups;
+- an ordered group collector, which observes the partial final group;
+- a `U32` sum consumer whose initial value is a non-`Unit` configuration;
+- the built-in List and range sources and the independent tree source;
+- an initial downstream `Stop`; and
+- two consecutive runs with fresh reducer state.
 
-Keep the reducer protocol and explicit tuple configuration while the compiler
-work focuses on static facts and local representation. Do not add a generic
-`comp` interpreter, a closed list of named stages, or a second production
-implementation of every adapter. An application may define a concrete settings
-record and a wrapper when its downstream configuration is known; that wrapper
-must be tested with both scalar and collection consumers before it becomes a
-library recommendation.
+The contained facts compiler and the unchanged sibling compiler both produce
+the same seven-line result:
 
-The next API work is therefore a small language/library experiment, not a
-performance claim:
+```text
+2
+[[2, 3, 4], [5]]
+14
+2
+1
+0
+[2, 2]
+```
 
-1. Define a concrete pipeline settings record and a reducer wrapper whose
-   configuration type is a named constructor rather than a dependent pair.
-2. Prove start, step, finish, fresh state, and stopping for `count`, `into_list`,
-   and a scalar consumer.
-3. Repeat the extension parity matrix and inspect generated JS/native code.
-4. Only then decide whether Bend needs better dependent-record construction or
-   a higher-rank static transformation parameter.
+This resolves the feasibility question: a concrete application wrapper can
+hide the nested configuration without changing reducer semantics or requiring
+a runtime stage registry.
 
-Until that experiment passes, result-type and configuration repetition are an
-explicit language limitation recorded in
-[`ERGONOMICS.md`](../foundation/ERGONOMICS.md), rather than an optimizer
-workaround or a reason to change the reducer semantics.
+## What remains deliberately open
+
+This is a feasibility pattern, not a new generic library abstraction. The
+wrapper still names the internal stage order and writes the one-time tuple
+translation by hand. A generic `comp` interpreter, runtime stage registry, or
+compiler list of named stages would sacrifice the static composition property
+that currently enables fusion, so none is introduced from this experiment.
+
+The named wrapper also remains a more difficult compiler shape than a closed
+pipeline: generated JS for the fixture still contains reducer records. The
+fixture is therefore a semantic API checkpoint, not a performance or
+allocation claim. Before recommending this pattern broadly, measure it with
+the paired parity harness and decide whether the compiler should learn a
+specific initialization-boundary fact or Bend needs richer static composition.
+
+The earlier generic-composition and dependent-pair probes remain useful
+language-limit cases. Passing a concrete wrapper does not prove that Bend can
+derive the wrapper automatically. The next design decision is whether the
+repeated handwritten builder justifies a small static configuration-builder
+feature; it should be driven by a second real pipeline and retained generated
+code evidence.
