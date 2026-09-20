@@ -5,6 +5,12 @@ status: current
 
 # Completing the transducer design
 
+> Review update: the [follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
+> reproduces wrong code in the facts compiler and a broken direct keep oracle.
+> Its workset assessment supersedes the completion/acceptance claims below;
+> historical individual test results remain recorded evidence.
+
+
 Proposed execution plan, 2026-09-20. Prepared after the
 [implementation review](../review/IMPLEMENTATION-REVIEW.md), for discussion before
 the next implementation worksets. This document specifies work; it does not

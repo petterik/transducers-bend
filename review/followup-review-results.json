@@ -1,0 +1,71 @@
+{
+  "candidate_sha256": "5f2548b7ccec683ca64dda954f011f8e9fcf09ba72199f9cfba3d81f0d33d1ed",
+  "reference_sha256": "96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3",
+  "cases": [
+    {
+      "fixture": "shared_constructor_fact",
+      "lane": "reference",
+      "source_sha256": "3620040f0f94eab75e571716e95546c8a717b1ca3d16ffb2740dd57ac5d27bc1",
+      "argv": [],
+      "expected": "112",
+      "native": "112",
+      "js": "112",
+      "passes": true
+    },
+    {
+      "fixture": "shared_constructor_fact",
+      "lane": "reference",
+      "source_sha256": "3620040f0f94eab75e571716e95546c8a717b1ca3d16ffb2740dd57ac5d27bc1",
+      "argv": [
+        "fact"
+      ],
+      "expected": "213",
+      "native": "213",
+      "js": "213",
+      "passes": true
+    },
+    {
+      "fixture": "shared_constructor_fact",
+      "lane": "candidate",
+      "source_sha256": "3620040f0f94eab75e571716e95546c8a717b1ca3d16ffb2740dd57ac5d27bc1",
+      "argv": [],
+      "expected": "112",
+      "native": "12",
+      "js": "112",
+      "passes": false
+    },
+    {
+      "fixture": "shared_constructor_fact",
+      "lane": "candidate",
+      "source_sha256": "3620040f0f94eab75e571716e95546c8a717b1ca3d16ffb2740dd57ac5d27bc1",
+      "argv": [
+        "fact"
+      ],
+      "expected": "213",
+      "native": "14",
+      "js": "213",
+      "passes": false
+    },
+    {
+      "fixture": "keep_reference_boundary",
+      "lane": "reference",
+      "source_sha256": "3af9bd96539af475587756d46ab399f06ce5f836cf536f7befd57f13ed4a60fa",
+      "argv": [],
+      "expected": "1\n1",
+      "native": "0\n1",
+      "js": "0\n1",
+      "passes": false
+    },
+    {
+      "fixture": "keep_reference_boundary",
+      "lane": "candidate",
+      "source_sha256": "3af9bd96539af475587756d46ab399f06ce5f836cf536f7befd57f13ed4a60fa",
+      "argv": [],
+      "expected": "1\n1",
+      "native": "0\n1",
+      "js": "0\n1",
+      "passes": false
+    }
+  ],
+  "passes": false
+}

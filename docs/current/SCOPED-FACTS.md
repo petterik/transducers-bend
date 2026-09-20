@@ -5,6 +5,12 @@ status: current
 
 # Scoped constructor facts
 
+> Review update: the [follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
+> reproduces wrong code in the facts compiler and a broken direct keep oracle.
+> Its workset assessment supersedes the completion/acceptance claims below;
+> historical individual test results remain recorded evidence.
+
+
 Status: isolated compiler prototype. This is the first small local rewrite
 behind the typed-region plan; it is evidence for the design, not an upstream
 compiler change.

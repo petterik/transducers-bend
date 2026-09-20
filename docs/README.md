@@ -9,6 +9,11 @@ Every document carries a `created_at` timestamp taken from the first Git commit
 that introduced it. The folders separate the current decision record from the
 foundation documents and historical exploration.
 
+The latest [follow-up implementation review](review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
+found a reproduced wrong-code bug in the isolated facts compiler and an incorrect
+direct keep benchmark reference. Its acceptance assessment supersedes the earlier
+checkpoint summaries.
+
 ## Current
 
 These documents describe the accepted direction and the work still required:

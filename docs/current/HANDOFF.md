@@ -5,6 +5,12 @@ status: current
 
 # Hand-off: Bend transducers
 
+> Review update: the [follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
+> reproduces wrong code in the facts compiler and a broken direct keep oracle.
+> Its workset assessment supersedes the completion/acceptance claims below;
+> historical individual test results remain recorded evidence.
+
+
 ## Current direction: architecture review and prioritized work
 
 The latest next-work specification is

@@ -5,6 +5,12 @@ status: current
 
 # Final validation checkpoint
 
+> Review update: the [follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
+> reproduces wrong code in the facts compiler and a broken direct keep oracle.
+> Its workset assessment supersedes the completion/acceptance claims below;
+> historical individual test results remain recorded evidence.
+
+
 Date: 2026-09-20. The preceding library/API checkpoint is `66aefd6`; this
 validation workset uses the current isolated facts compiler for the semantic and
 representation probes has compiler SHA
