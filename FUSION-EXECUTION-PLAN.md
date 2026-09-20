@@ -36,7 +36,15 @@ Array now has a separate conservative tree-driver specialization for the simple
 scalar callback fixture: it preserves the balanced source/control tree and
 substitutes only a previously proved scalar callback chain under a host guard.
 Richer Array `mapcat` trees and boxed reducer state remain explicit fallback
-boundaries. The calibrated range gate is now complete for the two sequential
+boundaries. Commit `0bef762` keeps that tree driver non-flat and re-emits its
+ordinary continuation-based work-loop FID under the typed callback context;
+this removes the recursive C helper that made the first tree implementation
+slow. The calibrated Array acceptance matrix now passes the provisional 1.05
+upper-interval gate for both full and early stopping (upper bounds 1.021 and
+1.015). The fast FID, generic FID fallback, and source-shape checks are recorded
+in `bench/array-parity-results.json`. The remaining small gap is the extra
+Control/configuration state carried by the public transducer representation.
+The calibrated range gate is now complete for the two sequential
 runtime-threshold controls: both rows pass the provisional 1.05 upper-interval
 limit, with the worst upper bound at 0.972. This is candidate-only evidence for
 the demonstrated U32 range shape, not a universal range or backend claim.
@@ -221,11 +229,12 @@ offset from disjoint seed bits as the independent sweep does. Preserve runtime
 variability across reductions and verify generated code still performs the work.
 
 The current deliverable is a table of per-case ratios to direct Bend and
-preserved artifacts. The calibrated list and range controls now pass the
-provisional gate. `bench/array_parity.py` provides the corresponding Array
-measurement with an independent direct tree lane; its final 20-block/two-session
-report is the next evidence checkpoint. Then cover richer Array callbacks and
-boxed reducer state, followed by String and the remaining existing adapters.
+preserved artifacts. The calibrated list, range, and demonstrated Array tree
+controls now pass the provisional gate. `bench/array_parity.py` provides the
+independent direct tree lane and retains the report used for the Array
+checkpoint. The next work is typed state-representation reduction for this
+driver, followed by richer Array callbacks and boxed reducer state, then String
+and the remaining existing adapters.
 This harness identifies the actual parity gaps; success against original
 helpers cannot substitute for this table.
 

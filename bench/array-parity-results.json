@@ -1,0 +1,53 @@
+{
+  "scope": "candidate compiler; balanced Array<U32> source; scalar filter/take/sum; sequential CPU; GPU off",
+  "compiler_sha256": "d4a7e47f904ccae593872a5b945fc327519c592e3c483142c6b1915dd8704d87",
+  "library_sha256": "24c8b459a83247a4b6025cc5a3a2b6e94a04d77358754a75f3a19f78a0b098eb",
+  "harness_sha256": "9ad2f708e90178876ed0744cc154ca43078f112c6f90a4f8398647ee7c800517",
+  "depth": 10,
+  "leaves_per_reduction": 1024,
+  "repeats_per_sample": 15000,
+  "sessions": 2,
+  "paired_samples": 160,
+  "minimum_batch_ms": 100.0,
+  "bootstrap": {
+    "seed": 20260920,
+    "resamples": 2000,
+    "statistic": "paired median(transducers) / median(direct)"
+  },
+  "results": [
+    {
+      "case": "cheap_full",
+      "expected": 428261375,
+      "minimum_observed_ms": 188,
+      "median_ms": {
+        "transducers": 194.5,
+        "direct": 192.0
+      },
+      "ratio": 1.0130208333333333,
+      "bootstrap_95": [
+        1.0104166666666667,
+        1.0209424083769634
+      ],
+      "guarded_tree_comments": 1,
+      "direct_guarded_tree_comments": 0,
+      "clo_apply_occurrences": 0
+    },
+    {
+      "case": "cheap_early",
+      "expected": 3039192756,
+      "minimum_observed_ms": 129,
+      "median_ms": {
+        "transducers": 134.0,
+        "direct": 132.0
+      },
+      "ratio": 1.0151515151515151,
+      "bootstrap_95": [
+        1.0075757575757576,
+        1.0151515151515151
+      ],
+      "guarded_tree_comments": 1,
+      "direct_guarded_tree_comments": 0,
+      "clo_apply_occurrences": 0
+    }
+  ]
+}

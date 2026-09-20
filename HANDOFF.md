@@ -1,5 +1,52 @@
 # Hand-off: Bend transducers
 
+## Checkpoint 2026-09-20: guarded Array trees use work-loop FIDs
+
+Commit `0bef762` closes the remaining lowering bug in the conservative Array
+tree specialization. The tree driver is kept non-flat, so the ordinary Bend
+compiler emits its continuation-based work-loop FID. After the generic FID has
+established the typed callback records, the isolated guarded pass re-emits the
+same FID under the proven scalar callback context. The host branch uses the
+fast callback chain; the original FID remains in the fallback branch. Recursive
+descent therefore stays in `WL_AGAIN`/continuation frames and never becomes a
+C recursive call. The sibling `../bend` checkout remains untouched.
+
+Fresh candidate validation passes the 18-test suite, automatic-loop checks, all
+16 adversarial variants, the boxed List driver, and the JS/native source-shape
+checks. The Array parity acceptance report is recorded in
+[`bench/array-parity-results.json`](bench/array-parity-results.json): depth 10,
+20 retained blocks in each of two sessions, 15,000 reductions per batch, and
+every batch above 100 ms. The full traversal is 194.5/192 ms
+(transducer/direct), with an upper paired-bootstrap ratio of 1.021. The early
+stopping row is 134/132 ms, with an upper ratio of 1.015. Both pass the
+provisional 1.05 engineering gate; checksums and the Python oracle agree, the
+transducer C has one `guarded_tree` marker, and neither lane contains
+`Clo.apply`.
+
+This is a candidate-only host-CPU result. The remaining measured overhead is
+small but visible and comes from the transducer's richer Control/configuration
+state representation compared with the handwritten `Running` state. The next
+compiler task is to test whether a typed tree proof can erase those redundant
+control fields while preserving stop origin, ownership, and checked failure
+behavior. Keep the current FID path as the baseline and do not widen the tree
+recognizer or compare with the original compiler yet.
+
+### Handoff for the next session
+
+1. Start with `git status --short` and verify `0bef762`; keep the sibling
+   compiler checkout unchanged. Prepare a fresh `--loop` candidate before any
+   new benchmark.
+2. Use `bench/array-parity.py` and the checked report as the baseline. Inspect
+   the fast FID's state words against the direct `Running` FID, then make one
+   typed representation experiment at a time. Preserve the generic branch and
+   the current structural gate.
+3. Treat `bench/array-parity-results.json` as the acceptance record for the
+   iterative tree lowering. Re-run the full two-session matrix after any
+   representation change; do not claim improvement from short samples.
+4. Keep `mapcat` and boxed reducer state as explicit fallback controls, and
+   rerun the existing semantic/adversarial/source-shape gates after compiler
+   changes. Defer original-compiler, GPU/CUDA, and promotion comparisons.
+
 ## Checkpoint 2026-09-20: conservative Array tree specialization
 
 Commit `16b7e2a` adds the first positive Array-tree source case to the isolated

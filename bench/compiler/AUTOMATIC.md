@@ -94,11 +94,12 @@ and fallback behavior.
 Array traversal is a different proof case from the List tail loop. `reduce_array`
 has two non-tail recursive branches: the right child receives the state returned
 by the left child, and each node checks downstream control before entering the
-next branch. In loop mode, the candidate recognizes this shape from typed terms
-and layouts, then re-emits the same tree helper while substituting one reachable,
-already-proved scalar callback chain. The host wrapper calls the guarded callback
-clone; the original tree helper remains available as the generic fallback and
-the device branch is unchanged.
+next branch. In loop mode, the candidate first lowers this source through the
+ordinary continuation-based work-loop FID, then re-emits that FID under a typed
+callback context. The host branch substitutes one reachable, already-proved
+scalar callback chain; the original FID remains available as the generic
+fallback. This preserves `WL_AGAIN` and continuation frames instead of creating
+a C-recursive native helper.
 
 The tree gate requires one boxed source layout, bounded input/return layouts, no
 bang calls or multi-binding lets, the structural two-branch recursion, and
