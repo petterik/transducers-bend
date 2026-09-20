@@ -104,6 +104,13 @@ A predicate without configuration can use `Unit` for C. Mapping may change types
 
 Composition is nesting reducer adapters or declaring a reusable template, as above. There is no separate runtime `compose` function. An `over_*` adapter binds the complete reducer description to a source implementation; the initial accumulator is part of the consumer's configuration rather than another independent argument.
 
+The stable composition boundary is one reusable typed declaration. For example,
+`tests/api_surface.bend` declares a single `U32 -> Maybe<Nat>` pipeline and
+uses it with `count` and `into_list` over range, list, and an external tree.
+Callers provide only the source adapter, downstream consumer, and runtime
+configuration; they do not construct `Reducer`/`Reduction` records or repeat a
+source-specific fold.
+
 Custom consumers can construct `Reducer{C, S, start, step, finish}` directly. Both start and step return `Continue{state}` or `Stop{state}`. Completion runs once even when initialization stops. `reducing` supplies Continue automatically; construct a reducer directly when the consumer must stop early. See [the tests](tests/) for consumer stopping, affine state, type changes, and custom completion adapters.
 
 The sequential list and array drivers stop transformation immediately when they observe Stop. This includes `take(0)` at initialization. Releasing unused owned source data may still take time. Future strategies may permit bounded speculative pure work; that does not change the ordering or values of results.

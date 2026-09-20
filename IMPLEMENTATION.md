@@ -12,7 +12,7 @@ initialization.
 
 `tests/keep_partition.bend` exercises both operations through the independent
 tree source, plus affine function values and a reducer that consumes buffered
-groups. The full library suite now has 19 positive files and still runs on JS and
+groups. The full library suite now has 20 positive files and still runs on JS and
 native CPU. This is semantic evidence only; no compiler recognizer was added for
 either operation and buffered storage remains a real cost.
 
@@ -56,6 +56,15 @@ fixed by refusal, and the continuation/control proof needed for a tree fast
 path is still absent. The short-loop measurements likewise do not support a
 general profitability heuristic. See [PROFITABILITY.md](bench/compiler/PROFITABILITY.md)
 and [SHORT-LOOPS.md](bench/compiler/SHORT-LOOPS.md).
+
+## Public surface checkpoint
+
+`tests/api_surface.bend` is the focused API acceptance fixture. It declares one
+type-changing `keep` pipeline and reuses it with `count` and `into_list` over
+range, list, and the independent tree source. The current tuple-shaped runtime
+configuration stays explicit because it is the form the existing Bend type
+syntax expresses directly; introducing named configuration records would be a
+separate type-system/API proposal rather than a compatibility wrapper.
 
 ## Priority #3 follow-up
 
