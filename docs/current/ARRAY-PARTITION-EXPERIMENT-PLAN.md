@@ -189,4 +189,18 @@ build its lane's List before starting the timer; this check does not claim those
 List construction costs are measured equally. No runtime or allocation
 conclusion follows from these Boolean checks.
 
-Retention and measurement worksets remain open.
+### Workset 3: retained chunks — complete
+
+[`retained_probe.bend`](../../bench/array_partition/retained_probe.bend) sends
+all emitted List groups or Array chunks into `into_list`, completes the source,
+then traverses the retained groups and sums them. The 97-element input leaves a
+one-element last group at widths 1, 2, 3, and 8. Both representations produce
+the expected total of 4656 and group counts 97, 49, 33, and 13, respectively;
+all four checks agree across JS and native. See
+[`retained_probe-results.json`](../../bench/array_partition/retained_probe-results.json).
+
+This confirms the test actually observes every retained chunk after
+transduction. It does not imply reuse is possible while the emitted chunk is
+still live; allocation accounting is needed to quantify the difference.
+
+Allocation and timing worksets remain open.

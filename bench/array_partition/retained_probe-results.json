@@ -1,0 +1,46 @@
+{
+  "compiler_entry_sha256": "8c4dde245581f55afcfc3e731b4f45a62a601e5c6b3368f2efbed6c06a989c14",
+  "compiler_source_sha256": "04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d",
+  "retained_fixture_sha256": "65c4ce62911cdba2f3b43dd96ece33d8084e6cf3ff194d87a6209e9ba41a9f95",
+  "partition_fixture_sha256": "8f162b88c78184b834285838e6d2b18db85cabdc6d7501c77394dbeb53280a95",
+  "runner_sha256": "8d42713f5ae1e114ae02dcc364955ec4a45bc7aaec2f07890c5061924792f39a",
+  "build_seconds": 0.7497849999926984,
+  "c_bytes": 220290,
+  "js_bytes": 29619,
+  "semantic_checks": 4,
+  "js_native_equal": true,
+  "input_count": 97,
+  "expected_total": 4656,
+  "cases": [
+    {
+      "width": 1,
+      "expected_groups": 97,
+      "last_group_length": 1,
+      "list_retained": true,
+      "array_retained": true
+    },
+    {
+      "width": 2,
+      "expected_groups": 49,
+      "last_group_length": 1,
+      "list_retained": true,
+      "array_retained": true
+    },
+    {
+      "width": 3,
+      "expected_groups": 33,
+      "last_group_length": 1,
+      "list_retained": true,
+      "array_retained": true
+    },
+    {
+      "width": 8,
+      "expected_groups": 13,
+      "last_group_length": 1,
+      "list_retained": true,
+      "array_retained": true
+    }
+  ],
+  "js_output": "[True{}, True{}, True{}, True{}]",
+  "artifacts": null
+}
