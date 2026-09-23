@@ -169,5 +169,24 @@ The report is
 [`semantic_probe-results.json`](../../bench/array_partition/semantic_probe-results.json).
 It records compiler source SHA-256
 `04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d` and
-confirms equal JS/native output. Folding, retention, allocation, and timing
-worksets remain open.
+confirms equal JS/native output. Its 25 checks include the independent ordered
+reference and Array chunk summation.
+
+### Workset 2: folding consumer equivalence — complete
+
+[`fold_probe.bend`](../../bench/array_partition/fold_probe.bend) compares
+List-backed `partition_all`, the fixture Array reducer, and a direct fused
+partition-and-sum loop. It covers full consumption and a two-group bounded
+consumer at widths 1, 2, 3, and 8. All eight cases return the same sum on JS
+and native; the native output matches JS exactly. See
+[`fold_probe-results.json`](../../bench/array_partition/fold_probe-results.json)
+and rerun with `python3 bench/array_partition/run_fold_probe.py --bend-main
+/path/to/bendlang/bend/main.ts`.
+
+The semantic probe constructs equivalent numeric Lists independently because
+Bend Lists are affine and cannot be reused across lanes. The timed harness must
+build its lane's List before starting the timer; this check does not claim those
+List construction costs are measured equally. No runtime or allocation
+conclusion follows from these Boolean checks.
+
+Retention and measurement worksets remain open.

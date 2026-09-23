@@ -122,14 +122,14 @@ def array_item_after_get(result: Array<U32> & U32) -> ArrayItem:
   ArrayItem{next, x}
 
 type ReaderPhase is Type:
-  ReadArray{index: Nat, rev: List<U32>, items: Array<U32>}
-  ReadValue{index: Nat, rev: List<U32>, item: ArrayItem}
+  ReadArray{index: Nat, rev: List<U32>, total: U32, items: Array<U32>}
+  ReadValue{index: Nat, rev: List<U32>, total: U32, item: ArrayItem}
 
 def reader_values(phase: ReaderPhase) -> List<U32>:
   match phase:
-    case ReadArray{index, rev, items}:
+    case ReadArray{index, rev, total, items}:
       List.reverse(&1, U32, rev)
-    case ReadValue{index, rev, item}:
+    case ReadValue{index, rev, total, item}:
       List.reverse(&1, U32, rev)
 
 def chunk_values_loop(fuel: Nat, left: Nat, phase: ReaderPhase) -> List<U32>:
@@ -138,18 +138,63 @@ def chunk_values_loop(fuel: Nat, left: Nat, phase: ReaderPhase) -> List<U32>:
       reader_values(phase)
     case 1n+q 0n phase:
       reader_values(phase)
-    case 1n+q 1n+p ReadArray{+index, rev, items}:
+    case 1n+q 1n+p ReadArray{+index, rev, total, items}:
       chunk_values_loop(q, 1n+p,
-        ReadValue{index, rev,
+        ReadValue{index, rev, total,
           array_item_after_get(Array.get(U32, items, U32.from_nat(index)))})
-    case 1n+q 1n+p ReadValue{index, rev, ArrayItem{next, value}}:
+    case 1n+q 1n+p ReadValue{index, rev, total, ArrayItem{next, value}}:
       chunk_values_loop(q, p,
-        ReadArray{Nat.add(index, 1n), value <> rev, next})
+        ReadArray{Nat.add(index, 1n), value <> rev, total, next})
 
 def chunk_values(chunk: ArrayChunk) -> List<U32>:
   match chunk:
     case ArrayChunk{items, +len}:
-      chunk_values_loop(Nat.mul(len, 2n), len, ReadArray{0n, [], items})
+      chunk_values_loop(Nat.mul(len, 2n), len, ReadArray{0n, [], 0, items})
+
+def reader_total(phase: ReaderPhase) -> U32:
+  match phase:
+    case ReadArray{index, rev, total, items}:
+      total
+    case ReadValue{index, rev, total, item}:
+      total
+
+def chunk_sum_loop(fuel: Nat, left: Nat, phase: ReaderPhase) -> U32:
+  match fuel left phase:
+    case 0n left phase:
+      reader_total(phase)
+    case 1n+q 0n phase:
+      reader_total(phase)
+    case 1n+q 1n+p ReadArray{+index, rev, +total, items}:
+      chunk_sum_loop(q, 1n+p,
+        ReadValue{index, rev, total,
+          array_item_after_get(Array.get(U32, items, U32.from_nat(index)))})
+    case 1n+q 1n+p ReadValue{index, rev, total,
+      ArrayItem{next, value}}:
+      chunk_sum_loop(q, p,
+        ReadArray{Nat.add(index, 1n), rev, (total + value : U32), next})
+
+def array_chunk_sum(chunk: ArrayChunk) -> U32:
+  match chunk:
+    case ArrayChunk{items, +len}:
+      chunk_sum_loop(Nat.mul(len, 2n), len, ReadArray{0n, [], 0, items})
+
+def sum_values_loop(xs: List<U32>, +total: U32) -> U32:
+  match xs:
+    case Nil{}:
+      total
+    case x <> rest:
+      sum_values_loop(rest, (total + x : U32))
+
+def add_array_group(total: U32, chunk: ArrayChunk) -> U32:
+  (total + array_chunk_sum(chunk) : U32)
+
+def array_sum_reducer() -> T.Reducer<ArrayChunk, U32>:
+  T.reducing(~ArrayChunk, ~U32, ~U32, ~add_array_group, ~(s => s))
+
+def array_partition_sum(width: Nat, depth: Nat, xs: List<U32>) -> U32:
+  T.transduce(~T.over_list(~U32, ~U32,
+    ~partition_array(~U32, ~array_sum_reducer())),
+    (width, (depth, 0)), xs)
 
 def show_values(xs: List<U32>) -> String:
   List.show(~&1, ~U32, ~U32.show, xs)
@@ -286,10 +331,13 @@ def same_both(expected_list: List<List<U32>>,
 def case_ok(test: ProbeCase) -> Bool:
   match test:
     case ProbeCase{+width, +depth, +count}:
-      same_both(direct_partition(numbers(count, []), width),
+      groups_match = same_both(direct_partition(numbers(count, []), width),
         direct_partition(numbers(count, []), width),
         list_groups(width, numbers(count, [])),
         array_groups(width, depth, numbers(count, [])))
+      sums_match = U32.is_eq(array_partition_sum(width, depth,
+        numbers(count, [])), sum_values_loop(numbers(count, []), 0))
+      Bool.and(groups_match, sums_match)
 
 def cases_ok(cases: List<ProbeCase>) -> List<Bool>:
   match cases:
