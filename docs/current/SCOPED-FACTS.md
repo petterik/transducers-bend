@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T21:14:00+02:00
-status: current
+status: historical
 ---
 
 # Scoped constructor facts
@@ -9,6 +9,10 @@ status: current
 > reproduces wrong code in the facts compiler and a broken direct keep oracle.
 > Its workset assessment supersedes the completion/acceptance claims below;
 > historical individual test results remain recorded evidence.
+
+> Main-only update: this prototype is not in the active compiler path. The
+> `--facts` option was removed from `prepare_static.py`; these results came
+> from an older compiler candidate and do not describe `bendlang/main`.
 
 
 Status: isolated compiler prototype with a conservative helper boundary. This
@@ -48,8 +52,9 @@ optimization remains available while the current body is being emitted; the
 shared-helper boundary is intentionally conservative until checked specialized
 helper identities exist.
 
-The isolated compiler is built by
+The old isolated compiler was built by
 [`prepare_static.py`](../../bench/compiler/prepare_static.py) with `--facts`.
+That option no longer exists.
 The fixture uses a dynamic command-line flag to exercise a positive static
 constructor and a second constructor with a dynamic field. The candidate and
 the sibling compiler agree in native and JS output. The retained report is
@@ -64,18 +69,8 @@ the ordinary emitter. The full 20-file suite also passes on the isolated
 compiler, including the two-output JS-then-native build order. That order found
 the alias/static-image regression during review and is now part of the check.
 
-Reproduce the focused proof and the suite with:
-
-```sh
-facts=$(mktemp -d /tmp/transduce-facts.XXXXXX)
-python3 bench/compiler/prepare_static.py --facts --output-dir "$facts"
-python3 bench/compiler/test_scoped_constructor_fact.py \
-  --bend-main "$facts/main.ts" \
-  --output bench/compiler/scoped-constructor-fact-results.json
-python3 tests/run.py --bend-main "$facts/main.ts"
-```
-
-This does not close the full typed-region workset. Joins, recursive summaries,
+The old reproduction commands are intentionally omitted. This does not close
+the full typed-region workset. Joins, recursive summaries,
 continuation entry proofs, arbitrary affine fields, and general option
 constructor elimination remain open. The next representation work should use
 this fact boundary to compare a visible `Some`/`None` producer with its direct

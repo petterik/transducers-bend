@@ -10,7 +10,9 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--bend-main', type=Path,
-                    help='compiler to test; by default prepare a candidate from origin/main')
+                    help='compiler to test; by default prepare bendlang/main with the local static pass')
+parser.add_argument('--semantic-only', action='store_true',
+                    help='run every JS/native result check while skipping code-shape and callback-count gates')
 args = parser.parse_args()
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1', 'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 passed = 0
@@ -36,14 +38,14 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
         else:
             assert build.returncode == 0, (file.name, build.stdout + build.stderr)
             source = Path(str(out) + '.js').read_text()
-            if file.stem in {'pipeline', 'range', 'sources', 'extensions', 'lifecycle', 'array', 'keep_partition', 'api_surface'}:
+            if not args.semantic_only and file.stem in {'pipeline', 'range', 'sources', 'extensions', 'lifecycle', 'array', 'keep_partition', 'api_surface'}:
                 assert '{$: "Reducer"' not in source, (file.name, 'callback records remain')
                 assert '{$: "Reduction"' not in source, (file.name, 'source binding records remain')
             for lane, command in [('JS', ['bun', str(out) + '.js']),
                                   ('native', [str(out), '--threads', '1', '--gpu', 'off'])]:
                 result = subprocess.run(command, capture_output=True, text=True, timeout=10)
                 assert result.returncode == 0 and result.stdout.strip() == want, (file.name, lane, result.stdout, result.stderr, want)
-            if file.stem == 'pipeline':
+            if not args.semantic_only and file.stem == 'pipeline':
                 source = Path(str(out) + '.js').read_text()
                 assert '{$: "Reducer"' not in source, 'callback records remain: use the compiler specialization patch'
                 assert 'function $inc$(' in source
@@ -55,7 +57,7 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
                 # 3 for take(2) after filter, 0 for zero/empty, 3 for no
                 # matches, and 3 for oversized take: no mapping past stop.
                 assert result.returncode == 0 and result.stderr == '9', result.stderr
-            if file.stem == 'range':
+            if not args.semantic_only and file.stem == 'range':
                 source = Path(str(out) + '.js').read_text()
                 assert '{$: "Reducer"' not in source, 'range callback records remain'
                 source, replacements = re.subn(
@@ -75,7 +77,7 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
                 # the list pipeline's 3 inputs, but not identity/affine cases.
                 assert result.returncode == 0 and result.stderr == '16,13', result.stderr
                 assert result.stdout.strip() == want, result.stdout
-            if file.stem == 'lifecycle':
+            if not args.semantic_only and file.stem == 'lifecycle':
                 for function, counter in [('begin', 'starts'), ('advance', 'steps'),
                                           ('done', 'finishes'), ('expand_one', 'expansions')]:
                     source, replacements = re.subn(
@@ -89,7 +91,7 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
                 result = subprocess.run(['bun', str(instrumented)], capture_output=True, text=True, timeout=10)
                 assert result.returncode == 0 and result.stderr == '18,24,18,5', result.stderr
                 assert result.stdout.strip() == want, result.stdout
-            if file.stem == 'array':
+            if not args.semantic_only and file.stem == 'array':
                 for function, counter in [('pair', 'pair_calls'),
                                           ('maybe_pair', 'maybe_pair_calls')]:
                     source, replacements = re.subn(
@@ -109,4 +111,7 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
                 assert result.stdout.strip() == want, result.stdout
         passed += 1
         print('PASS', file.name)
-print(f'PASS: {passed} / {passed}; code generation, source/mapper counts, and bounded laws verified')
+if args.semantic_only:
+    print(f'PASS: {passed} / {passed}; JS/native outputs match')
+else:
+    print(f'PASS: {passed} / {passed}; code generation, source/mapper counts, and bounded laws verified')

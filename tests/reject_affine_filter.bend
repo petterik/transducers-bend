@@ -16,14 +16,7 @@ def main() -> U32:
 #|Error:
 #|- expected : Data
 #|- observed : Type
-#|Context:
-#|- A         : Data
-#|- R         : Type
-#|- C         : Data
-#|- predicate : @_:Unit -> @_:(@_:Unit -> U32) -> Bool
-#|- down      : ../transduce.Reducer<@_:Unit -> U32, U32>
-#|- state     : ../transduce.Configured<Unit, U32>
-#|Location: ../transduce.filter_step~0
+#|Location: bad
 #|10 | def bad() -> T.Reducer<(Unit -> U32), U32>:
 #|11>|   T.filter(~(Unit -> U32), ~U32, ~Unit, ~(u => f => accept(f)),
 #|12 |     ~T.reducing(~(Unit -> U32), ~U32, ~U32, ~add, ~(s => s)))

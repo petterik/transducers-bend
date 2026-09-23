@@ -1,9 +1,14 @@
 ---
 created_at: 2026-09-20T20:05:38+02:00
-status: current
+status: historical
 ---
 
 # Final validation checkpoint
+
+> Historical checkpoint: this report used the fork's `origin/main` at
+> `15ae0c86`, plus scoped-fact experiments. The active target is now only
+> `bendlang/main`; these compiler and performance results do not establish its
+> fusion or performance status. See the current main-only baseline and plan.
 
 The follow-up review found two concrete defects in the earlier checkpoint: a
 caller-specific fact could cross a shared native-helper boundary, and the

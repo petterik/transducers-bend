@@ -1,11 +1,11 @@
 ---
 created_at: 2026-09-20T22:18:25+02:00
-status: current
+status: historical
 ---
 
 # Extension/direct parity checkpoint
 
-This checkpoint measures the public `keep` and `partition_all` extensions
+This historical checkpoint measures the public `keep` and `partition_all` extensions
 against independent direct loops. It uses the contained facts compiler with
 compiler hash
 `a393e4f315a2c7a3286b241cee8c11a2fb346b5cdf530e3904c601953a1215d8` and
@@ -58,20 +58,13 @@ run agrees as well. The machine-readable report retains the raw paired
 samples, calibration batches, source hashes, and eligibility decision at
 [`bench/extension-parity-results.json`](../../bench/extension-parity-results.json).
 The harness is
-[`bench/extension_parity.py`](../../bench/extension_parity.py). Reproduce this
-checkpoint by preparing the same facts-enabled compiler from local
-`origin/main`, then running the retained parity protocol:
+[`bench/extension_parity.py`](../../bench/extension_parity.py). These numbers
+do not describe the current `bendlang/main` candidate and are not its
+performance gate. See the active
+[`BENDLANG-MAIN-INTEGRATION-PLAN.md`](BENDLANG-MAIN-INTEGRATION-PLAN.md) and
+[`BENDLANG-MAIN-BASELINE.md`](BENDLANG-MAIN-BASELINE.md).
 
-```sh
-python3 bench/compiler/prepare_static.py --facts \
-  --output-dir /tmp/transduce-facts-contained
-python3 bench/extension_parity.py \
-  --bend-main /tmp/transduce-facts-contained/main.ts \
-  --sessions 10 --pairs 5 --min-batch-ms 100 --bootstrap 1000 \
-  --output bench/extension-parity-results.json
-```
-
-This closes the measurement workset as an evidence checkpoint. The open rows
+This closes only the historical measurement workset. The open rows
 remain performance work; the 1.05 target is kept unchanged. The next useful
 optimization should reduce unnecessary option/control or group-boundary work,
 then rerun this same matrix and stopping contract.

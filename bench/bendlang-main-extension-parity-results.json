@@ -1,0 +1,4925 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler_sha256": "e2f59c5c847cd77d6992d734ad54a26780d3ac613dc60dfab88c1f0bf413e9b0",
+  "library_sha256": "98285606bf5c33bf17e9e703a164060b09666dac755ef9c1562781c3e4b4db14",
+  "harness_sha256": "20dd66b7c786c8621e63a536b2546e7bd8a6172b12856fd3f626ffbd566ab941",
+  "scope": "candidate compiler; sequential List source; CPU threads=1; GPU off; source construction and cleanup included",
+  "protocol": {
+    "sessions": 10,
+    "paired_batches_per_session": 5,
+    "min_batch_ms": 100,
+    "bootstrap_resamples": 1000,
+    "seed": 0,
+    "upper_ratio_target": 1.05,
+    "schedule": "paired process launches; first lane alternates by session and pair",
+    "calibration_excluded": true
+  },
+  "artifacts": "/private/tmp/bend-main-current-parity-artifacts",
+  "results": [
+    {
+      "case": "keep_full",
+      "kind": "keep",
+      "count": 200000,
+      "budget": 200000,
+      "repeats_per_batch": 256,
+      "expected_per_batch": 51199744,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 2,
+            "direct": 3
+          },
+          {
+            "repeats": 2,
+            "transducers": 4,
+            "direct": 4
+          },
+          {
+            "repeats": 4,
+            "transducers": 7,
+            "direct": 7
+          },
+          {
+            "repeats": 8,
+            "transducers": 13,
+            "direct": 13
+          },
+          {
+            "repeats": 16,
+            "transducers": 19,
+            "direct": 20
+          },
+          {
+            "repeats": 32,
+            "transducers": 27,
+            "direct": 29
+          },
+          {
+            "repeats": 64,
+            "transducers": 40,
+            "direct": 45
+          },
+          {
+            "repeats": 128,
+            "transducers": 70,
+            "direct": 73
+          },
+          {
+            "repeats": 256,
+            "transducers": 115,
+            "direct": 128
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "bea045a73ff2798e856d06ab29a4d2d5643119b218f0c8760c097ad67ae2585d",
+        "direct": "f90a666c5d8d4a7e706eec27eb5a06769e4a9a69b74c49d3e12d0020cb8d8869"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.424939832999371,
+          "c_bytes": 97469,
+          "js_bytes": 17804
+        },
+        "direct": {
+          "seconds": 0.40572791604790837,
+          "c_bytes": 93363,
+          "js_bytes": 16029
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 115,
+          "direct_ms": 128
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 88,
+          "direct_ms": 102
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 89,
+          "direct_ms": 102
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 99
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 89,
+          "direct_ms": 102
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 90,
+          "direct_ms": 100
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 89,
+          "direct_ms": 100
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 94,
+          "direct_ms": 100
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 89,
+          "direct_ms": 95
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 90,
+          "direct_ms": 100
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 89,
+          "direct_ms": 97
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 92,
+          "direct_ms": 102
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 91,
+          "direct_ms": 101
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 87,
+          "direct_ms": 97
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 88,
+          "direct_ms": 96
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 98
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 89,
+          "direct_ms": 94
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 99
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 88,
+          "direct_ms": 100
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 101
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 90,
+          "direct_ms": 100
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 88,
+          "direct_ms": 97
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 90,
+          "direct_ms": 98
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 90,
+          "direct_ms": 101
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 88,
+          "direct_ms": 101
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 99
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 89,
+          "direct_ms": 101
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 103
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 90,
+          "direct_ms": 101
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 90,
+          "direct_ms": 101
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 90,
+          "direct_ms": 98
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 90,
+          "direct_ms": 96
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 88,
+          "direct_ms": 103
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 96
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 89,
+          "direct_ms": 101
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 88,
+          "direct_ms": 102
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 94,
+          "direct_ms": 108
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 90,
+          "direct_ms": 101
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 93,
+          "direct_ms": 107
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 105
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 88,
+          "direct_ms": 97
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 97
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 88,
+          "direct_ms": 96
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 89,
+          "direct_ms": 102
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 90,
+          "direct_ms": 99
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 90,
+          "direct_ms": 100
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 89,
+          "direct_ms": 100
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 90,
+          "direct_ms": 98
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 90,
+          "direct_ms": 101
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 88,
+          "direct_ms": 99
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        0.8818011257035647,
+        0.9131313131313131,
+        0.9066937119675457,
+        0.9024390243902439,
+        0.89738430583501,
+        0.8851485148514852,
+        0.902834008097166,
+        0.8680688336520076,
+        0.9042769857433809,
+        0.8975903614457831
+      ],
+      "geometric_mean_ratio": 0.8958429294396598,
+      "bootstrap_upper_95_ratio": 0.902351675373934,
+      "status": "passes",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": false
+    },
+    {
+      "case": "keep_take_32",
+      "kind": "keep",
+      "count": 200000,
+      "budget": 32,
+      "repeats_per_batch": 128,
+      "expected_per_batch": 4096,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 4,
+            "direct": 5
+          },
+          {
+            "repeats": 2,
+            "transducers": 8,
+            "direct": 8
+          },
+          {
+            "repeats": 4,
+            "transducers": 15,
+            "direct": 15
+          },
+          {
+            "repeats": 8,
+            "transducers": 12,
+            "direct": 21
+          },
+          {
+            "repeats": 16,
+            "transducers": 35,
+            "direct": 35
+          },
+          {
+            "repeats": 32,
+            "transducers": 63,
+            "direct": 58
+          },
+          {
+            "repeats": 64,
+            "transducers": 97,
+            "direct": 98
+          },
+          {
+            "repeats": 128,
+            "transducers": 172,
+            "direct": 171
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "2fa26ee317bc9ddc4fa43b594983690217797d6f80080ed78d713d8c28c88398",
+        "direct": "3c99cc805f8491fa8b10f8c9aa060da19aa2811fe6691ad61f81b8e252b19cea"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.5473477500490844,
+          "c_bytes": 150069,
+          "js_bytes": 17793
+        },
+        "direct": {
+          "seconds": 0.5014189999783412,
+          "c_bytes": 145712,
+          "js_bytes": 16018
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 171,
+          "direct_ms": 171
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 164
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 165,
+          "direct_ms": 148
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 148,
+          "direct_ms": 142
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 143
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 164,
+          "direct_ms": 154
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 146,
+          "direct_ms": 165
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 145
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 142
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 148,
+          "direct_ms": 141
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 141
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 163
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 148,
+          "direct_ms": 144
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 151,
+          "direct_ms": 145
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 146,
+          "direct_ms": 143
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 142
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 145
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 163,
+          "direct_ms": 145
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 161,
+          "direct_ms": 153
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 147,
+          "direct_ms": 142
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 146,
+          "direct_ms": 143
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 146
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 143
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 146,
+          "direct_ms": 146
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 151,
+          "direct_ms": 163
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 147,
+          "direct_ms": 163
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 145
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 147,
+          "direct_ms": 145
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 163,
+          "direct_ms": 164
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 144
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 146,
+          "direct_ms": 142
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 143
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 146,
+          "direct_ms": 142
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 164,
+          "direct_ms": 142
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 146,
+          "direct_ms": 144
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 144
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 152,
+          "direct_ms": 141
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 146,
+          "direct_ms": 143
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 140
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 146,
+          "direct_ms": 147
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 145
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 144
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 163,
+          "direct_ms": 164
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 145
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 148
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 156
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 147,
+          "direct_ms": 145
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 148,
+          "direct_ms": 147
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 145
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 144
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        1.00390625,
+        1.001338688085676,
+        0.9932065217391305,
+        1.0440165061898212,
+        0.9878542510121457,
+        0.9776609724047306,
+        1.0462833099579243,
+        1.0251748251748252,
+        0.9906166219839142,
+        0.9877883310719131
+      ],
+      "geometric_mean_ratio": 1.005522739961914,
+      "bootstrap_upper_95_ratio": 1.0170037842963189,
+      "status": "passes",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": false
+    },
+    {
+      "case": "keep_type_change",
+      "kind": "keep_nat",
+      "count": 200000,
+      "budget": 200000,
+      "repeats_per_batch": 256,
+      "expected_per_batch": 373383168,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 12,
+            "direct": 2
+          },
+          {
+            "repeats": 2,
+            "transducers": 29,
+            "direct": 3
+          },
+          {
+            "repeats": 4,
+            "transducers": 48,
+            "direct": 7
+          },
+          {
+            "repeats": 8,
+            "transducers": 83,
+            "direct": 12
+          },
+          {
+            "repeats": 16,
+            "transducers": 141,
+            "direct": 20
+          },
+          {
+            "repeats": 32,
+            "transducers": 257,
+            "direct": 27
+          },
+          {
+            "repeats": 64,
+            "transducers": 489,
+            "direct": 41
+          },
+          {
+            "repeats": 128,
+            "transducers": 957,
+            "direct": 70
+          },
+          {
+            "repeats": 256,
+            "transducers": 1892,
+            "direct": 118
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "1e859869f92234aee1429577ad4ce4f454e2eca3389a9feea2e68244974d7b92",
+        "direct": "8a930ca6f5b3de2e9daff1da7f6b180775dea1548c403d5e9725c0cb22950722"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4275806249352172,
+          "c_bytes": 139665,
+          "js_bytes": 20884
+        },
+        "direct": {
+          "seconds": 0.3835032500792295,
+          "c_bytes": 93141,
+          "js_bytes": 16111
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1892,
+          "direct_ms": 127
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1874,
+          "direct_ms": 96
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1871,
+          "direct_ms": 96
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1871,
+          "direct_ms": 101
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1867,
+          "direct_ms": 94
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1875,
+          "direct_ms": 99
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1872,
+          "direct_ms": 92
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1878,
+          "direct_ms": 93
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1868,
+          "direct_ms": 93
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1878,
+          "direct_ms": 98
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1875,
+          "direct_ms": 97
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1874,
+          "direct_ms": 99
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1869,
+          "direct_ms": 94
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1866,
+          "direct_ms": 92
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1870,
+          "direct_ms": 99
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1884,
+          "direct_ms": 96
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1870,
+          "direct_ms": 100
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1871,
+          "direct_ms": 102
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1867,
+          "direct_ms": 98
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1866,
+          "direct_ms": 99
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1874,
+          "direct_ms": 97
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1866,
+          "direct_ms": 95
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1872,
+          "direct_ms": 104
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1873,
+          "direct_ms": 99
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1868,
+          "direct_ms": 100
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1893,
+          "direct_ms": 100
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1873,
+          "direct_ms": 100
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1874,
+          "direct_ms": 97
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1871,
+          "direct_ms": 98
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1864,
+          "direct_ms": 105
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1868,
+          "direct_ms": 97
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1867,
+          "direct_ms": 100
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1876,
+          "direct_ms": 108
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1877,
+          "direct_ms": 92
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1871,
+          "direct_ms": 93
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1873,
+          "direct_ms": 93
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1871,
+          "direct_ms": 94
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1876,
+          "direct_ms": 91
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1873,
+          "direct_ms": 101
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1871,
+          "direct_ms": 102
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1868,
+          "direct_ms": 96
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1878,
+          "direct_ms": 91
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1887,
+          "direct_ms": 99
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1871,
+          "direct_ms": 102
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1873,
+          "direct_ms": 99
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1877,
+          "direct_ms": 92
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1870,
+          "direct_ms": 102
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1873,
+          "direct_ms": 100
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1871,
+          "direct_ms": 93
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1872,
+          "direct_ms": 102
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        18.239299610894943,
+        19.728421052631578,
+        19.446985446985448,
+        18.905050505050504,
+        18.894949494949493,
+        18.75,
+        19.1,
+        19.467775467775468,
+        19.254620123203285,
+        19.14723926380368
+      ],
+      "geometric_mean_ratio": 19.08916113467717,
+      "bootstrap_upper_95_ratio": 19.282658592023783,
+      "status": "fails",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": false
+    },
+    {
+      "case": "keep_type_change_take_32",
+      "kind": "keep_nat",
+      "count": 200000,
+      "budget": 32,
+      "repeats_per_batch": 128,
+      "expected_per_batch": 67584,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 5,
+            "direct": 4
+          },
+          {
+            "repeats": 2,
+            "transducers": 8,
+            "direct": 8
+          },
+          {
+            "repeats": 4,
+            "transducers": 15,
+            "direct": 15
+          },
+          {
+            "repeats": 8,
+            "transducers": 22,
+            "direct": 23
+          },
+          {
+            "repeats": 16,
+            "transducers": 31,
+            "direct": 36
+          },
+          {
+            "repeats": 32,
+            "transducers": 59,
+            "direct": 58
+          },
+          {
+            "repeats": 64,
+            "transducers": 97,
+            "direct": 96
+          },
+          {
+            "repeats": 128,
+            "transducers": 172,
+            "direct": 165
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "bfcff502701a18ff61f3c8c9a00c24f507c21969e33455ca7b33227e84eae212",
+        "direct": "86faf2722b3c0f3db466207bde19494629c0adb41e67d6dfcb0b08d4cc44da2e"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4294784580124542,
+          "c_bytes": 139657,
+          "js_bytes": 20873
+        },
+        "direct": {
+          "seconds": 0.518429166986607,
+          "c_bytes": 151368,
+          "js_bytes": 16100
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 170,
+          "direct_ms": 148
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 141
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 146,
+          "direct_ms": 164
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 162
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 164,
+          "direct_ms": 144
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 165,
+          "direct_ms": 165
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 164,
+          "direct_ms": 144
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 165,
+          "direct_ms": 164
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 146,
+          "direct_ms": 142
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 147,
+          "direct_ms": 164
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 151,
+          "direct_ms": 149
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 140
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 141
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 141
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 141,
+          "direct_ms": 140
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 163,
+          "direct_ms": 163
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 150
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 161,
+          "direct_ms": 164
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 143
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 146,
+          "direct_ms": 163
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 141
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 139
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 142
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 147,
+          "direct_ms": 140
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 141,
+          "direct_ms": 144
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 142
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 146
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 166,
+          "direct_ms": 144
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 142
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 143
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 164,
+          "direct_ms": 142
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 146,
+          "direct_ms": 140
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 142
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 165,
+          "direct_ms": 142
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 164
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 148,
+          "direct_ms": 144
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 144
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 140
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 147,
+          "direct_ms": 140
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 145
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 146,
+          "direct_ms": 163
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 141
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 165,
+          "direct_ms": 163
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 146,
+          "direct_ms": 140
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 163
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 144
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 156,
+          "direct_ms": 145
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 163,
+          "direct_ms": 140
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 141
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 139
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        1.013175230566535,
+        1.0102695763799743,
+        1.0154711673699015,
+        0.9693486590038314,
+        1.018413597733711,
+        1.0390516039051605,
+        1.0465753424657533,
+        1.0182328190743337,
+        0.9636363636363636,
+        1.0606488011283497
+      ],
+      "geometric_mean_ratio": 1.0150637372405324,
+      "bootstrap_upper_95_ratio": 1.0294955786938706,
+      "status": "passes",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": false
+    },
+    {
+      "case": "partition_width_1",
+      "kind": "partition_count",
+      "count": 200000,
+      "size": 1,
+      "budget": 200000,
+      "repeats_per_batch": 256,
+      "expected_per_batch": 51200000,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 14,
+            "direct": 2
+          },
+          {
+            "repeats": 2,
+            "transducers": 22,
+            "direct": 4
+          },
+          {
+            "repeats": 4,
+            "transducers": 36,
+            "direct": 6
+          },
+          {
+            "repeats": 8,
+            "transducers": 62,
+            "direct": 12
+          },
+          {
+            "repeats": 16,
+            "transducers": 104,
+            "direct": 14
+          },
+          {
+            "repeats": 32,
+            "transducers": 186,
+            "direct": 25
+          },
+          {
+            "repeats": 64,
+            "transducers": 350,
+            "direct": 43
+          },
+          {
+            "repeats": 128,
+            "transducers": 675,
+            "direct": 67
+          },
+          {
+            "repeats": 256,
+            "transducers": 1332,
+            "direct": 120
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "50cdd75eaae6aecd29a0ce478b2a37d15c335b0f2f105c4070477cd77f38fabc",
+        "direct": "30c5dbe25300e63c14254109e415cbbf707d44e54047e07bee7b8810691fd999"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4282981250435114,
+          "c_bytes": 140067,
+          "js_bytes": 24001
+        },
+        "direct": {
+          "seconds": 0.3759040409931913,
+          "c_bytes": 91722,
+          "js_bytes": 15504
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1321,
+          "direct_ms": 128
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1302,
+          "direct_ms": 90
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1340,
+          "direct_ms": 95
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1301,
+          "direct_ms": 91
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1300,
+          "direct_ms": 95
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1303,
+          "direct_ms": 94
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1308,
+          "direct_ms": 96
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1295,
+          "direct_ms": 95
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1314,
+          "direct_ms": 93
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1302,
+          "direct_ms": 100
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1302,
+          "direct_ms": 99
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1305,
+          "direct_ms": 92
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1297,
+          "direct_ms": 105
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1298,
+          "direct_ms": 99
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1306,
+          "direct_ms": 99
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1301,
+          "direct_ms": 91
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1295,
+          "direct_ms": 90
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1297,
+          "direct_ms": 87
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1322,
+          "direct_ms": 88
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1297,
+          "direct_ms": 94
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1298,
+          "direct_ms": 92
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1301,
+          "direct_ms": 88
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1303,
+          "direct_ms": 92
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1314,
+          "direct_ms": 85
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1311,
+          "direct_ms": 93
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1306,
+          "direct_ms": 101
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1300,
+          "direct_ms": 94
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1295,
+          "direct_ms": 94
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1309,
+          "direct_ms": 91
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1293,
+          "direct_ms": 97
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1302,
+          "direct_ms": 95
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1303,
+          "direct_ms": 97
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1300,
+          "direct_ms": 91
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1303,
+          "direct_ms": 98
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1295,
+          "direct_ms": 88
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1307,
+          "direct_ms": 102
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1300,
+          "direct_ms": 91
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1316,
+          "direct_ms": 91
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1299,
+          "direct_ms": 98
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1302,
+          "direct_ms": 101
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1303,
+          "direct_ms": 98
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1302,
+          "direct_ms": 92
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1299,
+          "direct_ms": 92
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1303,
+          "direct_ms": 90
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1312,
+          "direct_ms": 93
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1296,
+          "direct_ms": 99
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1300,
+          "direct_ms": 93
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1298,
+          "direct_ms": 94
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1319,
+          "direct_ms": 103
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1303,
+          "direct_ms": 97
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        13.154308617234468,
+        13.644351464435147,
+        13.17408906882591,
+        14.471111111111112,
+        14.504444444444445,
+        13.633123689727464,
+        13.865671641791044,
+        13.507246376811594,
+        14.019354838709678,
+        13.407407407407407
+      ],
+      "geometric_mean_ratio": 13.730679940313786,
+      "bootstrap_upper_95_ratio": 13.96962341297498,
+      "status": "fails",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": false
+    },
+    {
+      "case": "partition_width_8",
+      "kind": "partition_count",
+      "count": 200000,
+      "size": 8,
+      "budget": 200000,
+      "repeats_per_batch": 64,
+      "expected_per_batch": 1600000,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 13,
+            "direct": 5
+          },
+          {
+            "repeats": 2,
+            "transducers": 23,
+            "direct": 9
+          },
+          {
+            "repeats": 4,
+            "transducers": 38,
+            "direct": 16
+          },
+          {
+            "repeats": 8,
+            "transducers": 67,
+            "direct": 24
+          },
+          {
+            "repeats": 16,
+            "transducers": 111,
+            "direct": 40
+          },
+          {
+            "repeats": 32,
+            "transducers": 201,
+            "direct": 66
+          },
+          {
+            "repeats": 64,
+            "transducers": 369,
+            "direct": 110
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "13d243169210a7ef05e24cffb453031cdc080829b479397b237e0e7ac6552df7",
+        "direct": "26ec46175307e6de4e8c874afed0c964104b3dd163925aa4f9208231f54f432f"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4244054170558229,
+          "c_bytes": 140065,
+          "js_bytes": 24000
+        },
+        "direct": {
+          "seconds": 0.3986819999990985,
+          "c_bytes": 121964,
+          "js_bytes": 15503
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 380,
+          "direct_ms": 113
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 353,
+          "direct_ms": 90
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 354,
+          "direct_ms": 88
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 355,
+          "direct_ms": 88
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 346,
+          "direct_ms": 89
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 356,
+          "direct_ms": 89
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 351,
+          "direct_ms": 84
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 353,
+          "direct_ms": 84
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 352,
+          "direct_ms": 84
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 353,
+          "direct_ms": 89
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 344,
+          "direct_ms": 89
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 357,
+          "direct_ms": 89
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 352,
+          "direct_ms": 89
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 347,
+          "direct_ms": 89
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 352,
+          "direct_ms": 90
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 354,
+          "direct_ms": 90
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 354,
+          "direct_ms": 85
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 357,
+          "direct_ms": 89
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 349,
+          "direct_ms": 89
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 345,
+          "direct_ms": 85
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 350,
+          "direct_ms": 88
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 352,
+          "direct_ms": 84
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 351,
+          "direct_ms": 89
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 347,
+          "direct_ms": 85
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 356,
+          "direct_ms": 88
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 356,
+          "direct_ms": 89
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 352,
+          "direct_ms": 88
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 346,
+          "direct_ms": 88
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 357,
+          "direct_ms": 85
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 349,
+          "direct_ms": 89
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 351,
+          "direct_ms": 89
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 354,
+          "direct_ms": 88
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 337,
+          "direct_ms": 89
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 344,
+          "direct_ms": 85
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 345,
+          "direct_ms": 85
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 347,
+          "direct_ms": 89
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 351,
+          "direct_ms": 89
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 353,
+          "direct_ms": 89
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 354,
+          "direct_ms": 84
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 342,
+          "direct_ms": 89
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 352,
+          "direct_ms": 88
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 350,
+          "direct_ms": 88
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 345,
+          "direct_ms": 89
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 351,
+          "direct_ms": 85
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 350,
+          "direct_ms": 89
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 351,
+          "direct_ms": 91
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 355,
+          "direct_ms": 89
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 354,
+          "direct_ms": 89
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 355,
+          "direct_ms": 88
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 356,
+          "direct_ms": 88
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        3.8205128205128207,
+        4.104651162790698,
+        3.928251121076233,
+        4.0159817351598175,
+        4.046082949308755,
+        4.009111617312073,
+        3.970183486238532,
+        3.9704545454545452,
+        3.9817767653758542,
+        3.979775280898876
+      ],
+      "geometric_mean_ratio": 3.9820417422387786,
+      "bootstrap_upper_95_ratio": 4.017394039643837,
+      "status": "fails",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": false
+    },
+    {
+      "case": "partition_take_2",
+      "kind": "partition_count",
+      "count": 200000,
+      "size": 8,
+      "budget": 2,
+      "repeats_per_batch": 128,
+      "expected_per_batch": 256,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 5,
+            "direct": 5
+          },
+          {
+            "repeats": 2,
+            "transducers": 8,
+            "direct": 8
+          },
+          {
+            "repeats": 4,
+            "transducers": 13,
+            "direct": 14
+          },
+          {
+            "repeats": 8,
+            "transducers": 21,
+            "direct": 21
+          },
+          {
+            "repeats": 16,
+            "transducers": 34,
+            "direct": 35
+          },
+          {
+            "repeats": 32,
+            "transducers": 39,
+            "direct": 58
+          },
+          {
+            "repeats": 64,
+            "transducers": 96,
+            "direct": 94
+          },
+          {
+            "repeats": 128,
+            "transducers": 166,
+            "direct": 165
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "0b9e34035769328ff1b17ee2bbc57956c24be8ba21ab8b6e10cf8a8b889d6da5",
+        "direct": "78e9f80d8b926f0d7045c76cd475e0ee50cce8939b43f809ff427dc7aa19ceca"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4249943330651149,
+          "c_bytes": 140057,
+          "js_bytes": 23989
+        },
+        "direct": {
+          "seconds": 0.48719679203350097,
+          "c_bytes": 153377,
+          "js_bytes": 15492
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 168,
+          "direct_ms": 167
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 143
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 182
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 147,
+          "direct_ms": 148
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 165
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 143
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 166,
+          "direct_ms": 146
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 144
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 165
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 144
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 143
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 144
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 165,
+          "direct_ms": 144
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 164
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 146
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 144
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 164
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 143
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 143
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 143
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 144
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 165,
+          "direct_ms": 144
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 165
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 146
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 163,
+          "direct_ms": 144
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 147
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 143
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 141
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 164
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 144
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 143
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 166,
+          "direct_ms": 144
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 143
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 142
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 141
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 142
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 141,
+          "direct_ms": 143
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 143
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 165
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 141
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 143
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 142
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 143
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 164
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 142
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 144
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 143
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 144
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 144
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 144
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        0.9254658385093167,
+        0.9946091644204852,
+        0.9973009446693657,
+        0.9728629579375848,
+        1.0242261103633916,
+        0.9715832205683356,
+        1.0364656381486677,
+        0.9768392370572208,
+        0.9713896457765667,
+        0.9958275382475661
+      ],
+      "geometric_mean_ratio": 0.9862163999697654,
+      "bootstrap_upper_95_ratio": 1.0014770734041283,
+      "status": "passes",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": false
+    },
+    {
+      "case": "partition_sum_width_1",
+      "kind": "partition_sum",
+      "count": 200000,
+      "size": 1,
+      "budget": 200000,
+      "repeats_per_batch": 256,
+      "expected_per_batch": 373383168,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 14,
+            "direct": 3
+          },
+          {
+            "repeats": 2,
+            "transducers": 26,
+            "direct": 4
+          },
+          {
+            "repeats": 4,
+            "transducers": 45,
+            "direct": 7
+          },
+          {
+            "repeats": 8,
+            "transducers": 78,
+            "direct": 12
+          },
+          {
+            "repeats": 16,
+            "transducers": 131,
+            "direct": 19
+          },
+          {
+            "repeats": 32,
+            "transducers": 237,
+            "direct": 30
+          },
+          {
+            "repeats": 64,
+            "transducers": 453,
+            "direct": 48
+          },
+          {
+            "repeats": 128,
+            "transducers": 875,
+            "direct": 86
+          },
+          {
+            "repeats": 256,
+            "transducers": 1750,
+            "direct": 123
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "1b3851872f628e6790fcec3801be210f903364c89ec3ce78ec4ad3c591583cfd",
+        "direct": "2935e8390ee9011ae1f3fc5f3302630f34e5ed96fb3d11191df66d2e45b15dcd"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4815432500327006,
+          "c_bytes": 164746,
+          "js_bytes": 24977
+        },
+        "direct": {
+          "seconds": 0.403246583067812,
+          "c_bytes": 92691,
+          "js_bytes": 15907
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1733,
+          "direct_ms": 111
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1713,
+          "direct_ms": 92
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1718,
+          "direct_ms": 97
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1729,
+          "direct_ms": 94
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1708,
+          "direct_ms": 92
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1703,
+          "direct_ms": 96
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1725,
+          "direct_ms": 89
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1723,
+          "direct_ms": 99
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1710,
+          "direct_ms": 95
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1721,
+          "direct_ms": 94
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1713,
+          "direct_ms": 98
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1712,
+          "direct_ms": 97
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1725,
+          "direct_ms": 94
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1715,
+          "direct_ms": 92
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1719,
+          "direct_ms": 95
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1719,
+          "direct_ms": 92
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1705,
+          "direct_ms": 101
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1703,
+          "direct_ms": 98
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1711,
+          "direct_ms": 99
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1707,
+          "direct_ms": 96
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1709,
+          "direct_ms": 93
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1716,
+          "direct_ms": 91
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1718,
+          "direct_ms": 98
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1716,
+          "direct_ms": 92
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1726,
+          "direct_ms": 95
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1723,
+          "direct_ms": 105
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1719,
+          "direct_ms": 90
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1719,
+          "direct_ms": 93
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1719,
+          "direct_ms": 99
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1713,
+          "direct_ms": 96
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1717,
+          "direct_ms": 91
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1725,
+          "direct_ms": 97
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1718,
+          "direct_ms": 93
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1717,
+          "direct_ms": 95
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1715,
+          "direct_ms": 95
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1723,
+          "direct_ms": 91
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1727,
+          "direct_ms": 91
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1717,
+          "direct_ms": 92
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1710,
+          "direct_ms": 98
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1713,
+          "direct_ms": 96
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1725,
+          "direct_ms": 93
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1715,
+          "direct_ms": 90
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1718,
+          "direct_ms": 92
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1728,
+          "direct_ms": 93
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1714,
+          "direct_ms": 92
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1724,
+          "direct_ms": 93
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1712,
+          "direct_ms": 95
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1713,
+          "direct_ms": 95
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1722,
+          "direct_ms": 91
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1712,
+          "direct_ms": 96
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        17.69753086419753,
+        18.143763213530654,
+        18.03361344537815,
+        17.58230452674897,
+        18.30490405117271,
+        17.790890269151138,
+        18.24203821656051,
+        18.354700854700855,
+        18.695652173913043,
+        18.261702127659575
+      ],
+      "geometric_mean_ratio": 18.107839172362997,
+      "bootstrap_upper_95_ratio": 18.27887603560771,
+      "status": "fails",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": true
+    },
+    {
+      "case": "partition_sum_width_2",
+      "kind": "partition_sum",
+      "count": 200000,
+      "size": 2,
+      "budget": 200000,
+      "repeats_per_batch": 256,
+      "expected_per_batch": 373383168,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 14,
+            "direct": 2
+          },
+          {
+            "repeats": 2,
+            "transducers": 24,
+            "direct": 4
+          },
+          {
+            "repeats": 4,
+            "transducers": 39,
+            "direct": 7
+          },
+          {
+            "repeats": 8,
+            "transducers": 66,
+            "direct": 13
+          },
+          {
+            "repeats": 16,
+            "transducers": 113,
+            "direct": 18
+          },
+          {
+            "repeats": 32,
+            "transducers": 202,
+            "direct": 33
+          },
+          {
+            "repeats": 64,
+            "transducers": 381,
+            "direct": 54
+          },
+          {
+            "repeats": 128,
+            "transducers": 741,
+            "direct": 91
+          },
+          {
+            "repeats": 256,
+            "transducers": 1458,
+            "direct": 160
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "63b96ae48893db0db69d2774644c96c3be1ce7ef564a8cead507dff81288a33a",
+        "direct": "911694958f8acf4c8d9147b5e0159aa9626ea341b042500228ebfb12a5160da6"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.477595999953337,
+          "c_bytes": 164746,
+          "js_bytes": 24977
+        },
+        "direct": {
+          "seconds": 0.408631999976933,
+          "c_bytes": 92691,
+          "js_bytes": 15907
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1453,
+          "direct_ms": 161
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1418,
+          "direct_ms": 137
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1418,
+          "direct_ms": 134
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1431,
+          "direct_ms": 137
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1431,
+          "direct_ms": 134
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1435,
+          "direct_ms": 136
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1435,
+          "direct_ms": 136
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1430,
+          "direct_ms": 137
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1438,
+          "direct_ms": 138
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1429,
+          "direct_ms": 139
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1430,
+          "direct_ms": 135
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1435,
+          "direct_ms": 136
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1427,
+          "direct_ms": 136
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1424,
+          "direct_ms": 136
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1423,
+          "direct_ms": 136
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1426,
+          "direct_ms": 135
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1428,
+          "direct_ms": 137
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1420,
+          "direct_ms": 132
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1439,
+          "direct_ms": 135
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1429,
+          "direct_ms": 135
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1431,
+          "direct_ms": 135
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1422,
+          "direct_ms": 135
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1443,
+          "direct_ms": 136
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1433,
+          "direct_ms": 135
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1434,
+          "direct_ms": 136
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1427,
+          "direct_ms": 135
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1426,
+          "direct_ms": 134
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1449,
+          "direct_ms": 132
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1434,
+          "direct_ms": 136
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1435,
+          "direct_ms": 136
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1432,
+          "direct_ms": 135
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1433,
+          "direct_ms": 134
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1425,
+          "direct_ms": 133
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1433,
+          "direct_ms": 136
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1418,
+          "direct_ms": 134
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1431,
+          "direct_ms": 132
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1423,
+          "direct_ms": 133
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1435,
+          "direct_ms": 134
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1440,
+          "direct_ms": 127
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1431,
+          "direct_ms": 129
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1407,
+          "direct_ms": 134
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1434,
+          "direct_ms": 135
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1440,
+          "direct_ms": 135
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1429,
+          "direct_ms": 134
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1432,
+          "direct_ms": 133
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1437,
+          "direct_ms": 134
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1433,
+          "direct_ms": 133
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1431,
+          "direct_ms": 134
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1431,
+          "direct_ms": 133
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1427,
+          "direct_ms": 135
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        10.172119487908962,
+        10.447521865889213,
+        10.5139911634757,
+        10.596439169139465,
+        10.580502215657312,
+        10.655274888558692,
+        10.626488095238095,
+        10.931297709923664,
+        10.64381520119225,
+        10.701046337817639
+      ],
+      "geometric_mean_ratio": 10.585242923837134,
+      "bootstrap_upper_95_ratio": 10.675764431822962,
+      "status": "fails",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": true
+    },
+    {
+      "case": "partition_sum_width_8",
+      "kind": "partition_sum",
+      "count": 200000,
+      "size": 8,
+      "budget": 200000,
+      "repeats_per_batch": 256,
+      "expected_per_batch": 373383168,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 13,
+            "direct": 2
+          },
+          {
+            "repeats": 2,
+            "transducers": 21,
+            "direct": 4
+          },
+          {
+            "repeats": 4,
+            "transducers": 34,
+            "direct": 8
+          },
+          {
+            "repeats": 8,
+            "transducers": 58,
+            "direct": 11
+          },
+          {
+            "repeats": 16,
+            "transducers": 102,
+            "direct": 22
+          },
+          {
+            "repeats": 32,
+            "transducers": 185,
+            "direct": 35
+          },
+          {
+            "repeats": 64,
+            "transducers": 345,
+            "direct": 54
+          },
+          {
+            "repeats": 128,
+            "transducers": 666,
+            "direct": 93
+          },
+          {
+            "repeats": 256,
+            "transducers": 1328,
+            "direct": 159
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "ef92761e2266f668feac94faa8c6d5c79ab9ae2a22e4e827ec5b7b4501c6183a",
+        "direct": "3f5cacdc8e6bd960701bfe924cd5aba3d73274a7471cfc69d2b7159c9025e7a0"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.48587983404286206,
+          "c_bytes": 164746,
+          "js_bytes": 24977
+        },
+        "direct": {
+          "seconds": 0.4106160419760272,
+          "c_bytes": 92691,
+          "js_bytes": 15907
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1309,
+          "direct_ms": 160
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1286,
+          "direct_ms": 134
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1289,
+          "direct_ms": 133
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1283,
+          "direct_ms": 134
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1296,
+          "direct_ms": 135
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1281,
+          "direct_ms": 133
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1265,
+          "direct_ms": 135
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1283,
+          "direct_ms": 134
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1267,
+          "direct_ms": 135
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1282,
+          "direct_ms": 134
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1272,
+          "direct_ms": 134
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1285,
+          "direct_ms": 135
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1266,
+          "direct_ms": 134
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1263,
+          "direct_ms": 134
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1284,
+          "direct_ms": 133
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1264,
+          "direct_ms": 134
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1261,
+          "direct_ms": 133
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1281,
+          "direct_ms": 135
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1294,
+          "direct_ms": 134
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1281,
+          "direct_ms": 134
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1280,
+          "direct_ms": 135
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1286,
+          "direct_ms": 134
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1288,
+          "direct_ms": 132
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1292,
+          "direct_ms": 133
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1286,
+          "direct_ms": 134
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1286,
+          "direct_ms": 135
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1282,
+          "direct_ms": 133
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1290,
+          "direct_ms": 134
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1279,
+          "direct_ms": 133
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1281,
+          "direct_ms": 136
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1286,
+          "direct_ms": 133
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1292,
+          "direct_ms": 135
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1273,
+          "direct_ms": 134
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1293,
+          "direct_ms": 135
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1280,
+          "direct_ms": 133
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1284,
+          "direct_ms": 133
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1266,
+          "direct_ms": 134
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1286,
+          "direct_ms": 134
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1287,
+          "direct_ms": 133
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1287,
+          "direct_ms": 134
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 1274,
+          "direct_ms": 133
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 1309,
+          "direct_ms": 131
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 1289,
+          "direct_ms": 136
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 1291,
+          "direct_ms": 134
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 1289,
+          "direct_ms": 132
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 1269,
+          "direct_ms": 135
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 1273,
+          "direct_ms": 133
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 1266,
+          "direct_ms": 135
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 1266,
+          "direct_ms": 134
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 1270,
+          "direct_ms": 134
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        9.285919540229886,
+        9.50521609538003,
+        9.507462686567164,
+        9.523880597014925,
+        9.62874251497006,
+        9.564828614008942,
+        9.588059701492538,
+        9.595808383233534,
+        9.687687687687689,
+        9.454545454545455
+      ],
+      "geometric_mean_ratio": 9.533635266695791,
+      "bootstrap_upper_95_ratio": 9.584828413187347,
+      "status": "fails",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": true
+    },
+    {
+      "case": "partition_sum_take_2",
+      "kind": "partition_sum",
+      "count": 200000,
+      "size": 8,
+      "budget": 2,
+      "repeats_per_batch": 128,
+      "expected_per_batch": 15360,
+      "calibration": {
+        "fixed": false,
+        "batches": [
+          {
+            "repeats": 1,
+            "transducers": 5,
+            "direct": 5
+          },
+          {
+            "repeats": 2,
+            "transducers": 8,
+            "direct": 8
+          },
+          {
+            "repeats": 4,
+            "transducers": 15,
+            "direct": 15
+          },
+          {
+            "repeats": 8,
+            "transducers": 22,
+            "direct": 20
+          },
+          {
+            "repeats": 16,
+            "transducers": 34,
+            "direct": 34
+          },
+          {
+            "repeats": 32,
+            "transducers": 58,
+            "direct": 58
+          },
+          {
+            "repeats": 64,
+            "transducers": 96,
+            "direct": 97
+          },
+          {
+            "repeats": 128,
+            "transducers": 158,
+            "direct": 169
+          }
+        ]
+      },
+      "program_sha256": {
+        "transducers": "60c3739954cb4f9d5e44680925dbaf04850643604b840fa21da1422e0582925d",
+        "direct": "59be736ea072b34bd6b0538b85300c56429bb3242248261ac826a59f46037c6a"
+      },
+      "builds": {
+        "transducers": {
+          "seconds": 0.4826559580396861,
+          "c_bytes": 164736,
+          "js_bytes": 24965
+        },
+        "direct": {
+          "seconds": 0.5009402920259163,
+          "c_bytes": 148468,
+          "js_bytes": 15895
+        }
+      },
+      "samples": [
+        {
+          "session": 0,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 168,
+          "direct_ms": 169
+        },
+        {
+          "session": 0,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 164
+        },
+        {
+          "session": 0,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 141,
+          "direct_ms": 142
+        },
+        {
+          "session": 0,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 144
+        },
+        {
+          "session": 0,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 142
+        },
+        {
+          "session": 1,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 140,
+          "direct_ms": 142
+        },
+        {
+          "session": 1,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 143
+        },
+        {
+          "session": 1,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 144
+        },
+        {
+          "session": 1,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 140,
+          "direct_ms": 143
+        },
+        {
+          "session": 1,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 140
+        },
+        {
+          "session": 2,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 143
+        },
+        {
+          "session": 2,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 142
+        },
+        {
+          "session": 2,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 164
+        },
+        {
+          "session": 2,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 141,
+          "direct_ms": 143
+        },
+        {
+          "session": 2,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 164,
+          "direct_ms": 144
+        },
+        {
+          "session": 3,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 142
+        },
+        {
+          "session": 3,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 147
+        },
+        {
+          "session": 3,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 167,
+          "direct_ms": 164
+        },
+        {
+          "session": 3,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 145
+        },
+        {
+          "session": 3,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 144
+        },
+        {
+          "session": 4,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 144
+        },
+        {
+          "session": 4,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 144
+        },
+        {
+          "session": 4,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 164,
+          "direct_ms": 142
+        },
+        {
+          "session": 4,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 143
+        },
+        {
+          "session": 4,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 165,
+          "direct_ms": 143
+        },
+        {
+          "session": 5,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 142
+        },
+        {
+          "session": 5,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 163,
+          "direct_ms": 164
+        },
+        {
+          "session": 5,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 142
+        },
+        {
+          "session": 5,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 144
+        },
+        {
+          "session": 5,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 143
+        },
+        {
+          "session": 6,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 164,
+          "direct_ms": 164
+        },
+        {
+          "session": 6,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 165
+        },
+        {
+          "session": 6,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 163
+        },
+        {
+          "session": 6,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 146,
+          "direct_ms": 142
+        },
+        {
+          "session": 6,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 145,
+          "direct_ms": 165
+        },
+        {
+          "session": 7,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 142
+        },
+        {
+          "session": 7,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 145
+        },
+        {
+          "session": 7,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 143
+        },
+        {
+          "session": 7,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 144
+        },
+        {
+          "session": 7,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 143,
+          "direct_ms": 144
+        },
+        {
+          "session": 8,
+          "pair": 0,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 144
+        },
+        {
+          "session": 8,
+          "pair": 1,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 148
+        },
+        {
+          "session": 8,
+          "pair": 2,
+          "first": "transducers",
+          "transducers_ms": 142,
+          "direct_ms": 148
+        },
+        {
+          "session": 8,
+          "pair": 3,
+          "first": "direct",
+          "transducers_ms": 145,
+          "direct_ms": 147
+        },
+        {
+          "session": 8,
+          "pair": 4,
+          "first": "transducers",
+          "transducers_ms": 144,
+          "direct_ms": 144
+        },
+        {
+          "session": 9,
+          "pair": 0,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 163
+        },
+        {
+          "session": 9,
+          "pair": 1,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 144
+        },
+        {
+          "session": 9,
+          "pair": 2,
+          "first": "direct",
+          "transducers_ms": 144,
+          "direct_ms": 149
+        },
+        {
+          "session": 9,
+          "pair": 3,
+          "first": "transducers",
+          "transducers_ms": 143,
+          "direct_ms": 145
+        },
+        {
+          "session": 9,
+          "pair": 4,
+          "first": "direct",
+          "transducers_ms": 142,
+          "direct_ms": 145
+        }
+      ],
+      "unusable_sessions": [],
+      "session_ratios": [
+        0.973718791064389,
+        0.9971910112359551,
+        0.998641304347826,
+        0.9959568733153639,
+        1.058659217877095,
+        0.998639455782313,
+        0.9274092615769712,
+        0.9930362116991643,
+        0.9794801641586868,
+        0.9571045576407506
+      ],
+      "geometric_mean_ratio": 0.9874652953881606,
+      "bootstrap_upper_95_ratio": 1.0043173542471961,
+      "status": "passes",
+      "statistical_eligibility": {
+        "required_sessions": 10,
+        "required_pairs": 5,
+        "met": true
+      },
+      "equivalent_group_consumer": true
+    }
+  ]
+}

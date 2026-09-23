@@ -1,9 +1,14 @@
 ---
 created_at: 2026-09-19T11:44:38+02:00
-status: current
+status: historical
 ---
 
 # Hand-off: Bend transducers
+
+> This hand-off records earlier work. The active compiler target and next
+> steps are in [BENDLANG-MAIN-INTEGRATION-PLAN.md](BENDLANG-MAIN-INTEGRATION-PLAN.md)
+> and [BENDLANG-MAIN-BASELINE.md](BENDLANG-MAIN-BASELINE.md). Only
+> `bendlang/bend:main` is supported for compiler integration.
 
 > Review update: the [follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
 > reproduces wrong code in the facts compiler and a broken direct keep oracle.

@@ -1,196 +1,143 @@
 ---
 created_at: 2026-09-23T14:20:13+02:00
-status: proposed
+updated_at: 2026-09-23T16:33:34+02:00
+status: active
 ---
 
 # Integrating transducer fusion with bendlang/main
 
-This is a plan for review, not a claim that the port is complete. The target is a
-general compiler optimization for **statically known callback values**, independent
-of `Reducer`, `Tree`, or any particular transducer. A new reducible source should
-get the same optimization when it passes a closed reducer recipe. The library
-can then add `remove`, `keep`, `partition_all`, and other stages without new
-compiler recognizers. `keep` remains the existing composition of `map` and
-optional-value flattening.
+This plan targets **only `bendlang/bend:main`**. The goal is one compiler
+optimization for statically known callback values that does not recognize
+`Reducer`, `Tree`, or individual transducer names. A new source should get the
+same behavior when it supplies a closed reducer recipe. `keep` remains the
+composition of `map` and optional-value flattening.
 
-## Decision and evidence
+## What the language guide implies
 
-Target `bendlang/main` commit
-`26659268dbdf411696bf90d28e722783dceae0f8` (the fetched upstream ref),
-with `bend2/comp.ts` SHA-256
-`10afb08dd55a52bfbb88fdf84534cebdc000bdf7820c69cee1d6bb3fcfaf7d7b`.
-Keep the current fork-main candidate at
-`15ae0c86f3193b8f645b4bedbc438655b648d0da` as a measured control until
-the replacement passes the full gates. Archive Git refs into temporary compiler
-candidates; do not edit the sibling `../bend` checkout. In particular, its
-`AGENTS.md` reserves `bend2/bend.ts` as the language/checker and says not to
-edit it.
+The current upstream guide says `~` arguments are closed syntax, substituted at
+compile time, with a separate compiled copy for each distinct argument set.
+Closures are affine, and recursion is how Bend expresses loops. Bend has no
+implicit protocol or trait dispatch. “Reducible source” therefore means an
+explicit library adapter contract, not a compiler-discovered interface. Source
+ownership and live state stay in checked Bend code; templates expose callback
+code to the compiler.
 
-A temporary port of only the current `def_body` specialization (one changed
-`Name` signature and one changed source hash) compiled and ran the focused
-API and five callback fixtures on JS and native. It then failed
-`tests/extensions.bend`: upstream candidate JS retained **two** runtime
-`Reducer` records, versus **zero** with the fork-main facts candidate. The
-upstream output was semantically right (`[1, 2]`, `[]`, `0`, `7`), but its
-recursive tree step rebuilt a reducer and called `T.step` dynamically. Passing
-direct `T.take(...)` expressions did not fix it. The first bad upstream commit
-is `ee7efc91e9c6695969f025c875ef81f6ea1f8af0`, which changed template
-instantiation: a checked `F~n` instance is minted at a live call. Thus passing
-the narrow self-check is not enough to switch the default compiler.
+## Decision and current evidence
 
-The current evaluator's `Ref` case assumes every `Def.e` is an ordinary body.
-On new main, a generic `Def.x > 0` already has its `~` binders removed for
-checking. Evaluating it as an ordinary function can fail (as seen when
-`into_list` becomes a `Reducer` before its `~U32` application), or worse,
-produce an apparently successful but wrong static value. This is a correctness
-bug in the port, not a mere missed optimization. **No pass may unfold a
-generic template directly.**
+The refreshed `bendlang/main` ref is
+`6a77e1246c351055cb15031267a7c76c87036cbc`. Its `bend2/comp.ts` is unchanged
+at SHA-256 `10afb08dd55a52bfbb88fdf84534cebdc000bdf7820c69cee1d6bb3fcfaf7d7b`
+from the previously tested upstream commit. The new commits add named-package
+imports in the checker and guide, not compiler changes. The build harness now
+reads only the `bendlang/main` remote-tracking ref; it does not accept the fork's
+`origin/main`. The sibling checkout remains unmodified.
 
-## Integration point
+The isolated candidate's compiler hash is
+`e2f59c5c847cd77d6992d734ad54a26780d3ac613dc60dfab88c1f0bf413e9b0`. Its
+self-check passes the API fixture and five static-callback regressions on JS
+and native. The full library code-shape run passes the first six fixtures, then
+stops at `keep_partition.bend`: three runtime `Reducer` records remain. That
+program's output is correct, but the requested fusion is incomplete. The old
+fork candidate is not a comparison target or supported fallback.
 
-Keep the compiler optimization in `bend2/comp.ts`, after the source has been
-checked and before `def_raise`, call-graph discovery, ownership/layout analysis,
-and either backend's emission. The existing `def_body` seam already gives both
-JS and native the same typed higher-order term; materialize a rewritten/lowered
-body once per definition. This avoids duplicated backend rules and means the
-later compiler sees the actual reachable calls. Preserve a semantic fallback:
-on any unproved static head, emit the original checked term.
+The evaluator must not treat every `Def.e` as an ordinary body. A generic
+`Def.x > 0` has its `~` binders removed for checking; unfolding it as an ordinary
+function can fail or produce a wrong static value. Never unfold a generic
+template directly. Evaluate only an existing checked instance with `x == 0`,
+and retain the original expression whenever its identity cannot be resolved.
 
-The pass should recognize a **computed function head** that can be reduced to
-a lambda from closed, checked definitions and constructor fields. It should
-replace only the application whose head has been proved, bind live/dynamic
-arguments once, retain annotations and quantities, and recurse within a
-bounded budget. Bare named function calls remain ordinary calls. Do not add
-rules keyed to transducer names, constructor tags, or source adapter shapes.
-The compiler's existing `def_raise`/ANF/fusion machinery should then optimize
-the revealed calls. This is a modest general optimization, not a new lowering
-framework.
+## Recommended compiler boundary
 
-Separate the pass into a small maintained TypeScript source fragment or a
-clearly isolated patch module plus a thin `prepare_static.py` archive/patch
-driver. The current hundreds of lines of embedded TypeScript and exact-text
-emitter substitutions make review and upstream rebases unnecessarily hard.
-While upstream integration is being tested, keep the source hash/anchor guard
-and provenance manifest. Once proposed upstream, move the reviewed pass into
-`comp.ts` and add upstream-native tests; the Python driver remains a local
-comparison harness.
+Keep the optimization after checking and before `def_raise`, call-graph
+discovery, ownership/layout analysis, and backend emission. The `def_body`
+seam gives JS and native the same checked higher-order term. Rewrite once there,
+then let the existing lowering and fusion machinery see the resulting calls.
+On any unproved static head, keep the checked expression unchanged.
 
-## The critical template-instance decision
+The pass should reduce only a computed function head that comes from closed,
+checked definitions and constructor fields. It should bind live arguments once,
+retain annotations and quantities, and recurse under explicit fuel and rewrite
+limits. Bare function calls remain ordinary calls. The rule must not depend on
+transducer names, constructor tags, or source adapter shapes. The compiler
+change should remain a small optimization rather than introduce a second
+lowering framework.
 
-`book.tmps[generic]` maps the **syntax key** of closed `~` arguments to a
-checked instance name, and that instance's `Def.e` is safe to consider.
-However, the checked term seen by the compiler can contain checker-added
-`Ann` nodes. A raw `term_key(term_lower(arg))` then differs from the key
-`def_inst` used. Recursively stripping annotations is not justified: source
-annotations can affect elaboration or distinguish valid instantiations.
+During experimentation, keep the pass in a small TypeScript fragment and use a
+thin `prepare_static.py` archive/patch driver. Keep the source hash, anchors,
+and provenance manifest. If the pass clears the gates below, move it into
+upstream `bend2/comp.ts` and add compiler-native Bend fixtures; the Python
+driver then remains only a comparison harness. Upstream `AGENTS.md` says not to
+edit `bend2/bend.ts`; no checker edit is part of this plan.
 
-Recommended rule: resolve an applied generic only to an **already checked,
-unambiguous instance** and evaluate that instance's body. First determine
-whether the compiler can recover the original argument identity from the
-checked term and `book.tmps` without guesswork. Instrument generic calls in
-the tree fixture and a matrix of same-generic/different-argument cases;
-compare the original syntax key, checked argument, and selected `F~n`. The
-implementation must use a documented equality/canonicalization rule whose
-soundness follows from the checked representation. If an exact rule is not
-available in `comp.ts`, stop this workset and seek a small upstream checker
-interface that carries the checked instance identity into the compiled term;
-do not infer identity from erased annotations, instance numbering, or a merely
-similar type. `../bend/AGENTS.md` rules out locally editing `bend.ts` as an
-expedient. An unresolved generic is a refusal, never a speculative unfold.
+## Prioritized work
 
-`def_inst` itself should not be called casually from code generation: it
-rechecks arguments and mutates the book by minting instances. If a future
-compiler interface is needed, it should expose a read-only checked identity,
-or the checker should preserve the instance `Ref` where the compiler can use
-it. Compiler-local lookup is preferable only after the equality proof and
-adversarial tests above. This is the design gate that determines whether the
-port can stay entirely within `comp.ts`.
+1. **P0 — Prove template-instance lookup is safe.** The current candidate
+   rejects direct evaluation of generic definitions, uses an existing checked
+   `x == 0` instance, tries an exact `book.tmps` key, then uses bounded
+   `term_compare` and refuses ambiguous matches. Test multiple values and
+   types, explicit annotations, aliases, nested templates, erased arguments,
+   recursion, and affine results. If any identity case remains ambiguous,
+   retain the expression. Ask upstream for a read-only checked-instance ID only
+   if the checked Book cannot resolve identity safely. Do not call `def_inst`
+   from code generation: it can recheck terms and mutate the Book.
 
-## Worksets, in order
+2. **P0 — Remove the remaining closed-pipeline reducer records.** The current
+   candidate leaves three named factory sites in `keep_partition.bend`
+   (`take` and `partition_all`) after the first six integration fixtures pass.
+   Trace why those factories cross into runtime code. The likely general fix is
+   to specialize calls whose reducer argument is a closed checked value before
+   lowering, while dynamic reducer arguments keep the existing path. Do not
+   fold every closed call to a constructor: that experiment increased emitted
+   records. Keep zero-record assertions paired with JS/native output and
+   callback-count checks.
 
-1. **Lock the upstream baseline and failure.** Record both compiler SHAs,
-   output/codegen counts, and `extensions` failure. Add a minimal generic
-   template regression where the old pass would unfold `Def.x > 0` incorrectly,
-   and add a positive independently defined recursive source case. Assert
-   semantic output on JS/native and absence of runtime reducer construction
-   only for statically closed cases. Include a dynamic-recipe case that must
-   retain the fallback. Commit this evidence before changing the pass.
+3. **P1 — Measure the whole pipeline on the exact main snapshot.** Run the
+   calibrated transducer/direct matrix on native and the independent semantic
+   oracle on JS. Include full and early stop, type-changing `keep`, bounded and
+   full `partition_all`, and List/range/tree/Array where supported. Record the
+   source, library, compiler, and harness hashes. Keep the existing 1.05 upper
+   ratio target; emitted record counts alone do not prove runtime performance.
 
-2. **Repair static evaluation and instance identity.** First reject every
-   generic `Def.x > 0` in the evaluator. Then implement only the proved
-   checked-instance resolution from the decision gate above. Require an
-   existing `Def` with `x == 0`, a completed checked body, no unsafe/foreign/
-   bang side effects, and an exact argument identity. Refuse missing,
-   ambiguous, cyclic, over-budget, or dynamic heads. Do not unfold through
-   runtime computations. Keep the original term on refusal. Test same template
-   at multiple types and values, explicit annotations, aliases, nested
-   templates, erased `~` arguments, recursion, and affine results. Commit the
-   compiler-only fix as one reviewable workset.
+4. **P1 — Harden the rewrite boundary.** Keep evaluation bounded and pure; use
+   only checked bodies without unsafe or foreign computation. Scope cache
+   entries to one immutable checked Book and closed semantic terms. Preserve
+   annotations and evaluate every live argument once, in order, under its
+   original quantity. Keep the fallback expression unchanged. Add a code-size
+   growth bound before proposing the pass upstream.
 
-3. **Simplify the pass and its cache.** Make the pure resolver and rewrite
-   boundaries explicit. Key memoization to one checked, immutable book and a
-   closed term, including all semantics-relevant annotations/instance
-   identities. Cache successful and refused results distinctly; do not reuse
-   results after any instance table mutation. Keep a fixed evaluation-fuel,
-   rewrite-count, and emitted-growth budget. Reify the rewritten body once.
-   Verify live arguments are evaluated exactly once in original order;
-   quantities, ownership, stop behavior, and failure behavior are unchanged.
-   The safe fallback must be byte-for-byte the original checked expression
-   where possible. Commit this cleanup separately from the correctness fix.
+5. **P2 — Propose the upstream compiler change.** Once both P0 gates pass,
+   move the small pass into `bend2/comp.ts` before lowering so JS and native
+   share it. Add Bend tests for static callbacks, independent source adapters,
+   dynamic fallback, template-instance identity, and affine behavior. Run
+   upstream's current test gate from an archive of `bendlang/main`. The
+   transducer library remains an ordinary consumer and example.
 
-4. **Promote the baseline only after full gates.** Change `prepare_static.py`
-   to default to `bendlang/main` and pin the new reviewed source hash. Run
-   all 22 Bend fixtures on JS and native, including `extensions`; run the
-   existing adversarial/static-callback checks and source-shape checks. Run
-   upstream's available test gate for the archived candidate. Compare
-   generated JS/C for hot source loops, runtime record counts, compile time,
-   binary/code size, and checksums. Preserve a selectable old fork-main
-   candidate for A/B runs. Do not weaken the `extensions` record assertion.
-   Commit the default switch only after these pass.
+## Options considered
 
-5. **Measure performance before more compiler changes.** Re-run the existing
-   paired, calibrated List/range/tree/Array and extension rows against
-   handwritten direct Bend and the old candidate, in both backends where
-   supported. Include full and early stop, type-changing `keep`, and bounded
-   and full `partition_all`. A faster upstream `Array.map` or changed layout is
-   useful only if these whole-pipeline rows improve without changing output.
-   Retain the documented parity target and confidence bounds; investigate any
-   regression before claiming a win.
+The recommended choice is a general checked-term specialization in the
+compiler. A recognizer for transducer names or reducer constructors could
+remove today's records sooner, but every new reducer and source would need more
+compiler rules, duplicating library semantics. A library-only rewrite keeps
+the fold source-independent, but current evidence shows that closed reducer
+values still reach runtime factory calls, so it has not established the
+requested compiler-wide fusion. A checker-provided instance ID is the fallback
+only if the existing checked Book cannot supply safe identity without
+mutation.
 
-6. **Port optional emitter work only if justified.** The diagnostics hook
-   appears to need a `Name` signature update and can be ported independently.
-   The scoped constructor-facts patch has multiple broken anchors because
-   upstream rewrote argument, constructor, and match emission. Do not replay
-   it textually. If workset 5 shows a material regression traceable to lost
-   constructor facts, redesign the smallest equivalent fact flow on the new
-   emitter and prove branch-local dominance/ownership; run the prior
-   wrong-code reproducer, JS/native differential tests, and calibrated matrix.
-   Otherwise leave it out. Keep guarded tree/loop experiments separate until
-   their own proof and profitability gates are met.
+## Stop conditions
 
-7. **Prepare language-level adoption.** Once the general pass and regressions
-   pass on current upstream, express it as a compact `comp.ts` change with
-   upstream Bend fixtures for static callbacks, template instances,
-   independent sources, dynamic fallback, and affine behavior. Propose the
-   minimal checker identity interface only if workset 2 proved it necessary.
-   The transducer library stays a consumer/example, not a compiler dependency.
+The checked-term insertion point is well supported, but the current
+`term_compare` fallback has not been adversarially validated and
+`keep_partition` is not fully fused. Both are blocking gates. Do not claim full
+fusion or upstream readiness until the template-instance matrix and recursive
+source fixture pass on JS and native, and the calibrated whole-pipeline rows
+remain within the agreed bound.
 
-## Confidence checks and stop conditions
-
-The design is strong on *where* to optimize and on preserving a refusal path.
-It is **not yet factually proven** that latest Bend exposes enough identity to
-resolve every closed generic in `comp.ts` alone. Treat that as a blocking
-implementation gate, not a detail to patch by intuition. No declaration of
-full fusion or upstream readiness until the recursive extension source and
-the multi-instance adversarial matrix pass on both backends.
-
-The other loopholes and their checks are: (a) stale cache after instance
-minting—scope or invalidate on mutation; (b) call-by-value changes—test
-single evaluation, order, and affine use; (c) unchecked expansion/code
-growth—bound fuel, rewrites, and generated size; (d) backend divergence—apply
-the rewrite before both emitters and run both; (e) a no-record assertion
-masking wrong code—pair every source check with output/oracle comparisons;
-(f) microbenchmarks masking whole-program regressions—use the existing
-calibrated paired suites. Each failed gate keeps the old candidate as default
-and yields a narrower documented next decision rather than a speculative
-fallback that silently loses fusion.
+The other checks are: stale cache after instance mutation; changed evaluation
+order or duplicated live values; unchecked code growth; backend divergence; a
+no-record assertion hiding wrong code; and microbenchmarks hiding a pipeline
+regression. Scope cache entries to one immutable Book, check callback counts and
+affine cases, bound evaluation and expansion, rewrite before both emitters, pair
+code-shape checks with output oracles, and use the calibrated paired suite. A
+failed gate leaves the candidate as an experiment and narrows the next step to
+that specific failure.
