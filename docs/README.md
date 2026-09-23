@@ -18,11 +18,18 @@ The [proposed repairs](current/FOLLOWUP-REPAIR-PROPOSAL.md) compare options for
 each finding, prioritize them by impact/effort/value, and specify acceptance
 conditions. This is a proposal for review, not an implementation completion record.
 
+The [bendlang/main integration plan](current/BENDLANG-MAIN-INTEGRATION-PLAN.md)
+records the upstream template-instance regression, the compiler integration
+seam, and the ordered gates for moving the specialization onto current Bend.
+It supersedes earlier assumptions that the existing patch can simply be
+reapplied to the latest compiler.
+
 ## Current
 
 These documents describe the accepted direction and the work still required:
 
 - [Follow-up repair proposal](current/FOLLOWUP-REPAIR-PROPOSAL.md) — proposed 2026-09-20.
+- [bendlang/main integration plan](current/BENDLANG-MAIN-INTEGRATION-PLAN.md) — proposed 2026-09-23.
 - [Adversarial design review](current/DESIGN-REVIEW.md) — created 2026-09-20.
 - [Architecture work plan](current/DESIGN-WORK-PLAN.md) — created 2026-09-20.
 - [Implementation repair plan](current/IMPLEMENTATION-REPAIR-PLAN.md) — created 2026-09-20.
