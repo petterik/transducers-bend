@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Build an isolated compiler candidate from upstream Bend main.
+"""Build an isolated candidate from a reviewed Bend compiler ref.
 
 The candidate reapplies this repository's static-callback specialization, then
 adds the optional memoization, scoped-facts and call-site diagnostics
-experiments. The sibling Bend checkout is read through `git archive` and never
-modified.
+experiments. The default stays on the fork ref until upstream gates pass. The
+sibling Bend checkout is read through `git archive` and never modified.
 """
 import argparse
 import hashlib
@@ -20,7 +20,10 @@ import tempfile
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 BEND_REPO = ROOT.parent / 'bend'
-EXPECTED_MAIN_COMP = '0939b98d013ab58d82619e35c0d4900b72c9d8e5b478f0e1df7822fe713c9b48'
+EXPECTED_COMP_SHAS = {
+    '0939b98d013ab58d82619e35c0d4900b72c9d8e5b478f0e1df7822fe713c9b48',
+    '10afb08dd55a52bfbb88fdf84534cebdc000bdf7820c69cee1d6bb3fcfaf7d7b',
+}
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output-dir', type=Path)
@@ -46,7 +49,7 @@ with tarfile.open(fileobj=io.BytesIO(archive), mode='r:') as bundle:
 SOURCE = Path(source_tmp.name) / 'bend2'
 original = (SOURCE / 'comp.ts').read_text()
 source_comp_sha = hashlib.sha256(original.encode()).hexdigest()
-assert source_comp_sha == EXPECTED_MAIN_COMP, (
+assert source_comp_sha in EXPECTED_COMP_SHAS, (
     f'Upstream comp.ts changed at {base_commit} ({source_comp_sha}); '
     'review and update the isolated patches before continuing')
 
@@ -62,7 +65,89 @@ source_tmp.cleanup()
 # Reapply the specialization pass from the transducer fork commit on top of
 # upstream main. This keeps the library's callback-record elimination without
 # making the sibling compiler checkout carry the patch.
-STATIC_CALLBACK_PASS = r'''// Resolve a statically constructed function before lowering its application.
+STATIC_CALLBACK_PASS = r'''// Resolve only a template instance already checked by Bend. def_inst keys
+// its ~ arguments by source syntax; checked terms may have extra Ann nodes,
+// so use Bend's conversion equality only as a bounded fallback. Ambiguous,
+// missing, or large tables refuse specialization.
+const STATIC_TEMPLATE_SCAN_LIMIT = 64;
+const STATIC_TEMPLATE_TERM_LIMIT = 16384;
+function static_template_term_comparable(book: Book, term: HTerm): boolean {
+  const lowered = Bend.term_lower(term);
+  const text = Bend.term_key(lowered);
+  if (text.length > STATIC_TEMPLATE_TERM_LIMIT) return false;
+  let fuel = 8192;
+  const safe = (value: unknown): boolean => {
+    if (--fuel < 0) return false;
+    if (Array.isArray(value)) return value.every(safe);
+    if (value === null || typeof value !== "object") return true;
+    const node = value as Record<string, unknown>;
+    if (node.$ === "Ref" && typeof node.k === "string") {
+      const def = book.tlds[node.k];
+      if (def?.$ === "Def" && (def.u || def.i || def.b)) return false;
+    }
+    return Object.entries(node).every(([key, child]) =>
+      key === "s" || safe(child));
+  };
+  return safe(lowered);
+}
+
+function static_template_instance(book: Book, generic: Bend.Name,
+  args: HTerm[]): Bend.Name | null {
+  const def = book.tlds[generic];
+  const table = book.tmps[generic];
+  if (def?.$ !== "Def" || def.x !== args.length || table === undefined) {
+    return null;
+  }
+  const exact_key = args.map((a) => Bend.term_key(Bend.term_lower(a))).join("\n");
+  const checked = (name: Bend.Name | undefined): Bend.Name | null => {
+    const inst = name === undefined ? undefined : book.tlds[name];
+    return inst?.$ === "Def" && inst.x === 0
+      && inst.e !== undefined && inst.v !== null ? name as Bend.Name : null;
+  };
+  const exact = checked(table[exact_key]);
+  if (exact !== null) return exact;
+  if (!args.every((arg) => static_template_term_comparable(book, arg))) {
+    return null;
+  }
+
+  const entries = Object.entries(table);
+  if (entries.length > STATIC_TEMPLATE_SCAN_LIMIT) return null;
+  let found: Bend.Name | null = null;
+  for (const [key, name] of entries) {
+    const keys = key.split("\n");
+    if (keys.length !== args.length) continue;
+    let equal = true;
+    for (let i = 0; i < keys.length; i++) {
+      let expected: HTerm;
+      try {
+        expected = Bend.term_higher(JSON.parse(keys[i]) as Bend.LTerm);
+      } catch {
+        equal = false;
+        break;
+      }
+      if (!static_template_term_comparable(book, expected)) {
+        equal = false;
+        break;
+      }
+      try {
+        if (!Bend.term_compare("EQ", book, args[i], expected)) {
+          equal = false;
+          break;
+        }
+      } catch {
+        equal = false;
+        break;
+      }
+    }
+    if (equal) {
+      if (found !== null && found !== name) return null;
+      found = name;
+    }
+  }
+  return checked(found ?? undefined);
+}
+
+// Resolve a statically constructed function before lowering its application.
 // This is deliberately bounded and call-by-value: a projection must not erase
 // evaluation of another field. Foreign calls, unsafe defs, forks and dynamic
 // values stop evaluation; failure leaves the original expression intact.
@@ -80,12 +165,31 @@ function static_fun(book: Book, t: HTerm): HTerm | null {
   const fail = {};
   const run = (tm: HTerm): HTerm => {
     if (--fuel < 0) throw fail;
+    // A generic Def.e is checked under opaque template parameters, not at
+    // the arguments of this call. Resolve to an existing checked instance
+    // before evaluating any part of the generic application.
+    const [raw_head, raw_args] = Bend.term_unapply(Bend.term_force(tm));
+    const head = Bend.term_strip(raw_head);
+    if (head.$ === "Ref") {
+      const generic = book.tlds[head.k];
+      if (generic?.$ === "Def" && generic.x > 0) {
+        if (raw_args.length < generic.x) throw fail;
+        const instance = static_template_instance(book, head.k,
+          raw_args.slice(0, generic.x));
+        if (instance === null) throw fail;
+        let resolved: HTerm = Bend.Ref(instance);
+        for (const arg of raw_args.slice(generic.x)) {
+          resolved = Bend.App(resolved, arg);
+        }
+        return run(resolved);
+      }
+    }
     const x = Bend.term_force(tm);
     switch (x.$) {
       case "Ann": return Bend.Ann(run(x.x), x.T, x.s);
       case "Ref": {
         const d = book.tlds[x.k];
-        if (x.b || d?.$ !== "Def" || d.u || d.i || !d.e
+        if (x.b || d?.$ !== "Def" || d.u || d.i || !d.e || d.x > 0
           || (d.b && OPERATIONS[eff_name(x.k)] !== undefined)) {
           if (d?.$ === "ADT") return x;
           throw fail;
@@ -181,8 +285,15 @@ function specialize(book: Book, tm: HTerm, budget = { left: 256 }): HTerm {
 }
 
 '''
-def_body_anchor = 'function def_body(cb: Carb, k: Bend.Name): TLD | undefined {'
-assert original.count(def_body_anchor) == 1
+def_body_anchors = [
+    'function def_body(cb: Carb, k: Bend.Name): TLD | undefined {',
+    'function def_body(cb: Carb, k: Name): TLD | undefined {',
+]
+matching_def_body_anchors = [anchor for anchor in def_body_anchors
+                             if original.count(anchor) == 1]
+assert len(matching_def_body_anchors) == 1, (
+    'expected exactly one reviewed def_body anchor for this compiler ref')
+def_body_anchor = matching_def_body_anchors[0]
 patched = original.replace(def_body_anchor,
     STATIC_CALLBACK_PASS + def_body_anchor, 1)
 old_body = '    const h = Bend.term_higher(tld.e);'

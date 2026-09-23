@@ -55,3 +55,26 @@ existing entries in `book.tmps`; it removed the two records in
 evidence only: it still left three records in `keep_partition.bend`, and it
 has not passed the adversarial instance, cache, performance, or full-suite
 gates. Do not promote it as the completed fix.
+
+## Resolver workset update
+
+Commit `3904671` records the baseline and adds the multi-instance semantic
+fixture. The next candidate implements the checked-instance resolver in
+`prepare_static.py`, keeps the default base ref on `origin/main`, and pins both
+reviewed compiler source hashes. Its candidate `comp.ts` SHA-256 is
+`0b6b30a6205326ec4e2117cb090564be4fc280ca521587d0d1d8ec3f04181a00`.
+It rejects direct unfolding of generic definitions, uses exact `book.tmps`
+keys first, then bounded Bend conversion equality, and refuses ambiguous,
+missing, unsafe, or oversized cases. `extensions.bend` now emits zero reducer
+records and still prints the expected output. `keep_partition.bend` emits
+three records (down from six on the upstream baseline) and prints all expected
+output.
+
+All 23 fixture outputs match on upstream JS and native under a semantic-only
+runner. The normal `tests/run.py` gate intentionally still fails at
+`keep_partition.bend` because of its zero-record code-generation requirement.
+The default `origin/main` candidate still passes the full 23/23
+`tests/run.py` gate, including source-shape and callback-count assertions.
+Upstream's rejection diagnostic also differs in context formatting, so a
+future default switch must review/update expected diagnostics without
+weakening the requirement that the invalid affine program is rejected.
