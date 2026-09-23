@@ -1,27 +1,34 @@
-// Resolve only a template instance already checked by Bend. def_inst keys
-// its ~ arguments by source syntax; checked terms may have extra Ann nodes,
-// so use Bend's conversion equality only as a bounded fallback. Ambiguous,
-// missing, or large tables refuse specialization.
+// Resolve only an instance already checked by Bend. Checked arguments can
+// acquire erased Ann nodes and a default lambda multiplicity after def_inst
+// recorded its source-syntax key. Retry with a bounded structural key that
+// removes spans and normalizes only those known checker additions. Never
+// reduce or unfold terms during identity lookup. Ambiguous, missing, or
+// oversized matches refuse specialization.
 const STATIC_TEMPLATE_SCAN_LIMIT = 64;
 const STATIC_TEMPLATE_TERM_LIMIT = 16384;
-function static_template_term_comparable(book: Book, term: HTerm): boolean {
-  const lowered = Bend.term_lower(term);
-  const text = Bend.term_key(lowered);
-  if (text.length > STATIC_TEMPLATE_TERM_LIMIT) return false;
+function static_template_key(term: unknown): string | null {
   let fuel = 8192;
-  const safe = (value: unknown): boolean => {
-    if (--fuel < 0) return false;
-    if (Array.isArray(value)) return value.every(safe);
-    if (value === null || typeof value !== "object") return true;
+  const fail = {};
+  const erase_annotations = (value: unknown): unknown => {
+    if (--fuel < 0) throw fail;
+    if (Array.isArray(value)) return value.map(erase_annotations);
+    if (value === null || typeof value !== "object") return value;
     const node = value as Record<string, unknown>;
-    if (node.$ === "Ref" && typeof node.k === "string") {
-      const def = book.tlds[node.k];
-      if (def?.$ === "Def" && (def.u || def.i || def.b)) return false;
+    if (node.$ === "Ann") return erase_annotations(node.x);
+    const out: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(node)) {
+      if (key !== "s") out[key] = erase_annotations(child);
     }
-    return Object.entries(node).every(([key, child]) =>
-      key === "s" || safe(child));
+    // Source lambdas omit the default multiplicity; checked lambdas store it.
+    if (node.$ === "Lam" && out.q === undefined) out.q = { $: "Lone" };
+    return out;
   };
-  return safe(lowered);
+  try {
+    const key = JSON.stringify(erase_annotations(term));
+    return key.length <= STATIC_TEMPLATE_TERM_LIMIT ? key : null;
+  } catch {
+    return null;
+  }
 }
 
 function static_template_instance(book: Book, generic: Bend.Name,
@@ -31,7 +38,10 @@ function static_template_instance(book: Book, generic: Bend.Name,
   if (def?.$ !== "Def" || def.x !== args.length || table === undefined) {
     return null;
   }
-  const exact_key = args.map((a) => Bend.term_key(Bend.term_lower(a))).join("\n");
+  if (args.length > STATIC_TEMPLATE_SCAN_LIMIT) return null;
+  const raw_keys = args.map((a) => Bend.term_key(Bend.term_lower(a)));
+  const exact_key = raw_keys.join("\n");
+  if (exact_key.length > 32768) return null;
   const checked = (name: Bend.Name | undefined): Bend.Name | null => {
     const inst = name === undefined ? undefined : book.tlds[name];
     return inst?.$ === "Def" && inst.x === 0
@@ -39,9 +49,11 @@ function static_template_instance(book: Book, generic: Bend.Name,
   };
   const exact = checked(table[exact_key]);
   if (exact !== null) return exact;
-  if (!args.every((arg) => static_template_term_comparable(book, arg))) {
-    return null;
-  }
+  const normalized = args.map((arg) => static_template_key(Bend.term_lower(arg)));
+  if (normalized.some((key) => key === null)) return null;
+  const normalized_args = normalized as string[];
+  const normalized_key = normalized_args.join("\n");
+  if (normalized_key.length > 32768) return null;
 
   const entries = Object.entries(table);
   if (entries.length > STATIC_TEMPLATE_SCAN_LIMIT) return null;
@@ -51,23 +63,18 @@ function static_template_instance(book: Book, generic: Bend.Name,
     if (keys.length !== args.length) continue;
     let equal = true;
     for (let i = 0; i < keys.length; i++) {
-      let expected: HTerm;
+      if (keys[i].length > STATIC_TEMPLATE_TERM_LIMIT) {
+        equal = false;
+        break;
+      }
+      let expected: unknown;
       try {
-        expected = Bend.term_higher(JSON.parse(keys[i]) as Bend.LTerm);
+        expected = JSON.parse(keys[i]) as unknown;
       } catch {
         equal = false;
         break;
       }
-      if (!static_template_term_comparable(book, expected)) {
-        equal = false;
-        break;
-      }
-      try {
-        if (!Bend.term_compare("EQ", book, args[i], expected)) {
-          equal = false;
-          break;
-        }
-      } catch {
+      if (static_template_key(expected) !== normalized_args[i]) {
         equal = false;
         break;
       }

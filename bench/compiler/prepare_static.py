@@ -26,6 +26,8 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output-dir', type=Path)
 parser.add_argument('--diagnostics', action='store_true',
                     help='emit structured call-site records during compilation')
+parser.add_argument('--identity-self-test', action='store_true',
+                    help='inject and run bounded static-template identity checks')
 args = parser.parse_args()
 
 base_commit = subprocess.run(
@@ -189,6 +191,11 @@ if (process.env.BEND_CALLSITE_REPORT) {
     patched = patched.replace(closure_emit_anchor,
         closure_emit_anchor + '  callsite("closure", fl.seg.def, "closure", fl.seg.fid);\n', 1)
 
+if args.identity_self_test:
+    identity_tests = (HERE / 'static_identity_selftest.ts.inc').read_text()
+    assert patched.count(def_body_anchor) == 1
+    patched = patched.replace(def_body_anchor, identity_tests + def_body_anchor, 1)
+
 (out / 'comp.ts').write_text(patched)
 candidate_comp_sha = hashlib.sha256(patched.encode()).hexdigest()
 (out / 'prepare-static.json').write_text(json.dumps({
@@ -201,6 +208,7 @@ candidate_comp_sha = hashlib.sha256(patched.encode()).hexdigest()
     'candidate_comp_sha256': candidate_comp_sha,
     'memoized_static_evaluation': True,
     'structured_callsite_diagnostics': args.diagnostics,
+    'identity_self_test_injected': args.identity_self_test,
 }, indent=2) + '\n')
 
 smoke = out / 'smoke.js'

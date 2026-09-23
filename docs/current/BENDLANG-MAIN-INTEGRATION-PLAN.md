@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-23T14:20:13+02:00
-updated_at: 2026-09-23T17:39:13+02:00
+updated_at: 2026-09-23T18:47:15+02:00
 status: active
 ---
 
@@ -33,12 +33,12 @@ reads only the `bendlang/main` remote-tracking ref; it does not accept the fork'
 `origin/main`. The sibling checkout remains unmodified.
 
 The isolated candidate's compiler hash is
-`51b37bfbf854f4efcc1beafcf7c0d756dc7735fd49839a8f14f62cd6e7927557`. Its
-self-check passes five static-callback fixtures on JS and native. The complete
-library run passes 23/23 files on both backends, including the code-shape gate
-for `keep_partition`; no `Reducer` or `Reduction` records remain in the gated
-fixtures. The old fork candidate is not a comparison target or supported
-fallback.
+`04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d`. Its
+identity self-test and five static-callback fixtures pass on JS and native.
+The complete library run passes 23/23 files on both backends, including the
+code-shape gate for `keep_partition`; no `Reducer` or `Reduction` records
+remain in the gated fixtures. The old fork candidate is not a comparison
+target or supported fallback.
 
 The fix was not a partition-specific rewrite. Checked terms place type
 annotations between curried application nodes, so the evaluator previously
@@ -79,18 +79,19 @@ edit `bend2/bend.ts`; no checker edit is part of this plan.
 
 ## Prioritized work
 
-1. **P0 — Finish adversarial template-instance checks.** The candidate rejects
-   direct evaluation of generic definitions, uses only an existing checked
-   `x == 0` instance, tries an exact `book.tmps` key, then uses bounded
-   `term_compare` and refuses ambiguous matches. `tests/template_instances`
-   covers two static values and two callbacks; the full suite also covers
-   annotated calls, nested templates, runtime fallback, and affine rejection.
-   Still add focused cases for aliases that compare equal, ambiguous entries,
-   recursion, oversized spines/tables, and cache stability. Retain the original
-   expression on every uncertain identity. Ask upstream for a read-only
-   checked-instance ID only if the checked Book cannot resolve identity safely.
-   Do not call `def_inst` from code generation: it can recheck terms and mutate
-   the Book.
+1. **P0 — Finish adversarial template-instance checks. Completed for the
+   candidate.** The pass rejects direct evaluation of generic definitions and
+   selects only an existing checked `x == 0` instance. It tries the exact
+   `book.tmps` key, then a bounded structural key that removes erased
+   annotations/spans and restores the checked lambda's default `Lone` quantity.
+   It does not normalize or unfold terms to compare identities. Ambiguous,
+   alias-only, missing, and oversized matches refuse specialization. Run
+   `python3 bench/compiler/prepare_static.py --identity-self-test` for the
+   focused alias, ambiguity, recursive-term, table/spine-limit, and per-Book
+   cache checks. The regular suite also exercises checked annotation matching
+   in real reducer pipelines. Keep the original expression on every uncertain
+   identity. Do not call `def_inst` from code generation: it can recheck terms
+   and mutate the Book.
 
 2. **P0 — Remove closed-pipeline reducer records. Completed.** The
    annotation-aware checked-spine lookup resolves the existing reducer
@@ -106,22 +107,23 @@ edit `bend2/bend.ts`; no checker edit is part of this plan.
    library suite separately checks semantics on JS and native. Record the
    source, library, compiler, and harness hashes. Keep the existing 1.05 upper
    ratio target; emitted record counts alone do not prove runtime performance.
-   The calibrated 11-row matrix now has six passes. All four `keep` rows pass,
-   and both bounded partition rows pass. The three full group-sum partition
-   rows remain 1.46–1.49x direct; the two count-only diagnostics remain slower
-   and are not equivalent-consumer claims. The report is retained in
-   `bench/bendlang-main-extension-parity-results.json`.
+   The calibrated 11-row matrix has six passes. All four `keep` rows pass, and
+   both bounded partition rows pass. The three full group-sum partition rows
+   remain 1.455–1.491x direct by the upper bound; the two count-only diagnostics
+   remain slower and are not equivalent-consumer claims. The report is retained
+   in `bench/bendlang-main-extension-parity-results.json` and matches compiler
+   hash `04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d`.
 
 4. **P1 — Harden the rewrite boundary. In progress.** Keep evaluation bounded
    and pure; use only checked bodies without unsafe or foreign computation.
-   Scope cache entries to one immutable checked Book and closed semantic terms. Preserve
-   annotations and evaluate every live argument once, in order, under its
-   original quantity. Keep the fallback expression unchanged. The current
-   evaluator uses a 2,048-step fuel limit and bounded template comparisons; the
-   application-spine walk now has the same explicit cap. The full suite checks
-   evaluation results, affine rejection, and callback counts. Add focused
-   alias/ambiguity/cache tests and define a code-size growth bound before
-   proposing the pass upstream.
+   Scope cache entries to one immutable checked Book and closed semantic terms.
+   Preserve annotations and evaluate every live argument once, in order,
+   under its original quantity. Keep the fallback expression unchanged. The
+   evaluator uses a 2,048-step fuel limit; the application-spine walk is capped
+   at 2,048 nodes; identity keys are bounded to 8,192 nodes, 16,384 characters
+   per argument, 64 arguments, and 64 table entries. The full suite checks
+   evaluation results, affine rejection, and callback counts. Define a
+   generated-code growth bound before proposing the pass upstream.
 
 5. **P2 — Propose the upstream compiler change.** Once template identity is
    adversarially tested and full partition performance is addressed or
@@ -141,7 +143,10 @@ The current change establishes this boundary for closed reducer factories,
 but the buffered partition consumer still pays to build/reverse each group
 list and then traverse it in `sum_group`; the generated code shows both passes
 and the `Continue`/`Stop` state wrappers. The list creation and traversal are
-observed; their exact share of the 1.46–1.49x timing gap is an inference.
+observed; their exact share of the 1.455–1.491x timing gap is an inference.
+The current direct group-sum benchmark accumulates groups in reverse order,
+which addition permits; it does not measure the cost of preserving
+`partition_all`'s group order.
 
 There are two viable next directions. A general checked-term List
 producer/consumer fusion could remove the temporary group when a downstream
@@ -155,12 +160,13 @@ current result before adding a partition-specific compiler rule.
 
 ## Stop conditions
 
-The checked-term insertion point and closed-pipeline record elimination are
-now supported by the full suite. The `term_compare` fallback has not been
-adversarially validated, and full buffered partition group-sum still exceeds
-the 1.05 upper ratio bound. Both remain blockers for an upstream promotion.
-Do not claim universal full fusion or direct-loop parity. The current evidence
-supports the static `keep` pipelines and bounded partition cases on main.
+The checked-term insertion point, closed-pipeline record elimination, and
+bounded structural identity lookup are supported by the full suite and focused
+self-tests. Conversion-equal aliases intentionally refuse specialization;
+identity ambiguity also refuses specialization. Full buffered partition
+group-sum still exceeds the 1.05 upper ratio bound. Do not claim universal full
+fusion or direct-loop parity. The current evidence supports the static `keep`
+pipelines and bounded partition cases on main.
 
 The other checks are: stale cache after instance mutation; changed evaluation
 order or duplicated live values; unchecked code growth; backend divergence; a
