@@ -80,17 +80,40 @@ function static_template_instance(book: Book, generic: Bend.Name,
   return checked(found ?? undefined);
 }
 
+// Checked applications keep type annotations between curried arguments.
+// Flatten those annotations for template lookup without changing the term
+// that the ordinary evaluator sees.
+const STATIC_SPINE_LIMIT = 2048;
+function static_unapply(term: HTerm): [HTerm, HTerm[]] | null {
+  const args: HTerm[] = [];
+  let cur = term;
+  for (let fuel = STATIC_SPINE_LIMIT; fuel > 0; fuel--) {
+    const x = Bend.term_force(cur);
+    if (x.$ === "Ann") {
+      cur = x.x;
+    } else if (x.$ === "Rwt") {
+      cur = x.f;
+    } else if (x.$ === "App") {
+      args.push(x.x);
+      cur = x.f;
+    } else {
+      args.reverse();
+      return [cur, args];
+    }
+  }
+  return null;
+}
+
 // Resolve a statically constructed function before lowering its application.
 // This is deliberately bounded and call-by-value: a projection must not erase
 // evaluation of another field. Foreign calls, unsafe defs, forks and dynamic
 // values stop evaluation; failure leaves the original expression intact.
 function static_fun(book: Book, t: HTerm): HTerm | null {
-  let head = Bend.term_strip(t);
-  let argc = 0;
-  while (head.$ === "App") {
-    argc++;
-    head = Bend.term_strip(head.f);
-  }
+  const spine = static_unapply(t);
+  if (spine === null) return null;
+  const [raw_head, args] = spine;
+  const head = Bend.term_strip(raw_head);
+  const argc = args.length;
   const def = head.$ === "Ref" ? book.tlds[head.k] : undefined;
   if (head.$ !== "Lam" && (def?.$ !== "Def" || argc < def.n)) return null;
   let fuel = 2048;
@@ -101,7 +124,9 @@ function static_fun(book: Book, t: HTerm): HTerm | null {
     // A generic Def.e is checked under opaque template parameters, not at
     // the arguments of this call. Resolve to an existing checked instance
     // before evaluating any part of the generic application.
-    const [raw_head, raw_args] = Bend.term_unapply(Bend.term_force(tm));
+    const spine = static_unapply(Bend.term_force(tm));
+    if (spine === null) throw fail;
+    const [raw_head, raw_args] = spine;
     const head = Bend.term_strip(raw_head);
     if (head.$ === "Ref") {
       const generic = book.tlds[head.k];

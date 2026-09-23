@@ -48,8 +48,10 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
             if not args.semantic_only and file.stem == 'pipeline':
                 source = Path(str(out) + '.js').read_text()
                 assert '{$: "Reducer"' not in source, 'callback records remain: use the compiler specialization patch'
-                assert 'function $inc$(' in source
-                source = source.replace('function $inc$(x_0) {', 'function $inc$(x_0) { mapperCalls++;', 1)
+                source, replacements = re.subn(
+                    r'(function \$inc\$\([^\n]*\) \{)',
+                    r'\1 mapperCalls++;', source)
+                assert replacements == 1, 'pipeline mapper instrumentation target changed'
                 source = 'let mapperCalls = 0; process.on("exit", () => process.stderr.write(String(mapperCalls)));\n' + source
                 instrumented = Path(d) / 'instrumented.js'
                 instrumented.write_text(source)

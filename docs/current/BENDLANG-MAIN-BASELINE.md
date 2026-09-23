@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-23T14:38:33+02:00
-updated_at: 2026-09-23T16:33:34+02:00
+updated_at: 2026-09-23T17:39:13+02:00
 status: current
 ---
 
@@ -14,7 +14,7 @@ refreshed from `bendlang/bend`; the `../bend` working tree remains untouched.
 | Input | Bend commit | `comp.ts` SHA-256 | Result |
 | --- | --- | --- | --- |
 | Upstream source | `6a77e1246c351055cb15031267a7c76c87036cbc` | `10afb08dd55a52bfbb88fdf84534cebdc000bdf7820c69cee1d6bb3fcfaf7d7b` | Current `bendlang/main` |
-| Isolated candidate | Same as above | `e2f59c5c847cd77d6992d734ad54a26780d3ac613dc60dfab88c1f0bf413e9b0` | Upstream plus the local static-callback pass |
+| Isolated candidate | Same as above | `51b37bfbf854f4efcc1beafcf7c0d756dc7735fd49839a8f14f62cd6e7927557` | Upstream plus the local static-callback pass |
 
 The upstream commits since `26659268` change package-name handling in
 `bend2/bend.ts` and add its syntax to `guide/GUIDE.md`. They do not change
@@ -26,26 +26,24 @@ hash.
 
 `python3 bench/compiler/prepare_static.py --output-dir …` passes its smoke
 build, API-surface record checks, and five static-callback fixtures on JS and
-native.
+native. The complete `python3 tests/run.py --bend-main <candidate>/main.ts`
+run passes all 23 fixtures on both backends, including the code-shape,
+callback-count, lifecycle, affine rejection, and bounded-law checks. No
+`Reducer` or `Reduction` records remain in the gated fixtures, including
+`keep_partition`.
 
-`python3 tests/run.py --bend-main <candidate>/main.ts --semantic-only` passes
-all 23 fixtures on JS and native, including the affine rejection case. The
-expected diagnostic now matches upstream's current call-site location.
-
-The normal `tests/run.py` keeps the code-shape checks enabled. It passes
-`api_surface`, `array`, `completion`, `composed_maps`, `configured_pipeline`,
-and `extensions`, then stops at `keep_partition`: three runtime `Reducer`
-records remain. The program's output is correct, but the full-fusion gate is
-not met. The records are emitted by the closed `take` and `partition_all`
-factory sites. Do not weaken this assertion or treat the semantic-only suite
-as a fusion pass.
+The semantic-only option remains available to isolate output behavior, but it
+is not the reported acceptance run. The expected affine diagnostic matches
+upstream's current call-site location.
 
 The generic evaluator rejects direct unfolding of `Def.x > 0`, resolves only
 already checked zero-template-argument instances, tries exact `book.tmps` keys,
-and uses bounded `term_compare` only as a fallback. Ambiguous or unsafe
-lookups refuse specialization. The focused multi-instance test covers two
-values and two callbacks, but the fallback still needs the adversarial matrix
-listed in the integration plan.
+and uses bounded `term_compare` only as a fallback. Checked application spines
+are flattened across annotations for lookup, with a 2,048-node cap; evaluation
+still sees the unchanged checked term. Ambiguous or unsafe lookups refuse
+specialization. The focused multi-instance test covers two values and two
+callbacks, but the fallback still needs the adversarial matrix listed in the
+integration plan.
 
 The scoped constructor-facts emitter experiment was removed from the active
 driver. Its synthetic test showed local value, but the pass recorded no fact
@@ -57,33 +55,36 @@ not an acceptance baseline.
 
 The calibrated native matrix uses ten sessions, five alternating paired
 launches per session, at least 100 ms per batch, and a bootstrap upper 95%
-bound against the 1.05 target. All JS/native expected outputs agree. Four of
-eleven rows pass; seven full-traversal rows fail:
+bound against the 1.05 target. All expected outputs agree. Six of eleven rows
+pass; five exceed the target, including two count-only diagnostics with
+unequal consumer work:
 
-| Case | Upper ratio | Result |
-| --- | ---: | --- |
-| `keep_full` | 0.902 | pass |
-| `keep_take_32` | 1.017 | pass |
-| `keep_type_change` | 19.283 | fail |
-| `keep_type_change_take_32` | 1.029 | pass |
-| `partition_width_1` | 13.970 | diagnostic fail |
-| `partition_width_8` | 4.017 | diagnostic fail |
-| `partition_take_2` | 1.001 | diagnostic pass |
-| `partition_sum_width_1` | 18.279 | fail |
-| `partition_sum_width_2` | 10.676 | fail |
-| `partition_sum_width_8` | 9.585 | fail |
-| `partition_sum_take_2` | 1.004 | pass |
+| Case | Upper ratio | Result | C bytes (transducers/direct) | JS bytes (transducers/direct) |
+| --- | ---: | --- | ---: | ---: |
+| `keep_full` | 0.905 | pass | 97,469/93,363 | 17,804/16,029 |
+| `keep_take_32` | 1.017 | pass | 150,069/145,712 | 17,793/16,018 |
+| `keep_type_change` | 0.985 | pass | 97,687/93,141 | 17,941/16,111 |
+| `keep_type_change_take_32` | 1.045 | pass | 156,165/151,368 | 17,930/16,100 |
+| `partition_width_1` | 4.676 | diagnostic fail | 110,457/91,722 | 22,734/15,504 |
+| `partition_width_8` | 1.570 | diagnostic fail | 139,247/121,964 | 22,733/15,503 |
+| `partition_take_2` | 1.027 | pass | 169,188/153,377 | 22,722/15,492 |
+| `partition_sum_width_1` | 1.492 | fail | 111,547/92,691 | 23,072/15,907 |
+| `partition_sum_width_2` | 1.458 | fail | 111,547/92,691 | 23,072/15,907 |
+| `partition_sum_width_8` | 1.459 | fail | 111,547/92,691 | 23,072/15,907 |
+| `partition_sum_take_2` | 1.026 | pass | 164,781/148,468 | 23,060/15,895 |
 
 The raw result with compiler, library, and harness hashes, every sample, build
 times, and source checksums is
 [`bendlang-main-extension-parity-results.json`](../../bench/bendlang-main-extension-parity-results.json).
 Generated sources and binaries are in
-`/private/tmp/bend-main-current-parity-artifacts` on the current machine. These
-timings measure complete CPU reductions over sequential List inputs; they do
+`/private/tmp/bend-main-after-spine-bounded-artifacts` on the current machine.
+These timings measure complete CPU reductions over sequential List inputs; they do
 not cover range, tree, Array, GPU, or include compilation in the timed ratio.
-Emitted C is 1.5–1.8 times larger for the failing equivalent-consumer rows,
-while the much larger runtime ratios point to repeated runtime reducer
-construction and dispatch in the full cases.
+Full type-changing `keep` improved from a 19.283 upper ratio to 0.985 after
+fixing annotated template-instance lookup. Full group-sum partition remains
+about 1.46–1.49x direct. Its generated code constructs each group as a List,
+reverses it at completion, and traverses it again in the consumer; the exact
+share of runtime cost attributable to those operations is not yet measured.
 
 ## Next gate
 

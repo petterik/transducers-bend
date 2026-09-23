@@ -138,7 +138,7 @@ python3 bench/run.py --bend-main /tmp/transduce-main/main.ts
 python3 bench/range.py --bend-main /tmp/transduce-main/main.ts
 ```
 
-`tests/run.py` prepares its compiler from the local `bendlang/main` ref by default. Refresh it with `git -C ../bend fetch bendlang main` when needed. The regular run keeps code-shape gates enabled and currently reports the remaining reducer records in `keep_partition`; use `--semantic-only` to check all 23 JS/native outputs separately. These scripts require Python 3, Bun, and a native compiler. They build in temporary directories and do not install dependencies.
+`tests/run.py` prepares its compiler from the local `bendlang/main` ref by default. Refresh it with `git -C ../bend fetch bendlang main` when needed. The regular run keeps code-shape gates enabled and passes all 23 JS/native fixtures, including the reducer-record checks for `keep_partition`; `--semantic-only` skips only the code-shape gates. These scripts require Python 3, Bun, and a native compiler. They build in temporary directories and do not install dependencies.
 
 The test runner compares emitted JS and native output against each Bend file's `#|` expectations, verifies rejection of affine filtering, checks elimination of callback records, and instruments generated JS to verify source/mapper counts. It includes 18,750 bounded law checks per backend. [Laws and invariants](docs/foundation/LAWS.md) distinguish tested properties, mathematical reasoning, and outstanding formal proof work. Bend reports template specializations as “unsafe annotations”; the library adds no explicit `@unsafe`. Passing these tests is not a formal proof of the implementation.
 
