@@ -24,12 +24,17 @@ seam, and the ordered gates for moving the specialization onto current Bend.
 It supersedes earlier assumptions that the existing patch can simply be
 reapplied to the latest compiler.
 
+The [upstream baseline](current/BENDLANG-MAIN-BASELINE.md) reproduces the
+remaining runtime reducer records and records the first template-instance
+resolver probe.
+
 ## Current
 
 These documents describe the accepted direction and the work still required:
 
 - [Follow-up repair proposal](current/FOLLOWUP-REPAIR-PROPOSAL.md) — proposed 2026-09-20.
 - [bendlang/main integration plan](current/BENDLANG-MAIN-INTEGRATION-PLAN.md) — proposed 2026-09-23.
+- [bendlang/main baseline](current/BENDLANG-MAIN-BASELINE.md) — created 2026-09-23.
 - [Adversarial design review](current/DESIGN-REVIEW.md) — created 2026-09-20.
 - [Architecture work plan](current/DESIGN-WORK-PLAN.md) — created 2026-09-20.
 - [Implementation repair plan](current/IMPLEMENTATION-REPAIR-PLAN.md) — created 2026-09-20.
