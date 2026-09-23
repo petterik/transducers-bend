@@ -78,3 +78,21 @@ The default `origin/main` candidate still passes the full 23/23
 Upstream's rejection diagnostic also differs in context formatting, so a
 future default switch must review/update expected diagnostics without
 weakening the requirement that the invalid affine program is rejected.
+
+## Pass and cache workset
+
+The TypeScript pass now lives in
+[`static_callback_pass.ts.inc`](../../bench/compiler/static_callback_pass.ts.inc),
+leaving `prepare_static.py` to archive a reviewed ref and apply guarded
+compiler edits. The candidate manifest also records the pass source hash.
+Memoized results are now limited to closed terms within the checked Book;
+open terms bypass the cache because their same-looking variable indices can
+stand for different runtime environments. Both success and refusal remain
+cached for closed terms, and the resolver does not mutate the checked Book.
+
+The upstream candidate SHA-256 remains
+`e2f59c5c847cd77d6992d734ad54a26780d3ac613dc60dfab88c1f0bf413e9b0`.
+All 23 semantic fixture outputs pass on upstream JS/native. `extensions.bend`
+still has zero records, while the standard code-generation suite still stops
+at `keep_partition.bend` with three records. The current default fork candidate
+passes all 23 tests, including the source-shape and callback-count checks.

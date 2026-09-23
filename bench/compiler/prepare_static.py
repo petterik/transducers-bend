@@ -50,7 +50,7 @@ SOURCE = Path(source_tmp.name) / 'bend2'
 original = (SOURCE / 'comp.ts').read_text()
 source_comp_sha = hashlib.sha256(original.encode()).hexdigest()
 assert source_comp_sha in EXPECTED_COMP_SHAS, (
-    f'Upstream comp.ts changed at {base_commit} ({source_comp_sha}); '
+    f'Bend comp.ts changed at {base_commit} ({source_comp_sha}); '
     'review and update the isolated patches before continuing')
 
 out = args.output_dir.resolve() if args.output_dir else Path(
@@ -62,229 +62,9 @@ for name in ['main.ts', 'bend.ts', 'base.bend']:
 shutil.copytree(SOURCE / 'effs', out / 'effs')
 source_tmp.cleanup()
 
-# Reapply the specialization pass from the transducer fork commit on top of
-# upstream main. This keeps the library's callback-record elimination without
-# making the sibling compiler checkout carry the patch.
-STATIC_CALLBACK_PASS = r'''// Resolve only a template instance already checked by Bend. def_inst keys
-// its ~ arguments by source syntax; checked terms may have extra Ann nodes,
-// so use Bend's conversion equality only as a bounded fallback. Ambiguous,
-// missing, or large tables refuse specialization.
-const STATIC_TEMPLATE_SCAN_LIMIT = 64;
-const STATIC_TEMPLATE_TERM_LIMIT = 16384;
-function static_template_term_comparable(book: Book, term: HTerm): boolean {
-  const lowered = Bend.term_lower(term);
-  const text = Bend.term_key(lowered);
-  if (text.length > STATIC_TEMPLATE_TERM_LIMIT) return false;
-  let fuel = 8192;
-  const safe = (value: unknown): boolean => {
-    if (--fuel < 0) return false;
-    if (Array.isArray(value)) return value.every(safe);
-    if (value === null || typeof value !== "object") return true;
-    const node = value as Record<string, unknown>;
-    if (node.$ === "Ref" && typeof node.k === "string") {
-      const def = book.tlds[node.k];
-      if (def?.$ === "Def" && (def.u || def.i || def.b)) return false;
-    }
-    return Object.entries(node).every(([key, child]) =>
-      key === "s" || safe(child));
-  };
-  return safe(lowered);
-}
-
-function static_template_instance(book: Book, generic: Bend.Name,
-  args: HTerm[]): Bend.Name | null {
-  const def = book.tlds[generic];
-  const table = book.tmps[generic];
-  if (def?.$ !== "Def" || def.x !== args.length || table === undefined) {
-    return null;
-  }
-  const exact_key = args.map((a) => Bend.term_key(Bend.term_lower(a))).join("\n");
-  const checked = (name: Bend.Name | undefined): Bend.Name | null => {
-    const inst = name === undefined ? undefined : book.tlds[name];
-    return inst?.$ === "Def" && inst.x === 0
-      && inst.e !== undefined && inst.v !== null ? name as Bend.Name : null;
-  };
-  const exact = checked(table[exact_key]);
-  if (exact !== null) return exact;
-  if (!args.every((arg) => static_template_term_comparable(book, arg))) {
-    return null;
-  }
-
-  const entries = Object.entries(table);
-  if (entries.length > STATIC_TEMPLATE_SCAN_LIMIT) return null;
-  let found: Bend.Name | null = null;
-  for (const [key, name] of entries) {
-    const keys = key.split("\n");
-    if (keys.length !== args.length) continue;
-    let equal = true;
-    for (let i = 0; i < keys.length; i++) {
-      let expected: HTerm;
-      try {
-        expected = Bend.term_higher(JSON.parse(keys[i]) as Bend.LTerm);
-      } catch {
-        equal = false;
-        break;
-      }
-      if (!static_template_term_comparable(book, expected)) {
-        equal = false;
-        break;
-      }
-      try {
-        if (!Bend.term_compare("EQ", book, args[i], expected)) {
-          equal = false;
-          break;
-        }
-      } catch {
-        equal = false;
-        break;
-      }
-    }
-    if (equal) {
-      if (found !== null && found !== name) return null;
-      found = name;
-    }
-  }
-  return checked(found ?? undefined);
-}
-
-// Resolve a statically constructed function before lowering its application.
-// This is deliberately bounded and call-by-value: a projection must not erase
-// evaluation of another field. Foreign calls, unsafe defs, forks and dynamic
-// values stop evaluation; failure leaves the original expression intact.
-function static_fun(book: Book, t: HTerm): HTerm | null {
-  let head = Bend.term_strip(t);
-  let argc = 0;
-  while (head.$ === "App") {
-    argc++;
-    head = Bend.term_strip(head.f);
-  }
-  const def = head.$ === "Ref" ? book.tlds[head.k] : undefined;
-  if (head.$ !== "Lam" && (def?.$ !== "Def" || argc < def.n)) return null;
-  let fuel = 2048;
-  const values = new Map<Bend.Name, HTerm>();
-  const fail = {};
-  const run = (tm: HTerm): HTerm => {
-    if (--fuel < 0) throw fail;
-    // A generic Def.e is checked under opaque template parameters, not at
-    // the arguments of this call. Resolve to an existing checked instance
-    // before evaluating any part of the generic application.
-    const [raw_head, raw_args] = Bend.term_unapply(Bend.term_force(tm));
-    const head = Bend.term_strip(raw_head);
-    if (head.$ === "Ref") {
-      const generic = book.tlds[head.k];
-      if (generic?.$ === "Def" && generic.x > 0) {
-        if (raw_args.length < generic.x) throw fail;
-        const instance = static_template_instance(book, head.k,
-          raw_args.slice(0, generic.x));
-        if (instance === null) throw fail;
-        let resolved: HTerm = Bend.Ref(instance);
-        for (const arg of raw_args.slice(generic.x)) {
-          resolved = Bend.App(resolved, arg);
-        }
-        return run(resolved);
-      }
-    }
-    const x = Bend.term_force(tm);
-    switch (x.$) {
-      case "Ann": return Bend.Ann(run(x.x), x.T, x.s);
-      case "Ref": {
-        const d = book.tlds[x.k];
-        if (x.b || d?.$ !== "Def" || d.u || d.i || !d.e || d.x > 0
-          || (d.b && OPERATIONS[eff_name(x.k)] !== undefined)) {
-          if (d?.$ === "ADT") return x;
-          throw fail;
-        }
-        const body = d.e;
-        return memo(values, x.k, () => run(Bend.term_higher(body)));
-      }
-      case "App": {
-        const f = Bend.term_strip(run(x.f));
-        const a = run(x.x);
-        if (f.$ === "Lam") return run(f.f(a));
-        if (f.$ === "Mat") {
-          const c = Bend.term_strip(a);
-          if (c.$ !== "Ctr") throw fail;
-          let arm: HTerm = f;
-          while (Bend.term_strip(arm).$ === "Mat") {
-            const m = Bend.term_strip(arm) as Of<"Mat">;
-            if (m.k === c.k) {
-              return run(c.x.reduce((h, v) => Bend.App(h, v), m.h));
-            }
-            arm = m.m;
-          }
-          throw fail;
-        }
-        throw fail;
-      }
-      case "Ctr": return Bend.Ctr(x.k, x.x.map(run), x.s);
-      case "Let": {
-        if (x.v.length !== 1) throw fail;
-        return run(x.f(x.v.map(run)));
-      }
-      case "Rwt": return run(x.f);
-      case "Lam": case "Mat": case "Efq": case "Typ": case "All":
-      case "ADT": case "Qua": case "Qnt": case "Eql": case "Rfl":
-        return x;
-      default: throw fail;
-    }
-  };
-  try {
-    const out = run(t);
-    return Bend.term_strip(out).$ === "Lam" ? out : null;
-  } catch (e) {
-    if (e !== fail) throw e;
-    return null;
-  }
-}
-
-// Keep annotations and bind a dynamic argument once when eliminating a
-// static callback. Re-run on its body so nested callback records disappear.
-function specialize(book: Book, tm: HTerm, budget = { left: 256 }): HTerm {
-  const x = Bend.term_force(tm);
-  switch (x.$) {
-    case "Ann": return Bend.Ann(specialize(book, x.x, budget), x.T, x.s);
-    case "Lam": return Bend.Lam(x.k, x.i,
-      (a: HTerm) => specialize(book, x.f(a), budget), x.s, x.q);
-    case "Mat": return Bend.Mat(x.k, specialize(book, x.h, budget),
-      specialize(book, x.m, budget), x.s);
-    case "Let": return Bend.Let(x.k, x.i, x.v.map((v) => specialize(book, v, budget)),
-      (as: HTerm[]) => specialize(book, x.f(as), budget), x.s, x.q);
-    case "Ctr": return term_const(x) ? x
-      : Bend.Ctr(x.k, x.x.map((v) => specialize(book, v, budget)), x.s);
-    case "Rwt": return specialize(book, x.f, budget);
-    case "App": {
-      const f = specialize(book, x.f, budget);
-      const a = specialize(book, x.x, budget);
-      const held = Bend.term_strip(f);
-      if (held.$ === "Let") {
-        const T = ty_ann(f);
-        return Bend.Let(held.k, held.i, held.v, (as: HTerm[]) => {
-          const b = held.f(as);
-          return specialize(book, Bend.App(T === null ? b : Bend.Ann(b, T), a), budget);
-        }, held.s, held.q);
-      }
-      // A bare named function stays a call. Only computed function heads
-      // need specialization; this does not inline every ordinary call.
-      if (Bend.term_strip(f).$ !== "App"
-        && Bend.term_strip(f).$ !== "Lam") return Bend.App(f, a, x.s);
-      const v = budget.left > 0 ? static_fun(book, f) : null;
-      const lam = v === null ? null : Bend.term_strip(v);
-      if (lam?.$ !== "Lam") return Bend.App(f, a, x.s);
-      const ty = ty_all(book, ty_ann(f));
-      if (ty === null) return Bend.App(f, a, x.s);
-      budget.left--;
-      if (!quant_live(ty.q) || term_const(a)
-        || Bend.term_strip(a).$ === "Var") {
-        return specialize(book, lam.f(a), budget);
-      }
-      return Bend.Let([lam.k], [0], [Bend.Ann(a, ty.A)],
-        (as: HTerm[]) => specialize(book, lam.f(as[0]), budget), x.s, [ty.q]);
-    }
-    default: return x;
-  }
-}
-
-'''
+# Reapply the specialization pass from this repository on the selected Bend
+# ref. This keeps callback optimization out of the sibling checkout.
+STATIC_CALLBACK_PASS = (HERE / 'static_callback_pass.ts.inc').read_text()
 def_body_anchors = [
     'function def_body(cb: Carb, k: Bend.Name): TLD | undefined {',
     'function def_body(cb: Carb, k: Name): TLD | undefined {',
@@ -310,9 +90,36 @@ patched = patched.replace(old,
                            1)
 anchor = '// Keep annotations and bind a dynamic argument once when eliminating a\n'
 assert patched.count(anchor) == 1
-cache = '''// Static results are immutable within one compilation. Scope the cache
-// by Book so a result cannot leak across source/type environments; key by the
-// normalized term structure rather than a storage layout or function name.
+cache = '''// Cache only closed heads. A lambda can capture an outer runtime variable,
+// and term_key does not encode that variable's runtime environment. Open heads
+// are evaluated without caching so one call site cannot reuse another's value.
+function static_term_closed(term: Bend.LTerm): boolean {
+  let fuel = 8192;
+  const walk = (value: unknown, depth: number): boolean => {
+    if (--fuel < 0) return false;
+    if (Array.isArray(value)) return value.every((item) => walk(item, depth));
+    if (value === null || typeof value !== "object") return true;
+    const node = value as Record<string, unknown>;
+    if (node.$ === "Var") {
+      return typeof node.i === "number" && node.i >= 0 && node.i < depth;
+    }
+    if (node.$ === "Lam") return walk(node.f, depth + 1);
+    if (node.$ === "All") {
+      return walk(node.A, depth) && walk(node.B, depth + 1);
+    }
+    if (node.$ === "Let") {
+      const count = Array.isArray(node.k) ? node.k.length : 0;
+      return walk(node.v, depth) && walk(node.f, depth + count);
+    }
+    return Object.entries(node).every(([key, child]) =>
+      key === "s" || key === "k" || key === "q" || key === "i"
+        ? true : walk(child, depth));
+  };
+  return walk(term, 0);
+}
+
+// The checked Book and its template table are fixed during code generation.
+// The normalized key retains annotations/instance structure and drops spans.
 const STATIC_FUN_CACHE = new WeakMap<object, Map<string, HTerm | null>>();
 const STATIC_FUN_STATS = { queries: 0, hits: 0, misses: 0, refusals: 0 };
 if (process.env.BEND_STATIC_REPORT) {
@@ -321,11 +128,15 @@ if (process.env.BEND_STATIC_REPORT) {
 }
 function static_fun(book: Book, t: HTerm): HTerm | null {
   STATIC_FUN_STATS.queries++;
+  const lowered = Bend.term_lower(t);
+  if (!static_term_closed(lowered)) {
+    STATIC_FUN_STATS.misses++;
+    const result = static_fun_uncached(book, t);
+    if (result === null) STATIC_FUN_STATS.refusals++;
+    return result;
+  }
   const book_key = book as object;
-  // term_key erases source spans but retains the static term structure. The
-  // static evaluator still refuses dynamic/unsafe values before returning a
-  // result; the Book scope prevents cross-compilation reuse.
-  const term_key = Bend.term_key(Bend.term_lower(t));
+  const term_key = Bend.term_key(lowered);
   let cache = STATIC_FUN_CACHE.get(book_key);
   if (cache === undefined) {
     cache = new Map<string, HTerm | null>();
@@ -526,6 +337,8 @@ candidate_comp_sha = hashlib.sha256(patched.encode()).hexdigest()
     'base_commit': base_commit,
     'base_comp_sha256': source_comp_sha,
     'reapplied_specialization_from': 'b1f9c93684411b16881632a6633f5d0082447449',
+    'specialization_source_sha256': hashlib.sha256(
+        (HERE / 'static_callback_pass.ts.inc').read_bytes()).hexdigest(),
     'candidate_comp_sha256': candidate_comp_sha,
     'memoized_static_evaluation': True,
     'scoped_constructor_facts': args.facts,
