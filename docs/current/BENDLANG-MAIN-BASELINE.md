@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-23T14:38:33+02:00
-updated_at: 2026-09-23T18:47:15+02:00
+updated_at: 2026-09-23T19:04:05+02:00
 status: current
 ---
 
@@ -85,22 +85,42 @@ These timings measure complete CPU reductions over sequential List inputs; they 
 not cover range, tree, Array, GPU, or include compilation in the timed ratio.
 Full type-changing `keep` improved from a 19.283 upper ratio to 0.992 after
 fixing annotated template-instance lookup. Full group-sum partition remains
-1.455–1.491x direct by the upper bound. Its generated code constructs each
-group as a List, reverses it at completion, and traverses it again in the
-consumer; the exact share of runtime cost attributable to those operations is
-not yet measured. The direct benchmark currently folds groups in reverse order,
-which is equivalent for addition but avoids the ordering work required by
-`partition_all`; an order-preserving direct comparison is the next diagnostic.
+1.455–1.491x direct by the upper bound. The direct sum is a valid equivalent
+consumer: because the final result is a sum, group order is not observable.
+The additional order-preserving diagnostic puts `List.reverse` before each
+direct group sum. Its upper ratios are 1.416x (width 1), 1.696x (width 2), and
+1.380x (width 8); all still fail the 1.05 target. A repeat of width 2 measured
+1.688x for the ordered version and 1.444x for the default direct version.
+Because the result shifts in opposite directions at different widths, group
+order alone does not explain the remaining gap. The disabled-flag repeat
+generated identical transducer/direct source hashes and C/JS byte sizes to the
+primary width-2 row. The supplemental raw runs are
+[`bendlang-main-partition-order-probe-results.json`](../../bench/bendlang-main-partition-order-probe-results.json),
+[`bendlang-main-partition-order-width2-repeat-results.json`](../../bench/bendlang-main-partition-order-width2-repeat-results.json), and
+[`bendlang-main-partition-default-width2-repeat-results.json`](../../bench/bendlang-main-partition-default-width2-repeat-results.json).
+
+The source holds one pending `List<A>` for the current chunk and prepends one
+`Con` per input item. In the generated C, the `List.reverse` used by
+`partition_all` relinks those consumed nodes in place when affine ownership
+proves they are unique; it does not allocate a second list. The downstream
+consumer then frees each node, and later heap allocations can reuse cells from
+the runtime's local free list. This is established by the generated code and
+allocator, but the allocation/reuse contribution to the measured runtime gap
+has not been isolated. A group that the consumer retains cannot be recycled.
 
 ## Next gate
 
-Next compare group-sum `partition_all` against a direct implementation that
-preserves group order, then test whether a source-independent producer/consumer
-fusion or a library sink contract can remove the buffered group without
-changing `partition_all` semantics. Keep the experiment separate from the
-general checked-term pass. Define and measure a generated-code growth bound as
-well. The language guide confirms that templates receive closed syntax and
-compile separately for each argument set, closures are affine, and Bend has no
-implicit protocol dispatch; preserve those rules in any general compiler
-proposal. Once the remaining correctness and performance gates are met, move
-the small pass into upstream `bend2/comp.ts` and add compiler-native fixtures.
+Next instrument the generated candidate to count group-node allocations, frees,
+and free-list reuse for the folding and retaining consumers. Then compare a
+source-independent checked-term fusion that removes groups only when they do
+not escape with an explicit sink contract that transfers a reusable buffer
+back from the consumer. Do not add a runtime reference-count test: the current
+compiler already proves uniqueness for in-place reversal, while the reducer API
+transfers ownership and permits retention. Keep both options independent of
+transducer names and preserve materialization for collectors such as
+`into_list`. Define and measure a generated-code growth bound as well. The
+language guide confirms that templates receive closed syntax and compile
+separately for each argument set, closures are affine, and Bend has no implicit
+protocol dispatch; preserve those rules in any compiler proposal. Once the
+remaining correctness and performance gates are met, move the small pass into
+upstream `bend2/comp.ts` and add compiler-native fixtures.

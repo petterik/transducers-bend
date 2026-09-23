@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-23T14:20:13+02:00
-updated_at: 2026-09-23T18:47:15+02:00
+updated_at: 2026-09-23T19:04:05+02:00
 status: active
 ---
 
@@ -148,15 +148,27 @@ The current direct group-sum benchmark accumulates groups in reverse order,
 which addition permits; it does not measure the cost of preserving
 `partition_all`'s group order.
 
-There are two viable next directions. A general checked-term List
-producer/consumer fusion could remove the temporary group when a downstream
-consumer immediately folds it, and could benefit other Bend List pipelines;
-it has high correctness and implementation effort around affine ownership,
-early termination, and effects. A new chunk/fold sink contract could avoid
-materializing groups for compatible consumers while leaving `partition_all`
-semantics intact, but it expands the reducer API and must remain source
-independent. The next experiment should measure those options against the
-current result before adding a partition-specific compiler rule.
+An order-preserving direct probe adds `List.reverse` before summing each
+buffered group. Its upper ratios are 1.416x (width 1), 1.696x (width 2), and
+1.380x (width 8), with all rows still failing the 1.05 target. The width-2
+result was reproduced in isolation: 1.688x ordered and 1.444x default. The
+opposite movements across widths mean group order alone does not explain the
+gap. The generated C also shows `List.reverse` relinking consumed `Con` nodes
+in place when affine ownership proves uniqueness. The group-sum consumer frees
+those nodes for allocator reuse; retained groups remain live. Do not attribute
+the runtime gap to duplicate-list allocation without allocation evidence.
+
+The next workset should first add allocation/free-list counters to the
+generated candidate and measure a folding consumer against a retaining one.
+Then compare two source-independent options. A general checked-term
+producer/consumer fusion could remove the temporary group when a closed
+consumer immediately folds it; it has higher compiler complexity around
+ownership, early termination, and effects. An explicit chunk sink could return
+an owned mutable buffer from consumers that finish with it, but expands the
+reducer contract and needs adapters for sources and consumers. Keep ordinary
+`partition_all` materialization for consumers that retain groups, such as
+`into_list`. Avoid a runtime reference-count branch: the existing compiler
+already uses proven affine uniqueness for in-place list reversal.
 
 ## Stop conditions
 

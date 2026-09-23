@@ -29,6 +29,8 @@ parser.add_argument('--pairs', type=int, default=5)
 parser.add_argument('--min-batch-ms', type=int, default=100)
 parser.add_argument('--bootstrap', type=int, default=5000)
 parser.add_argument('--seed', type=int, default=0)
+parser.add_argument('--preserve-partition-group-order', action='store_true',
+                    help='reverse buffered direct groups before summing them')
 parser.add_argument('--samples', type=int,
                     help='legacy alias for --sessions; pairs defaults to one')
 parser.add_argument('--repeats', type=int,
@@ -85,6 +87,10 @@ CASES = {
                              'size': 8, 'budget': 2},
 }
 selected = a.cases or list(CASES)
+sum_items = ('List.reverse(&1, U32, items)'
+             if a.preserve_partition_group_order else 'items')
+sum_completed_items = ('List.reverse(&1, U32, h <> items)'
+                        if a.preserve_partition_group_order else 'h <> items')
 
 TEMPLATE = '''import Base
 import {transduce_import} as T
@@ -239,7 +245,7 @@ def partition_sum_loop(xs: List<U32>, budget: Nat,
         case Nil{{}}:
           total
         case h <> t:
-          (total + sum_group(items, 0) : U32)
+          (total + sum_group({sum_items}, 0) : U32)
     case h <> t 0n left:
       total
     case h <> t 1n+b 0n:
@@ -248,7 +254,7 @@ def partition_sum_loop(xs: List<U32>, budget: Nat,
       match p:
         case 0n:
           partition_sum_loop(t, b,
-            (total + sum_group(h <> items, 0) : U32), {size}n, [])
+            (total + sum_group({sum_completed_items}, 0) : U32), {size}n, [])
         case 1n+q:
           partition_sum_loop(t, 1n+b, total, 1n+q, h <> items)
 
@@ -321,7 +327,9 @@ def write_program(stem, spec, lane, repeats):
                 f'{spec["size"]}n, [])')
     text = TEMPLATE.format(transduce_import='./transduce.bend',
                            count=spec['count'], size=spec.get('size', 0),
-                           body=body, repeats=repeats)
+                           body=body, repeats=repeats,
+                           sum_items=sum_items,
+                           sum_completed_items=sum_completed_items)
     stem.with_suffix('.bend').write_text(text)
     return text
 
@@ -406,6 +414,7 @@ report = {
         'schedule': 'paired process launches; first lane alternates by session and pair',
         'calibration_excluded': True,
     },
+    'preserve_partition_group_order': a.preserve_partition_group_order,
     'artifacts': str(out), 'results': [],
 }
 rng = random.Random(a.seed)
