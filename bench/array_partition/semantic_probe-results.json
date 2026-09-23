@@ -1,0 +1,14 @@
+{
+  "compiler_entry_sha256": "8c4dde245581f55afcfc3e731b4f45a62a601e5c6b3368f2efbed6c06a989c14",
+  "compiler_source_sha256": "04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d",
+  "fixture_sha256": "552bfdb0398b4a50e1ce9a6602f206fee4829dc375104070072492d0d9ddd6cd",
+  "runner_sha256": "2cd8108993072274272fd0e26814619ea73ec04a2e21fbbefacfbb192d48a576",
+  "build_seconds": 0.8023068329785019,
+  "c_bytes": 335667,
+  "js_bytes": 57943,
+  "semantic_checks": 25,
+  "js_native_equal": true,
+  "indexed_array_accesses_confirmed": true,
+  "array_tree_split_calls": 0,
+  "artifacts": null
+}

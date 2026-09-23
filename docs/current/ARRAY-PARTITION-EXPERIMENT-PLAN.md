@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-23T20:54:17+02:00
-status: proposal
+status: active
 ---
 
 # Array-backed partition experiment
@@ -153,3 +153,21 @@ This investigation does not replace `partition_all`, claim generic affine
 support, add borrowing or reference-count tests, alter `bendlang/bend`, or
 promise that Clang removes heap allocation. It produces evidence for those
 design choices before any production API or compiler change.
+
+## Progress
+
+### Workset 1: correctness and code shape — complete
+
+The fixture-only U32 reducer and ordered direct reference are in
+`bench/array_partition/semantic_probe.bend`. The fixture passes 20 grouping
+cases across widths 1, 2, 3, and 8, plus five lifecycle cases, on JS and native.
+Generated C contains indexed `blk_at`, `blk_read`, and `blk_write` operations,
+with no `blk_half` call sites in the probe. The benchmark supplies the capacity
+depth alongside the width; workset 2 will derive that depth for every workload.
+
+The report is
+[`semantic_probe-results.json`](../../bench/array_partition/semantic_probe-results.json).
+It records compiler source SHA-256
+`04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d` and
+confirms equal JS/native output. Folding, retention, allocation, and timing
+worksets remain open.
