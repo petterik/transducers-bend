@@ -129,15 +129,16 @@ T.transduce(~Tree.over_tree(~U32, ~U32, ~T.sum()),
 
 ## Compiler and verification
 
-This library depends on the [petterik/bend fork, branch `petter/transducers-sept-19`](https://github.com/petterik/bend/tree/petter/transducers-sept-19), which contains the required `bend2/comp.ts` specialization change (commit `b1f9c936`). Use that branch in the sibling `../bend` checkout, or select its compiler with `--bend-main`. The ordinary compiler can run the library semantically, but retains callback construction overhead; the code-generation test intentionally requires the specialization. This is an experimental source-checkout dependency, not a published Bend requirement/version.
+The library runs semantically on upstream Bend `main`. Its code-generation and performance checks need static callback specialization to remove reducer records. `bench/compiler/prepare_static.py` snapshots the local `origin/main` ref and reapplies that specialization in a temporary compiler, along with the optional memoization, scoped-fact, and diagnostic experiments. It never changes the sibling `../bend` checkout. The specialization was first developed in commit `b1f9c936`; the candidate built by the script has the same compiler source hash as the previously measured implementation.
 
 ```sh
 python3 tests/run.py
-python3 bench/run.py
-python3 bench/range.py
+python3 bench/compiler/prepare_static.py --facts --output-dir /tmp/transduce-facts
+python3 bench/run.py --bend-main /tmp/transduce-facts/main.ts
+python3 bench/range.py --bend-main /tmp/transduce-facts/main.ts
 ```
 
-These scripts accept `--bend-main /path/to/bend/bend2/main.ts`. They require Python 3, Bun, and a native compiler; the older historical experiment additionally uses Node. They build in temporary directories and do not install dependencies.
+`tests/run.py` prepares its compiler from the local `origin/main` ref by default; run `git -C ../bend fetch origin refs/heads/main:refs/remotes/origin/main` first to refresh that ref. Use `python3 bench/compiler/prepare_static.py --facts --output-dir /tmp/transduce-facts` to build the measured candidate explicitly, then pass `/tmp/transduce-facts/main.ts` with `--bend-main` to a test or benchmark. These scripts require Python 3, Bun, and a native compiler; the older historical experiment additionally uses Node. They build in temporary directories and do not install dependencies.
 
 The test runner compares emitted JS and native output against each Bend file's `#|` expectations, verifies rejection of affine filtering, checks elimination of callback records, and instruments generated JS to verify source/mapper counts. It includes 18,750 bounded law checks per backend. [Laws and invariants](docs/foundation/LAWS.md) distinguish tested properties, mathematical reasoning, and outstanding formal proof work. Bend reports template specializations as “unsafe annotations”; the library adds no explicit `@unsafe`. Passing these tests is not a formal proof of the implementation.
 

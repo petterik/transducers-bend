@@ -64,7 +64,18 @@ This is explicit static dispatch, not automatic trait resolution. Runtime select
 
 Also test your representation's particular obligations: affine inputs/state, numeric boundaries, traversal order, and cleanup expectations. [tests/extensions.bend](tests/extensions.bend) exercises the external tree with affine function values. [tests/lifecycle.bend](tests/lifecycle.bend) checks initialization/completion across list, range, string, and tree; JS instrumentation observes 12 starts, 8 steps, and 12 finishes.
 
-Run `python3 tests/run.py` from the repository root. The runner uses the sibling fork at `../bend/bend2/main.ts` and checks JS plus native CPU. Representative library and extension fixtures assert that generated JS contains neither Reducer nor Reduction records. This is a code-generation check, not a universal guarantee: large expressions or unsupported callback shapes can exceed specialization's limits. In custom `Reducer` constructors, explicit forwarding lambdas around pattern-matching callbacks let the current pass resolve callable heads; the lifecycle fixture demonstrates this form.
+Run `python3 tests/run.py` from the repository root. By default, the runner
+builds a temporary candidate from local `origin/main` using
+[`prepare_static.py`](../../bench/compiler/prepare_static.py), then checks JS
+and native CPU output. Refresh the ref with
+`git -C ../bend fetch origin refs/heads/main:refs/remotes/origin/main` when you
+want newer upstream compiler code. Representative library and extension
+fixtures assert that generated JS contains neither Reducer nor Reduction
+records. This is a code-generation check, not a universal guarantee: large
+expressions or unsupported callback shapes can exceed specialization's limits.
+In custom `Reducer` constructors, explicit forwarding lambdas around
+pattern-matching callbacks let the current pass resolve callable heads; the
+lifecycle fixture demonstrates this form.
 
 The contract is a documented obligation, not a proof imposed by the type of an arbitrary third-party fold. [LAWS.md](LAWS.md) distinguishes executable evidence from outstanding formal proofs.
 

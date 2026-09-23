@@ -9,12 +9,21 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--bend-main', type=Path, default=ROOT.parent / 'bend/bend2/main.ts')
+parser.add_argument('--bend-main', type=Path,
+                    help='compiler to test; by default prepare a candidate from origin/main')
 args = parser.parse_args()
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1', 'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
-compiler = ['bun', str(args.bend_main.resolve())]
 passed = 0
 with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
+    if args.bend_main is None:
+        prepared = Path(d) / 'compiler'
+        subprocess.run(['python3', str(ROOT / 'bench/compiler/prepare_static.py'),
+                        '--output-dir', prepared], env=env, check=True,
+                       timeout=60)
+        bend_main = prepared / 'main.ts'
+    else:
+        bend_main = args.bend_main.resolve()
+    compiler = ['bun', str(bend_main)]
     for file in sorted((ROOT / 'tests').glob('*.bend')):
         want = '\n'.join(line[2:] for line in file.read_text().splitlines() if line.startswith('#|'))
         assert want, f'{file.name}: missing expected output'

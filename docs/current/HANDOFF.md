@@ -36,6 +36,20 @@ and equivalent-consumer partition rows remain open performance gaps. The
 sibling `../bend` checkout remains unchanged. Generic configuration derivation,
 tree proof, short-loop profitability, and final promotion gates are still open.
 
+## Compiler input refresh, 2026-09-23
+
+The performance/code-generation candidate now starts from upstream Bend
+`origin/main` commit `15ae0c86f3193b8f645b4bedbc438655b648d0da`. The bounded
+static-callback specialization first developed in `b1f9c936` is embedded in
+`bench/compiler/prepare_static.py`; the script archives the selected compiler
+ref into a temporary source tree and never edits the sibling checkout. It pins
+the expected upstream `comp.ts` hash and stops for review if that source
+changes. Its self-check compiles representative fixtures, checks that the API
+surface has no `Reducer` records, and runs five callback-specialization
+regressions on JS and native. `tests/run.py` uses this prepared candidate by
+default. The candidate source hash remains identical to the measured facts and
+diagnostics compilers recorded in `FINAL-VALIDATION.md`.
+
 ## Checkpoint 2026-09-20: extension parity is measured, not yet accepted
 
 [`EXTENSION-PARITY.md`](EXTENSION-PARITY.md) records eleven calibrated
@@ -332,7 +346,7 @@ The user authorized priority #3, confidence/prioritization reviews, and explicit
 
 Range, ordered affine into_list, and Nat count are implemented. Ranges use ascending half-open U32 bounds with step 1; reversed/equal bounds are empty and endpoints never wrap. Strings yield Char. Twelve test files pass JS/native, including 18,750 bounded law assertions per backend, reusable source conformance checks, affine external-tree tests, and JS source/mapper/lifecycle counts. Representative fixtures eliminate Reducer and Reduction records. LAWS.md records non-mechanized arguments and remaining proof work.
 
-The binding delays its reducer recipe (`~(u => r)`) and type metadata to stay within the existing compiler specialization budget. Direct pattern-matching callbacks in custom Reducer fields may retain runtime records; forwarding lambdas work with the current pass. No compiler changes were made. The actual compiler remains `../bend/bend2/main.ts`; a temporary debugging copy lacked effs/print.js, which was unrelated to the library. Final tests/benchmarks use the sibling checkout.
+At the time of this 2026-09-20 checkpoint, the binding delayed its reducer recipe (`~(u => r)`) and type metadata to stay within the existing compiler specialization budget. Direct pattern-matching callbacks in custom Reducer fields could retain runtime records; forwarding lambdas worked with the current pass. No compiler changes had yet been made, and the temporary debugging copy that lacked `effs/print.js` was unrelated to the library. The compiler input refresh above supersedes that checkpoint's sibling-checkout testing instructions.
 
 `python3 bench/range.py` measures generated ranges against handwritten traversal; bench/RANGE.md and range-results.json retain the final report. Cheap work shows overhead (49 vs 33 ms for the full batch); expensive work ties at the timer's resolution. Prior compiler full-gate gaps remain, and no new range GPU validation or formal library-law proof was performed. Check git status: this follow-up is uncommitted unless the user has subsequently committed it. Nothing was pushed.
 
@@ -347,11 +361,11 @@ Read README.md for the actual API, IMPLEMENTATION.md for compiler details and va
 ## Repositories and commits
 
 - Library: `/Users/petter/Github/petterik/transduce-bend`. The initial implementation is commit `b975f1d`; this hand-off is included in the subsequent benchmark/documentation commit (use `git log` for its hash).
-- Compiler dependency: [petterik/bend](https://github.com/petterik/bend), branch [`petter/transducers-sept-19`](https://github.com/petterik/bend/tree/petter/transducers-sept-19). Local checkout: `/Users/petter/Github/petterik/bend`, commit `b1f9c936` (`Specialize statically constructed callbacks before lowering`). The library's performance/codegen expectations require this experimental patch.
+- Historical compiler patch: [petterik/bend commit `b1f9c936`](https://github.com/petterik/bend/commit/b1f9c93684411b16881632a6633f5d0082447449) (`Specialize statically constructed callbacks before lowering`). It is no longer a dependency on a fork branch: `prepare_static.py` reapplies the pass to a temporary snapshot of local `origin/main`.
 - Bend's AGENTS.md explicitly prohibits editing `bend2/bend.ts`. It remains unchanged. Compiler/runtime work belongs in `bend2/comp.ts`.
 - Read both repositories' current status before editing; the user sometimes commits between turns. Do not overwrite their changes.
 
-Bend here is version 2.0.16-era dependent/affine Bend, with a strict CPU/GPU fork-join compiler/runtime. It is not the older interaction-net/HVM2 language originally discussed. `bend guide` and `bend guide shaders` explain the current model. Use the source checkout via `bun ../bend/bend2/main.ts` when testing this patch, not an unrelated installed compiler.
+Bend here is dependent/affine Bend, with a strict CPU/GPU fork-join compiler/runtime. It is not the older interaction-net/HVM2 language originally discussed. `bend guide` and `bend guide shaders` explain the current model. Use plain upstream `main` for semantic-only checks; use the candidate emitted by `prepare_static.py` for code-generation and performance checks.
 
 ## Implemented representation and semantics
 

@@ -59,9 +59,12 @@ samples, calibration batches, source hashes, and eligibility decision at
 [`bench/extension-parity-results.json`](../../bench/extension-parity-results.json).
 The harness is
 [`bench/extension_parity.py`](../../bench/extension_parity.py). Reproduce this
-checkpoint with:
+checkpoint by preparing the same facts-enabled compiler from local
+`origin/main`, then running the retained parity protocol:
 
 ```sh
+python3 bench/compiler/prepare_static.py --facts \
+  --output-dir /tmp/transduce-facts-contained
 python3 bench/extension_parity.py \
   --bend-main /tmp/transduce-facts-contained/main.ts \
   --sessions 10 --pairs 5 --min-batch-ms 100 --bootstrap 1000 \

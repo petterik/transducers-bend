@@ -11,7 +11,11 @@ independent direct `keep` oracle mishandled its first budget value. Those
 defects are now repaired. The lifecycle fixture, structured compiler
 call-site report, and calibrated extension matrix are also retained below.
 
-The semantic suite uses the contained facts compiler with compiler SHA
+The candidate is now built from upstream Bend `origin/main` commit
+`15ae0c86f3193b8f645b4bedbc438655b648d0da`; the bounded static-callback pass
+is reapplied by `bench/compiler/prepare_static.py`. That candidate's compiler
+source hash is unchanged from the retained measurements. The semantic suite
+uses the contained facts compiler with compiler SHA
 `a393e4f315a2c7a3286b241cee8c11a2fb346b5cdf530e3904c601953a1215d8`. The
 structured representation probe uses its diagnostics-enabled compiler with
 SHA `4560590cc170ea02f13a0a509ed98fd05e7b320b6848e649f58baf1fce18d35d`.
@@ -22,8 +26,10 @@ The extension report uses library hash
 
 | Check | Result |
 | --- | --- |
-| `python3 tests/run.py --bend-main /tmp/transduce-facts-contained/main.ts` | 22/22 JS/native files, including named settings, laws, API surface, lifecycle, partition lifecycle, and source contracts |
-| `python3 tests/run.py` | 22/22 JS/native files with the unchanged sibling reference compiler |
+| `python3 bench/compiler/prepare_static.py --output-dir …` self-check | Smoke compile, API surface has no runtime `Reducer` records, and five static-callback regression fixtures pass on JS/native |
+| `python3 tests/run.py` | 22/22 JS/native files; prepares its candidate from local `origin/main` by default |
+| `python3 tests/run.py --bend-main /tmp/transduce-facts-contained/main.ts` | 22/22 JS/native files, including named settings, laws, API surface, lifecycle, partition lifecycle, and source contracts, on the retained facts candidate |
+| `python3 bench/run.py --bend-main <candidate>` (7 samples) | Latest-main candidate stays near the sibling patch baseline; medians below |
 | `static_composition_probe.py` | Native/JS `[9, 9, 7, 7, 3, 3]`; zero reducer/reduction records and closure-dispatch transfers |
 | `representation_probe.py --diagnostics` | Scalar, buffered, and dynamic-control outputs match on native/JS; structured call-site attribution has no unknown records |
 | `test_scoped_constructor_fact.py` | Output `4\n1`; 2 exact selections, 2 dynamic rejections, conservative refusals retained |
@@ -34,6 +40,33 @@ The extension report uses library hash
 The current suite is a semantic and code-shape checkpoint for the facts
 compiler. It does not claim that the facts compiler also contains the
 separate historical guarded-loop/tree pass.
+
+The latest-main refresh smoke used seven post-warmup samples per case, with
+process startup, source construction, reduction, and cleanup included. It ran
+against both the prepared facts candidate and the sibling `b1f9c936` checkout;
+the latter is one commit ahead of the same upstream `main`. Their `comp.ts`
+hashes were `a393e4f315a2c7a3286b241cee8c11a2fb346b5cdf530e3904c601953a1215d8`
+and `96c997a7d4700a7aaa7bb5a7f27ea810394168cb50fd7f6d267d45156f2e3df3`,
+respectively. In every case, the library, materialized, and direct programs
+had identical C/JS byte counts under both compilers. Median milliseconds were:
+
+| Case | Prepared transducer / direct | Sibling-patch transducer / direct |
+| --- | ---: | ---: |
+| `cheap_full` | 27.14 / 28.28 | 27.25 / 26.17 |
+| `cheap_early` | 35.91 / 36.54 | 36.34 / 35.57 |
+| `expensive_early` | 20.37 / 19.30 | 19.73 / 19.45 |
+
+These short samples show no material shift between candidate compiler builds;
+the last row has a small timing-level reversal and should be read as a smoke
+check, not as a replacement for the calibrated extension/direct matrix below.
+Recreate the compiler and run both sides with:
+
+```sh
+python3 bench/compiler/prepare_static.py --facts \
+  --output-dir /tmp/transduce-facts-contained
+python3 bench/run.py --bend-main /tmp/transduce-facts-contained/main.ts
+python3 bench/run.py --bend-main ../bend/bend2/main.ts
+```
 
 ## Measured representation and cost boundaries
 
