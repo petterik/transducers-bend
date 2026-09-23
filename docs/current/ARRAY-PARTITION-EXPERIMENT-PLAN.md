@@ -203,4 +203,71 @@ This confirms the test actually observes every retained chunk after
 transduction. It does not imply reuse is possible while the emitted chunk is
 still live; allocation accounting is needed to quantify the difference.
 
-Allocation and timing worksets remain open.
+### Workset 4: allocation and timing — paused, partial results
+
+[`measure_array_partition.py`](../../bench/array_partition/measure_array_partition.py)
+now compiles separate native binaries for the List, Array, and direct lanes,
+calibrates each workload, collects paired samples, and instruments separate C
+builds for heap and chunk-allocation counts. Source Lists are built before
+`IO.now`; transduction, result consumption, and source cleanup are timed. The
+instrumented binaries are never used for timing.
+
+The run was paused while executing a sample for `fold_bounded_w3`. Six of the
+12 planned workloads are complete: all four full-fold widths and bounded-fold
+widths 1 and 2. Each completed workload has ten sessions and five samples per
+lane per session, and every sample's checksum matched the expected value. The
+raw samples and allocation counters are preserved in
+[`measurement-results-partial.json`](../../bench/array_partition/measurement-results-partial.json).
+It records the tested compiler entry hash
+`8c4dde245581f55afcfc3e731b4f45a62a601e5c6b3368f2efbed6c06a989c14`, compiler
+source hash
+`04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d`, fixture
+hashes, and the measurement harness hash.
+
+| Workload | Repeats per sample | List median (ms) | Array median (ms) | Direct median (ms) | Array/List ratio, 95% interval | Direct/List ratio, 95% interval |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Full, width 1 | 1,048,576 | 227.0 | 376.0 | 183.0 | 1.657 [1.650, 1.664] | 0.813 [0.809, 0.816] |
+| Full, width 2 | 1,048,576 | 322.0 | 837.0 | 210.0 | 2.598 [2.587, 2.610] | 0.622 [0.617, 0.628] |
+| Full, width 3 | 1,048,576 | 330.0 | 726.0 | 214.0 | 2.189 [2.182, 2.196] | 0.644 [0.641, 0.647] |
+| Full, width 8 | 1,048,576 | 355.5 | 425.0 | 193.0 | 1.202 [1.193, 1.213] | 0.550 [0.546, 0.556] |
+| Bounded, width 1 | 524,288 | 306.5 | 309.5 | 305.5 | 1.008 [0.993, 1.025] | 1.003 [0.995, 1.011] |
+| Bounded, width 2 | 262,144 | 188.0 | 192.0 | 187.5 | 1.021 [1.016, 1.025] | 1.000 [0.996, 1.003] |
+
+The current evidence says the Array prototype loses on full folding at all four
+widths, by 20% to 160% in these samples, while the bounded width-1 and width-2
+results are close to List. Direct fusion is faster than List for all full-fold
+widths, but close to List for the two bounded widths. Treat these as
+work-in-progress results: bounded widths 3 and 8 and all four retaining rows
+are still unmeasured. The confidence intervals bootstrap the ten session-level
+ratios; they describe run-to-run variation on this one machine, not variation
+across machines.
+
+The separate allocation probes completed for these six rows (18 lane/workload
+combinations). For full folding, the Array lane made and freed one flat backing
+block per emitted chunk; the List lane allocated List nodes for the groups, and
+the direct lane allocated no group storage. The bounded Array lane made and
+freed two blocks per input, matching the two groups it emitted. The measured
+List and Array allocation requests were mostly served by Bend's internal
+free-list: the counter records runtime heap allocation calls and free-list
+hits, not operating-system `malloc` calls or allocations removed by Clang. In
+the non-retaining folds, allocated group storage is freed as the consumer
+finishes each group. The timed peak growth in Bend's managed heap was 32 bytes
+for these instrumented samples; this is not process RSS. The retained rows are
+needed to see how this changes when groups remain live.
+
+The report marks itself `paused_partial` and lists the six remaining workloads.
+The harness does not resume mid-matrix; rerunning it starts again at the first
+row, so the partial report is kept as a checkpoint. To finish the planned run,
+use the pinned prepared candidate (or regenerate it with the existing
+`prepare_static.py` workflow) and write a separate complete report:
+
+```bash
+python3 bench/array_partition/measure_array_partition.py \
+  --bend-main /private/tmp/bend-main-structural-v3/main.ts \
+  --output bench/array_partition/measurement-results.json
+```
+
+The remaining work is bounded folding at widths 3 and 8, then retained
+consumers at widths 1, 2, 3, and 8. Afterward, compare the retained allocation
+counts and timing with the fold results, complete the decision gates, and
+commit the finished measurement workset.

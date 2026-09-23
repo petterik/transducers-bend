@@ -35,6 +35,17 @@ def array_retain(width: Nat, depth: Nat, xs: List<U32>) -> RetainedStats:
     (width, (depth, Unit{})), xs)
   array_groups_stats(groups, 0n, 0)
 
+def retained_checksum(stats: RetainedStats) -> U32:
+  match stats:
+    case RetainedStats{groups, total}:
+      (total + U32.from_nat(groups) : U32)
+
+def list_retain_checksum(width: Nat, xs: List<U32>) -> U32:
+  retained_checksum(list_retain(width, xs))
+
+def array_retain_checksum(width: Nat, depth: Nat, xs: List<U32>) -> U32:
+  retained_checksum(array_retain(width, depth, xs))
+
 def stats_match(stats: RetainedStats, expected_groups: Nat,
   expected_total: U32) -> Bool:
   match stats:
