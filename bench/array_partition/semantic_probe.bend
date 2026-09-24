@@ -173,10 +173,34 @@ def chunk_sum_loop(fuel: Nat, left: Nat, phase: ReaderPhase) -> U32:
       chunk_sum_loop(q, p,
         ReadArray{Nat.add(index, 1n), rev, (total + value : U32), next})
 
-def array_chunk_sum(chunk: ArrayChunk) -> U32:
+# Preserve the original two-phase reader as a benchmark control.
+def array_chunk_sum_two_phase(chunk: ArrayChunk) -> U32:
   match chunk:
     case ArrayChunk{items, +len}:
       chunk_sum_loop(Nat.mul(len, 2n), len, ReadArray{0n, [], 0, items})
+
+type ArraySumState is Type:
+  ArraySumState{items: Array<U32>, index: Nat, total: U32}
+
+# Match Array.get's computed pair in this helper, then return to the loop.
+def array_sum_after_get(result: Array<U32> & U32, +index: Nat,
+  +total: U32) -> ArraySumState:
+  (items, value) = result
+  ArraySumState{items, Nat.add(index, 1n), (total + value : U32)}
+
+def array_chunk_sum_loop(left: Nat, state: ArraySumState) -> U32:
+  match left state:
+    case 0n ArraySumState{items, index, total}:
+      total
+    case 1n+p ArraySumState{items, +index, +total}:
+      array_chunk_sum_loop(p,
+        array_sum_after_get(
+          Array.get(U32, items, U32.from_nat(index)), index, total))
+
+def array_chunk_sum(chunk: ArrayChunk) -> U32:
+  match chunk:
+    case ArrayChunk{items, +len}:
+      array_chunk_sum_loop(len, ArraySumState{items, 0n, 0})
 
 def sum_values_loop(xs: List<U32>, +total: U32) -> U32:
   match xs:

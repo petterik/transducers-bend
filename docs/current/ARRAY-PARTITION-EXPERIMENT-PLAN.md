@@ -189,6 +189,14 @@ build its lane's List before starting the timer; this check does not claim those
 List construction costs are measured equally. No runtime or allocation
 conclusion follows from these Boolean checks.
 
+The Array fold now has two readers for an A/B comparison. The original reader
+switches between `ReadArray` and `ReadValue` in two recursive steps per item.
+The second reader uses one recursive loop step per item and a helper to unpack
+the computed `Array.get` result. The JS and native checks confirm that List,
+both Array readers, and direct fusion return equal sums for all eight widths
+and stopping cases. This establishes correctness only; their relative native
+cost remains to be measured.
+
 ### Workset 3: retained chunks — complete
 
 [`retained_probe.bend`](../../bench/array_partition/retained_probe.bend) sends
@@ -233,14 +241,15 @@ hashes, and the measurement harness hash.
 | Bounded, width 1 | 524,288 | 306.5 | 309.5 | 305.5 | 1.008 [0.993, 1.025] | 1.003 [0.995, 1.011] |
 | Bounded, width 2 | 262,144 | 188.0 | 192.0 | 187.5 | 1.021 [1.016, 1.025] | 1.000 [0.996, 1.003] |
 
-The current evidence says the Array prototype loses on full folding at all four
-widths, by 20% to 160% in these samples, while the bounded width-1 and width-2
-results are close to List. Direct fusion is faster than List for all full-fold
-widths, but close to List for the two bounded widths. Treat these as
-work-in-progress results: bounded widths 3 and 8 and all four retaining rows
-are still unmeasured. The confidence intervals bootstrap the ten session-level
-ratios; they describe run-to-run variation on this one machine, not variation
-across machines.
+These timing rows were collected with the original two-phase Array reader,
+before the single-loop candidate was added. That reader loses to List on full
+folding at all four widths, by 20% to 160% in these samples; the bounded
+width-1 and width-2 results are close to List. Direct fusion is faster than
+List for all full-fold widths, but close to List for the two bounded widths.
+Do not apply these ratios to the new reader. The confidence intervals bootstrap
+the ten session-level ratios; they describe run-to-run variation on this one
+machine, not variation across machines. Balanced three-lane timing and the
+single-loop reader still need measurement.
 
 The separate allocation probes completed for these six rows (18 lane/workload
 combinations). For full folding, the Array lane made and freed one flat backing

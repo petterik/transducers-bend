@@ -1,12 +1,12 @@
 {
   "compiler_entry_sha256": "8c4dde245581f55afcfc3e731b4f45a62a601e5c6b3368f2efbed6c06a989c14",
   "compiler_source_sha256": "04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d",
-  "fold_fixture_sha256": "549c758d09eabf34642a84f749c3e4e2a07f36d4025117a562e6617ebf721c21",
-  "partition_fixture_sha256": "8f162b88c78184b834285838e6d2b18db85cabdc6d7501c77394dbeb53280a95",
+  "fold_fixture_sha256": "4f9257b5c5e367127946ae49286d203e6f651444556be3bf1ab2c66ee19dde9c",
+  "partition_fixture_sha256": "a62a62e4179a5f88bd5d084506c63100154d770f9cd029174332a20b6d5d20d3",
   "runner_sha256": "883726cfac27b052187db6cf2156a28095725e88fda30c60ae852424b07accca",
-  "build_seconds": 0.7993159169564024,
-  "c_bytes": 234205,
-  "js_bytes": 34688,
+  "build_seconds": 0.8446601250907406,
+  "c_bytes": 215000,
+  "js_bytes": 45445,
   "semantic_checks": 8,
   "js_native_equal": true,
   "cases": [
