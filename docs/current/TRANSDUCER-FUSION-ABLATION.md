@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T13:58:08+02:00
+updated_at: 2026-09-24T14:31:18+02:00
 status: current
 ---
 
@@ -107,6 +107,80 @@ this specific reuse. It is not evidence that Clang can generally remove the
 transducer's List construction: the instrumented candidate still requests one
 Cons per input in that path.
 
+## Retaining chunks
+
+The retained consumer collects every emitted chunk, then traverses all chunks
+to compute its checksum. It therefore tests the case where an emitted chunk
+must remain valid after later input has been processed. This was measured on
+the same `bendlang/main` commit with raw upstream and the isolated candidate,
+using 200,001 input items, 12 sessions, five samples per session, and separate
+allocation-instrumented builds. Each sample was checked against the expected
+checksum. These rows are native timings; cross-compiler ratios below compare
+medians and are not paired confidence intervals.
+
+| Compiler | Width | List ms/op | Array ms/op | Array / List, bootstrap 95% interval | C bytes, List / Array |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Raw upstream | 3 | 4.102 | 5.250 | 1.243 [1.236, 1.250] | 162,872 / 169,862 |
+| Static-callback candidate | 3 | 0.848 | 0.809 | 0.901 [0.897, 0.904] | 122,323 / 129,316 |
+| Raw upstream | 8 | 3.734 | 5.000 | 1.381 [1.375, 1.391] | 162,872 / 169,862 |
+| Static-callback candidate | 8 | 0.682 | 0.784 | 1.332 [1.327, 1.338] | 122,323 / 129,316 |
+
+The candidate is 4.8–5.5x faster than raw upstream for retained List chunks,
+and 6.4–6.5x faster for retained Array chunks, by the ratio of medians. The
+Array/List result changes between widths 3 and 8, so these two points do not
+establish a general crossover rule. They also compare this fixture's List and
+Array implementations, not a common built-in partition API.
+
+Timed allocator requests per input item show what remains live and what the
+candidate removed:
+
+| Compiler | Width | Lane | All heap allocations | List Cons allocations | Array blocks allocated | Peak retained Array blocks |
+| --- | ---: | --- | ---: | ---: | ---: | ---: |
+| Raw upstream | 3 | List | 6.000 | 1.333 | 0 | 0 |
+| Static-callback candidate | 3 | List | 1.333 | 1.333 | 0 | 0 |
+| Raw upstream | 8 | List | 5.375 | 1.125 | 0 | 0 |
+| Static-callback candidate | 8 | List | 1.125 | 1.125 | 0 | 0 |
+| Raw upstream | 3 | Array | 6.000 | 0.333 | 0.333 | 66,667 |
+| Static-callback candidate | 3 | Array | 1.333 | 0.667 | 0.333 | 66,667 |
+| Raw upstream | 8 | Array | 4.750 | 0.125 | 0.125 | 25,001 |
+| Static-callback candidate | 8 | Array | 0.500 | 0.250 | 0.125 | 25,001 |
+
+The counters classify List Cons cells and Array blocks separately; total heap
+allocations include other runtime heap objects. In the retained List lane,
+the candidate's total allocation requests equal the output List structure:
+one inner Cons per input plus one outer group Cons per chunk. The raw compiler
+requests another 4.7 or 4.25 heap objects per input at widths 3 and 8. The
+static-callback candidate has removed those transient allocations in this
+case. Generated C supports that interpretation: raw C contains runtime
+`Continue`, `Stop`, and `Partitioning` constructor/match references, while the
+candidate C has only their unused tag definitions and no references to those
+tags. `Reducer` and `Reduction` likewise have no runtime constructors in raw
+C. Constructor-site counts are code-shape evidence, not dynamic counts; the
+allocator instrumentation is the runtime measurement.
+
+For the Array lane, peak live Array blocks exactly equal the retained output
+group count, and all blocks are released after consumption. The fixture
+therefore keeps one buffer per emitted Array chunk alive through the checksum
+pass. It does not attempt to borrow or recycle an earlier emitted chunk. This
+supports the ownership boundary: reuse the current, uniquely owned working
+buffer while it is being filled, but allocate a distinct result for each
+chunk that escapes to a retaining consumer. The candidate Array lane also has
+more List Cons requests than raw upstream (0.667 vs 0.333 per item at width 3,
+0.250 vs 0.125 at width 8), despite its much lower total heap traffic. The
+current measurements do not explain that change; keep it as an open Array
+fixture question instead of treating its speed result as a general Array
+allocation win.
+
+This evidence changes the next compiler step. Static-callback specialization
+already removes the per-input Control/Partitioning heap traffic in this
+retaining pipeline. Do not add a separate Control-record rewrite without a
+new profile showing another concrete cost. The fold ablation still has one
+additional Cons per input and remains 1.4–1.6x slower than the handwritten
+materialized control, so the next experiment should test a general
+fresh-producer-to-single-use-fold rewrite. It must remove the temporary List
+only when it proves non-escape; retained consumers remain the required
+negative case.
+
 ## Options, prioritized
 
 | Option | Impact | Effort | Value | Decision |
@@ -153,6 +227,8 @@ The paired result files retain raw samples and build/source hashes:
 
 - [`fusion-ablation-upstream.json`](../../bench/array_partition/fusion-ablation-upstream.json)
 - [`fusion-ablation-static-callback.json`](../../bench/array_partition/fusion-ablation-static-callback.json)
+- [`retain-current-main-upstream.json`](../../bench/array_partition/retain-current-main-upstream.json)
+- [`retain-current-main-static-callback.json`](../../bench/array_partition/retain-current-main-static-callback.json)
 
 The fold fixture was checked on both JS and native with 17 semantic cases,
 including partial final chunks and order-sensitive results, against both raw

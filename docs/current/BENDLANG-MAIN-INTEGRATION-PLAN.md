@@ -44,6 +44,18 @@ materialized path reuses consumed source nodes. Full timings, allocation
 counts, confidence bounds, and the next experiment are recorded in
 [`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md).
 
+A matched retained-chunk run covers the negative case where every emitted
+chunk stays alive through a later checksum traversal. The static-callback
+candidate is 4.8–5.5x faster than raw upstream for the List lane and 6.4–6.5x
+faster for the fixture Array lane. In the retained List lane, candidate heap
+requests equal the List Cons cells required by the output; raw upstream makes
+another 4.25–4.67 heap requests per input. Generated C shows active
+`Continue`/`Stop`/`Partitioning` terms in raw upstream and no runtime
+references to those tags in the candidate. The candidate Array lane does
+request twice as many List Cons cells as raw, a separate unexplained fixture
+detail. Full samples, allocation counters, generated-source hashes, and
+limits are in the ablation document's retained-chunk section.
+
 The prior baseline below is superseded for compiler identity and validation.
 Its performance results remain evidence for the older candidate only. The
 current Array width sweep used raw upstream at this refreshed commit; the
@@ -157,12 +169,15 @@ edit `bend2/bend.ts`; no checker edit is part of this plan.
 5. **P2 — Consider an upstream compiler change only after the fusion
    prototype clears its gates.** Template identity is already
    adversarially tested; now measure a source-independent fold-fusion rule with
-   semantic negative cases and bounded code growth. If it is valuable and safe,
-   move the small rule into `bend2/comp.ts` before lowering so JS and native
-   share it. Add Bend tests for static callbacks, independent source adapters,
-   dynamic fallback, template-instance identity, and affine behavior. Run
-   upstream's current test gate from an archive of `bendlang/main`. The
-   transducer library remains an ordinary consumer and example.
+   semantic negative cases and bounded code growth. Current allocation and C
+   evidence does not justify a separate Control-record rewrite: the candidate
+   already removes those runtime terms in the retained List pipeline. If the
+   producer/consumer rule is valuable and safe, move it into `bend2/comp.ts`
+   before lowering so JS and native share it. Add Bend tests for static
+   callbacks, independent source adapters, dynamic fallback, template-instance
+   identity, and affine behavior. Run upstream's current test gate from an
+   archive of `bendlang/main`. The transducer library remains an ordinary
+   consumer and example.
 
 ## Options considered
 
