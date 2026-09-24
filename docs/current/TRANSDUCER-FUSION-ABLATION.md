@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T15:58:36+02:00
+updated_at: 2026-09-24T16:22:11+02:00
 status: current
 ---
 
@@ -242,6 +242,37 @@ against both this narrower no-chunk API and the public `partition_all`
 pipeline, while preserving the latter's observable chunk semantics. Do not
 make `group_fold` the required implementation of `partition_all`.
 
+## Does more C inlining remove the remaining cost?
+
+I recompiled the same generated List-pipeline and direct-loop C with Apple
+Clang 17.0.0 (build 1700.6.4.2) at `-O3`. The only change was forcing every
+host `INLINE` function to use `always_inline`. This is a focused native probe,
+not a Bend compiler change: 200,000 values per operation, 16 operations per
+timed sample, and 12 paired sessions. Source construction stayed outside the
+timed region, and the new microsecond clock recorded the sample durations.
+
+| Lane | Default median µs/op | Forced inline median µs/op | Forced / default, paired 95% interval |
+| --- | ---: | ---: | ---: |
+| Public List pipeline | 715.53 | 628.25 | 0.890 [0.873, 0.911] |
+| Direct loop | 306.94 | 230.97 | 0.769 [0.724, 0.821] |
+
+Forcing inlining improves both lanes in this probe, but helps the direct loop
+more. The paired List/direct ratio grows from 2.304 [2.255, 2.356] to 2.667
+[2.516, 2.807]; the relative gap grows by 15.8% [7.9%, 23.1%]. The generated
+C grows by 31 bytes for the List lane, while the native binary size is
+essentially unchanged. A separate forced-inline allocator run still records
+51.2 million timed List Cons allocations for 51.2 million inputs, the same as
+the default List pipeline.
+
+This rejects forced inlining as a fusion solution for this case. Clang can
+reduce some call overhead, but inlining alone neither removes the chunk nodes
+nor brings this transducer closer to direct consumption. One workload does not
+establish a global inlining policy. The useful compiler experiment still needs
+to represent and prove that a fresh chunk is consumed once, then replace its
+construction and traversal with equivalent state updates. The complete paired
+samples and generated-code hashes are in
+[`clang-inline-ablation.json`](../../bench/array_partition/clang-inline-ablation.json).
+
 ## Options, prioritized
 
 | Option | Impact | Effort | Value | Decision |
@@ -296,6 +327,7 @@ The paired result files retain raw samples and build/source hashes:
 - [`retain-current-main-upstream.json`](../../bench/array_partition/retain-current-main-upstream.json)
 - [`retain-current-main-static-callback.json`](../../bench/array_partition/retain-current-main-static-callback.json)
 - [`group-fold-current-main-static-callback-ms.json`](../../bench/array_partition/group-fold-current-main-static-callback-ms.json)
+- [`clang-inline-ablation.json`](../../bench/array_partition/clang-inline-ablation.json)
 
 The fold fixture was checked on both JS and native with 17 semantic cases,
 including partial final chunks and order-sensitive results, against both raw

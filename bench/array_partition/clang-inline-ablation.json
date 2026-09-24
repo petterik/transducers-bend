@@ -1,0 +1,229 @@
+{
+  "compiler": {
+    "bendlang_main_commit": "2f50df1ed36fcc3ebe6c75a2046e94001a44645d",
+    "static_callback_comp_sha256": "083adb324e749a1ca20376896d3a14e716ccc355f019736e7b4c9dba6ab54bee",
+    "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+    "flags": [
+      "-std=c11",
+      "-O3",
+      "-lpthread",
+      "-lm"
+    ],
+    "forced_change": "host INLINE macro: static inline -> static inline __attribute__((always_inline))"
+  },
+  "protocol": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "time_unit": "microseconds",
+    "source_items_per_operation": 200000,
+    "repetitions_per_sample": 16,
+    "paired_sessions": 12,
+    "source_building": "fresh source List construction is before the timer boundary",
+    "lane_and_variant_order": "alternating forward/reverse lane order and default/always-inline order",
+    "expected_checksums_checked": true,
+    "timer": "benchmark-only BenchClock.now_us, native monotonic clock"
+  },
+  "samples_us": {
+    "list-default": [
+      10814,
+      11523,
+      11514,
+      10944,
+      11461,
+      11487,
+      10933,
+      11479,
+      11357,
+      11362,
+      11502,
+      11436
+    ],
+    "list-always_inline": [
+      10543,
+      10067,
+      9887,
+      10219,
+      10177,
+      10037,
+      10124,
+      9977,
+      10026,
+      10068,
+      9777,
+      9970
+    ],
+    "direct-default": [
+      4752,
+      4740,
+      4961,
+      4979,
+      4900,
+      4819,
+      4596,
+      5209,
+      5223,
+      4922,
+      5228,
+      4653
+    ],
+    "direct-always_inline": [
+      3854,
+      4607,
+      4506,
+      3635,
+      3564,
+      3266,
+      3857,
+      3601,
+      3875,
+      3493,
+      3513,
+      3756
+    ]
+  },
+  "comparisons": {
+    "list": {
+      "default_median_us_per_operation": 715.53125,
+      "always_inline_median_us_per_operation": 628.25,
+      "always_inline_over_default_geomean": 0.8900703487577319,
+      "bootstrap_95": {
+        "lower": 0.8726437871559412,
+        "upper": 0.9106859341251183,
+        "resamples": 5000
+      },
+      "session_ratios": [
+        0.9749398927316442,
+        0.8736440163151957,
+        0.8586937641132534,
+        0.9337536549707602,
+        0.8879678911089782,
+        0.873770349090276,
+        0.926003841580536,
+        0.8691523651886053,
+        0.8828035572774501,
+        0.8861116000704101,
+        0.8500260824204486,
+        0.8718083245890171
+      ]
+    },
+    "direct": {
+      "default_median_us_per_operation": 306.9375,
+      "always_inline_median_us_per_operation": 230.96875,
+      "always_inline_over_default_geomean": 0.7688858480939198,
+      "bootstrap_95": {
+        "lower": 0.7241700232948157,
+        "upper": 0.8213194085527056,
+        "resamples": 5000
+      },
+      "session_ratios": [
+        0.811026936026936,
+        0.9719409282700422,
+        0.908284620036283,
+        0.7300662783691504,
+        0.7273469387755102,
+        0.6777339697032579,
+        0.8392080069625761,
+        0.6913035131503168,
+        0.7419107792456443,
+        0.7096708655018286,
+        0.6719586840091814,
+        0.8072211476466795
+      ]
+    }
+  },
+  "generated_code": {
+    "list": {
+      "generated_c_sha256": "18cafaac1609942e836496bd8375666f20c2f4916d029cffadec44f77a167145",
+      "forced_inline_c_sha256": "b7d8760acdbc11f968cae78c4aa5f1b92125678ff62993089328ee60bd8d31b1",
+      "generated_c_bytes": 127416,
+      "forced_inline_c_bytes": 127447,
+      "default_binary_bytes": 1128208,
+      "always_inline_binary_bytes": 1128104
+    },
+    "direct": {
+      "generated_c_sha256": "5ad38e634ad41f53b1c463de5a7b564e3a556bdab39969ad773397dd5b50150a",
+      "forced_inline_c_sha256": "df80455aabb5e68cbd84bc70c67f5c2513b727936d453c84bbf1520f29d01f78",
+      "generated_c_bytes": 106903,
+      "forced_inline_c_bytes": 106934,
+      "default_binary_bytes": 1128176,
+      "always_inline_binary_bytes": 1128112
+    }
+  },
+  "allocation_probe": {
+    "variant": "always_inline",
+    "lane": "public List partition pipeline",
+    "input_items": 200000,
+    "repetitions": 256,
+    "timed_list_cons_allocations": 51200000,
+    "timed_heap_allocations": 51200005,
+    "source": "instrumented emitted C with same INLINE macro change; allocation counters do not affect timing samples"
+  },
+  "paired_cross_lane": {
+    "default_list_over_direct": {
+      "geometric_mean": 2.3040969186105427,
+      "bootstrap_95": {
+        "lower": 2.2547685449920687,
+        "upper": 2.3557007236666454,
+        "resamples": 5000
+      },
+      "session_ratios": [
+        2.2756734006734005,
+        2.431012658227848,
+        2.3209030437411813,
+        2.198031733279775,
+        2.338979591836735,
+        2.3836895621498235,
+        2.3788076588337685,
+        2.2036859282011902,
+        2.1744208309400728,
+        2.308411214953271,
+        2.2000765110941085,
+        2.4577691811734366
+      ]
+    },
+    "always_inline_list_over_direct": {
+      "geometric_mean": 2.6672468390506694,
+      "bootstrap_95": {
+        "lower": 2.515646141644676,
+        "upper": 2.8073162550000683,
+        "resamples": 5000
+      },
+      "session_ratios": [
+        2.7355993772703684,
+        2.1851530280008684,
+        2.1941855304039057,
+        2.8112792297111415,
+        2.8554994388327724,
+        3.073178199632578,
+        2.624837956961369,
+        2.7706192724243266,
+        2.5873548387096776,
+        2.8823361007729744,
+        2.7830913748932535,
+        2.654419595314164
+      ]
+    },
+    "relative_change_in_list_over_direct_gap": {
+      "geometric_mean": 1.1576105230239708,
+      "bootstrap_95": {
+        "lower": 1.0789978199326793,
+        "upper": 1.231414466446407,
+        "resamples": 5000
+      },
+      "interpretation": "greater than 1 means forced inlining widened the List/direct runtime ratio",
+      "session_ratios": [
+        1.2021054411678187,
+        0.8988653434629971,
+        0.9454016342134599,
+        1.2789984726545847,
+        1.2208312756548803,
+        1.2892526981831107,
+        1.1034258895266122,
+        1.2572659456449444,
+        1.1899052850735798,
+        1.248623331104082,
+        1.2649975402488203,
+        1.0800117503494933
+      ]
+    }
+  }
+}
