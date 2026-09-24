@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-23T20:54:17+02:00
-status: active
+status: complete
 ---
 
 # Array-backed partition experiment
@@ -248,8 +248,9 @@ width-1 and width-2 results are close to List. Direct fusion is faster than
 List for all full-fold widths, but close to List for the two bounded widths.
 Do not apply these ratios to the new reader. The confidence intervals bootstrap
 the ten session-level ratios; they describe run-to-run variation on this one
-machine, not variation across machines. Balanced three-lane timing and the
-single-loop reader still need measurement.
+machine, not variation across machines. At this checkpoint, balanced timing
+with all three lanes and the single-loop reader still needed measurement; the
+completed follow-up is recorded below.
 
 The separate allocation probes completed for these six rows (18 lane/workload
 combinations). For full folding, the Array lane made and freed one flat backing
@@ -339,11 +340,73 @@ Array representation.
 
 The short-input workload exposed a calibration constraint: at 16,777,216
 repetitions, the direct width-1 row still did not reach the default 150 ms
-calibration target. The harness now gives short rows a 20 ms sample floor and
-a 25 ms calibration target (at default settings); five samples across 12
-sessions still provide repeated paired observations without constructing a
-much larger source batch. Other rows keep the 100 ms floor and 150 ms target.
-The remaining run is the short-input and retained matrix, after which this
-decision record can be completed. Inspect generated C only if a material gap
-remains. The pinned candidate can be regenerated with the existing
-`prepare_static.py` workflow if its prepared files are no longer available.
+calibration target. The harness gives short rows a 20 ms sample floor and a
+25 ms calibration target at default settings; the five samples across 12
+sessions preserve repeated paired observations without constructing a much
+larger source batch. Other rows keep the 100 ms floor and 150 ms target.
+
+[`lifetime-results.json`](../../bench/array_partition/lifetime-results.json)
+contains the completed short-input and retained matrix. Every row has 12
+sessions and five samples per lane; checksums passed, timed Array allocation
+and free counts balance, and the separate allocation builds passed their peak
+checks.
+
+| Width | Short bounded Array/List, 95% interval | Short bounded Direct/List, 95% interval | Retained Array/List, 95% interval |
+| ---: | ---: | ---: | ---: |
+| 1 | 1.346 [1.335, 1.358] | 0.489 [0.476, 0.509] | 1.426 [1.419, 1.433] |
+| 2 | 1.467 [1.454, 1.481] | 0.424 [0.419, 0.430] | 1.281 [1.277, 1.285] |
+| 3 | 1.095 [1.083, 1.107] | 0.383 [0.379, 0.387] | 1.283 [1.280, 1.285] |
+| 8 | 0.598 [0.596, 0.601] | 0.368 [0.364, 0.374] | 1.032 [1.026, 1.038] |
+
+For short bounded inputs of `2 * width + 1`, the consumer takes at most two
+groups. Array loses to List at widths 1–3 and wins at width 8. The handwritten
+direct loop is substantially faster in all four cases. For retained output,
+Array is slower at every width: 28–43% slower at widths 1–3 and about 3%
+slower at width 8. These results do not support a public Array-backed
+replacement for `partition_all`.
+
+The retained Array peak is exactly the number of output groups: 97, 49, 33,
+and 13 for widths 1, 2, 3, and 8. The instrumented Array allocation and free
+counts are respectively 24,832, 12,544, 8,448, and 3,328 across 256 measured
+repetitions per row, which is one Array block per emitted group. All groups
+remain live together until the later checksum traversal. In immediate-fold
+and bounded consumers, peak live Array blocks is one even though a new block
+is requested for each emitted group; each emitted block is freed before the
+next one becomes live. The report's free-list-hit counter is aggregate, so it
+does not prove that a later Array request reuses the same Array block. The
+reported heap-word high-water delta is net of the source Lists being consumed
+and is not a measure of Array payload bytes or process RSS.
+
+Generated C inspection confirms that the U32 Array fixture lowers indexed
+writes through `blk_at`/`blk_write`, and indexed reads through `blk_at`/
+`blk_read`. Array backing blocks use Bend's heap allocator. Separate
+instrumented builds count one Array block allocation request per emitted
+chunk; those instrumented binaries are excluded from timing. The generated C
+retains this storage path, and native timings show that Array does not collapse
+to the direct fused loop. These results do not tell us which local checks
+Clang removes. This inspection is specific to the U32 fixture; it does not
+establish a generic representation for affine or other `Data` element types.
+
+## Decision and recommended next step
+
+Keep the Array partition as an experiment and keep the existing List API as
+the general default. The evidence is mixed for immediate folds (List wins at
+widths 1–3; Array wins at width 8), and Array loses for retained output.
+Direct fusion wins the full folds and short bounded cases; for the 96-item
+two-group cases it is near List parity at widths 1–3 and 4.5% faster at width
+8. Do not add reference count checks, borrowing, or lifecycle-dependent
+mutation on these results.
+Retained chunks must stay distinct and live until their consumer finishes. For
+immediate consumers, the measured one-block peak and balanced frees show a
+short lifetime; if allocator reuse itself becomes a design requirement, first
+add class- or address-specific reuse accounting because the current aggregate
+free-list counter does not establish Array-to-Array reuse.
+
+If the project pursues a broader speedup, the next investigation should target
+a general compiler optimization for producer/reducer intermediates that do
+not escape, rather than a rule named for `partition_all`, `Array`, or one
+consumer shape. That investigation should first identify a suitable
+`bendlang/bend:main` compiler IR point and state its proof obligations for
+ordered output, affine ownership, `Stop`, and `finish`. These measurements
+justify investigating that path, but do not establish that a compiler rewrite
+will beat the List baseline across representative widths or sources.
