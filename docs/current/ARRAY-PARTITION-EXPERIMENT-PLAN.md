@@ -309,10 +309,20 @@ does not support replacing List as the default for every width. The fold inputs
 still contain 96 values, so every width divides evenly and this run says
 nothing about partial-final-chunk cost.
 
-The remaining measurement work is to add live Array-block peak counts, run
-retained consumers over 97 values so the last chunk is partial, and compare
-bounded consumers on both 96-value inputs and inputs of `2 * width + 1`. Then
-inspect the generated C only if a material gap remains, and apply the decision
-gates above. The harness cycles through all lane permutations and uses 12
-sessions by default; the pinned candidate can be regenerated with the existing
-`prepare_static.py` workflow if its prepared files are no longer available.
+The follow-up harness now records the peak number of live Array backing blocks
+in its separate instrumented builds. It also runs retained consumers on 97
+values, bounded consumers on both the original 96-value inputs and inputs of
+`2 * width + 1`, and checks that timed Array allocations are freed by the end
+of each instrumented run. A smoke run covered all four widths: retained Array
+peaks matched the expected group counts (97, 49, 33, and 13), and the short
+bounded rows passed their checksums and timer-floor assertions. The semantic
+fold and retention runners also pass on JS and native.
+
+The final measurement pass still needs to run the corrected 96-value bounded
+rows, short bounded rows, and retained rows with 12 balanced sessions and five
+samples per lane. Afterward, update this decision record and inspect generated
+C only if a material gap remains. The short bounded rows need more calibrated
+repetitions because their source contains only `2 * width + 1` values; the
+harness default cap is now 16,777,216. The pinned candidate can be regenerated
+with the existing `prepare_static.py` workflow if its prepared files are no
+longer available.

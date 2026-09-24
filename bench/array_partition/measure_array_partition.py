@@ -29,9 +29,10 @@ parser.add_argument('--pairs', type=int, default=5,
 parser.add_argument('--min-batch-ms', type=int, default=100)
 parser.add_argument('--bootstrap', type=int, default=5000)
 parser.add_argument('--seed', type=int, default=20260923)
-parser.add_argument('--max-repeats', type=int, default=1048576)
+parser.add_argument('--max-repeats', type=int, default=16777216)
 parser.add_argument('--cases', nargs='+',
-                    choices=['fold_full', 'fold_bounded', 'reader_ab', 'retain'],
+                    choices=['fold_full', 'fold_bounded', 'fold_bounded_short',
+                             'reader_ab', 'retain'],
                     help='selected workloads; default: all')
 parser.add_argument('--widths', nargs='+', type=int, choices=[1, 2, 3, 8],
                     default=[1, 2, 3, 8], help='selected partition widths')
@@ -55,7 +56,7 @@ SOURCE_SIZE = 96
 WORD_MOD = 1 << 32
 
 
-def lane_functions(kind, lane, width, budget, sample_count):
+def lane_functions(kind, lane, width, budget, input_items, sample_count):
     if kind.startswith('fold_') or kind == 'reader_ab':
         if lane == 'list':
             perform = f'F.list_fold({width}n, {budget}n, xs)'
@@ -120,7 +121,7 @@ def measure_samples(n: Nat, +repeats: Nat) -> IO(Unit):
     case 0n:
       IO.pure(Unit, Unit{{}})
     case 1n+p:
-      inputs = build_sources(repeats, {SOURCE_SIZE}n, [])
+      inputs = build_sources(repeats, {input_items}n, [])
       do IO<Unit>:
         before : Nat <- IO.now()
         answer : U32 = batch(inputs, 0)
@@ -129,7 +130,7 @@ def measure_samples(n: Nat, +repeats: Nat) -> IO(Unit):
         measure_samples(p, repeats)
 
 def measure(repeats: Nat) -> IO(Unit):
-  warmup = perform(P.numbers({SOURCE_SIZE}n, []))
+  warmup = perform(P.numbers({input_items}n, []))
   do IO<Unit>:
     IO.print("WARM:" ++ U32.show(warmup))
     measure_samples({sample_count}n, repeats)
@@ -144,9 +145,11 @@ def main() -> IO(Unit):
 
 def make_rows():
     rows = []
-    selected = a.cases or ['fold_full', 'fold_bounded', 'retain']
+    selected = a.cases or [
+        'fold_full', 'fold_bounded', 'fold_bounded_short', 'retain']
     for kind in selected:
         for width in a.widths:
+            input_items = SOURCE_SIZE
             if kind == 'reader_ab':
                 budget = SOURCE_SIZE // width
                 lanes = ('array_two_phase', 'array')
@@ -156,18 +159,26 @@ def make_rows():
             elif kind == 'fold_bounded':
                 budget = 2
                 lanes = LANES
+            elif kind == 'fold_bounded_short':
+                budget = 2
+                input_items = 2 * width + 1
+                lanes = LANES
+            elif kind == 'retain':
+                input_items = SOURCE_SIZE + 1
+                budget = (input_items + width - 1) // width
+                lanes = ('list', 'array')
             else:
                 budget = SOURCE_SIZE // width
                 lanes = ('list', 'array')
             rows.append({'kind': kind, 'width': width, 'budget': budget,
-                         'lanes': list(lanes), 'input_items': SOURCE_SIZE})
+                         'lanes': list(lanes), 'input_items': input_items})
     return rows
 
 
 def expected_per_input(row):
     count = row['input_items']
     width = row['width']
-    if row['kind'] == 'fold_bounded':
+    if row['kind'] in ('fold_bounded', 'fold_bounded_short'):
         count = min(count, row['budget'] * width)
     total = count * (count - 1) // 2
     if row['kind'] == 'retain':
@@ -198,7 +209,7 @@ def run(command, timeout=300, check=True):
 
 def compile_source(stem, row, lane, sample_count):
     source = lane_functions(row['kind'], lane, row['width'], row['budget'],
-                            sample_count)
+                            row['input_items'], sample_count)
     bend_path = stem.with_suffix('.bend')
     bend_path.write_text(source)
     started = time.perf_counter()
@@ -255,6 +266,8 @@ static u64 stats_heap_allocs = 0, stats_heap_frees = 0;
 static u64 stats_free_list_hits = 0;
 static u64 stats_list_allocs = 0, stats_list_frees = 0;
 static u64 stats_array_allocs = 0, stats_array_frees = 0;
+static u64 stats_live_array_blocks = 0, stats_peak_array_blocks = 0;
+static u64 stats_timed_peak_array_blocks = 0;
 static u64 stats_live_words = 0, stats_peak_words = 0;
 static u64 stats_timed_peak_words = 0;
 static u64 stats_start_heap_allocs = 0, stats_start_heap_frees = 0;
@@ -262,13 +275,32 @@ static u64 stats_start_free_list_hits = 0;
 static u64 stats_start_list_allocs = 0, stats_start_list_frees = 0;
 static u64 stats_start_array_allocs = 0, stats_start_array_frees = 0;
 static u64 stats_start_live_words = 0;
+static u64 stats_start_live_array_blocks = 0;
 static u64 stats_end_heap_allocs = 0, stats_end_heap_frees = 0;
 static u64 stats_end_free_list_hits = 0;
 static u64 stats_end_list_allocs = 0, stats_end_list_frees = 0;
 static u64 stats_end_array_allocs = 0, stats_end_array_frees = 0;
 static u64 stats_end_live_words = 0;
+static u64 stats_end_live_array_blocks = 0;
 static u32 stats_timer_calls = 0;
 static bool stats_in_timed_region = false;
+
+static void stats_note_array_alloc(void) {
+  stats_array_allocs += 1;
+  stats_live_array_blocks += 1;
+  if (stats_live_array_blocks > stats_peak_array_blocks) {
+    stats_peak_array_blocks = stats_live_array_blocks;
+  }
+  if (stats_in_timed_region &&
+      stats_live_array_blocks > stats_timed_peak_array_blocks) {
+    stats_timed_peak_array_blocks = stats_live_array_blocks;
+  }
+}
+
+static void stats_note_array_free(void) {
+  stats_array_frees += 1;
+  if (stats_live_array_blocks) stats_live_array_blocks -= 1;
+}
 
 static size_t stats_hash(Loc loc) {
   loc ^= loc >> 30;
@@ -312,7 +344,7 @@ static void stats_mark_alloc(Loc loc, u32 kind) {
       stats_mark_used += 1;
       stats_marks[at].kind = kind;
       if (kind == 1) stats_list_allocs += 1;
-      if (kind == 2) stats_array_allocs += 1;
+      if (kind == 2) stats_note_array_alloc();
       return;
     }
     if (!stats_marks[at].kind && tomb == (size_t)-1) tomb = at;
@@ -326,7 +358,7 @@ static void stats_mark_alloc(Loc loc, u32 kind) {
   stats_marks[at].loc = loc;
   stats_marks[at].kind = kind;
   if (kind == 1) stats_list_allocs += 1;
-  if (kind == 2) stats_array_allocs += 1;
+  if (kind == 2) stats_note_array_alloc();
 }
 
 static void stats_mark_free(Loc loc) {
@@ -337,7 +369,7 @@ static void stats_mark_free(Loc loc) {
       u32 kind = stats_marks[at].kind;
       stats_marks[at].kind = 0;
       if (kind == 1) stats_list_frees += 1;
-      if (kind == 2) stats_array_frees += 1;
+      if (kind == 2) stats_note_array_free();
       return;
     }
     at = (at + 1) & (stats_mark_cap - 1);
@@ -374,7 +406,9 @@ static void stats_record_start(void) {
   stats_start_array_allocs = stats_array_allocs;
   stats_start_array_frees = stats_array_frees;
   stats_start_live_words = stats_live_words;
+  stats_start_live_array_blocks = stats_live_array_blocks;
   stats_timed_peak_words = stats_live_words;
+  stats_timed_peak_array_blocks = stats_live_array_blocks;
 }
 
 static void stats_record_end(void) {
@@ -387,6 +421,7 @@ static void stats_record_end(void) {
   stats_end_array_allocs = stats_array_allocs;
   stats_end_array_frees = stats_array_frees;
   stats_end_live_words = stats_live_words;
+  stats_end_live_array_blocks = stats_live_array_blocks;
 }
 
 static void stats_tick(void) {
@@ -399,7 +434,10 @@ static void stats_report(void) {
     "ALLOC_STATS {\"heap_allocs_total\":%llu,\"heap_frees_total\":%llu,"
     "\"free_list_hits_total\":%llu,\"list_allocs_total\":%llu,"
     "\"list_frees_total\":%llu,\"array_allocs_total\":%llu,"
-    "\"array_frees_total\":%llu,\"live_words_at_start\":%llu,"
+    "\"array_frees_total\":%llu,\"live_array_blocks_at_start\":%llu,"
+    "\"peak_live_array_blocks_total\":%llu,"
+    "\"timed_peak_live_array_blocks\":%llu,"
+    "\"live_array_blocks_at_end\":%llu,\"live_words_at_start\":%llu,"
     "\"peak_live_words_total\":%llu,\"timed_peak_live_words\":%llu,"
     "\"live_words_at_end\":%llu,\"timed_heap_allocs\":%llu,"
     "\"timed_heap_frees\":%llu,\"timed_free_list_hits\":%llu,"
@@ -412,6 +450,10 @@ static void stats_report(void) {
     (unsigned long long)stats_list_frees,
     (unsigned long long)stats_array_allocs,
     (unsigned long long)stats_array_frees,
+    (unsigned long long)stats_start_live_array_blocks,
+    (unsigned long long)stats_peak_array_blocks,
+    (unsigned long long)stats_timed_peak_array_blocks,
+    (unsigned long long)stats_end_live_array_blocks,
     (unsigned long long)stats_start_live_words,
     (unsigned long long)stats_peak_words,
     (unsigned long long)stats_timed_peak_words,
@@ -497,6 +539,9 @@ def instrumented_run(stem, row, lane, repeats, case_dir):
             break
     assert match is not None, result.stderr
     stats = json.loads(match)
+    assert stats['timed_array_allocs'] == stats['timed_array_frees'], stats
+    assert (stats['live_array_blocks_at_end'] ==
+            stats['live_array_blocks_at_start']), stats
     stats.update({
         'lane': lane, 'kind': row['kind'], 'width': row['width'],
         'budget': row['budget'], 'input_items': row['input_items'],
@@ -511,9 +556,17 @@ def instrumented_run(stem, row, lane, repeats, case_dir):
             0, stats['timed_peak_live_words'] - stats['live_words_at_start']),
         'timed_peak_extra_bytes': max(
             0, stats['timed_peak_live_words'] - stats['live_words_at_start']) * 8,
+        'timed_peak_extra_array_blocks': max(
+            0, stats['timed_peak_live_array_blocks'] -
+            stats['live_array_blocks_at_start']),
     })
     if lane in ('array', 'array_two_phase'):
         assert stats['timed_array_allocs'] > 0, stats
+        if row['kind'] == 'retain':
+            retained_groups = ((row['input_items'] + row['width'] - 1) //
+                               row['width'])
+            assert stats['timed_peak_extra_array_blocks'] == retained_groups, (
+                retained_groups, stats)
     else:
         assert stats['timed_array_allocs'] == 0, stats
     return stats
@@ -536,8 +589,8 @@ report = {
         'min_batch_ms': a.min_batch_ms,
         'calibration_target_ms': math.ceil(a.min_batch_ms * 1.5),
         'bootstrap_resamples': a.bootstrap, 'seed': a.seed,
-        'source_items_per_operation': SOURCE_SIZE,
-        'source_building': 'one fresh source List per repetition, built before IO.now; same ordered values 0..95 in every lane',
+        'base_source_items': SOURCE_SIZE,
+        'source_building': 'one fresh source List per repetition is built before IO.now from ordered U32 values 0..n-1; each result row records n as input_items',
         'timed_region': 'batch traversal, transduction and result consumption; source cleanup during traversal included',
         'instrumentation': 'separate instrumented C builds, excluded from native timing binaries',
         'lane_order': 'cycle through every lane permutation; with the default 12 sessions, three-lane workloads run each permutation twice and two-lane workloads alternate six times per order',
