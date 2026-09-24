@@ -1,36 +1,39 @@
 ---
 created_at: 2026-09-23T14:38:33+02:00
-updated_at: 2026-09-23T19:04:05+02:00
+updated_at: 2026-09-24T13:05:16+02:00
 status: current
 ---
 
 # bendlang/main compiler baseline
 
-This records the current upstream-only integration candidate. The remote was
-refreshed from `bendlang/bend`; the `../bend` working tree remains untouched.
+This records the current upstream-only integration candidate. The sibling
+`../bend` checkout is read-only for this experiment.
 
 ## Compiler inputs
 
-| Input | Bend commit | `comp.ts` SHA-256 | Result |
-| --- | --- | --- | --- |
-| Upstream source | `6a77e1246c351055cb15031267a7c76c87036cbc` | `10afb08dd55a52bfbb88fdf84534cebdc000bdf7820c69cee1d6bb3fcfaf7d7b` | Current `bendlang/main` |
-| Isolated candidate | Same as above | `04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d` | Upstream plus the local static-callback pass |
+| Input | Bend commit | `comp.ts` SHA-256 | `main.ts` SHA-256 | Result |
+| --- | --- | --- | --- | --- |
+| Upstream source | `2f50df1ed36fcc3ebe6c75a2046e94001a44645d` | `34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850` | `0984154bb5f8bfb0718e4ad60d58f5098af0f01812dc8ef75b6e793e800552f8` | Synced `bendlang/main` |
+| Isolated candidate | Same as above | `083adb324e749a1ca20376896d3a14e716ccc355f019736e7b4c9dba6ab54bee` | `0984154bb5f8bfb0718e4ad60d58f5098af0f01812dc8ef75b6e793e800552f8` | Same entry point with this repository's static-callback pass |
 
-The upstream commits since `26659268` change package-name handling in
-`bend2/bend.ts` and add its syntax to `guide/GUIDE.md`. They do not change
-`bend2/comp.ts`. The preparation script now archives only the
-`refs/remotes/bendlang/main` ref and accepts only the reviewed compiler source
-hash.
+The local `bendlang/main` ref and sibling checkout both resolve to the commit
+above. Since the previously recorded baseline, upstream changed literal
+handling in `bend2/comp.ts`. The preparation script now accepts the reviewed
+hash `34783e…93850`, archives only `refs/remotes/bendlang/main`, and keeps the
+static-callback pass in the isolated candidate.
 
 ## Validation
 
-`python3 bench/compiler/prepare_static.py --output-dir …` passes its smoke
-build, API-surface record checks, and five static-callback fixtures on JS and
-native. The complete `python3 tests/run.py --bend-main <candidate>/main.ts`
-run passes all 23 fixtures on both backends, including the code-shape,
-callback-count, lifecycle, affine rejection, and bounded-law checks. No
-`Reducer` or `Reduction` records remain in the gated fixtures, including
-`keep_partition`.
+On 2026-09-24, `python3 bench/compiler/prepare_static.py
+--identity-self-test --output-dir /tmp/transduce-main-current-baseline` passed
+its smoke build, API-surface checks, five static-callback fixtures on JS and
+native, and bounded template-identity self-tests. The candidate source hash is
+`083adb32…6ab54bee`. The full
+`python3 tests/run.py --bend-main
+/private/tmp/transduce-main-current-baseline/main.ts` run passed all 23
+fixtures on both backends, including code shape, callback counts, lifecycle,
+affine rejection, and bounded laws. The tests found no runtime `Reducer` or
+`Reduction` records in the gated fixtures, including `keep_partition`.
 
 The semantic-only option remains available to isolate output behavior, but it
 is not the reported acceptance run. The expected affine diagnostic matches
@@ -48,13 +51,19 @@ lookup, with a 2,048-node cap; evaluation still sees the unchanged checked
 term. The focused suite is run with
 `python3 bench/compiler/prepare_static.py --identity-self-test --output-dir …`.
 
-The scoped constructor-facts emitter experiment was removed from the active
-driver. Its synthetic test showed local value, but the pass recorded no fact
-selections for `keep_partition`, so it did not address the current main
-blocker. Historical fork measurements remain archived evidence only and are
-not an acceptance baseline.
+This verifies compatibility with the refreshed compiler snapshot; it does not
+prove performance parity for this candidate. The current prepared candidate
+must be measured separately from both raw upstream and historical candidates.
 
-## Performance evidence
+## Historical performance evidence
+
+The matrix below was collected on the earlier compiler snapshot at
+`6a77e124…706cbc`, with candidate source hash
+`04d2f814…faf7d7b`. It is useful diagnostic evidence, but it is not a timing
+baseline for the refreshed compiler above. The latest Array width sweep used
+raw upstream at `2f50df1e`, without the static-callback pass. Do not combine
+these ratios; rerun matched workloads on raw upstream and the refreshed
+candidate before attributing a change to the pass or compiler.
 
 The calibrated native matrix uses ten sessions, five alternating paired
 launches per session, at least 100 ms per batch, and a bootstrap upper 95%

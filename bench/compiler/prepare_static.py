@@ -20,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 BEND_REPO = ROOT.parent / 'bend'
 BEND_MAIN_REF = 'refs/remotes/bendlang/main'
-EXPECTED_COMP_SHA = '10afb08dd55a52bfbb88fdf84534cebdc000bdf7820c69cee1d6bb3fcfaf7d7b'
+EXPECTED_COMP_SHA = '34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850'
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output-dir', type=Path)

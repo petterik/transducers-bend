@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-23T14:20:13+02:00
-updated_at: 2026-09-23T19:04:05+02:00
+updated_at: 2026-09-24T13:05:16+02:00
 status: active
 ---
 
@@ -23,6 +23,24 @@ ownership and live state stay in checked Bend code; templates expose callback
 code to the compiler.
 
 ## Decision and current evidence
+
+### Refreshed baseline — 2026-09-24
+
+The local `bendlang/main` ref is `2f50df1ed36fcc3ebe6c75a2046e94001a44645d`.
+Its `bend2/comp.ts` hash is
+`34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850`. The
+static-callback patch was reapplied in an isolated candidate and passed the
+identity self-test, five focused JS/native fixtures, and all 23 library tests
+on both backends. Full hashes and commands are recorded in
+[`BENDLANG-MAIN-BASELINE.md`](BENDLANG-MAIN-BASELINE.md).
+
+The prior baseline below is superseded for compiler identity and validation.
+Its performance results remain evidence for the older candidate only. The
+current Array sweep used raw upstream at this refreshed commit; it did not use
+the patched candidate. Run matched timings on both before attributing a change
+to the specialization pass.
+
+### Previous checkpoint — superseded
 
 The refreshed `bendlang/main` ref is
 `6a77e1246c351055cb15031267a7c76c87036cbc`. Its `bend2/comp.ts` is unchanged
