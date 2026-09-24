@@ -90,39 +90,69 @@ def build_lane(compiler, lane, root, env):
     }
 
 
-def measure_pair(binaries, env, seed):
+def bootstrap_interval(values, seed):
     rng = random.Random(seed)
-    pairs = []
+    draws = sorted(statistics.median(
+        values[rng.randrange(len(values))] for _ in values)
+        for _ in range(20000))
+    return [draws[500], draws[19499]]
+
+
+def measure_compilers(binaries, baseline_name, env, seed):
+    compiler_names = [baseline_name, 'candidate']
+    samples = {name: [] for name in compiler_names}
+    compiler_ratios = {lane: [] for lane in LANES}
+    rng = random.Random(seed)
     for _ in range(SAMPLES):
-        order = ['materialized', 'stream']
+        order = [(name, lane) for name in compiler_names for lane in LANES]
         rng.shuffle(order)
-        sample = {}
-        for lane in order:
-            out = run([binaries[lane], '--threads', '1', '--gpu', 'off'],
+        results = {}
+        for name, lane in order:
+            out = run([binaries[name][lane], '--threads', '1', '--gpu', 'off'],
                       env).stdout.strip().split()
             total, elapsed_us = map(int, out)
-            sample[lane] = {'total': total, 'elapsed_us': elapsed_us}
-        assert sample['materialized']['total'] == sample['stream']['total']
-        sample['stream_over_materialized'] = (
-            sample['stream']['elapsed_us'] / sample['materialized']['elapsed_us'])
-        pairs.append(sample)
-    ratios = [x['stream_over_materialized'] for x in pairs]
-    med = {lane: statistics.median(x[lane]['elapsed_us'] for x in pairs)
-           for lane in binaries}
-    rng = random.Random(seed + 1)
-    bootstrap = sorted(statistics.median(
-        ratios[rng.randrange(len(ratios))] for _ in ratios) for _ in range(20000))
-    return {
-        'paired_samples': pairs,
-        'median_us_per_eight_inputs': med,
-        'median_us_per_input': {lane: value / INPUTS_PER_SAMPLE
-                                for lane, value in med.items()},
-        'median_stream_over_materialized': statistics.median(ratios),
-        'paired_bootstrap_95_interval': [bootstrap[500], bootstrap[19499]],
-    }
+            results[name, lane] = {'total': total, 'elapsed_us': elapsed_us}
+        totals = {result['total'] for result in results.values()}
+        assert len(totals) == 1, results
+        for name in compiler_names:
+            sample = {lane: results[name, lane] for lane in LANES}
+            sample['stream_over_materialized'] = (
+                sample['stream']['elapsed_us']
+                / sample['materialized']['elapsed_us'])
+            samples[name].append(sample)
+        for lane in LANES:
+            compiler_ratios[lane].append(
+                results['candidate', lane]['elapsed_us']
+                / results[baseline_name, lane]['elapsed_us'])
+
+    timing_reports = {}
+    for index, name in enumerate(compiler_names):
+        pairs = samples[name]
+        ratios = [sample['stream_over_materialized'] for sample in pairs]
+        med = {lane: statistics.median(
+            sample[lane]['elapsed_us'] for sample in pairs) for lane in LANES}
+        timing_reports[name] = {
+            'paired_samples': pairs,
+            'median_us_per_eight_inputs': med,
+            'median_us_per_input': {lane: value / INPUTS_PER_SAMPLE
+                                    for lane, value in med.items()},
+            'median_stream_over_materialized': statistics.median(ratios),
+            'paired_bootstrap_95_interval': bootstrap_interval(
+                ratios, seed + 1 + index),
+        }
+
+    comparisons = {}
+    for index, lane in enumerate(LANES):
+        ratios = compiler_ratios[lane]
+        comparisons[lane] = {
+            'candidate_over_baseline_median': statistics.median(ratios),
+            'paired_bootstrap_95_interval': bootstrap_interval(
+                ratios, seed + 10 + index),
+        }
+    return timing_reports, comparisons
 
 
-def compiler_report(compiler, label, root, env):
+def compiler_report(compiler, root, env):
     root.mkdir(parents=True, exist_ok=True)
     comp = compiler.parent / 'comp.ts'
     report = {
@@ -135,20 +165,23 @@ def compiler_report(compiler, label, root, env):
         lane: {key: value for key, value in data.items() if key != 'native_binary'}
         for lane, data in lanes.items()
     }
-    report['timings'] = measure_pair(
-        {lane: data['native_binary'] for lane, data in lanes.items()},
-        env, 20260924 + (label == 'candidate'))
-    return report
+    binaries = {lane: data['native_binary'] for lane, data in lanes.items()}
+    return report, binaries
 
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--upstream-main', type=Path, required=True,
-                    help='bendlang/bend main.ts from the checked-out main branch')
+                    help='baseline main.ts; normally bendlang/bend main.ts')
+parser.add_argument('--baseline-name', default='upstream',
+                    help='name for the baseline report key (default: upstream)')
 parser.add_argument('--candidate-main', type=Path, required=True,
-                    help='isolated static-callback candidate main.ts')
+                    help='isolated candidate main.ts')
 parser.add_argument('--output', type=Path, required=True,
                     help='write the raw report as JSON')
 args = parser.parse_args()
+if not re.fullmatch(r'[a-z][a-z0-9_-]*', args.baseline_name) \
+        or args.baseline_name == 'candidate':
+    parser.error('--baseline-name must be a lowercase report key other than candidate')
 
 upstream = args.upstream_main.resolve()
 candidate = args.candidate_main.resolve()
@@ -156,19 +189,34 @@ env = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 with tempfile.TemporaryDirectory(prefix='dynamic-map-fold-') as name:
     temp = Path(name)
+    baseline_report, baseline_binaries = compiler_report(
+        upstream, temp / args.baseline_name, env)
+    candidate_report, candidate_binaries = compiler_report(
+        candidate, temp / 'candidate', env)
+    timings, comparisons = measure_compilers({
+        args.baseline_name: baseline_binaries,
+        'candidate': candidate_binaries,
+    }, args.baseline_name, env, 20260924)
+    baseline_report['timings'] = timings[args.baseline_name]
+    candidate_report['timings'] = timings['candidate']
     report = {
         'scope': 'dynamic List map/fold versus the public map transducer over a List source',
         'base_commit': '2f50df1ed36fcc3ebe6c75a2046e94001a44645d',
+        'baseline_name': args.baseline_name,
         'fixture_sha256': sha256(PROBE),
         'benchmark_fixtures_sha256': {k: sha256(v) for k, v in LANES.items()},
         'runner_sha256': sha256(Path(__file__).resolve()),
         'values_per_input': INPUT_ITEMS,
         'inputs_per_sample': INPUTS_PER_SAMPLE,
         'paired_sessions': SAMPLES,
+        'timing_schedule': 'all four compiler/lane binaries were run in randomized order within each paired session',
         'timing_unit': 'microseconds from BenchClock.now_us; source construction is outside the timed region',
         'allocation_note': 'heap_alloc call counts are from separate instrumented binaries',
-        'upstream': compiler_report(upstream, 'upstream', temp / 'upstream', env),
-        'candidate': compiler_report(candidate, 'candidate', temp / 'candidate', env),
+        args.baseline_name: baseline_report,
+        'candidate': candidate_report,
+        'compiler_comparison': {
+            'candidate_over_baseline': comparisons,
+        },
     }
     args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report, indent=2))

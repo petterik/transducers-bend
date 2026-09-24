@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T19:20:07+02:00
+updated_at: 2026-09-24T20:41:40+02:00
 status: current
 ---
 
@@ -339,6 +339,14 @@ the isolated static-callback candidate has SHA-256
 `083adb324e749a1ca20376896d3a14e716ccc355f019736e7b4c9dba6ab54bee`.
 `../bend` remained clean and on `bendlang/main`.
 
+The `083adb…` compiler includes the optional `--identity-self-test` code from
+`prepare_static.py`; the current plain static-callback candidate is
+`cfd14f244c5a6d2d0b4069d03e53f3682bd09fb535fd15d2d8757b5f21546579`. The
+self-test runs inside the compiler process and does not change generated user
+programs. The historical numbers above remain useful, but the matched
+static-callback-versus-FoldRegion result below uses the plain candidate on
+both sides so the compiler hashes and comparison are explicit.
+
 | Compiler | Lane | Median µs per 200k-item input | Stream / materialized, paired 95% interval | Allocator calls per eight inputs | Generated C bytes |
 | --- | --- | ---: | ---: | ---: | ---: |
 | Raw upstream | `List.map` + fold | 884.6 | — | 3,200,058 | 101,383 |
@@ -401,22 +409,11 @@ callback was invoked repeatedly. That points toward storing callback code in
 the compiler's fold region, with dynamic state kept separately; it does not
 justify a new runtime callback capability or a language change.
 
-This probe is not a compiler fusion implementation. The next experiment is to
-build a small checked-term `FoldRegion`/virtual-List prototype in an isolated
-compiler copy. It should recognize producer and consumer structure rather than
-library or function names, start with a total single-use List map/fold case,
-and leave other cases unchanged. Only after that case works should it add an
-independent source adapter, retained-output and unknown-consumer bailouts,
-early stop, effectful callbacks, and affine elements.
-
-Keep that prototype in this repository's compiler-preparation harness, with
-the transformation beside the existing `emit_fold`/`emit_unfold` experiment.
-Those functions already simplify checked terms before C and JS emission, while
-the current `emit_unfold` deliberately refuses a runtime constructor spine.
-If the region passes its gates, the likely upstream change is confined to
-`bend2/comp.ts` plus compiler tests under `tests/compile`; there is no current
-reason to edit the type checker in `bend2/bend.ts` or add a public transducer
-API. Leave `../bend` untouched during the experiment.
+The isolated checked-term FoldRegion prototype and its current limits are
+described below. It stays in this repository's compiler-preparation harness;
+`../bend` remains untouched. The experiment inserts a compiler-only recursive
+helper for one structural producer/fold shape. It does not yet provide a
+general transducer representation or an upstream-ready implementation.
 
 The test program is
 [`dynamic_map_fold_probe.bend`](../../bench/array_partition/dynamic_map_fold_probe.bend);
@@ -433,46 +430,106 @@ and
 
 | Option | Impact | Effort | Value | Decision |
 | --- | --- | --- | --- | --- |
-| Prototype a typed producer/fold region for runtime-built Lists and chunks | High if it proves single-use and preserves stop/finish behavior | High: requires escape, effect, ownership, callback-order, and stop proofs | Very high only if it removes measured allocations across user functions | **P1: implement one generic dynamic List producer/fold rule in an isolated compiler** |
-| Keep relying on C optimization and existing affine reuse | Medium: preserves the allocation-free handwritten case and improves generated C locally | Low: no new API or compiler rule | Medium: already useful, but the transducer-vs-materialized gap remains | Keep as baseline, not the whole strategy |
-| Add an explicit reducer sink that returns a completed reusable buffer | Medium to high for chunk-building pipelines | High: expands reducer state/API and requires ownership-return semantics | Medium: useful when fusion cannot prove non-escape; premature before the fold experiment | Defer |
+| Keep the FoldRegion experiment isolated while establishing a checked-term trust boundary | High: decides whether this can be a sound compiler optimization | Medium/high: validate synthesized terms and close semantic test gaps | Very high if the narrow rewrite survives compiler-level checking | **P1: make generated regions checked or mechanically validated before broadening** |
+| Keep relying on C optimization and existing affine reuse | Medium: preserves the allocation-free handwritten case and improves generated C locally | Low: no new API or compiler rule | Medium: useful baseline, but leaves the materialized producer cost | Keep as baseline, not the whole strategy |
+| Extend the region to filters, `keep`, partitioning, and reducer stop/finish | High for general transducer pipelines | High: must model cardinality, buffering, completion, and early stop | Unproven until the region representation is defined | Defer until the first rewrite has a checked representation |
+| Add an explicit reducer sink that returns a completed reusable buffer | Medium to high for chunk-building pipelines | High: expands reducer state/API and requires ownership-return semantics | Medium: useful when fusion cannot prove non-escape; premature before a measured need | Defer |
 | Special-case `partition_all` or individual transducer names in the compiler | High for selected examples | High: compiler/library coupling and correctness burden grows per transducer | Low: conflicts with the goal that new transducers compose automatically | Reject |
+
+## Checked-term FoldRegion prototype
+
+The isolated prototype lives in
+[`fold_region_pass.ts.inc`](../../bench/compiler/fold_region_pass.ts.inc) and
+is injected by
+[`prepare_fold_region.py`](../../bench/compiler/prepare_fold_region.py) into a
+fresh candidate made from `bendlang/main`. The rule matches checked function
+shapes, not `List.map`, `fold_left`, or transducer names: a direct recursive
+List producer must build `Con{map(head), producer(tail)}`, and a direct
+recursive consumer must be a full left fold whose `Con` arm calls the consumer
+on the tail with `step(state, head)`. It then replaces the consumer's recursive
+call with a helper that steps on the mapped head and recurses on the original
+tail.
+
+The pass requires the producer input and output List types to be identical,
+direct callbacks with a conservative checked call graph, and a trivial initial
+state. It refuses unsafe/foreign definitions, parallel calls, dynamic closure
+calls, unknown intrinsics, retained output, and unknown consumers. It passes
+the source expression to the generated helper once, preserving its evaluation
+before the fold. This shape has no reducer `Stop` or completion protocol; such
+cases do not match the full-fold consumer and are not optimized.
+
+The matched benchmark rebuilt the plain static-callback candidate and the
+FoldRegion candidate from the same compiler snapshot. It used 16 native
+sessions, each timing all four compiler/lane binaries in randomized order;
+each binary processed eight prebuilt 200,000-item inputs with
+`BenchClock.now_us`. Allocation counts came from separate instrumented
+binaries. The reported compiler-to-compiler intervals bootstrap the paired
+candidate/baseline time ratios from those sessions.
+
+| Compiler | Lane | Median µs per input | FoldRegion / static-only, paired 95% interval | Allocator calls per eight inputs | Generated C bytes |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Static-callback only | `List.map` + fold | 844.1 | — | 3,200,057 | 101,383 |
+| FoldRegion candidate | `List.map` + fold | 236.4 | 0.28 [0.25, 0.30] | 1,600,057 | 97,323 |
+| Static-callback only | streaming transducer map + fold | 236.9 | — | 1,600,057 | 98,529 |
+| FoldRegion candidate | streaming transducer map + fold | 228.7 | 1.01 [0.82, 1.11] | 1,600,057 | 98,529 |
+
+For this workload, the structural rewrite removes 1,600,000 allocation calls
+across the eight materialized inputs and brings ordinary `List.map` plus fold
+to parity with the streaming transducer pipeline. Its paired runtime is about
+72% lower than the static-only materialized lane; the unchanged streaming lane
+shows no measurable regression. The order-sensitive hash and sum agree with
+the direct controls on both JS and native.
+
+The pass also fused custom-named map/fold functions and a separate `range_list`
+source adapter, and moved fresh affine `Array` values through the rewrite. It
+left retained output, `List.length`, a runtime closure callback, and an
+`@unsafe` callback unfused. The complete suite passed 27/27 fixtures on both
+backends. These are useful checks for structural matching, order, ownership,
+and bailouts, but they do not validate arbitrary producer/consumer programs.
+
+There is one important compiler-trust limitation: the helper is synthesized
+from an already checked consumer term, inserted into the compiler's book, and
+not run through Bend's type checker again. Passing JS/native tests does not
+replace that check. The rule also handles only same-element-type recursive
+List maps into full folds. It has not fused `filter`, `keep`, `partition_all`,
+arrays, ranges, channels, strings, or file/map sources, and it has no early
+stop, completion, or retained-chunk semantics.
+
+This is evidence for the general idea that a small structural producer/fold
+optimization can eliminate an intermediate allocation without recognizing
+library names. It is not yet evidence that adding transducers automatically
+composes into such regions: the present pass has one producer shape and one
+consumer shape, and the test source adapter still produces a List.
 
 ## Next experiment
 
-Do not increase the checked-term inline budget. Prototype an internal
-producer/fold region for a runtime-built List, with a clear proof boundary and
-an unchanged fallback. The measured dynamic `List.map` plus fold and public
-transducer map/fold are now the baseline pair. The compiler rule must be
-structural and remove the temporary List only when it proves all of the
-following:
+The next work should stay in the isolated compiler and resolve the trust
+boundary before adding more cases:
 
-- the intermediate List is fresh, locally owned, and does not escape or get
-  observed by another use;
-- the consumer is a known fold whose callback order and accumulator result can
-  be preserved;
-- callback effects and early `Stop` behavior are preserved, including an
-  initially stopped reducer and a stop in the middle of a chunk;
-- the rewrite does not duplicate, drop, or reorder live affine values.
+1. Find a supported way to type-check or mechanically validate a synthesized
+   helper. Prefer building an explicit internal `FoldRegion` from checked
+   components and validating its source, state, element, and result types;
+   otherwise move the rewrite to a stage where normal checking can verify it.
+   Do not accept the prototype upstream while this term is unchecked.
+2. Strengthen adversarial bailouts around `@unsafe`/foreign code, source and
+   callback evaluation order, and use/escape analysis. Bend's ordinary
+   functions are pure and termination-checked, which makes a full fold a good
+   starting case; `@unsafe` definitions and foreign `IO` are outside that
+   guarantee and must remain materialized.
+3. Once the rule is mechanically checked, introduce a compositional step
+   representation for `map`, `filter`/`keep`, and a full fold. Only then test a
+   nested partition producer and the semantics of `take`/early stop,
+   completion, partial final chunks, and retained chunks. Any unsupported
+   shape must keep the original program.
+4. Add a genuinely different reducible source only after the region is no
+   longer tied to List constructors. The current `range_list` fixture checks
+   producer independence, not a source-independent reduction interface.
 
-Use the sum and order-sensitive folds as consumers, and try both List and an
-independent source adapter. A retained chunk, an unknown consumer, an
-effectful callback, an early stop, and affine elements are negative or
-boundary cases. Compare JS and native results, check source cleanup and
-callback counts, and inspect emitted C for intermediate Cons construction.
-Measure compile time and generated-code size as well as runtime. Do not move a
-prototype into upstream compiler code or claim general fusion until these
-gates pass.
-
-The experiment is deliberately about a fold consuming a fresh result, not a
-general borrowing API. If it cannot prove non-escape or preserve stop/effect
-semantics, the fallback remains ordinary materialization. A later sink API can
-be reconsidered using a concrete failing case rather than designed in advance.
-
-The explicit `group_fold` probe is already a useful lower-allocation reference
-when evaluating that rewrite. Its results do not remove the need to test the
-compiler rule with an independent producer/consumer pair or retained-output
-negative cases.
+The next decision gate is mechanical validation plus one additional
+transducer composition, not an upstream patch or a public reducible API. The
+explicit `group_fold` remains a useful lower-allocation control, but it does
+not justify adding a reducer sink or a borrow/reuse protocol before a concrete
+case requires one.
 
 ## Reproduction
 
@@ -486,6 +543,25 @@ python3 bench/array_partition/run_dynamic_map_fold_probe.py \
   --candidate-main /tmp/transduce-static/main.ts \
   --output bench/array_partition/dynamic-map-fold-results.json
 ```
+
+For a matched incremental comparison, prepare a plain static-callback
+baseline, then compare it with the fold-region candidate using
+`--baseline-name static-callback`:
+
+```sh
+python3 bench/compiler/prepare_static.py --output-dir /tmp/transduce-static
+python3 bench/compiler/prepare_fold_region.py --output-dir /tmp/transduce-fold-region
+python3 bench/array_partition/run_dynamic_map_fold_probe.py \
+  --upstream-main /tmp/transduce-static/main.ts \
+  --baseline-name static-callback \
+  --candidate-main /tmp/transduce-fold-region/main.ts \
+  --output bench/array_partition/dynamic-map-fold-static-vs-fold-region-results.json
+```
+
+The isolated FoldRegion candidate's raw-upstream comparison is recorded in
+[`dynamic-map-fold-fold-region-results.json`](../../bench/array_partition/dynamic-map-fold-fold-region-results.json),
+and the matched static-only comparison is in
+[`dynamic-map-fold-static-vs-fold-region-results.json`](../../bench/array_partition/dynamic-map-fold-static-vs-fold-region-results.json).
 
 The paired result files retain raw samples and build/source hashes:
 

@@ -1,0 +1,469 @@
+{
+  "scope": "dynamic List map/fold versus the public map transducer over a List source",
+  "base_commit": "2f50df1ed36fcc3ebe6c75a2046e94001a44645d",
+  "baseline_name": "upstream",
+  "fixture_sha256": "5980f01ae9a9dd671d7b3989a91a630efa7673cdc060116a589349d7f392fdf2",
+  "benchmark_fixtures_sha256": {
+    "materialized": "2159ba34db350e296e112c27b663d347430758b59a71e3763874f6e95351c35f",
+    "stream": "a6570ea42a59b730cda6bd5aeffcfe4ea315843e54af70d4a7bd80ca4cc711b0"
+  },
+  "runner_sha256": "06f443a45f1e63485c6207c9f557e3ed57ac002a5c4fc29136fde3589cd59432",
+  "values_per_input": 200000,
+  "inputs_per_sample": 8,
+  "paired_sessions": 16,
+  "timing_schedule": "all four compiler/lane binaries were run in randomized order within each paired session",
+  "timing_unit": "microseconds from BenchClock.now_us; source construction is outside the timed region",
+  "allocation_note": "heap_alloc call counts are from separate instrumented binaries",
+  "upstream": {
+    "main_sha256": "0984154bb5f8bfb0718e4ad60d58f5098af0f01812dc8ef75b6e793e800552f8",
+    "comp_sha256": "34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850",
+    "correctness": {
+      "build_seconds": 0.3337009580573067,
+      "c_bytes": 134939,
+      "js_bytes": 19389,
+      "js_and_native_output": "(True{}, True{})"
+    },
+    "lanes": {
+      "materialized": {
+        "build_seconds": 0.09446129202842712,
+        "c_bytes": 101383,
+        "c_sha256": "48210710477eff7c65e40d21931c736341a26c5dd3b89f21bd51d78b2304d785",
+        "allocation_calls": 3200058
+      },
+      "stream": {
+        "build_seconds": 0.0986604590434581,
+        "c_bytes": 125764,
+        "c_sha256": "d39592eaf94a9ba99afc1bb9a33ac63ce82a8cc294b9fc543ff0777ebed25969",
+        "allocation_calls": 6400074
+      }
+    },
+    "timings": {
+      "paired_samples": [
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 12817
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 35626
+          },
+          "stream_over_materialized": 2.7795896075524693
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7658
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 26717
+          },
+          "stream_over_materialized": 3.488769913815618
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6868
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22001
+          },
+          "stream_over_materialized": 3.203407105416424
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6957
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22991
+          },
+          "stream_over_materialized": 3.304729049877821
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7169
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22646
+          },
+          "stream_over_materialized": 3.1588785046728973
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7113
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21929
+          },
+          "stream_over_materialized": 3.082946717278223
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6522
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21935
+          },
+          "stream_over_materialized": 3.3632321373811713
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6855
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21928
+          },
+          "stream_over_materialized": 3.198832968636032
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7071
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22046
+          },
+          "stream_over_materialized": 3.117805119502192
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7143
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21929
+          },
+          "stream_over_materialized": 3.0699986000279993
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7043
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21926
+          },
+          "stream_over_materialized": 3.113162004827488
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6801
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21906
+          },
+          "stream_over_materialized": 3.220996912218791
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6877
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21918
+          },
+          "stream_over_materialized": 3.1871455576559544
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7540
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21943
+          },
+          "stream_over_materialized": 2.910212201591512
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7174
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21920
+          },
+          "stream_over_materialized": 3.0554781154167827
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7382
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21909
+          },
+          "stream_over_materialized": 2.967894879436467
+        }
+      ],
+      "median_us_per_eight_inputs": {
+        "materialized": 7092.0,
+        "stream": 21932.0
+      },
+      "median_us_per_input": {
+        "materialized": 886.5,
+        "stream": 2741.5
+      },
+      "median_stream_over_materialized": 3.1383418120875444,
+      "paired_bootstrap_95_interval": [
+        3.0699986000279993,
+        3.203407105416424
+      ]
+    }
+  },
+  "candidate": {
+    "main_sha256": "0984154bb5f8bfb0718e4ad60d58f5098af0f01812dc8ef75b6e793e800552f8",
+    "comp_sha256": "367abdc702c7665e05bdcc80e0097189672e79001d9f03817beb0015ddf32168",
+    "correctness": {
+      "build_seconds": 0.2787544169696048,
+      "c_bytes": 82731,
+      "js_bytes": 14264,
+      "js_and_native_output": "(True{}, True{})"
+    },
+    "lanes": {
+      "materialized": {
+        "build_seconds": 0.10086737503297627,
+        "c_bytes": 97323,
+        "c_sha256": "c23d067156181e3a27b4442a25f5663da4233ffe6b31d7c06a474a82fa2098f1",
+        "allocation_calls": 1600057
+      },
+      "stream": {
+        "build_seconds": 0.1065756669268012,
+        "c_bytes": 98529,
+        "c_sha256": "4a621e20cd2619710b71c3d053689df85e7e2831a841afac54e2e6736e897491",
+        "allocation_calls": 1600057
+      }
+    },
+    "timings": {
+      "paired_samples": [
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 4876
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 2145
+          },
+          "stream_over_materialized": 0.43990976210008204
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 2062
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 2309
+          },
+          "stream_over_materialized": 1.1197866149369544
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1760
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1961
+          },
+          "stream_over_materialized": 1.1142045454545455
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 2110
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1693
+          },
+          "stream_over_materialized": 0.8023696682464455
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 2031
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1628
+          },
+          "stream_over_materialized": 0.8015755785327425
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 2378
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1786
+          },
+          "stream_over_materialized": 0.7510513036164844
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1980
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1652
+          },
+          "stream_over_materialized": 0.8343434343434344
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1704
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 2594
+          },
+          "stream_over_materialized": 1.522300469483568
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1708
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1750
+          },
+          "stream_over_materialized": 1.0245901639344261
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1608
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1538
+          },
+          "stream_over_materialized": 0.9564676616915423
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1682
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1907
+          },
+          "stream_over_materialized": 1.133769322235434
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1477
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1799
+          },
+          "stream_over_materialized": 1.2180094786729858
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1683
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1872
+          },
+          "stream_over_materialized": 1.1122994652406417
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1826
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1646
+          },
+          "stream_over_materialized": 0.9014238773274917
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1891
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1823
+          },
+          "stream_over_materialized": 0.9640401903754627
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 1525
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1627
+          },
+          "stream_over_materialized": 1.0668852459016394
+        }
+      ],
+      "median_us_per_eight_inputs": {
+        "materialized": 1793.0,
+        "stream": 1792.5
+      },
+      "median_us_per_input": {
+        "materialized": 224.125,
+        "stream": 224.0625
+      },
+      "median_stream_over_materialized": 0.9943151771549444,
+      "paired_bootstrap_95_interval": [
+        0.8343434343434344,
+        1.1142045454545455
+      ]
+    }
+  },
+  "compiler_comparison": {
+    "candidate_over_baseline": {
+      "materialized": {
+        "candidate_over_baseline_median": 0.25241930036741606,
+        "paired_bootstrap_95_interval": [
+          0.24154999292886437,
+          0.28330311061514857
+        ]
+      },
+      "stream": {
+        "candidate_over_baseline_median": 0.0804120707949596,
+        "paired_bootstrap_95_interval": [
+          0.0742617189282943,
+          0.08540925266903915
+        ]
+      }
+    }
+  }
+}
