@@ -348,6 +348,42 @@ transduction, result consumption, and source cleanup. Compare the three lanes
 within this report, but do not compare its numeric ratios directly with the
 earlier baseline.
 
+### Rough width sweep on current upstream main — complete
+
+The preceding 200,000-item report used an older compiler candidate and showed
+an Array win at width 8. After syncing `../bend` to `bendlang/main` at
+`2f50df1e`, I reran the same U32 full-fold workload at widths 3–8, 12, 16,
+32, and 64. Every lane returned the expected checksum. Array allocation and
+free counts balanced, with one live Array block at peak.
+
+The width 3–8 run used six sessions with three paired samples per lane and a
+50 ms minimum batch. The wider rows used four sessions with two paired samples
+per lane and a 20 ms minimum batch. Each report contains the full samples and
+compiler hashes: [`crossover-results.json`](../../bench/array_partition/crossover-results.json),
+[`crossover-wide-results.json`](../../bench/array_partition/crossover-wide-results.json),
+and [`crossover-largest-results.json`](../../bench/array_partition/crossover-largest-results.json).
+
+| Width | Array/List ratio, 95% interval | Sessions × paired samples |
+| ---: | ---: | ---: |
+| 3 | 1.184 [1.183, 1.185] | 6 × 3 |
+| 4 | 1.163 [1.162, 1.165] | 6 × 3 |
+| 5 | 1.143 [1.142, 1.145] | 6 × 3 |
+| 6 | 1.129 [1.128, 1.130] | 6 × 3 |
+| 7 | 1.129 [1.126, 1.132] | 6 × 3 |
+| 8 | 1.119 [1.117, 1.121] | 6 × 3 |
+| 12 | 1.102 [1.100, 1.103] | 4 × 2 |
+| 16 | 1.089 [1.087, 1.092] | 4 × 2 |
+| 32 | 1.099 [1.091, 1.105] | 4 × 2 |
+| 64 | 1.151 [1.134, 1.169] | 4 × 2 |
+
+There is no measured crossover through width 64: Array is slower at every
+tested width. The gap narrows to about 9% at width 16, then widens, so the
+measurements do not support a simple monotonic width threshold. The direct
+loop is also much faster than List in this fixture, at 4–6% of List time.
+These are rough estimates for a fully consumed U32 partition fold, not a rule
+for all element types, sources, or consumers. In particular, do not combine
+the older compiler's width-8 win with this current-main sweep.
+
 The follow-up harness now records the peak number of live Array backing blocks
 in its separate instrumented builds. It also runs retained consumers on 97
 values, bounded consumers on both the original 96-value inputs and inputs of
@@ -428,14 +464,12 @@ establish a generic representation for affine or other `Data` element types.
 ## Decision and recommended next step
 
 Keep the Array partition as an experiment and keep the existing List API as
-the general default. The evidence is mixed for immediate folds (List wins at
-widths 1–3; Array wins at width 8), and Array loses for retained output.
-Direct fusion wins the full folds and short bounded cases; for the 96-item
-two-group cases it is near List parity at widths 1–3 and 4.5% faster at width
-8. At 200,000 items, Array is slower than List at widths 1–3 and faster at
-width 8, while direct fusion stays faster than both at every tested width. Do
-not add reference count checks, borrowing, or lifecycle-dependent mutation on
-these results.
+the general default. The latest upstream compiler shows List ahead of Array
+for the measured fully consumed U32 folds at every width from 3 through 64;
+the older width-8 win did not persist after the compiler update. Direct fusion
+stays much faster than either representation. Do not add a width-based
+representation switch, reference count checks, borrowing, or lifecycle-dependent
+mutation on this evidence.
 Retained chunks must stay distinct and live until their consumer finishes. For
 immediate consumers, the measured one-block peak and balanced frees show a
 short lifetime; if allocator reuse itself becomes a design requirement, first

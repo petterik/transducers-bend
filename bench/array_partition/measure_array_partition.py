@@ -34,8 +34,9 @@ parser.add_argument('--cases', nargs='+',
                     choices=['fold_full', 'fold_bounded', 'fold_bounded_short',
                              'reader_ab', 'retain'],
                     help='selected workloads; default: all')
-parser.add_argument('--widths', nargs='+', type=int, choices=[1, 2, 3, 8],
-                    default=[1, 2, 3, 8], help='selected partition widths')
+parser.add_argument('--widths', nargs='+', type=int,
+                    choices=list(range(1, 65)), default=[1, 2, 3, 8],
+                    help='selected partition widths from 1 through 64')
 parser.add_argument('--source-size', type=int, default=96,
                     help='source items per operation for non-retained rows (default: 96)')
 parser.add_argument('--output', type=Path)
