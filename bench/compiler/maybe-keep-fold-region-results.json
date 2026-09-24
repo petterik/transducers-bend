@@ -1,12 +1,18 @@
 {
   "base_commit": "2f50df1ed36fcc3ebe6c75a2046e94001a44645d",
   "source_sha256": "79333cb50aa8a66370cfbd7acb2d1ca057198e180700d4bb66a7f67610922efa",
-  "runner_sha256": "2b93b1e5ffe7b78a7962ffbac59fe687bf024153fa846c3377340d3d1f7990c6",
+  "runner_sha256": "3df763cebe9b27aea24f7b2c804b6862bd1b9321a7d157c14119f574cec96987",
   "input_items_per_batch": 200000,
   "prebuilt_batches_per_lane": 8,
   "js_smoke_items_per_batch": 256,
   "js_smoke_batches_per_lane": 2,
   "lanes": [
+    "keep",
+    "map_fold",
+    "let_bound_map_fold",
+    "direct"
+  ],
+  "measurement_order": [
     "keep",
     "map_fold",
     "let_bound_map_fold",
@@ -20,36 +26,37 @@
     "upstream": {
       "name": "upstream",
       "compiler": "../bend/bend2/main.ts",
-      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/upstream",
-      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/upstream.c",
-      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/upstream.js",
-      "clang_compile_seconds": 0.33084587508346885,
+      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4/upstream",
+      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4/upstream.c",
+      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4/upstream.js",
+      "clang_compile_seconds": 0.3529552919790149,
       "c_bytes": 184946,
+      "c_sha256": "0051e5e09c8fac7cfe564700b52c04263e6f2bd947fc864f71b78d565265233a",
       "js_bytes": 25685,
       "compiler_sha256": "34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850",
-      "allocation_requests_by_lane": [
-        8000021,
-        3200005,
-        3200005,
-        5
-      ],
+      "allocation_requests_by_lane": {
+        "keep": 8000021,
+        "map_fold": 3200005,
+        "let_bound_map_fold": 3200005,
+        "direct": 5
+      },
       "instrumented_c_bytes": 185904,
       "instrumented_c_sha256": "439e3f54874c31c078576d38adcddef74ccf4c48c7c642ca331064abbfc62c5d",
       "js_smoke_rows": {
         "keep": {
-          "time_us": 1470,
+          "time_us": 1516,
           "checksum": 65280
         },
         "map_fold": {
-          "time_us": 216,
+          "time_us": 267,
           "checksum": 65280
         },
         "let_bound_map_fold": {
-          "time_us": 92,
+          "time_us": 141,
           "checksum": 65280
         },
         "direct": {
-          "time_us": 139,
+          "time_us": 143,
           "checksum": 65280
         }
       }
@@ -57,36 +64,37 @@
     "candidate": {
       "name": "static_callback_candidate",
       "compiler": "/private/tmp/transduce-static-let-20260924/main.ts",
-      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/static_callback_candidate",
-      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/static_callback_candidate.c",
-      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/static_callback_candidate.js",
-      "clang_compile_seconds": 0.25726033304817975,
+      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4/static_callback_candidate",
+      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4/static_callback_candidate.c",
+      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4/static_callback_candidate.js",
+      "clang_compile_seconds": 0.29824145801831037,
       "c_bytes": 146087,
+      "c_sha256": "7313cf5755cbc78c49017e539cb02a2ec150318e50b9fd919ea7b3060f1462bf",
       "js_bytes": 21735,
       "compiler_sha256": "cfd14f244c5a6d2d0b4069d03e53f3682bd09fb535fd15d2d8757b5f21546579",
-      "allocation_requests_by_lane": [
-        5,
-        3200005,
-        3200005,
-        5
-      ],
+      "allocation_requests_by_lane": {
+        "keep": 5,
+        "map_fold": 3200005,
+        "let_bound_map_fold": 3200005,
+        "direct": 5
+      },
       "instrumented_c_bytes": 147045,
       "instrumented_c_sha256": "7a59ee5b9d93d08d26c8b8ff17ffe63ab24c7b132637a7a3e4fefda45e3610d4",
       "js_smoke_rows": {
         "keep": {
-          "time_us": 287,
+          "time_us": 312,
           "checksum": 65280
         },
         "map_fold": {
-          "time_us": 364,
+          "time_us": 399,
           "checksum": 65280
         },
         "let_bound_map_fold": {
-          "time_us": 176,
+          "time_us": 193,
           "checksum": 65280
         },
         "direct": {
-          "time_us": 137,
+          "time_us": 143,
           "checksum": 65280
         }
       }
@@ -94,36 +102,37 @@
     "fold_region_candidate": {
       "name": "fold_region_candidate",
       "compiler": "/private/tmp/transduce-fold-let-final2-20260924/main.ts",
-      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/fold_region_candidate",
-      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/fold_region_candidate.c",
-      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/fold_region_candidate.js",
-      "clang_compile_seconds": 0.25044049997814,
+      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4/fold_region_candidate",
+      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4/fold_region_candidate.c",
+      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4/fold_region_candidate.js",
+      "clang_compile_seconds": 0.29396283300593495,
       "c_bytes": 137787,
+      "c_sha256": "d0b4fc58158053a6514fbfd269efe6f2bf765f247d8a0137b45928924c5d7bd9",
       "js_bytes": 21418,
       "compiler_sha256": "d5e55b51598f3b1f6cf4e615cdf84f8bb1649d2e1d2266eb7d5f439e28a0ccb4",
-      "allocation_requests_by_lane": [
-        5,
-        5,
-        5,
-        5
-      ],
+      "allocation_requests_by_lane": {
+        "keep": 5,
+        "map_fold": 5,
+        "let_bound_map_fold": 5,
+        "direct": 5
+      },
       "instrumented_c_bytes": 138745,
       "instrumented_c_sha256": "47928b30e12c327725071e77a683409bc653340845075b4c50a6cb28e69d631f",
       "js_smoke_rows": {
         "keep": {
-          "time_us": 294,
+          "time_us": 497,
           "checksum": 65280
         },
         "map_fold": {
-          "time_us": 250,
+          "time_us": 187,
           "checksum": 65280
         },
         "let_bound_map_fold": {
-          "time_us": 227,
+          "time_us": 100,
           "checksum": 65280
         },
         "direct": {
-          "time_us": 107,
+          "time_us": 160,
           "checksum": 65280
         }
       }
@@ -133,7 +142,7 @@
     "keep": {
       "versions": {
         "upstream": {
-          "median_us": 50382.0,
+          "median_us": 57696.5,
           "paired_over_upstream": {
             "median": 1.0,
             "ci95": [
@@ -142,69 +151,69 @@
             ]
           },
           "paired_over_direct": {
-            "median": 29.58545282481178,
+            "median": 28.294992564632565,
             "ci95": [
-              26.95058448459086,
-              31.241338160725263
+              26.393661001378042,
+              32.254759238521835
             ]
           },
           "paired_over_static_callback": {
-            "median": 19.36409056185011,
+            "median": 19.34921020893589,
             "ci95": [
-              18.74282519567648,
-              20.52457051538154
+              18.708947668160967,
+              20.52018413597734
             ]
           },
           "samples_us": [
-            63152,
-            50348,
-            49980,
-            50223,
-            50415,
-            50522,
-            50104,
-            50145,
-            50121,
-            50320,
-            50033,
-            50958,
-            50588,
-            50287,
-            50385,
-            50359,
-            50379,
-            50345,
-            49943,
-            51243,
-            50540,
-            50363,
-            50055,
-            50070,
-            50571,
-            50389,
-            50721,
-            50420,
-            50549,
-            50470,
-            50537,
-            51373
+            57810,
+            58291,
+            57949,
+            57288,
+            58028,
+            57851,
+            57870,
+            58021,
+            57607,
+            57681,
+            58005,
+            57821,
+            57669,
+            57931,
+            57544,
+            57781,
+            55566,
+            57684,
+            57459,
+            57272,
+            56686,
+            57560,
+            57652,
+            58300,
+            57658,
+            58709,
+            57573,
+            57571,
+            57619,
+            57743,
+            57709,
+            57942
           ],
           "allocation_requests": 8000021
         },
         "candidate": {
-          "median_us": 2617.5,
+          "median_us": 2989.0,
           "paired_over_upstream": {
-            "median": 0.0516421961049645,
+            "median": 0.05168371461714233,
             "ci95": [
-              0.04872209137095362,
-              0.0533537494779963
+              0.0489187404224289,
+              0.053398802864627046
             ]
           },
           "paired_over_direct": {
-            "median": 1.5186787214885955,
+            "median": 1.493735186616305,
             "ci95": [
-              1.3684559310801856,
-              1.6828225231646472
+              1.386627532629741,
+              1.6889188807364106
             ]
           },
           "paired_over_static_callback": {
@@ -215,97 +224,97 @@
             ]
           },
           "samples_us": [
-            3051,
-            2737,
-            2722,
-            3068,
-            2789,
-            2883,
-            2564,
-            2803,
-            2660,
-            2848,
-            2438,
-            2220,
-            2804,
-            2683,
-            2061,
-            2065,
-            2642,
-            2664,
-            2018,
-            2620,
-            2781,
-            2361,
-            2718,
-            2591,
-            2374,
-            2391,
-            2614,
-            2615,
-            2375,
-            2179,
-            2469,
-            2503
+            3010,
+            3087,
+            2824,
+            3298,
+            1722,
+            2761,
+            1617,
+            2980,
+            3213,
+            3085,
+            2588,
+            3190,
+            1948,
+            2907,
+            3217,
+            3005,
+            3091,
+            1953,
+            3100,
+            2998,
+            2899,
+            3249,
+            2831,
+            2928,
+            3047,
+            2778,
+            3210,
+            3144,
+            2729,
+            2676,
+            3157,
+            2643
           ],
           "allocation_requests": 5
         },
         "fold_region_candidate": {
-          "median_us": 2682.0,
+          "median_us": 3050.0,
           "paired_over_upstream": {
-            "median": 0.05347706072887187,
+            "median": 0.05264198994401431,
             "ci95": [
-              0.048909300824005644,
-              0.05549893455005535
+              0.051525647648755314,
+              0.053989272844044894
             ]
           },
           "paired_over_direct": {
-            "median": 1.4500314267756127,
+            "median": 1.5208690274139478,
             "ci95": [
-              1.3053637812002123,
-              1.528755868544601
+              1.3590173766585876,
+              1.7315386741905465
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.0428245339567832,
+            "median": 1.0526097828206975,
             "ci95": [
-              0.9604063201829383,
-              1.0951127819548871
+              0.9854052934692573,
+              1.0971922246220303
             ]
           },
           "samples_us": [
-            3537,
-            2771,
-            2880,
-            2825,
-            1625,
-            2552,
-            2458,
-            2659,
-            2913,
-            2283,
-            2703,
-            2845,
-            2859,
-            1884,
-            1983,
-            2259,
-            2265,
-            2715,
-            2223,
-            1519,
-            2381,
-            2772,
-            2955,
-            2865,
-            2830,
-            2457,
-            2766,
-            2878,
-            2848,
-            2605,
-            2304,
-            2661
+            3465,
+            3000,
+            3052,
+            3121,
+            3098,
+            2391,
+            2949,
+            2977,
+            3119,
+            3035,
+            3105,
+            2272,
+            3121,
+            2404,
+            3254,
+            3225,
+            2918,
+            2550,
+            2550,
+            3340,
+            3255,
+            2833,
+            2974,
+            3140,
+            2608,
+            3048,
+            3302,
+            3316,
+            2738,
+            3072,
+            3433,
+            3005
           ],
           "allocation_requests": 5
         }
@@ -314,7 +323,7 @@
     "map_fold": {
       "versions": {
         "upstream": {
-          "median_us": 7492.0,
+          "median_us": 8494.5,
           "paired_over_upstream": {
             "median": 1.0,
             "ci95": [
@@ -323,69 +332,69 @@
             ]
           },
           "paired_over_direct": {
-            "median": 4.375540539328355,
+            "median": 4.065222365074099,
             "ci95": [
-              3.909099116393461,
-              4.677366702743444
+              3.775135586149353,
+              4.79123414071511
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.0151142362382002,
+            "median": 0.9883400679998479,
             "ci95": [
-              1.0012221618685497,
-              1.0336340470839556
+              0.9710761860010773,
+              1.0230530339225992
             ]
           },
           "samples_us": [
-            8069,
-            7712,
-            7199,
-            7532,
-            7521,
-            7160,
-            7315,
-            7705,
-            7530,
-            7373,
-            7655,
-            7743,
-            7470,
-            7458,
-            7238,
-            7534,
-            7365,
-            7321,
-            7252,
-            7764,
-            7433,
-            7064,
-            7571,
-            7250,
-            7514,
-            7619,
-            7350,
-            7583,
-            7515,
-            7363,
-            7428,
-            7834
+            7756,
+            8490,
+            8677,
+            9049,
+            8137,
+            8565,
+            8499,
+            8557,
+            8367,
+            8239,
+            8708,
+            9095,
+            8108,
+            8238,
+            9039,
+            8308,
+            8674,
+            8584,
+            8352,
+            8137,
+            8244,
+            7778,
+            8736,
+            8740,
+            7538,
+            8730,
+            8101,
+            7960,
+            8616,
+            8705,
+            8918,
+            8452
           ],
           "allocation_requests": 3200005
         },
         "candidate": {
-          "median_us": 7351.0,
+          "median_us": 8482.5,
           "paired_over_upstream": {
-            "median": 0.9851108757547832,
+            "median": 1.0117975590615669,
             "ci95": [
-              0.9670787609390193,
-              0.9986319224461099
+              0.9775654574142552,
+              1.0315358690418874
             ]
           },
           "paired_over_direct": {
-            "median": 4.40923207599086,
+            "median": 4.251630125486492,
             "ci95": [
-              4.031955922865014,
-              4.685768261964736
+              4.114674441205054,
+              4.953398087135016
             ]
           },
           "paired_over_static_callback": {
@@ -396,97 +405,97 @@
             ]
           },
           "samples_us": [
-            8718,
-            7464,
-            6962,
-            7489,
-            7407,
-            7292,
-            7420,
-            7207,
-            7598,
-            7364,
-            7197,
-            7249,
-            6981,
-            7421,
-            7433,
-            7061,
-            7049,
-            7391,
-            7044,
-            7318,
-            7354,
-            7085,
-            7819,
-            7144,
-            7394,
-            7565,
-            7406,
-            7274,
-            7284,
-            7441,
-            6892,
-            7348
+            8789,
+            8980,
+            8619,
+            8058,
+            8832,
+            8372,
+            8658,
+            8544,
+            8642,
+            8366,
+            8416,
+            8322,
+            8468,
+            8054,
+            8293,
+            8570,
+            8785,
+            8683,
+            7637,
+            7643,
+            8736,
+            8243,
+            7767,
+            7817,
+            8598,
+            8322,
+            9016,
+            8411,
+            8497,
+            8810,
+            8014,
+            8689
           ],
           "allocation_requests": 3200005
         },
         "fold_region_candidate": {
-          "median_us": 1680.0,
+          "median_us": 1932.0,
           "paired_over_upstream": {
-            "median": 0.22740684798551547,
+            "median": 0.22067239134563155,
             "ci95": [
-              0.2178967994774657,
-              0.2385504160380506
+              0.20222301900322695,
+              0.24918242417114111
             ]
           },
           "paired_over_direct": {
-            "median": 0.9540205637079013,
+            "median": 0.9988942883418128,
             "ci95": [
-              0.8450330731184077,
-              1.1116320013101868
+              0.8820082492934391,
+              1.158904109589041
             ]
           },
           "paired_over_static_callback": {
-            "median": 0.2341819516430097,
+            "median": 0.2241367729756572,
             "ci95": [
-              0.21707186668076064,
-              0.24406049718699463
+              0.2039617643671542,
+              0.25085161070058604
             ]
           },
           "samples_us": [
-            2234,
-            1808,
-            1634,
-            1955,
-            1299,
-            1995,
-            2971,
-            1450,
-            1674,
-            1056,
-            1668,
-            1550,
-            1686,
-            1734,
-            1605,
-            2138,
-            1764,
-            1668,
-            1723,
-            1556,
-            906,
-            1589,
-            1310,
-            2078,
-            1528,
-            2927,
-            1768,
-            1776,
-            2195,
-            1812,
-            1384,
-            1528
+            2694,
+            1453,
+            1953,
+            1957,
+            3129,
+            2167,
+            1991,
+            1484,
+            1692,
+            2497,
+            1454,
+            1847,
+            1932,
+            1738,
+            1693,
+            2438,
+            3171,
+            1771,
+            1329,
+            2343,
+            1932,
+            1313,
+            1655,
+            1549,
+            1946,
+            2097,
+            1688,
+            2192,
+            2358,
+            2830,
+            1630,
+            1581
           ],
           "allocation_requests": 5
         }
@@ -495,7 +504,7 @@
     "let_bound_map_fold": {
       "versions": {
         "upstream": {
-          "median_us": 7079.5,
+          "median_us": 8201.0,
           "paired_over_upstream": {
             "median": 1.0,
             "ci95": [
@@ -504,69 +513,69 @@
             ]
           },
           "paired_over_direct": {
-            "median": 4.134161589488253,
+            "median": 3.998734820609717,
             "ci95": [
-              3.692348565356004,
-              4.412523020257827
+              3.669763584410156,
+              4.681460837846068
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.0102783059909213,
+            "median": 1.0006308727183548,
             "ci95": [
-              0.9953821818910358,
-              1.018142235123367
+              0.9667125154046843,
+              1.029707714422616
             ]
           },
           "samples_us": [
-            7867,
-            7149,
-            6935,
-            7196,
-            6860,
-            7100,
-            7130,
-            7217,
-            7112,
-            7031,
-            6948,
-            6994,
-            7198,
-            7119,
-            6972,
-            7883,
-            6958,
-            6921,
-            7188,
-            7256,
-            7015,
-            7053,
-            7228,
-            6803,
-            7043,
-            7005,
-            6949,
-            7134,
-            7106,
-            7059,
-            7033,
-            7203
+            8257,
+            8223,
+            7735,
+            8741,
+            8364,
+            8079,
+            8639,
+            8043,
+            8213,
+            8446,
+            7789,
+            8600,
+            7859,
+            7962,
+            8596,
+            8304,
+            8626,
+            8118,
+            8586,
+            8360,
+            8373,
+            7485,
+            8183,
+            8120,
+            7819,
+            8075,
+            7514,
+            7818,
+            8125,
+            8189,
+            8533,
+            8219
           ],
           "allocation_requests": 3200005
         },
         "candidate": {
-          "median_us": 7018.5,
+          "median_us": 8258.0,
           "paired_over_upstream": {
-            "median": 0.9898340271370337,
+            "median": 0.9993800772823878,
             "ci95": [
-              0.9821810406272273,
-              1.0046679676452288
+              0.9734601484554849,
+              1.0344459685104699
             ]
           },
           "paired_over_direct": {
-            "median": 4.267541917022653,
+            "median": 4.212625209001242,
             "ci95": [
-              3.875807995557212,
-              4.551256022988392
+              3.9928387618557455,
+              4.585203153426319
             ]
           },
           "paired_over_static_callback": {
@@ -577,97 +586,97 @@
             ]
           },
           "samples_us": [
-            8113,
-            7240,
-            6828,
-            7364,
-            7650,
-            7095,
-            6832,
-            7100,
-            6805,
-            6928,
-            7081,
-            6719,
-            6900,
-            6836,
-            7042,
-            6873,
-            6817,
-            7227,
-            7095,
-            7151,
-            6890,
-            6519,
-            7192,
-            6970,
-            6995,
-            7185,
-            7079,
-            7083,
-            6933,
-            7093,
-            6981,
-            6877
+            8512,
+            8159,
+            8029,
+            7815,
+            8255,
+            7671,
+            8342,
+            8377,
+            7391,
+            7922,
+            8261,
+            7825,
+            8196,
+            8168,
+            8348,
+            7561,
+            8417,
+            8699,
+            7534,
+            7717,
+            8395,
+            8046,
+            7840,
+            8403,
+            8399,
+            8474,
+            8311,
+            7692,
+            8447,
+            8379,
+            8500,
+            8263
           ],
           "allocation_requests": 3200005
         },
         "fold_region_candidate": {
-          "median_us": 2606.0,
+          "median_us": 3175.0,
           "paired_over_upstream": {
-            "median": 0.3651959480089236,
+            "median": 0.3905631662461151,
             "ci95": [
-              0.35226019845644985,
-              0.3888493813113355
+              0.3696720358370035,
+              0.40132588615303927
             ]
           },
           "paired_over_direct": {
-            "median": 1.4260203976723624,
+            "median": 1.6249289953299957,
             "ci95": [
-              1.3243707093821508,
-              1.528742174160501
+              1.5439770554493308,
+              1.769543321881521
             ]
           },
           "paired_over_static_callback": {
-            "median": 0.3734432889018696,
+            "median": 0.3870532641274703,
             "ci95": [
-              0.3611190002840102,
-              0.3867403314917127
+              0.37586273362787226,
+              0.40479741486452897
             ]
           },
           "samples_us": [
-            3103,
-            2800,
-            2803,
-            2021,
-            2927,
-            2802,
-            2533,
-            2312,
-            2669,
-            2734,
-            2686,
-            1945,
-            2103,
-            2575,
-            2543,
-            2717,
-            2440,
-            2654,
-            2628,
-            2556,
-            2754,
-            2452,
-            2554,
-            2749,
-            2584,
-            2437,
-            2787,
-            2819,
-            2936,
-            2575,
-            2434,
-            2422
+            3576,
+            3288,
+            2943,
+            3220,
+            3369,
+            3230,
+            2736,
+            3412,
+            3024,
+            2775,
+            3231,
+            2709,
+            3183,
+            3137,
+            3092,
+            3242,
+            3162,
+            3308,
+            2906,
+            2979,
+            3157,
+            3257,
+            3249,
+            3261,
+            3275,
+            3155,
+            3380,
+            3263,
+            3059,
+            2959,
+            3167,
+            2776
           ],
           "allocation_requests": 5
         }
@@ -676,7 +685,7 @@
     "direct": {
       "versions": {
         "upstream": {
-          "median_us": 1712.5,
+          "median_us": 2046.0,
           "paired_over_upstream": {
             "median": 1.0,
             "ci95": [
@@ -692,55 +701,55 @@
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.0478753129876257,
+            "median": 1.0108886216525772,
             "ci95": [
-              0.8941354298224757,
-              1.1742170604539015
+              0.8978704362197854,
+              1.1969917515769044
             ]
           },
           "samples_us": [
-            1719,
-            1192,
-            1425,
-            2176,
-            1098,
+            2037,
+            2371,
+            1126,
+            2397,
+            2057,
+            1556,
+            2643,
+            2164,
+            1786,
+            3285,
+            1977,
+            2671,
+            1471,
+            2055,
+            1730,
             1734,
-            2095,
-            1848,
-            1474,
-            2190,
-            1665,
-            2555,
-            1170,
-            2172,
-            1945,
-            1706,
-            1699,
-            2288,
-            1629,
-            2460,
-            1614,
-            1387,
-            1848,
-            1370,
-            2421,
-            1600,
-            1882,
-            1627,
-            1825,
-            1224,
-            2191,
-            1671
+            2689,
+            2336,
+            2177,
+            1847,
+            1603,
+            1430,
+            1920,
+            1669,
+            2467,
+            1220,
+            1495,
+            2158,
+            2505,
+            2112,
+            1791,
+            2526
           ],
           "allocation_requests": 5
         },
         "candidate": {
-          "median_us": 1657.0,
+          "median_us": 1925.5,
           "paired_over_upstream": {
-            "median": 0.9544496007192342,
+            "median": 0.9893815322881672,
             "ci95": [
-              0.8505809672781279,
-              1.1020009225495468
+              0.8481639994923378,
+              1.118570655116405
             ]
           },
           "paired_over_direct": {
@@ -758,48 +767,48 @@
             ]
           },
           "samples_us": [
-            1621,
-            2054,
-            1947,
-            1292,
-            1545,
-            1460,
-            1314,
-            1672,
-            1451,
-            1594,
-            2102,
-            1306,
+            2612,
+            1419,
+            2467,
+            1943,
+            1924,
+            1643,
             2069,
-            902,
-            1642,
-            1509,
-            2026,
-            1712,
-            2095,
-            1815,
-            1718,
-            1403,
-            1785,
-            1835,
-            1833,
-            1885,
-            1527,
-            1639,
-            1568,
-            1588,
-            2032,
-            1877
+            2381,
+            1789,
+            3704,
+            1702,
+            2513,
+            2058,
+            1565,
+            2391,
+            1649,
+            1077,
+            1694,
+            1064,
+            2066,
+            1625,
+            2030,
+            1876,
+            1899,
+            2061,
+            1927,
+            1817,
+            2202,
+            1566,
+            1567,
+            2211,
+            1946
           ],
           "allocation_requests": 5
         },
         "fold_region_candidate": {
-          "median_us": 1762.5,
+          "median_us": 1934.0,
           "paired_over_upstream": {
-            "median": 1.0341744385368545,
+            "median": 0.9171812018642482,
             "ci95": [
-              0.9065910367005257,
-              1.0754926523912074
+              0.827387648244915,
+              1.0477814005708739
             ]
           },
           "paired_over_direct": {
@@ -810,50 +819,50 @@
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.0758771936565117,
+            "median": 1.0597195478051935,
             "ci95": [
-              0.9273889868281422,
-              1.1953495071053641
+              0.908655822655217,
+              1.142324093816631
             ]
           },
           "samples_us": [
-            2961,
-            1218,
-            1843,
-            1503,
-            1784,
-            1720,
-            1883,
-            1748,
-            997,
-            1591,
-            1757,
-            1669,
-            1664,
-            1876,
-            1513,
-            1822,
-            1840,
-            2076,
-            1991,
-            1157,
-            2329,
-            2235,
-            1934,
-            1241,
-            2261,
-            1677,
-            1377,
-            1768,
-            1930,
-            1704,
-            1740,
-            2664
+            3032,
+            1332,
+            2726,
+            1401,
+            1675,
+            2092,
+            2213,
+            2092,
+            1460,
+            1502,
+            1920,
+            1986,
+            1689,
+            1643,
+            1348,
+            2043,
+            2371,
+            2014,
+            1518,
+            1873,
+            1533,
+            2201,
+            2143,
+            1805,
+            2023,
+            2200,
+            2454,
+            1929,
+            1906,
+            1911,
+            1939,
+            2348
           ],
           "allocation_requests": 5
         }
       }
     }
   },
-  "artifacts": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6"
+  "artifacts": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-w7fejqh4"
 }

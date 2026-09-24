@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T21:22:00+02:00
-updated_at: 2026-09-24T22:59:29+02:00
+updated_at: 2026-09-24T23:17:59+02:00
 status: current
 ---
 
@@ -51,27 +51,46 @@ affine `Array` payload.
 
 | Compiler | Streaming `keep` µs / allocs | Nested map/fold µs / allocs | Let-bound map/fold µs / allocs | Direct fold µs / allocs |
 | --- | ---: | ---: | ---: | ---: |
-| Raw `bendlang/main` | 50,382 / 8,000,021 | 7,492 / 3,200,005 | 7,079.5 / 3,200,005 | 1,712.5 / 5 |
-| Static-callback candidate | 2,617.5 / 5 | 7,351 / 3,200,005 | 7,018.5 / 3,200,005 | 1,657 / 5 |
-| Checked FoldRegion candidate | 2,682 / 5 | 1,680 / 5 | 2,606 / 5 | 1,762.5 / 5 |
+| Raw `bendlang/main` | 57,696.5 / 8,000,021 | 8,494.5 / 3,200,005 | 8,201 / 3,200,005 | 2,046 / 5 |
+| Static-callback candidate | 2,989 / 5 | 8,482.5 / 3,200,005 | 8,258 / 3,200,005 | 1,925.5 / 5 |
+| Checked FoldRegion candidate | 3,050 / 5 | 1,932 / 5 | 3,175 / 5 | 1,934 / 5 |
 
-The directly nested type-changing map/fold goes from 7,351µs and 3,200,005
-heap requests on the static-callback candidate to 1,680µs and five fixed
+The directly nested type-changing map/fold goes from 8,482.5µs and 3,200,005
+heap requests on the static-callback candidate to 1,932µs and five fixed
 requests with FoldRegion. Its paired FoldRegion/static-callback time ratio is
-0.234 [0.217, 0.244], about a 77% reduction. Against the direct fold in the
-same FoldRegion build, the ratio is 0.954 [0.845, 1.112], statistically
+0.224 [0.204, 0.251], about a 78% reduction. Against the direct fold in the
+same FoldRegion build, the ratio is 0.999 [0.882, 1.159], statistically
 consistent with parity.
 
-The let-bound map/fold now drops from 7,018.5µs and 3,200,005 requests to
-2,606µs and five fixed requests. Its paired FoldRegion/static-callback ratio
-is 0.373 [0.361, 0.387], about a 63% reduction. This confirms that the
-single-use alias rule removes the materialized `List<Maybe<U32>>`. However,
-this lane is still 1.43x slower than the direct fold in the same build
-(paired ratio 1.426 [1.324, 1.529]), despite both making five fixed requests.
-The nested map/fold is near direct parity, so removing allocation is necessary
-but not sufficient to claim equivalent generated execution for the let shape.
-The cause of that remaining gap is unresolved and needs generated-code or
-profile investigation before the rule is generalized further.
+The let-bound map/fold drops from 8,258µs and 3,200,005 requests to 3,175µs
+and five fixed requests. Its paired FoldRegion/static-callback ratio is 0.387
+[0.376, 0.405], about a 61% reduction. This confirms that the single-use
+alias rule removes the materialized `List<Maybe<U32>>`.
+
+The FoldRegion let/direct latency comparison depends strongly on lane order.
+The benchmark runs each lane in one compiled program, so changing measurement
+order also changes generated-code layout. Four cyclic orders, each with 32
+sessions, produced these paired let/direct ratios:
+
+| Measurement order | Let position | Direct position | Let / direct, paired 95% interval |
+| --- | ---: | ---: | ---: |
+| Keep, map/fold, let/fold, direct | 3 | 4 | 1.625 [1.544, 1.770] |
+| Map/fold, let/fold, direct, keep | 2 | 3 | 0.737 [0.667, 0.757] |
+| Let/fold, direct, keep, map/fold | 1 | 2 | 0.619 [0.579, 0.636] |
+| Direct, keep, map/fold, let/fold | 4 | 1 | 1.375 [1.310, 1.479] |
+
+All four FoldRegion outputs have the same C byte count (137,787), but each
+ordering has a different C hash. The ratio is below one when let/fold runs
+before direct, and above one when it runs after. This shows that the apparent
+let/direct latency gap is an order/layout effect in this shared-process
+harness, not evidence that the let rewrite does more work per item. The
+reliable measured win is allocation elimination; use isolated or balanced
+lane timing before making a latency claim about this shape. The four full reports are
+[`maybe-keep-fold-region-results.json`](../../bench/compiler/maybe-keep-fold-region-results.json),
+[`maybe-keep-order-map-let-direct-keep-results.json`](../../bench/compiler/maybe-keep-order-map-let-direct-keep-results.json),
+[`maybe-keep-order-let-direct-keep-map-results.json`](../../bench/compiler/maybe-keep-order-let-direct-keep-map-results.json),
+and
+[`maybe-keep-order-direct-keep-map-let-results.json`](../../bench/compiler/maybe-keep-order-direct-keep-map-let-results.json).
 
 The positive and fallback controls are in
 [`fold_region_let_alias.bend`](../../tests/fold_region_let_alias.bend) and
@@ -140,3 +159,8 @@ python3 bench/compiler/maybe_keep_probe.py \
   --output /tmp/maybe-keep-fold-region-results.json \
   --sessions 32
 ```
+
+To change the order of the four timed lanes while keeping the inputs and
+consumers fixed, pass a permutation such as
+`--measurement-order map_fold,let_bound_map_fold,direct,keep`. The runner
+records that order, the generated C hashes, and all paired samples.

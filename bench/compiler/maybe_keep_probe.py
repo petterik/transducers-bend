@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Compare streaming keep, nested/let-bound Maybe map-fold, and direct folds."""
 import argparse
+import atexit
 import hashlib
 import json
 import os
@@ -22,11 +23,35 @@ parser.add_argument('--candidate-main', type=Path, required=True)
 parser.add_argument('--fold-region-main', type=Path)
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--sessions', type=int, default=16)
+parser.add_argument('--measurement-order', default=','.join(LANES),
+                    help='comma-separated permutation of timed lanes')
 args = parser.parse_args()
 assert args.sessions >= 8
+measurement_order = tuple(args.measurement_order.split(','))
+assert len(measurement_order) == len(LANES) \
+    and set(measurement_order) == set(LANES), measurement_order
 
 out = Path(tempfile.mkdtemp(prefix=args.output.stem + '-artifacts-'))
 out.mkdir(parents=True, exist_ok=True)
+source_text = SOURCE.read_text()
+canonical_measurements = {
+    'keep': '    kept : Nat & U32 <- measure_keep(keep_inputs)',
+    'map_fold': '    map_fold : Nat & U32 <- measure_map_fold(map_fold_inputs)',
+    'let_bound_map_fold': '    let_bound_map_fold : Nat & U32 <- measure_let_bound_map_fold(let_bound_inputs)',
+    'direct': '    direct : Nat & U32 <- measure_direct(direct_inputs)',
+}
+for statement in canonical_measurements.values():
+    assert source_text.count(statement) == 1, statement
+canonical_block = '\n'.join(canonical_measurements[lane] for lane in LANES)
+ordered_block = '\n'.join(canonical_measurements[lane]
+                           for lane in measurement_order)
+assert source_text.count(canonical_block) == 1, 'benchmark main shape changed'
+source_text = source_text.replace(canonical_block, ordered_block, 1)
+if measurement_order != LANES:
+    ordered_source = SOURCE.with_name('_maybe_keep_pipeline_ordered.bend')
+    ordered_source.write_text(source_text)
+    atexit.register(ordered_source.unlink, missing_ok=True)
+    SOURCE = ordered_source
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 N = 200_000
@@ -62,6 +87,7 @@ def compile_lane(name, compiler, stem):
         'js_path': str(js_path),
         'clang_compile_seconds': compile_seconds,
         'c_bytes': c_path.stat().st_size,
+        'c_sha256': hashlib.sha256(c_path.read_bytes()).hexdigest(),
         'js_bytes': js_path.stat().st_size,
         'compiler_sha256': hashlib.sha256(
             (compiler.parent / 'comp.ts').read_bytes()).hexdigest(),
@@ -200,7 +226,8 @@ if args.fold_region_main is not None:
         out / 'fold_region_candidate')
 for item in items.values():
     allocation_report = instrumented_allocations(item)
-    item['allocation_requests_by_lane'] = allocation_report['requests_by_lane']
+    item['allocation_requests_by_lane'] = dict(zip(
+        measurement_order, allocation_report['requests_by_lane']))
     item['instrumented_c_bytes'] = allocation_report['instrumented_c_bytes']
     item['instrumented_c_sha256'] = allocation_report['instrumented_c_sha256']
     item['js_smoke_rows'] = smoke_js(item, Path(item['compiler']))
@@ -241,7 +268,7 @@ for lane in LANES:
             'paired_over_static_callback': paired_ratio(
                 current, samples['candidate'][lane]),
             'samples_us': current,
-            'allocation_requests': items[compiler]['allocation_requests_by_lane'][LANES.index(lane)],
+            'allocation_requests': items[compiler]['allocation_requests_by_lane'][lane],
         }
     summary[lane] = {
         'versions': comparisons,
@@ -258,6 +285,7 @@ report = {
     'js_smoke_items_per_batch': JS_N,
     'js_smoke_batches_per_lane': JS_BATCHES,
     'lanes': list(LANES),
+    'measurement_order': list(measurement_order),
     'sessions': args.sessions,
     'clock': 'BenchClock.now_us; native monotonic nanoseconds converted to microseconds',
     'allocation_instrumentation': 'separate C builds; successful heap allocator requests between each pair of lane clock marks',

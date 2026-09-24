@@ -1,0 +1,868 @@
+{
+  "base_commit": "2f50df1ed36fcc3ebe6c75a2046e94001a44645d",
+  "source_sha256": "e39b06307001405bbf441d36f458a32e8b3a06a6f5b403d2a29a8e8241234d89",
+  "runner_sha256": "3df763cebe9b27aea24f7b2c804b6862bd1b9321a7d157c14119f574cec96987",
+  "input_items_per_batch": 200000,
+  "prebuilt_batches_per_lane": 8,
+  "js_smoke_items_per_batch": 256,
+  "js_smoke_batches_per_lane": 2,
+  "lanes": [
+    "keep",
+    "map_fold",
+    "let_bound_map_fold",
+    "direct"
+  ],
+  "measurement_order": [
+    "map_fold",
+    "let_bound_map_fold",
+    "direct",
+    "keep"
+  ],
+  "sessions": 32,
+  "clock": "BenchClock.now_us; native monotonic nanoseconds converted to microseconds",
+  "allocation_instrumentation": "separate C builds; successful heap allocator requests between each pair of lane clock marks",
+  "expected_checksum_per_lane": 1085410048,
+  "items": {
+    "upstream": {
+      "name": "upstream",
+      "compiler": "../bend/bend2/main.ts",
+      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47/upstream",
+      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47/upstream.c",
+      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47/upstream.js",
+      "clang_compile_seconds": 0.3641896250192076,
+      "c_bytes": 185027,
+      "c_sha256": "946a8f8315f56961fb84696ebb5e598d6671c0d4a7ad57b6bc02fe08d5c4cbbb",
+      "js_bytes": 25685,
+      "compiler_sha256": "34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850",
+      "allocation_requests_by_lane": {
+        "map_fold": 3200005,
+        "let_bound_map_fold": 3200005,
+        "direct": 5,
+        "keep": 8000021
+      },
+      "instrumented_c_bytes": 185985,
+      "instrumented_c_sha256": "27344ccc01a1b391c8b237c9cae4699edf1e4f5e98fdee0b497095a0dc67c6bd",
+      "js_smoke_rows": {
+        "keep": {
+          "time_us": 1464,
+          "checksum": 65280
+        },
+        "map_fold": {
+          "time_us": 387,
+          "checksum": 65280
+        },
+        "let_bound_map_fold": {
+          "time_us": 130,
+          "checksum": 65280
+        },
+        "direct": {
+          "time_us": 161,
+          "checksum": 65280
+        }
+      }
+    },
+    "candidate": {
+      "name": "static_callback_candidate",
+      "compiler": "/private/tmp/transduce-static-let-20260924/main.ts",
+      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47/static_callback_candidate",
+      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47/static_callback_candidate.c",
+      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47/static_callback_candidate.js",
+      "clang_compile_seconds": 0.2972651249729097,
+      "c_bytes": 145937,
+      "c_sha256": "41dd5fcd0ee702570c4d5d5f67d9fbc370c76753bb26579842fbab1e7aa1a72d",
+      "js_bytes": 21735,
+      "compiler_sha256": "cfd14f244c5a6d2d0b4069d03e53f3682bd09fb535fd15d2d8757b5f21546579",
+      "allocation_requests_by_lane": {
+        "map_fold": 3200005,
+        "let_bound_map_fold": 3200005,
+        "direct": 5,
+        "keep": 5
+      },
+      "instrumented_c_bytes": 146895,
+      "instrumented_c_sha256": "3aa80109e9cc25fc8dfe4e04928d0f881f3dffb8080c4598ab080928e3d77a41",
+      "js_smoke_rows": {
+        "keep": {
+          "time_us": 190,
+          "checksum": 65280
+        },
+        "map_fold": {
+          "time_us": 372,
+          "checksum": 65280
+        },
+        "let_bound_map_fold": {
+          "time_us": 122,
+          "checksum": 65280
+        },
+        "direct": {
+          "time_us": 146,
+          "checksum": 65280
+        }
+      }
+    },
+    "fold_region_candidate": {
+      "name": "fold_region_candidate",
+      "compiler": "/private/tmp/transduce-fold-let-final2-20260924/main.ts",
+      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47/fold_region_candidate",
+      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47/fold_region_candidate.c",
+      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47/fold_region_candidate.js",
+      "clang_compile_seconds": 0.2879579160362482,
+      "c_bytes": 137787,
+      "c_sha256": "9b44edd1f19bd63d615f2e3bc6ed91a766173145c80190d5606638e9571d904d",
+      "js_bytes": 21418,
+      "compiler_sha256": "d5e55b51598f3b1f6cf4e615cdf84f8bb1649d2e1d2266eb7d5f439e28a0ccb4",
+      "allocation_requests_by_lane": {
+        "map_fold": 5,
+        "let_bound_map_fold": 5,
+        "direct": 5,
+        "keep": 5
+      },
+      "instrumented_c_bytes": 138745,
+      "instrumented_c_sha256": "29f924fe7270733421616be3e8920f228d3ac8947ceabbf4c1f6fc71d6c00eb1",
+      "js_smoke_rows": {
+        "keep": {
+          "time_us": 256,
+          "checksum": 65280
+        },
+        "map_fold": {
+          "time_us": 269,
+          "checksum": 65280
+        },
+        "let_bound_map_fold": {
+          "time_us": 82,
+          "checksum": 65280
+        },
+        "direct": {
+          "time_us": 150,
+          "checksum": 65280
+        }
+      }
+    }
+  },
+  "summary": {
+    "keep": {
+      "versions": {
+        "upstream": {
+          "median_us": 57285.0,
+          "paired_over_upstream": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "paired_over_direct": {
+            "median": 17.801727552276958,
+            "ci95": [
+              17.28390214436726,
+              18.272093759898638
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 25.89622535842294,
+            "ci95": [
+              24.371838111298484,
+              26.922524837757905
+            ]
+          },
+          "samples_us": [
+            58468,
+            57277,
+            57577,
+            57323,
+            57227,
+            57987,
+            57400,
+            57478,
+            57810,
+            56916,
+            57719,
+            57583,
+            57192,
+            57067,
+            56907,
+            57543,
+            57087,
+            56969,
+            57450,
+            57185,
+            57314,
+            56857,
+            57293,
+            57685,
+            57031,
+            58056,
+            56657,
+            56678,
+            56436,
+            56955,
+            57376,
+            56838
+          ],
+          "allocation_requests": 8000021
+        },
+        "candidate": {
+          "median_us": 2211.5,
+          "paired_over_upstream": {
+            "median": 0.038615820281434766,
+            "ci95": [
+              0.037146406060327375,
+              0.041030963501124375
+            ]
+          },
+          "paired_over_direct": {
+            "median": 0.6733000497737656,
+            "ci95": [
+              0.6542762163795709,
+              0.709349593495935
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "samples_us": [
+            2280,
+            2257,
+            1982,
+            2534,
+            2930,
+            1952,
+            2483,
+            2059,
+            2372,
+            1655,
+            2531,
+            2324,
+            2051,
+            2193,
+            2165,
+            2119,
+            2215,
+            2013,
+            2132,
+            2161,
+            2443,
+            2050,
+            2208,
+            2232,
+            2550,
+            2505,
+            2053,
+            2469,
+            2568,
+            2134,
+            2494,
+            1929
+          ],
+          "allocation_requests": 5
+        },
+        "fold_region_candidate": {
+          "median_us": 2260.5,
+          "paired_over_upstream": {
+            "median": 0.039337432735767223,
+            "ci95": [
+              0.03852163989114213,
+              0.04443390259329538
+            ]
+          },
+          "paired_over_direct": {
+            "median": 0.728555328918999,
+            "ci95": [
+              0.6671458906539316,
+              0.7664351739169937
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 1.0556207974638228,
+            "ci95": [
+              1.0075463967904275,
+              1.1009987576381883
+            ]
+          },
+          "samples_us": [
+            2750,
+            1684,
+            2437,
+            2792,
+            2684,
+            2612,
+            2294,
+            2201,
+            2586,
+            2529,
+            2273,
+            3240,
+            2141,
+            2083,
+            2407,
+            2238,
+            1620,
+            2037,
+            2437,
+            2185,
+            2776,
+            2770,
+            2215,
+            2248,
+            2241,
+            2054,
+            2202,
+            2605,
+            1939,
+            2194,
+            3166,
+            2089
+          ],
+          "allocation_requests": 5
+        }
+      }
+    },
+    "map_fold": {
+      "versions": {
+        "upstream": {
+          "median_us": 7243.5,
+          "paired_over_upstream": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "paired_over_direct": {
+            "median": 2.2821758476857985,
+            "ci95": [
+              2.2037366932704705,
+              2.3595185302502375
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 0.975172755018293,
+            "ci95": [
+              0.9350071588328036,
+              1.009778869108904
+            ]
+          },
+          "samples_us": [
+            7324,
+            7170,
+            7108,
+            7134,
+            7109,
+            7360,
+            7236,
+            7434,
+            7430,
+            7200,
+            7054,
+            7195,
+            7567,
+            7183,
+            7496,
+            7469,
+            7525,
+            7251,
+            7279,
+            7429,
+            7154,
+            6848,
+            6939,
+            7449,
+            6704,
+            7435,
+            7266,
+            7232,
+            7230,
+            6715,
+            7785,
+            7870
+          ],
+          "allocation_requests": 3200005
+        },
+        "candidate": {
+          "median_us": 7396.5,
+          "paired_over_upstream": {
+            "median": 1.0254791376104138,
+            "ci95": [
+              0.9873808564908041,
+              1.069601901105834
+            ]
+          },
+          "paired_over_direct": {
+            "median": 2.21620228352369,
+            "ci95": [
+              2.171652206701179,
+              2.3397208486870325
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "samples_us": [
+            9009,
+            7385,
+            7673,
+            8290,
+            7170,
+            6708,
+            7791,
+            7395,
+            7051,
+            7351,
+            7639,
+            8039,
+            7383,
+            7816,
+            6965,
+            6837,
+            7583,
+            7684,
+            7230,
+            7034,
+            7480,
+            7557,
+            7757,
+            7355,
+            7398,
+            7667,
+            6884,
+            6613,
+            7906,
+            7079,
+            7344,
+            7653
+          ],
+          "allocation_requests": 3200005
+        },
+        "fold_region_candidate": {
+          "median_us": 3153.0,
+          "paired_over_upstream": {
+            "median": 0.4353444531321813,
+            "ci95": [
+              0.42906668810348225,
+              0.4430992736077482
+            ]
+          },
+          "paired_over_direct": {
+            "median": 0.9601959263160529,
+            "ci95": [
+              0.9311278195488721,
+              1.005134467609624
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 0.42306457795170227,
+            "ci95": [
+              0.4075155415889963,
+              0.43771694969235
+            ]
+          },
+          "samples_us": [
+            2998,
+            3055,
+            3246,
+            3136,
+            3085,
+            3042,
+            3170,
+            3294,
+            3319,
+            2795,
+            3336,
+            3313,
+            3291,
+            3264,
+            3232,
+            3227,
+            2861,
+            3096,
+            3172,
+            3069,
+            3327,
+            3194,
+            2997,
+            2925,
+            3130,
+            3263,
+            3206,
+            3325,
+            2841,
+            3121,
+            2861,
+            3077
+          ],
+          "allocation_requests": 5
+        }
+      }
+    },
+    "let_bound_map_fold": {
+      "versions": {
+        "upstream": {
+          "median_us": 7588.5,
+          "paired_over_upstream": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "paired_over_direct": {
+            "median": 2.3752292512616675,
+            "ci95": [
+              2.329713446594034,
+              2.446861515703024
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 0.9993003450001479,
+            "ci95": [
+              0.9602977667493796,
+              1.022973849156061
+            ]
+          },
+          "samples_us": [
+            7773,
+            6800,
+            7923,
+            6834,
+            7582,
+            6875,
+            7712,
+            7429,
+            7674,
+            7562,
+            6934,
+            7400,
+            6978,
+            7505,
+            7838,
+            8173,
+            7846,
+            7504,
+            7979,
+            7457,
+            7189,
+            8005,
+            7072,
+            7740,
+            7747,
+            7595,
+            8099,
+            8161,
+            7783,
+            6960,
+            7561,
+            8111
+          ],
+          "allocation_requests": 3200005
+        },
+        "candidate": {
+          "median_us": 7697.5,
+          "paired_over_upstream": {
+            "median": 1.0007699116317348,
+            "ci95": [
+              0.9778384434898926,
+              1.0408749353293203
+            ]
+          },
+          "paired_over_direct": {
+            "median": 2.3299273213057847,
+            "ci95": [
+              2.2901133023863594,
+              2.38689824512728
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "samples_us": [
+            7585,
+            7469,
+            7784,
+            8114,
+            7655,
+            7934,
+            7327,
+            7920,
+            7302,
+            7412,
+            7973,
+            6529,
+            7431,
+            7740,
+            7642,
+            8111,
+            7522,
+            8032,
+            7779,
+            6449,
+            8090,
+            7940,
+            8219,
+            8060,
+            7591,
+            7756,
+            7051,
+            7231,
+            7914,
+            7986,
+            7630,
+            7625
+          ],
+          "allocation_requests": 3200005
+        },
+        "fold_region_candidate": {
+          "median_us": 2353.0,
+          "paired_over_upstream": {
+            "median": 0.319534572289727,
+            "ci95": [
+              0.2872444011684518,
+              0.3300184639912922
+            ]
+          },
+          "paired_over_direct": {
+            "median": 0.7368685268735342,
+            "ci95": [
+              0.6671295070910739,
+              0.756678281068525
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 0.3031477447817075,
+            "ci95": [
+              0.2719520484311928,
+              0.3369475406381226
+            ]
+          },
+          "samples_us": [
+            2081,
+            2544,
+            2561,
+            3357,
+            2063,
+            2253,
+            2899,
+            2968,
+            1956,
+            2390,
+            2361,
+            2395,
+            2254,
+            2345,
+            2700,
+            2776,
+            2019,
+            2165,
+            2415,
+            2474,
+            2065,
+            1682,
+            3272,
+            2179,
+            2606,
+            2051,
+            2878,
+            2410,
+            1958,
+            2264,
+            1731,
+            2021
+          ],
+          "allocation_requests": 5
+        }
+      }
+    },
+    "direct": {
+      "versions": {
+        "upstream": {
+          "median_us": 3230.5,
+          "paired_over_upstream": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "paired_over_direct": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 0.9711951189274393,
+            "ci95": [
+              0.9452095808383234,
+              0.9972956777441963
+            ]
+          },
+          "samples_us": [
+            2859,
+            2300,
+            3368,
+            3048,
+            3311,
+            2813,
+            3022,
+            2984,
+            3367,
+            3174,
+            3337,
+            3388,
+            3146,
+            3264,
+            3310,
+            3188,
+            3317,
+            2939,
+            3341,
+            3236,
+            3059,
+            2642,
+            3153,
+            3157,
+            3240,
+            3225,
+            3249,
+            3410,
+            3308,
+            3394,
+            3049,
+            3311
+          ],
+          "allocation_requests": 5
+        },
+        "candidate": {
+          "median_us": 3309.5,
+          "paired_over_upstream": {
+            "median": 1.0296879911460854,
+            "ci95": [
+              1.00272076847485,
+              1.0579664238200823
+            ]
+          },
+          "paired_over_direct": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "samples_us": [
+            3342,
+            3354,
+            3250,
+            3366,
+            3302,
+            3201,
+            3171,
+            3310,
+            3521,
+            3538,
+            3377,
+            3364,
+            3499,
+            2957,
+            3309,
+            3300,
+            3233,
+            3521,
+            3422,
+            3300,
+            3444,
+            3450,
+            3296,
+            3340,
+            3410,
+            3285,
+            3022,
+            3278,
+            3327,
+            3174,
+            2759,
+            3150
+          ],
+          "allocation_requests": 5
+        },
+        "fold_region_candidate": {
+          "median_us": 3275.0,
+          "paired_over_upstream": {
+            "median": 1.0297529573230508,
+            "ci95": [
+              0.9833887043189369,
+              1.0827662387095445
+            ]
+          },
+          "paired_over_direct": {
+            "median": 1.0,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "paired_over_static_callback": {
+            "median": 0.985966621956128,
+            "ci95": [
+              0.9653434152488973,
+              1.0072237762237761
+            ]
+          },
+          "samples_us": [
+            3087,
+            3365,
+            3294,
+            3353,
+            3478,
+            3066,
+            3401,
+            3236,
+            2963,
+            3470,
+            3121,
+            2980,
+            3245,
+            3544,
+            3214,
+            3490,
+            3410,
+            3325,
+            3295,
+            3303,
+            3541,
+            3335,
+            3086,
+            2698,
+            3444,
+            3205,
+            3000,
+            3249,
+            3394,
+            3064,
+            3184,
+            3256
+          ],
+          "allocation_requests": 5
+        }
+      }
+    }
+  },
+  "artifacts": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-order-map-let-direct-keep-results-artifacts-mn92ts47"
+}

@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T22:59:29+02:00
+updated_at: 2026-09-24T23:17:59+02:00
 status: current
 ---
 
@@ -431,8 +431,8 @@ and
 | Option | Impact | Effort | Value | Decision |
 | --- | --- | --- | --- | --- |
 | Track direct producer values through a single-use local binding | High: removes the main syntax-shape limitation found by the benchmark | Medium: local use count and checked helper remain explicit | High for this narrow shape; not yet general local propagation | **Complete: one checked immediate-fold alias** |
-| Attribute the let-alias timing gap | Medium: determines whether the remaining cost is generated work or call-site/layout effects | Low to medium: inspect optimized code and vary lane order | High before claiming direct-loop parity | **P1: explain the measured 1.43x gap** |
-| Extend the fold region to filtering and skip semantics | High: tests whether a real transducer changes source traversal and step count | High: needs skip/continue state and callback-order proofs | High if a compositional fold representation emerges | **P2: test map + Boolean filter after attribution** |
+| Control lane-order effects in the let-alias benchmark | High: prevents a layout/order artifact from being mistaken for optimizer cost | Medium: compare balanced measurement orders | Complete: the let/direct ratio flips with call order | **Done; use balanced or isolated timing** |
+| Extend the fold region to filtering and skip semantics | High: tests whether a real transducer changes source traversal and step count | High: needs skip/continue state and callback-order proofs | High if a compositional fold representation emerges | **P1: test map + Boolean filter** |
 | Keep relying on C optimization and existing affine reuse | Medium: preserves the allocation-free handwritten case and improves generated C locally | Low: no new API or compiler rule | Medium: useful baseline, but leaves the materialized producer cost | Keep as baseline, not the whole strategy |
 | Extend the region to partitioning and reducer stop/finish | High for general transducer pipelines | High: must model buffering, completion, and early stop | Unproven until map/filter composition works | Defer |
 | Add an explicit reducer sink that returns a completed reusable buffer | Medium to high for chunk-building pipelines | High: expands reducer state/API and requires ownership-return semantics | Medium: useful when fusion cannot prove non-escape; premature before a measured need | Defer |
@@ -530,23 +530,30 @@ The current four-lane `Maybe` probe compares streaming `keep`, a directly
 nested `List<Maybe<U32>>` map/fold, the same map bound to a local before the
 fold, and direct consumption. Each lane processes 1.6M values; 32 randomized
 native sessions use the microsecond clock and allocator requests are counted
-in separate builds. FoldRegion reduces the nested map/fold from 7,351µs and
-3,200,005 requests on the static-callback candidate to 1,680µs and five
-fixed requests. Its paired time ratio versus the static-callback build is
-0.234 [0.217, 0.244]. Against direct consumption in the same FoldRegion build,
-the nested map/fold ratio is 0.954 [0.845, 1.112], consistent with parity.
+in separate builds. FoldRegion reduces the nested map/fold from 8,482.5µs and
+3,200,005 requests on the static-callback candidate to 1,932µs and five fixed
+requests. Its paired time ratio versus the static-callback build is
+0.224 [0.204, 0.251]. Against direct consumption in the same FoldRegion build,
+the nested map/fold ratio is 0.999 [0.882, 1.159], consistent with parity.
 
-The single-use let-bound shape now falls from 7,018.5µs and 3,200,005 requests
-to 2,606µs and five fixed requests. Its FoldRegion/static-callback ratio is
-0.373 [0.361, 0.387]. This validates allocation elimination through that
-local alias, but the fused let lane is still 1.426x the direct lane
-(1.324–1.529 paired 95% interval), while both make five heap requests. That
-runtime difference is unresolved; inspect its generated execution path before
-expanding the alias rule. FoldRegion C output is 137,787 bytes versus 146,087
-bytes for static-callback only. The keep lane remains at five fixed requests;
-its FoldRegion/static ratio is 1.043 [0.960, 1.095], consistent with no
-measurable change. Raw sessions, allocations, hashes, code sizes, and JS smoke results are in
+The single-use let-bound shape falls from 8,258µs and 3,200,005 requests to
+3,175µs and five fixed requests. Its FoldRegion/static-callback ratio is
+0.387 [0.376, 0.405]. This validates allocation elimination through that
+local alias. The canonical lane order gave a let/direct ratio of 1.625, but
+four cyclic measurement orders changed the ratio from 0.619 to 1.625,
+depending on the position of each lane. Each FoldRegion C output is 137,787
+bytes, but its C hash changes with the order. The shared-process benchmark
+therefore does not support an intrinsic latency comparison between these two
+lanes. The measured keep lane remains at five fixed requests; its canonical
+paired FoldRegion/static-callback ratio is 1.053 [0.985, 1.097], consistent
+with no measurable change. Full reports include raw samples, allocations, C hashes,
+code sizes, and JS smoke results in
 [`maybe-keep-fold-region-results.json`](../../bench/compiler/maybe-keep-fold-region-results.json).
+The balanced lane-order controls are
+[`maybe-keep-order-map-let-direct-keep-results.json`](../../bench/compiler/maybe-keep-order-map-let-direct-keep-results.json),
+[`maybe-keep-order-let-direct-keep-map-results.json`](../../bench/compiler/maybe-keep-order-let-direct-keep-map-results.json),
+and
+[`maybe-keep-order-direct-keep-map-let-results.json`](../../bench/compiler/maybe-keep-order-direct-keep-map-let-results.json).
 
 The keep lane remains fixed at five heap requests on both static-callback and
 FoldRegion builds. This expanded fixture changes the generated program, so its
@@ -558,15 +565,11 @@ timing report. Neither result claims a JS performance measurement.
 
 The single-use let case is complete: the checked rule only crosses one local
 when it is the immediate fold input and has exactly one use. It eliminates
-3.2M allocations on the benchmark fixture, while its runtime remains 1.43x
-direct consumption. Generated C shows same-shaped recursive loops after
-normalizing generated labels, but that does not explain the measured gap.
-First compare optimized machine code and vary lane order to distinguish
-call-site layout and benchmark-order effects from extra instructions. If the
-gap is only a code-layout effect, record it and proceed; if extra work is
-present, fix that before extending the rule.
-
-Then test one Boolean `map` + `filter` fold, which adds skipped steps and
+3.2M allocations on the benchmark fixture. Balanced lane-order runs show that
+shared-process latency ratios change with measurement order, so these runs
+support the allocation result but cannot establish a let-versus-direct speed
+gap. Keep future timing controls isolated or balanced. The next compiler
+experiment is one Boolean `map` + `filter` fold, which adds skipped steps and
 changes how often the downstream step runs:
 
 1. Add a predicate that rejects some values, plus empty, all-rejected, and
