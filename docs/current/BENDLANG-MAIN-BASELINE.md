@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-23T14:38:33+02:00
-updated_at: 2026-09-24T13:05:16+02:00
+updated_at: 2026-09-24T13:58:08+02:00
 status: current
 ---
 
@@ -51,9 +51,13 @@ lookup, with a 2,048-node cap; evaluation still sees the unchanged checked
 term. The focused suite is run with
 `python3 bench/compiler/prepare_static.py --identity-self-test --output-dir …`.
 
-This verifies compatibility with the refreshed compiler snapshot; it does not
-prove performance parity for this candidate. The current prepared candidate
-must be measured separately from both raw upstream and historical candidates.
+This verifies compatibility with the refreshed compiler snapshot. A matched
+native comparison of raw upstream and the refreshed candidate is now recorded
+in [`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md). The
+static-callback pass improves this partition pipeline by about 8.4–9.4x, but
+the candidate remains 1.4–1.6x slower than the handwritten materializing
+control. Do not treat the old matrix below as a timing result for this
+candidate.
 
 ## Historical performance evidence
 
@@ -108,28 +112,32 @@ primary width-2 row. The supplemental raw runs are
 [`bendlang-main-partition-order-width2-repeat-results.json`](../../bench/bendlang-main-partition-order-width2-repeat-results.json), and
 [`bendlang-main-partition-default-width2-repeat-results.json`](../../bench/bendlang-main-partition-default-width2-repeat-results.json).
 
-The source holds one pending `List<A>` for the current chunk and prepends one
-`Con` per input item. In the generated C, the `List.reverse` used by
-`partition_all` relinks those consumed nodes in place when affine ownership
-proves they are unique; it does not allocate a second list. The downstream
-consumer then frees each node, and later heap allocations can reuse cells from
-the runtime's local free list. This is established by the generated code and
-allocator, but the allocation/reuse contribution to the measured runtime gap
-has not been isolated. A group that the consumer retains cannot be recycled.
+In the earlier candidate, the source held one pending `List<A>` for the current
+chunk and prepended one `Con` per input item. Generated C showed `List.reverse`
+relinking consumed nodes in place when affine ownership proved they were
+unique. The refreshed matched ablation has now isolated allocations: the
+current candidate still constructs one group Cons per input in the public
+transducer path, while the handwritten materialized control reuses consumed
+source Cons cells and performs no timed Cons construction. See
+[`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md) for the exact
+counts and timings. A group that the consumer retains still cannot be
+recycled.
 
 ## Next gate
 
-Next instrument the generated candidate to count group-node allocations, frees,
-and free-list reuse for the folding and retaining consumers. Then compare a
-source-independent checked-term fusion that removes groups only when they do
-not escape with an explicit sink contract that transfers a reusable buffer
-back from the consumer. Do not add a runtime reference-count test: the current
-compiler already proves uniqueness for in-place reversal, while the reducer API
-transfers ownership and permits retention. Keep both options independent of
-transducer names and preserve materialization for collectors such as
-`into_list`. Define and measure a generated-code growth bound as well. The
-language guide confirms that templates receive closed syntax and compile
-separately for each argument set, closures are affine, and Bend has no implicit
-protocol dispatch; preserve those rules in any compiler proposal. Once the
-remaining correctness and performance gates are met, move the small pass into
-upstream `bend2/comp.ts` and add compiler-native fixtures.
+The partition materialization and allocation ablation is complete. The next
+experiment is a small, isolated checked-term producer/consumer fusion for a
+fresh List result consumed exactly once by a fold. It must preserve the
+original expression unless freshness, non-escape, callback order, effects,
+affine uses, and early-stop behavior are all proven. Keep the transformation
+independent of transducer and reducer names; include a custom producer/fold
+positive case and retaining/effectful negative cases. The details, prioritizing
+and acceptance gates are in
+[`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md).
+
+Do not add a runtime reference-count test. The generated C already shows Bend
+reusing consumed source cells in the handwritten materialized path, while the
+candidate still constructs one group Cons per transducer input. A fold that
+retains a chunk must continue to materialize it. Keep a code-growth bound and
+run both backends before considering moving any rule into upstream
+`bend2/comp.ts`.

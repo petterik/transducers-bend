@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure Array/List/direct partition consumers and separate C allocation counts."""
+"""Measure partition reducers against materialized and chunk-free controls."""
 import argparse
 import hashlib
 import itertools
@@ -20,9 +20,14 @@ import time
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_DIR = Path(__file__).resolve().parent
 LANES = ('list', 'array', 'direct')
+FOLD_LANES = ('list', 'array', 'materialized', 'direct')
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--bend-main', type=Path, required=True,
                     help='pinned bendlang/main compiler entry point')
+parser.add_argument('--base-commit',
+                    help='bendlang/main commit used to prepare this compiler')
+parser.add_argument('--compiler-variant',
+                    help='label such as upstream or static-callback-candidate')
 parser.add_argument('--sessions', type=int, default=12)
 parser.add_argument('--pairs', type=int, default=5,
                     help='timed samples per lane in each session')
@@ -31,12 +36,15 @@ parser.add_argument('--bootstrap', type=int, default=5000)
 parser.add_argument('--seed', type=int, default=20260923)
 parser.add_argument('--max-repeats', type=int, default=16777216)
 parser.add_argument('--cases', nargs='+',
-                    choices=['fold_full', 'fold_bounded', 'fold_bounded_short',
+                    choices=['fold_full', 'fold_order', 'fold_bounded', 'fold_bounded_short',
                              'reader_ab', 'retain'],
                     help='selected workloads; default: all')
 parser.add_argument('--widths', nargs='+', type=int,
                     choices=list(range(1, 65)), default=[1, 2, 3, 8],
                     help='selected partition widths from 1 through 64')
+parser.add_argument('--lanes', nargs='+',
+                    choices=FOLD_LANES,
+                    help='fold lanes to measure; default: List, Array, direct')
 parser.add_argument('--source-size', type=int, default=96,
                     help='source items per operation for non-retained rows (default: 96)')
 parser.add_argument('--output', type=Path)
@@ -64,7 +72,8 @@ WORD_MOD = 1 << 32
 def lane_functions(kind, lane, width, budget, input_items, sample_count):
     if kind.startswith('fold_') or kind == 'reader_ab':
         if lane == 'list':
-            perform = f'F.list_fold({width}n, {budget}n, xs)'
+            function = 'list_hash_fold' if kind == 'fold_order' else 'list_fold'
+            perform = f'F.{function}({width}n, {budget}n, xs)'
             imports = 'import ./fold_probe.bend as F\n'
         elif lane == 'array_two_phase':
             depth = (width - 1).bit_length()
@@ -74,8 +83,14 @@ def lane_functions(kind, lane, width, budget, input_items, sample_count):
             depth = (width - 1).bit_length()
             perform = f'F.array_fold({width}n, {depth}n, {budget}n, xs)'
             imports = 'import ./fold_probe.bend as F\n'
+        elif lane == 'materialized':
+            function = ('materialized_hash_fold' if kind == 'fold_order'
+                        else 'materialized_fold')
+            perform = f'F.{function}({width}n, {budget}n, xs)'
+            imports = 'import ./fold_probe.bend as F\n'
         else:
-            perform = f'F.direct_fold({width}n, {budget}n, xs)'
+            function = 'direct_hash_fold' if kind == 'fold_order' else 'direct_fold'
+            perform = f'F.{function}({width}n, {budget}n, xs)'
             imports = 'import ./fold_probe.bend as F\n'
     else:
         depth = (width - 1).bit_length()
@@ -160,14 +175,20 @@ def make_rows():
                 lanes = ('array_two_phase', 'array')
             elif kind == 'fold_full':
                 budget = (SOURCE_SIZE + width - 1) // width
-                lanes = LANES
+                lanes = tuple(a.lanes) if a.lanes else LANES
+            elif kind == 'fold_order':
+                budget = (SOURCE_SIZE + width - 1) // width
+                lanes = (tuple(a.lanes) if a.lanes else
+                         ('list', 'materialized', 'direct'))
+                if 'array' in lanes:
+                    parser.error('fold_order has no Array consumer implementation')
             elif kind == 'fold_bounded':
                 budget = 2
-                lanes = LANES
+                lanes = tuple(a.lanes) if a.lanes else LANES
             elif kind == 'fold_bounded_short':
                 budget = 2
                 input_items = 2 * width + 1
-                lanes = LANES
+                lanes = tuple(a.lanes) if a.lanes else LANES
             elif kind == 'retain':
                 input_items = SOURCE_SIZE + 1
                 budget = (input_items + width - 1) // width
@@ -185,6 +206,11 @@ def expected_per_input(row):
     width = row['width']
     if row['kind'] in ('fold_bounded', 'fold_bounded_short'):
         count = min(count, row['budget'] * width)
+    if row['kind'] == 'fold_order':
+        total = 0
+        for value in range(count):
+            total = (total * 33 + value + 1) % WORD_MOD
+        return total
     total = count * (count - 1) // 2
     if row['kind'] == 'retain':
         total += (row['input_items'] + width - 1) // width
@@ -551,6 +577,7 @@ def instrumented_run(stem, row, lane, repeats, case_dir):
             break
     assert match is not None, result.stderr
     stats = json.loads(match)
+    assert stats['list_allocs_total'] == stats['list_frees_total'], stats
     assert stats['timed_array_allocs'] == stats['timed_array_frees'], stats
     assert (stats['live_array_blocks_at_end'] ==
             stats['live_array_blocks_at_start']), stats
@@ -586,6 +613,8 @@ def instrumented_run(stem, row, lane, repeats, case_dir):
 
 report = {
     'platform': platform.platform(),
+    'bendlang_main_commit': a.base_commit,
+    'compiler_variant': a.compiler_variant,
     'compiler_entry_sha256': hashlib.sha256(compiler.read_bytes()).hexdigest(),
     'compiler_source_sha256': hashlib.sha256(
         (compiler.parent / 'comp.ts').read_bytes()).hexdigest(),
@@ -595,7 +624,13 @@ report = {
         for name in ('semantic_probe.bend', 'fold_probe.bend', 'retained_probe.bend')
     },
     'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-    'scope': 'candidate bendlang/main compiler; prebuilt affine List sources; sequential native CPU; --threads 1; GPU off',
+    'scope': 'pinned bendlang/main compiler input; prebuilt affine List sources; sequential native CPU; --threads 1; GPU off',
+    'lane_meanings': {
+        'list': 'public List partition_all transducer and consumer',
+        'array': 'fixture Array partition and consumer',
+        'materialized': 'handwritten loop that builds ordered List chunks, then consumes each chunk',
+        'direct': 'handwritten loop that consumes source values without materializing chunks',
+    },
     'protocol': {
         'sessions': a.sessions, 'paired_samples_per_session': a.pairs,
         'min_batch_ms': a.min_batch_ms,
@@ -606,6 +641,8 @@ report = {
         'bootstrap_resamples': a.bootstrap, 'seed': a.seed,
         'base_source_items': SOURCE_SIZE,
         'source_building': 'one fresh source List per repetition is built before IO.now from ordered U32 values 0..n-1; each result row records n as input_items',
+        'consumers': 'fold_full and fold_bounded use U32 sum; fold_order uses an order-sensitive U32 rolling hash',
+        'calibration': 'each lane has its own repeat count, calibrated to the same minimum batch duration; comparisons normalize elapsed milliseconds by lane repeats',
         'timed_region': 'batch traversal, transduction and result consumption; source cleanup during traversal included',
         'instrumentation': 'separate instrumented C builds, excluded from native timing binaries',
         'lane_order': 'cycle through every lane permutation; with the default 12 sessions, three-lane workloads run each permutation twice and two-lane workloads alternate six times per order',
@@ -625,7 +662,7 @@ for row in make_rows():
     for name in ('semantic_probe.bend', 'fold_probe.bend', 'retained_probe.bend'):
         shutil.copy2(FIXTURE_DIR / name, local_sources / name)
     row_report = {**row, 'case': label, 'expected_per_input': expected_per_input(row),
-                  'builds': {}, 'calibration': [], 'sessions': [],
+                  'builds': {}, 'calibration': {}, 'sessions': [],
                   'samples_ms': {lane: [] for lane in row['lanes']},
                   'min_batch_ms': row_min_batch_ms,
                   'calibration_target_ms': calibration_target}
@@ -635,54 +672,65 @@ for row in make_rows():
         row_report['builds'][lane] = compile_source(stem, row, lane, SAMPLE_COUNT)
         stems[lane] = stem
 
-    repeats = 1
-    while repeats <= a.max_repeats:
-        calibration_samples = {}
-        for lane in row['lanes']:
-            calibration_samples[lane] = run_batch(
-                stems[lane], repeats, row, SAMPLE_COUNT)
-        minimum = min(value for values in calibration_samples.values()
-                      for value in values)
-        row_report['calibration'].append({
-            'repeats_per_sample': repeats,
-            'samples_ms': calibration_samples,
-            'minimum_ms': minimum,
-        })
-        if minimum >= calibration_target:
-            break
-        repeats *= 2
-    assert repeats <= a.max_repeats, (
-        label, 'failed to calibrate all lanes', row_report['calibration'][-3:])
-    row_report['repeats_per_sample'] = repeats
-    row_report['expected_batch'] = expected_per_input(row) * repeats % WORD_MOD
+    repeats_by_lane = {}
+    for lane in row['lanes']:
+        lane_repeats = 1
+        row_report['calibration'][lane] = []
+        while lane_repeats <= a.max_repeats:
+            samples = run_batch(stems[lane], lane_repeats, row, SAMPLE_COUNT)
+            minimum = min(samples)
+            row_report['calibration'][lane].append({
+                'repeats_per_sample': lane_repeats,
+                'samples_ms': samples,
+                'minimum_ms': minimum,
+            })
+            if minimum >= calibration_target:
+                break
+            lane_repeats *= 2
+        assert lane_repeats <= a.max_repeats, (
+            label, lane, 'failed to calibrate', row_report['calibration'][lane][-3:])
+        repeats_by_lane[lane] = lane_repeats
+    row_report['repeats_per_sample'] = repeats_by_lane
+    row_report['expected_batch'] = {
+        lane: expected_per_input(row) * repeats % WORD_MOD
+        for lane, repeats in repeats_by_lane.items()
+    }
 
     for session in range(a.sessions):
         lane_orders = list(itertools.permutations(row['lanes']))
         lanes = list(lane_orders[session % len(lane_orders)])
         session_samples = {}
         for lane in lanes:
-            samples = run_batch(stems[lane], repeats, row, SAMPLE_COUNT)
+            samples = run_batch(stems[lane], repeats_by_lane[lane],
+                                row, SAMPLE_COUNT)
             assert min(samples) >= row_min_batch_ms, (label, lane, samples)
             session_samples[lane] = samples
             row_report['samples_ms'][lane].extend(samples)
         row_report['sessions'].append({
             'session': session, 'lane_order': lanes,
             'samples_ms': session_samples,
+            'repeats_per_sample': repeats_by_lane,
         })
 
     comparisons = {}
     reference_lane = 'list' if 'list' in row['lanes'] else row['lanes'][0]
     row_report['reference_lane'] = reference_lane
-    for lane in row['lanes']:
-        if lane == reference_lane:
-            continue
+    comparison_pairs = [(lane, reference_lane) for lane in row['lanes']
+                        if lane != reference_lane]
+    if 'materialized' in row['lanes'] and 'direct' in row['lanes']:
+        comparison_pairs.append(('materialized', 'direct'))
+    for lane, denominator in comparison_pairs:
         session_ratios = []
         for session in row_report['sessions']:
-            lane_total = sum(session['samples_ms'][lane])
-            reference_total = sum(session['samples_ms'][reference_lane])
-            session_ratios.append(lane_total / reference_total)
+            lane_ms_per_operation = (
+                sum(session['samples_ms'][lane]) / repeats_by_lane[lane])
+            reference_ms_per_operation = (
+                sum(session['samples_ms'][denominator]) /
+                repeats_by_lane[denominator])
+            session_ratios.append(
+                lane_ms_per_operation / reference_ms_per_operation)
         estimate = geometric_mean(session_ratios)
-        comparisons[f'{lane}_over_{reference_lane}'] = {
+        comparisons[f'{lane}_over_{denominator}'] = {
             'geometric_mean_ratio': estimate,
             'bootstrap_95': bootstrap_interval(session_ratios, rng),
             'session_ratios': session_ratios,
@@ -691,12 +739,17 @@ for row in make_rows():
         lane: statistics.median(samples)
         for lane, samples in row_report['samples_ms'].items()
     }
+    row_report['median_ms_per_operation'] = {
+        lane: statistics.median(samples) / repeats_by_lane[lane]
+        for lane, samples in row_report['samples_ms'].items()
+    }
     row_report['comparisons'] = comparisons
     report['results'].append(row_report)
     print(label, row_report['median_sample_ms'], flush=True)
 
     for lane in row['lanes']:
-        stats = instrumented_run(stems[lane], row, lane, repeats, local_sources)
+        stats = instrumented_run(stems[lane], row, lane,
+                                 repeats_by_lane[lane], local_sources)
         report['allocation_results'].append(stats)
     if a.output:
         a.output.write_text(json.dumps(report, indent=2) + '\n')

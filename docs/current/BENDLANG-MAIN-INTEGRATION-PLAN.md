@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-23T14:20:13+02:00
-updated_at: 2026-09-24T13:05:16+02:00
+updated_at: 2026-09-24T13:58:08+02:00
 status: active
 ---
 
@@ -34,11 +34,21 @@ identity self-test, five focused JS/native fixtures, and all 23 library tests
 on both backends. Full hashes and commands are recorded in
 [`BENDLANG-MAIN-BASELINE.md`](BENDLANG-MAIN-BASELINE.md).
 
+A matched native ablation now compares raw upstream, the static-callback
+candidate, a handwritten materializing fold, and a direct fold. It uses both
+sum and order-sensitive consumers. The candidate is 8.4–9.4x faster than raw
+upstream on the public List-transducer rows, but is still 1.4–1.6x slower than
+the materialized control; materialized is 1.6–2.0x slower than direct. The
+candidate constructs one additional List Cons per input, while the handwritten
+materialized path reuses consumed source nodes. Full timings, allocation
+counts, confidence bounds, and the next experiment are recorded in
+[`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md).
+
 The prior baseline below is superseded for compiler identity and validation.
 Its performance results remain evidence for the older candidate only. The
-current Array sweep used raw upstream at this refreshed commit; it did not use
-the patched candidate. Run matched timings on both before attributing a change
-to the specialization pass.
+current Array width sweep used raw upstream at this refreshed commit; the
+matched List fold ablation is the relevant measurement of the specialization
+pass and is separate from that Array sweep.
 
 ### Previous checkpoint — superseded
 
@@ -118,8 +128,9 @@ edit `bend2/bend.ts`; no checker edit is part of this plan.
    callback-count, lifecycle, and bounded-law checks on JS and native. Keep the
    dynamic-reducer fallback covered as later changes build on this.
 
-3. **P1 — Measure the whole pipeline on the exact main snapshot. Completed for
-   this candidate; partition remains open.** The calibrated native
+3. **P1 — Measure the whole pipeline on the exact main snapshot. Completed on
+   the prior candidate checkpoint; current partition comparison completed in
+   the ablation.** The earlier calibrated native
    transducer/direct matrix covers 11 sequential List cases: full and early
    stop, type-changing `keep`, and bounded and full `partition_all`. The full
    library suite separately checks semantics on JS and native. Record the
@@ -132,7 +143,7 @@ edit `bend2/bend.ts`; no checker edit is part of this plan.
    in `bench/bendlang-main-extension-parity-results.json` and matches compiler
    hash `04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d`.
 
-4. **P1 — Harden the rewrite boundary. In progress.** Keep evaluation bounded
+4. **P1 — Harden the static-callback rewrite boundary. In progress.** Keep evaluation bounded
    and pure; use only checked bodies without unsafe or foreign computation.
    Scope cache entries to one immutable checked Book and closed semantic terms.
    Preserve annotations and evaluate every live argument once, in order,
@@ -143,50 +154,46 @@ edit `bend2/bend.ts`; no checker edit is part of this plan.
    evaluation results, affine rejection, and callback counts. Define a
    generated-code growth bound before proposing the pass upstream.
 
-5. **P2 — Propose the upstream compiler change.** Once template identity is
-   adversarially tested and full partition performance is addressed or
-   explicitly scoped, move the small pass into `bend2/comp.ts` before lowering
-   so JS and native share it. Add Bend tests for static callbacks, independent
-   source adapters, dynamic fallback, template-instance identity, and affine
-   behavior. Run
+5. **P2 — Consider an upstream compiler change only after the fusion
+   prototype clears its gates.** Template identity is already
+   adversarially tested; now measure a source-independent fold-fusion rule with
+   semantic negative cases and bounded code growth. If it is valuable and safe,
+   move the small rule into `bend2/comp.ts` before lowering so JS and native
+   share it. Add Bend tests for static callbacks, independent source adapters,
+   dynamic fallback, template-instance identity, and affine behavior. Run
    upstream's current test gate from an archive of `bendlang/main`. The
    transducer library remains an ordinary consumer and example.
 
 ## Options considered
 
-The recommended choice remains a general checked-term specialization in the
-compiler. A recognizer for transducer names or reducer constructors would
-duplicate library semantics and would not scale to custom reducers or sources.
-The current change establishes this boundary for closed reducer factories,
-but the buffered partition consumer still pays to build/reverse each group
-list and then traverse it in `sum_group`; the generated code shows both passes
-and the `Continue`/`Stop` state wrappers. The list creation and traversal are
-observed; their exact share of the 1.455–1.491x timing gap is an inference.
-The current direct group-sum benchmark accumulates groups in reverse order,
-which addition permits; it does not measure the cost of preserving
-`partition_all`'s group order.
+The recommended direction remains a general checked-term specialization, not
+a recognizer for transducer names or reducer constructors. New matched
+measurements show the public `partition_all` pipeline is still 1.4–1.6x slower
+than a handwritten materializing control. The latter is 1.6–2.0x slower than a
+direct loop, with the same pattern under an order-sensitive rolling hash. This
+separates a remaining callback/state gap from the cost of creating and
+traversing chunks; the exact causes within each gap still need a compiler
+prototype to establish.
 
-An order-preserving direct probe adds `List.reverse` before summing each
-buffered group. Its upper ratios are 1.416x (width 1), 1.696x (width 2), and
-1.380x (width 8), with all rows still failing the 1.05 target. The width-2
-result was reproduced in isolation: 1.688x ordered and 1.444x default. The
-opposite movements across widths mean group order alone does not explain the
-gap. The generated C also shows `List.reverse` relinking consumed `Con` nodes
-in place when affine ownership proves uniqueness. The group-sum consumer frees
-those nodes for allocator reuse; retained groups remain live. Do not attribute
-the runtime gap to duplicate-list allocation without allocation evidence.
+Allocation evidence also changes the buffer-reuse question. The candidate
+constructs one extra List Cons per input item in the transducer path. The
+handwritten materializing loop has zero timed List Cons constructions because
+generated C rewrites consumed, uniquely owned source nodes as chunk nodes. This
+is source-cell reuse, not proof that a previously emitted chunk can be reused.
+The current compiler ownership proof is sufficient for that local case, so a
+runtime reference-count branch is not justified by these results.
 
-The next workset should first add allocation/free-list counters to the
-generated candidate and measure a folding consumer against a retaining one.
-Then compare two source-independent options. A general checked-term
-producer/consumer fusion could remove the temporary group when a closed
-consumer immediately folds it; it has higher compiler complexity around
-ownership, early termination, and effects. An explicit chunk sink could return
-an owned mutable buffer from consumers that finish with it, but expands the
-reducer contract and needs adapters for sources and consumers. Keep ordinary
-`partition_all` materialization for consumers that retain groups, such as
-`into_list`. Avoid a runtime reference-count branch: the existing compiler
-already uses proven affine uniqueness for in-place list reversal.
+The next workset is the prioritized prototype in
+[`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md): fuse a known,
+fresh List result into a known, single-use fold only when non-escape,
+callback-order, effect, affine-use, and stop proofs succeed. Use a custom
+producer/fold pair so the optimization cannot pass by recognizing
+`partition_all` or transducer names. Retained chunks, unknown consumers, and
+effectful callbacks must keep the original path. Defer an explicit reusable
+sink until a concrete case shows the checked-term rule cannot safely cover a
+useful pipeline; such a sink changes ownership/API contracts and requires
+additional source/consumer adapters. Ordinary collection consumers still
+materialize their results.
 
 ## Stop conditions
 

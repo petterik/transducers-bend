@@ -15,9 +15,13 @@ ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = Path(__file__).with_name('fold_probe.bend')
 SEMANTIC_FIXTURE = Path(__file__).with_name('semantic_probe.bend')
 CASES = [
-    (1, 96, 96), (2, 96, 48), (3, 96, 32), (8, 96, 12),
-    (1, 96, 2), (2, 96, 2), (3, 96, 2), (8, 96, 2),
-    (2, 97, 49), (3, 101, 34), (8, 97, 13),
+    ('sum', 1, 96, 96), ('sum', 2, 96, 48), ('sum', 3, 96, 32),
+    ('sum', 8, 96, 12), ('sum', 1, 96, 2), ('sum', 2, 96, 2),
+    ('sum', 3, 96, 2), ('sum', 8, 96, 2), ('sum', 2, 97, 49),
+    ('sum', 3, 101, 34), ('sum', 8, 97, 13),
+    ('ordered_hash', 3, 96, 32), ('ordered_hash', 3, 96, 2),
+    ('ordered_hash', 3, 101, 34), ('ordered_hash', 8, 96, 12),
+    ('ordered_hash', 8, 96, 2), ('ordered_hash', 8, 97, 13),
 ]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--bend-main', type=Path, required=True,
@@ -65,14 +69,15 @@ with tempfile.TemporaryDirectory(prefix='array-partition-fold-') as temp_name:
         'semantic_checks': len(values),
         'js_native_equal': True,
         'cases': [
-            {'width': width, 'input_items': input_items, 'budget': budget,
+            {'consumer': consumer, 'width': width, 'input_items': input_items,
+             'budget': budget,
              'consumption': (
                  'bounded' if budget < (input_items + width - 1) // width
                  else 'full'),
              'partial_final_chunk': input_items % width != 0 and
                  budget >= (input_items + width - 1) // width,
              'result': True}
-            for width, input_items, budget in CASES
+            for consumer, width, input_items, budget in CASES
         ],
         'js_output': js.stdout.strip(),
         'artifacts': None,
