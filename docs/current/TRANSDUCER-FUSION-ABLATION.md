@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T14:31:18+02:00
+updated_at: 2026-09-24T15:58:36+02:00
 status: current
 ---
 
@@ -33,6 +33,17 @@ speedup is a comparison of medians, not a paired confidence interval. Source
 construction is outside the timed region; traversal, reduction, and source
 cleanup are inside it. Allocation instrumentation uses separate builds and
 does not affect the reported timings.
+
+All checked-in timings in this document, including the group-fold probe, use
+`IO.now()`, which reports whole milliseconds on both backends. The calibrated
+batches still last at least 150ms, but short samples and per-operation values
+inherit that timer's millisecond quantization. The harness now uses the
+benchmark-only `BenchClock.now_us()` effect and writes sample durations in
+integer microseconds. Native uses the compiler runtime's monotonic nanosecond
+clock, converted to microseconds; JS scales `performance.now()` to
+microseconds, with effective resolution determined by its host. Historical
+reports remain in their original units and are not relabeled as
+higher-precision measurements.
 
 The three lanes are:
 
@@ -181,6 +192,56 @@ fresh-producer-to-single-use-fold rewrite. It must remove the temporary List
 only when it proves non-escape; retained consumers remain the required
 negative case.
 
+## Explicit group-state fold probe
+
+The bench-only `group_fold` reducer tests a second route to chunk-free group
+processing. It keeps a state `S` for the current group, updates it with an
+`advance` callback for each input, and sends `finish(state)` to the downstream
+reducer when the group is complete. It does not build chunks. The sum example
+uses a scalar group state; the order-sensitive hash example carries a hash
+segment that lets the downstream reducer combine groups without changing
+order. This is a narrower contract than `partition_all`: callers cannot retain
+or otherwise inspect each group's original values.
+
+The probe ran on the same pinned compiler candidate with 200,000 input values,
+16 sessions, five paired samples per session, and a 150ms calibration target.
+The following median operation times are from the historical millisecond
+timer; ratio intervals are paired bootstrap 95% intervals within sessions.
+
+| Consumer | Width | List pipeline ms/op | `group_fold` ms/op | `group_fold` / List | `group_fold` / direct |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Sum | 3 | 0.707 | 0.361 | 0.502 [0.496, 0.508] | 1.432 [1.403, 1.461] |
+| Sum | 8 | 0.660 | 0.368 | 0.537 [0.532, 0.541] | 1.484 [1.461, 1.506] |
+| Ordered hash | 3 | 1.443 | 0.701 | 0.475 [0.439, 0.507] | 1.187 [1.088, 1.281] |
+| Ordered hash | 8 | 0.697 | 0.378 | 0.539 [0.531, 0.548] | 1.291 [1.274, 1.305] |
+
+Across these workloads, `group_fold` takes about half the List pipeline's time
+and is about 19–48% slower than direct consumption. It is also about 19–25%
+faster than the handwritten loop that materializes List chunks. Separate
+allocation instrumentation saw no per-input List Cons or Array allocation in
+`group_fold`: over 256 repetitions of 200,000 items, it made five generic heap
+allocations, the same fixed count as the materialized and direct controls. The
+List pipeline made 51.2 million timed List Cons allocations. The group-fold C
+output is slightly larger than the List pipeline's C output (131KB vs 127KB
+for sum, 133KB vs 127KB for ordered hash), so the runtime win comes with a
+small code-size increase in this fixture.
+
+Semantic probes cover List and range sources, empty input, width zero and one,
+downstream `take`, partial groups, and order-preserving hash composition. An
+additional probe consumes affine `Array<U32>` elements in the group-state
+callback. These probes passed on both JS and native. This is evidence that an
+explicit state-fold reducer can avoid chunk construction under the current
+compiler and can compose with more than one source adapter. It is not evidence
+that the compiler has generalized transducer fusion: the API intentionally
+replaces arbitrary group output with a caller-chosen summary, and the compiler
+has no new fusion rule.
+
+The result makes `group_fold` a useful comparison point for the planned
+compiler experiment. A general producer/consumer rewrite should be measured
+against both this narrower no-chunk API and the public `partition_all`
+pipeline, while preserving the latter's observable chunk semantics. Do not
+make `group_fold` the required implementation of `partition_all`.
+
 ## Options, prioritized
 
 | Option | Impact | Effort | Value | Decision |
@@ -221,6 +282,11 @@ general borrowing API. If it cannot prove non-escape or preserve stop/effect
 semantics, the fallback remains ordinary materialization. A later sink API can
 be reconsidered using a concrete failing case rather than designed in advance.
 
+The explicit `group_fold` probe is already a useful lower-allocation reference
+when evaluating that rewrite. Its results do not remove the need to test the
+compiler rule with an independent producer/consumer pair or retained-output
+negative cases.
+
 ## Reproduction
 
 The paired result files retain raw samples and build/source hashes:
@@ -229,6 +295,7 @@ The paired result files retain raw samples and build/source hashes:
 - [`fusion-ablation-static-callback.json`](../../bench/array_partition/fusion-ablation-static-callback.json)
 - [`retain-current-main-upstream.json`](../../bench/array_partition/retain-current-main-upstream.json)
 - [`retain-current-main-static-callback.json`](../../bench/array_partition/retain-current-main-static-callback.json)
+- [`group-fold-current-main-static-callback-ms.json`](../../bench/array_partition/group-fold-current-main-static-callback-ms.json)
 
 The fold fixture was checked on both JS and native with 17 semantic cases,
 including partial final chunks and order-sensitive results, against both raw
@@ -236,3 +303,10 @@ upstream and the candidate. The candidate also passed the 23-fixture library
 suite on both backends. The benchmark harness is
 [`measure_array_partition.py`](../../bench/array_partition/measure_array_partition.py),
 and the cases are in [`fold_probe.bend`](../../bench/array_partition/fold_probe.bend).
+The group-fold reducer and its affine-input probe are in
+[`group_fold_probe.bend`](../../bench/array_partition/group_fold_probe.bend) and
+[`group_fold_affine_probe.bend`](../../bench/array_partition/group_fold_affine_probe.bend).
+The microsecond benchmark clock is in
+[`bench_clock.bend`](../../bench/array_partition/bench_clock.bend), with a
+small backend smoke fixture in
+[`bench_clock_probe.bend`](../../bench/array_partition/bench_clock_probe.bend).

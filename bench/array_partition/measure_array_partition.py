@@ -2,7 +2,6 @@
 """Measure partition reducers against materialized and chunk-free controls."""
 import argparse
 import hashlib
-import itertools
 import json
 import math
 import os
@@ -20,7 +19,7 @@ import time
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_DIR = Path(__file__).resolve().parent
 LANES = ('list', 'array', 'direct')
-FOLD_LANES = ('list', 'array', 'materialized', 'direct')
+FOLD_LANES = ('list', 'array', 'group_fold', 'materialized', 'direct')
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--bend-main', type=Path, required=True,
                     help='pinned bendlang/main compiler entry point')
@@ -88,6 +87,11 @@ def lane_functions(kind, lane, width, budget, input_items, sample_count):
                         else 'materialized_fold')
             perform = f'F.{function}({width}n, {budget}n, xs)'
             imports = 'import ./fold_probe.bend as F\n'
+        elif lane == 'group_fold':
+            function = ('list_group_hash' if kind == 'fold_order'
+                        else 'list_group_sum')
+            perform = f'G.{function}({width}n, {budget}n, xs)'
+            imports = 'import ./group_fold_probe.bend as G\n'
         else:
             function = 'direct_hash_fold' if kind == 'fold_order' else 'direct_fold'
             perform = f'F.{function}({width}n, {budget}n, xs)'
@@ -103,7 +107,8 @@ def lane_functions(kind, lane, width, budget, input_items, sample_count):
     text = f'''import Base
 import ./semantic_probe.bend as P
 {imports}
-# Every affine List source is built before its sample's IO.now boundary.
+import ./bench_clock.bend as BenchClock
+# Every affine List source is built before its sample's high-resolution timer boundary.
 def perform(xs: List<U32>) -> U32:
   {perform}
 
@@ -143,9 +148,9 @@ def measure_samples(n: Nat, +repeats: Nat) -> IO(Unit):
     case 1n+p:
       inputs = build_sources(repeats, {input_items}n, [])
       do IO<Unit>:
-        before : Nat <- IO.now()
+        before : Nat <- BenchClock.now_us()
         answer : U32 = batch(inputs, 0)
-        after : Nat <- IO.now()
+        after : Nat <- BenchClock.now_us()
         IO.print(U32.show(answer) ++ ":" ++ Nat.show(Nat.sub(after, before)))
         measure_samples(p, repeats)
 
@@ -219,9 +224,10 @@ def expected_per_input(row):
 
 def timing_thresholds(row):
     if row['kind'] == 'fold_bounded_short':
-        floor = min(a.min_batch_ms, 20)
+        floor = min(a.min_batch_ms, 20) * 1000
         return floor, math.ceil(floor * 1.25)
-    return a.min_batch_ms, math.ceil(a.min_batch_ms * 1.5)
+    floor = a.min_batch_ms * 1000
+    return floor, math.ceil(floor * 1.5)
 
 
 def parse_output(output, expected, sample_count):
@@ -230,9 +236,9 @@ def parse_output(output, expected, sample_count):
     warm = int(lines[0].split(':', 1)[1])
     samples = []
     for line in lines[1:]:
-        value, millis = map(int, line.split(':'))
+        value, micros = map(int, line.split(':'))
         assert value == expected, (expected, line)
-        samples.append(millis)
+        samples.append(micros)
     assert len(samples) == sample_count, (sample_count, output)
     return warm, samples
 
@@ -272,6 +278,18 @@ def run_batch(stem, repeats, row, sample_count):
     expected_warm = expected_per_input(row)
     assert warm == expected_warm, (warm, expected_warm, result.stdout)
     return samples
+
+
+def balanced_lane_orders(lanes):
+    """Rotate forward and reversed lane orders to balance timing position."""
+    base = list(lanes)
+    orders = []
+    for source in (base, list(reversed(base))):
+        for offset in range(len(source)):
+            order = tuple(source[offset:] + source[:offset])
+            if order not in orders:
+                orders.append(order)
+    return orders
 
 
 def geometric_mean(values):
@@ -585,7 +603,7 @@ def instrumented_run(stem, row, lane, repeats, case_dir):
         'lane': lane, 'kind': row['kind'], 'width': row['width'],
         'budget': row['budget'], 'input_items': row['input_items'],
         'repeats_per_sample': instrument_repeats,
-        'calibrated_repeats_per_sample': repeats, 'timed_sample_ms': samples[0],
+        'calibrated_repeats_per_sample': repeats, 'timed_sample_us': samples[0],
         'unmodified_generated_c_bytes': build['c_bytes'],
         'instrumented_c_bytes': c_path.stat().st_size,
         'instrumented_c_sha256': hashlib.sha256(c_path.read_bytes()).hexdigest(),
@@ -621,31 +639,37 @@ report = {
     'library_sha256': hashlib.sha256((ROOT / 'transduce.bend').read_bytes()).hexdigest(),
     'fixtures_sha256': {
         name: hashlib.sha256((FIXTURE_DIR / name).read_bytes()).hexdigest()
-        for name in ('semantic_probe.bend', 'fold_probe.bend', 'retained_probe.bend')
+        for name in ('semantic_probe.bend', 'fold_probe.bend', 'retained_probe.bend',
+                     'group_fold_probe.bend', 'bench_clock.bend', 'bench_clock.c',
+                     'bench_clock.js')
     },
     'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
     'scope': 'pinned bendlang/main compiler input; prebuilt affine List sources; sequential native CPU; --threads 1; GPU off',
     'lane_meanings': {
         'list': 'public List partition_all transducer and consumer',
         'array': 'fixture Array partition and consumer',
+        'group_fold': 'bench-only reducer that folds values into explicit per-group state and emits group summaries without building chunks; it is a different API contract from partition_all',
         'materialized': 'handwritten loop that builds ordered List chunks, then consumes each chunk',
         'direct': 'handwritten loop that consumes source values without materializing chunks',
     },
     'protocol': {
         'sessions': a.sessions, 'paired_samples_per_session': a.pairs,
-        'min_batch_ms': a.min_batch_ms,
-        'calibration_target_ms': math.ceil(a.min_batch_ms * 1.5),
-        'short_input_min_batch_ms': min(a.min_batch_ms, 20),
-        'short_input_calibration_target_ms': math.ceil(
-            min(a.min_batch_ms, 20) * 1.25),
+        'requested_min_batch_ms': a.min_batch_ms,
+        'min_batch_us': a.min_batch_ms * 1000,
+        'calibration_target_us': math.ceil(a.min_batch_ms * 1000 * 1.5),
+        'short_input_min_batch_us': min(a.min_batch_ms, 20) * 1000,
+        'short_input_calibration_target_us': math.ceil(
+            min(a.min_batch_ms, 20) * 1000 * 1.25),
+        'timing_unit': 'microseconds',
+        'timer': 'BenchClock.now_us returns microseconds: native uses monotonic io_tick nanoseconds divided by 1000; JS scales performance.now to microseconds; effective precision is host-dependent',
         'bootstrap_resamples': a.bootstrap, 'seed': a.seed,
         'base_source_items': SOURCE_SIZE,
-        'source_building': 'one fresh source List per repetition is built before IO.now from ordered U32 values 0..n-1; each result row records n as input_items',
-        'consumers': 'fold_full and fold_bounded use U32 sum; fold_order uses an order-sensitive U32 rolling hash',
-        'calibration': 'each lane has its own repeat count, calibrated to the same minimum batch duration; comparisons normalize elapsed milliseconds by lane repeats',
+        'source_building': 'one fresh source List per repetition is built before BenchClock.now_us from ordered U32 values 0..n-1; each result row records n as input_items',
+        'consumers': 'fold_full and fold_bounded use U32 sum; fold_order uses an order-sensitive U32 rolling hash; group_fold uses explicit per-group callbacks and equivalent summary consumers',
+        'calibration': 'each lane has its own repeat count, calibrated to the same minimum batch duration; comparisons normalize elapsed microseconds by lane repeats',
         'timed_region': 'batch traversal, transduction and result consumption; source cleanup during traversal included',
         'instrumentation': 'separate instrumented C builds, excluded from native timing binaries',
-        'lane_order': 'cycle through every lane permutation; with the default 12 sessions, three-lane workloads run each permutation twice and two-lane workloads alternate six times per order',
+        'lane_order': 'cycle through forward and reversed lane rotations, which balances each lane across timing positions; use a session count divisible by the schedule length for exact balance',
     },
     'artifacts': str(out), 'results': [], 'allocation_results': [],
 }
@@ -654,19 +678,22 @@ rng = random.Random(a.seed)
 
 for row in make_rows():
     label = f'{row["kind"]}_w{row["width"]}'
-    row_min_batch_ms, calibration_target = timing_thresholds(row)
+    row_min_batch_us, calibration_target_us = timing_thresholds(row)
     case_dir = out / label
     local_sources = case_dir / 'bench' / 'array_partition'
     local_sources.mkdir(parents=True)
     shutil.copy2(ROOT / 'transduce.bend', case_dir / 'transduce.bend')
-    for name in ('semantic_probe.bend', 'fold_probe.bend', 'retained_probe.bend'):
+    for name in ('semantic_probe.bend', 'fold_probe.bend', 'retained_probe.bend',
+                 'group_fold_probe.bend', 'bench_clock.bend', 'bench_clock.c',
+                 'bench_clock.js'):
         shutil.copy2(FIXTURE_DIR / name, local_sources / name)
     row_report = {**row, 'case': label, 'expected_per_input': expected_per_input(row),
                   'builds': {}, 'calibration': {}, 'sessions': [],
-                  'samples_ms': {lane: [] for lane in row['lanes']},
-                  'min_batch_ms': row_min_batch_ms,
-                  'calibration_target_ms': calibration_target}
+                  'samples_us': {lane: [] for lane in row['lanes']},
+                  'min_batch_us': row_min_batch_us,
+                  'calibration_target_us': calibration_target_us}
     stems = {}
+    lane_orders = balanced_lane_orders(row['lanes'])
     for lane in row['lanes']:
         stem = local_sources / f'{label}-{lane}'
         row_report['builds'][lane] = compile_source(stem, row, lane, SAMPLE_COUNT)
@@ -681,10 +708,10 @@ for row in make_rows():
             minimum = min(samples)
             row_report['calibration'][lane].append({
                 'repeats_per_sample': lane_repeats,
-                'samples_ms': samples,
-                'minimum_ms': minimum,
+                'samples_us': samples,
+                'minimum_us': minimum,
             })
-            if minimum >= calibration_target:
+            if minimum >= calibration_target_us:
                 break
             lane_repeats *= 2
         assert lane_repeats <= a.max_repeats, (
@@ -697,18 +724,17 @@ for row in make_rows():
     }
 
     for session in range(a.sessions):
-        lane_orders = list(itertools.permutations(row['lanes']))
         lanes = list(lane_orders[session % len(lane_orders)])
         session_samples = {}
         for lane in lanes:
             samples = run_batch(stems[lane], repeats_by_lane[lane],
                                 row, SAMPLE_COUNT)
-            assert min(samples) >= row_min_batch_ms, (label, lane, samples)
+            assert min(samples) >= row_min_batch_us, (label, lane, samples)
             session_samples[lane] = samples
-            row_report['samples_ms'][lane].extend(samples)
+            row_report['samples_us'][lane].extend(samples)
         row_report['sessions'].append({
             'session': session, 'lane_order': lanes,
-            'samples_ms': session_samples,
+            'samples_us': session_samples,
             'repeats_per_sample': repeats_by_lane,
         })
 
@@ -719,33 +745,39 @@ for row in make_rows():
                         if lane != reference_lane]
     if 'materialized' in row['lanes'] and 'direct' in row['lanes']:
         comparison_pairs.append(('materialized', 'direct'))
+    if 'group_fold' in row['lanes']:
+        if 'materialized' in row['lanes']:
+            comparison_pairs.append(('group_fold', 'materialized'))
+        if 'direct' in row['lanes']:
+            comparison_pairs.append(('group_fold', 'direct'))
     for lane, denominator in comparison_pairs:
         session_ratios = []
         for session in row_report['sessions']:
-            lane_ms_per_operation = (
-                sum(session['samples_ms'][lane]) / repeats_by_lane[lane])
-            reference_ms_per_operation = (
-                sum(session['samples_ms'][denominator]) /
+            lane_us_per_operation = (
+                sum(session['samples_us'][lane]) / repeats_by_lane[lane])
+            reference_us_per_operation = (
+                sum(session['samples_us'][denominator]) /
                 repeats_by_lane[denominator])
             session_ratios.append(
-                lane_ms_per_operation / reference_ms_per_operation)
+                lane_us_per_operation / reference_us_per_operation)
         estimate = geometric_mean(session_ratios)
         comparisons[f'{lane}_over_{denominator}'] = {
             'geometric_mean_ratio': estimate,
             'bootstrap_95': bootstrap_interval(session_ratios, rng),
             'session_ratios': session_ratios,
         }
-    row_report['median_sample_ms'] = {
+    row_report['median_sample_us'] = {
         lane: statistics.median(samples)
-        for lane, samples in row_report['samples_ms'].items()
+        for lane, samples in row_report['samples_us'].items()
     }
-    row_report['median_ms_per_operation'] = {
+    row_report['median_us_per_operation'] = {
         lane: statistics.median(samples) / repeats_by_lane[lane]
-        for lane, samples in row_report['samples_ms'].items()
+        for lane, samples in row_report['samples_us'].items()
     }
     row_report['comparisons'] = comparisons
     report['results'].append(row_report)
-    print(label, row_report['median_sample_ms'], flush=True)
+    print(label, 'median_us_per_operation', row_report['median_us_per_operation'],
+          'median_sample_us', row_report['median_sample_us'], flush=True)
 
     for lane in row['lanes']:
         stats = instrumented_run(stems[lane], row, lane,
