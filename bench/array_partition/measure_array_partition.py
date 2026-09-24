@@ -186,6 +186,13 @@ def expected_per_input(row):
     return total % WORD_MOD
 
 
+def timing_thresholds(row):
+    if row['kind'] == 'fold_bounded_short':
+        floor = min(a.min_batch_ms, 20)
+        return floor, math.ceil(floor * 1.25)
+    return a.min_batch_ms, math.ceil(a.min_batch_ms * 1.5)
+
+
 def parse_output(output, expected, sample_count):
     lines = output.splitlines()
     assert lines and lines[0].startswith('WARM:'), output
@@ -588,6 +595,9 @@ report = {
         'sessions': a.sessions, 'paired_samples_per_session': a.pairs,
         'min_batch_ms': a.min_batch_ms,
         'calibration_target_ms': math.ceil(a.min_batch_ms * 1.5),
+        'short_input_min_batch_ms': min(a.min_batch_ms, 20),
+        'short_input_calibration_target_ms': math.ceil(
+            min(a.min_batch_ms, 20) * 1.25),
         'bootstrap_resamples': a.bootstrap, 'seed': a.seed,
         'base_source_items': SOURCE_SIZE,
         'source_building': 'one fresh source List per repetition is built before IO.now from ordered U32 values 0..n-1; each result row records n as input_items',
@@ -602,6 +612,7 @@ rng = random.Random(a.seed)
 
 for row in make_rows():
     label = f'{row["kind"]}_w{row["width"]}'
+    row_min_batch_ms, calibration_target = timing_thresholds(row)
     case_dir = out / label
     local_sources = case_dir / 'bench' / 'array_partition'
     local_sources.mkdir(parents=True)
@@ -610,7 +621,9 @@ for row in make_rows():
         shutil.copy2(FIXTURE_DIR / name, local_sources / name)
     row_report = {**row, 'case': label, 'expected_per_input': expected_per_input(row),
                   'builds': {}, 'calibration': [], 'sessions': [],
-                  'samples_ms': {lane: [] for lane in row['lanes']}}
+                  'samples_ms': {lane: [] for lane in row['lanes']},
+                  'min_batch_ms': row_min_batch_ms,
+                  'calibration_target_ms': calibration_target}
     stems = {}
     for lane in row['lanes']:
         stem = local_sources / f'{label}-{lane}'
@@ -618,7 +631,6 @@ for row in make_rows():
         stems[lane] = stem
 
     repeats = 1
-    calibration_target = math.ceil(a.min_batch_ms * 1.5)
     while repeats <= a.max_repeats:
         calibration_samples = {}
         for lane in row['lanes']:
@@ -637,7 +649,6 @@ for row in make_rows():
     assert repeats <= a.max_repeats, (
         label, 'failed to calibrate all lanes', row_report['calibration'][-3:])
     row_report['repeats_per_sample'] = repeats
-    row_report['calibration_target_ms'] = calibration_target
     row_report['expected_batch'] = expected_per_input(row) * repeats % WORD_MOD
 
     for session in range(a.sessions):
@@ -646,7 +657,7 @@ for row in make_rows():
         session_samples = {}
         for lane in lanes:
             samples = run_batch(stems[lane], repeats, row, SAMPLE_COUNT)
-            assert min(samples) >= a.min_batch_ms, (label, lane, samples)
+            assert min(samples) >= row_min_batch_ms, (label, lane, samples)
             session_samples[lane] = samples
             row_report['samples_ms'][lane].extend(samples)
         row_report['sessions'].append({

@@ -318,11 +318,32 @@ peaks matched the expected group counts (97, 49, 33, and 13), and the short
 bounded rows passed their checksums and timer-floor assertions. The semantic
 fold and retention runners also pass on JS and native.
 
-The final measurement pass still needs to run the corrected 96-value bounded
-rows, short bounded rows, and retained rows with 12 balanced sessions and five
-samples per lane. Afterward, update this decision record and inspect generated
-C only if a material gap remains. The short bounded rows need more calibrated
-repetitions because their source contains only `2 * width + 1` values; the
-harness default cap is now 16,777,216. The pinned candidate can be regenerated
-with the existing `prepare_static.py` workflow if its prepared files are no
-longer available.
+[`bounded-results.json`](../../bench/array_partition/bounded-results.json)
+contains the corrected 96-value bounded rows. Each has 12 sessions and five
+samples per lane, and every checksum passed. The Array lane allocates and frees
+two chunk blocks per repetition, with one live chunk block at peak; the direct
+lane allocates none.
+
+| Width | Array/List, 95% interval | Direct/List, 95% interval |
+| ---: | ---: | ---: |
+| 1 | 0.994 [0.986, 1.001] | 0.999 [0.990, 1.008] |
+| 2 | 1.017 [1.009, 1.025] | 1.000 [0.992, 1.010] |
+| 3 | 1.047 [1.037, 1.057] | 0.992 [0.982, 1.002] |
+| 8 | 0.991 [0.982, 1.000] | 0.955 [0.949, 0.960] |
+
+For a consumer that stops after two groups, Array and List are close across the
+tested widths; the largest measured difference is Array about 5% slower at
+width 3. Direct fusion is also close except at width 8, where it is about 4.5%
+faster than List. This workload does not show a broad short-circuit win for an
+Array representation.
+
+The short-input workload exposed a calibration constraint: at 16,777,216
+repetitions, the direct width-1 row still did not reach the default 150 ms
+calibration target. The harness now gives short rows a 20 ms sample floor and
+a 25 ms calibration target (at default settings); five samples across 12
+sessions still provide repeated paired observations without constructing a
+much larger source batch. Other rows keep the 100 ms floor and 150 ms target.
+The remaining run is the short-input and retained matrix, after which this
+decision record can be completed. Inspect generated C only if a material gap
+remains. The pinned candidate can be regenerated with the existing
+`prepare_static.py` workflow if its prepared files are no longer available.
