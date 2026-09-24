@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T20:41:40+02:00
+updated_at: 2026-09-24T20:51:01+02:00
 status: current
 ---
 
@@ -430,9 +430,9 @@ and
 
 | Option | Impact | Effort | Value | Decision |
 | --- | --- | --- | --- | --- |
-| Keep the FoldRegion experiment isolated while establishing a checked-term trust boundary | High: decides whether this can be a sound compiler optimization | Medium/high: validate synthesized terms and close semantic test gaps | Very high if the narrow rewrite survives compiler-level checking | **P1: make generated regions checked or mechanically validated before broadening** |
+| Extend the checked FoldRegion to a compositional `map` + `filter`/`keep` step | High: tests whether multiple transducers share one region model | Medium/high: filter changes cardinality and output types | Very high if new compositions reuse checked machinery | **P1: fuse one `map` + `filter` composition in the isolated compiler** |
 | Keep relying on C optimization and existing affine reuse | Medium: preserves the allocation-free handwritten case and improves generated C locally | Low: no new API or compiler rule | Medium: useful baseline, but leaves the materialized producer cost | Keep as baseline, not the whole strategy |
-| Extend the region to filters, `keep`, partitioning, and reducer stop/finish | High for general transducer pipelines | High: must model cardinality, buffering, completion, and early stop | Unproven until the region representation is defined | Defer until the first rewrite has a checked representation |
+| Extend the region to partitioning and reducer stop/finish | High for general transducer pipelines | High: must model buffering, completion, and early stop | Unproven until map/filter composition works | Defer |
 | Add an explicit reducer sink that returns a completed reusable buffer | Medium to high for chunk-building pipelines | High: expands reducer state/API and requires ownership-return semantics | Medium: useful when fusion cannot prove non-escape; premature before a measured need | Defer |
 | Special-case `partition_all` or individual transducer names in the compiler | High for selected examples | High: compiler/library coupling and correctness burden grows per transducer | Low: conflicts with the goal that new transducers compose automatically | Reject |
 
@@ -450,6 +450,13 @@ on the tail with `step(state, head)`. It then replaces the consumer's recursive
 call with a helper that steps on the mapped head and recurses on the original
 tail.
 
+The plain static-callback compiler has `comp.ts` SHA-256
+`cfd14f244c5a6d2d0b4069d03e53f3682bd09fb535fd15d2d8757b5f21546579`. The
+checked FoldRegion pass has SHA-256
+`b5aa99cf954f50bbab65da083271ce5481816c8cfc066e18cb75f8b7f62aed87`, and its
+prepared compiler has SHA-256
+`718bc924469de4b293c59d9b4f1efd8c97c3f12d414b6db194074f06c5329580`.
+
 The pass requires the producer input and output List types to be identical,
 direct callbacks with a conservative checked call graph, and a trivial initial
 state. It refuses unsafe/foreign definitions, parallel calls, dynamic closure
@@ -459,24 +466,24 @@ before the fold. This shape has no reducer `Stop` or completion protocol; such
 cases do not match the full-fold consumer and are not optimized.
 
 The matched benchmark rebuilt the plain static-callback candidate and the
-FoldRegion candidate from the same compiler snapshot. It used 16 native
-sessions, each timing all four compiler/lane binaries in randomized order;
-each binary processed eight prebuilt 200,000-item inputs with
+checked FoldRegion candidate from the same compiler snapshot. It used 16
+native sessions, each timing all four compiler/lane binaries in randomized
+order; each binary processed eight prebuilt 200,000-item inputs with
 `BenchClock.now_us`. Allocation counts came from separate instrumented
-binaries. The reported compiler-to-compiler intervals bootstrap the paired
+binaries. The compiler-to-compiler intervals bootstrap paired
 candidate/baseline time ratios from those sessions.
 
 | Compiler | Lane | Median µs per input | FoldRegion / static-only, paired 95% interval | Allocator calls per eight inputs | Generated C bytes |
 | --- | --- | ---: | ---: | ---: | ---: |
-| Static-callback only | `List.map` + fold | 844.1 | — | 3,200,057 | 101,383 |
-| FoldRegion candidate | `List.map` + fold | 236.4 | 0.28 [0.25, 0.30] | 1,600,057 | 97,323 |
-| Static-callback only | streaming transducer map + fold | 236.9 | — | 1,600,057 | 98,529 |
-| FoldRegion candidate | streaming transducer map + fold | 228.7 | 1.01 [0.82, 1.11] | 1,600,057 | 98,529 |
+| Static-callback only | `List.map` + fold | 854.8 | — | 3,200,058 | 101,383 |
+| Checked FoldRegion candidate | `List.map` + fold | 238.8 | 0.27 [0.25, 0.30] | 1,600,057 | 97,323 |
+| Static-callback only | streaming transducer map + fold | 232.6 | — | 1,600,057 | 98,529 |
+| Checked FoldRegion candidate | streaming transducer map + fold | 220.5 | 1.00 [0.91, 1.07] | 1,600,057 | 98,529 |
 
-For this workload, the structural rewrite removes 1,600,000 allocation calls
+For this workload, the structural rewrite removes 1,600,001 allocation calls
 across the eight materialized inputs and brings ordinary `List.map` plus fold
 to parity with the streaming transducer pipeline. Its paired runtime is about
-72% lower than the static-only materialized lane; the unchanged streaming lane
+73% lower than the static-only materialized lane; the unchanged streaming lane
 shows no measurable regression. The order-sensitive hash and sum agree with
 the direct controls on both JS and native.
 
@@ -487,11 +494,13 @@ left retained output, `List.length`, a runtime closure callback, and an
 backends. These are useful checks for structural matching, order, ownership,
 and bailouts, but they do not validate arbitrary producer/consumer programs.
 
-There is one important compiler-trust limitation: the helper is synthesized
-from an already checked consumer term, inserted into the compiler's book, and
-not run through Bend's type checker again. Passing JS/native tests does not
-replace that check. The rule also handles only same-element-type recursive
-List maps into full folds. It has not fused `filter`, `keep`, `partition_all`,
+Each synthesized helper is converted back to a source term and passed through
+`Bend.def_check` before installation. The verifier checks its type, affine
+uses, and recursive decrease; the harness asserts that every installed helper
+was rechecked. Across the four positive fixtures, all 14 generated helper
+instances passed this check. The rule still handles only same-element-type
+recursive List maps into full folds. It has not fused `filter`, `keep`,
+`partition_all`,
 arrays, ranges, channels, strings, or file/map sources, and it has no early
 stop, completion, or retained-chunk semantics.
 
@@ -503,33 +512,40 @@ consumer shape, and the test source adapter still produces a List.
 
 ## Next experiment
 
-The next work should stay in the isolated compiler and resolve the trust
-boundary before adding more cases:
+The next step is to test whether more than one transducer can feed the same
+checked fold region. Add one structural `map` + `filter` composition, including
+`keep` as the library composition `map(f)` followed by `filter(some?)`:
 
-1. Find a supported way to type-check or mechanically validate a synthesized
-   helper. Prefer building an explicit internal `FoldRegion` from checked
-   components and validating its source, state, element, and result types;
-   otherwise move the rewrite to a stage where normal checking can verify it.
-   Do not accept the prototype upstream while this term is unchecked.
-2. Strengthen adversarial bailouts around `@unsafe`/foreign code, source and
-   callback evaluation order, and use/escape analysis. Bend's ordinary
-   functions are pure and termination-checked, which makes a full fold a good
-   starting case; `@unsafe` definitions and foreign `IO` are outside that
-   guarantee and must remain materialized.
-3. Once the rule is mechanically checked, introduce a compositional step
-   representation for `map`, `filter`/`keep`, and a full fold. Only then test a
-   nested partition producer and the semantics of `take`/early stop,
-   completion, partial final chunks, and retained chunks. Any unsupported
-   shape must keep the original program.
-4. Add a genuinely different reducible source only after the region is no
-   longer tied to List constructors. The current `range_list` fixture checks
-   producer independence, not a source-independent reduction interface.
+1. Represent the composition as a per-element transition that either produces
+   the next accumulator or keeps the current accumulator unchanged. The compiler
+   should compose the mapped value and predicate into the fold step; it should
+   not recognize the names `keep`, `map`, or `filter`.
+2. Preserve the original materialized path whenever the source, producer,
+   callbacks, or consumer do not match a proved shape. Run `Bend.def_check` on
+   every generated helper and retain the assertion that installed helpers
+   equal successfully rechecked helpers.
+3. Test all-kept, all-filtered, mixed, and order-sensitive inputs, then use an
+   affine payload to check that dropping a filtered value and moving a kept
+   value each consume it exactly once. `@unsafe` callbacks must continue to
+   bail out; ordinary Bend callbacks are pure and termination-checked.
+4. Compare against both the existing transducer pipeline and a direct
+   handwritten fold on JS and native. Keep runtime in microseconds, count
+   allocator calls separately, and record build time and generated C size.
 
-The next decision gate is mechanical validation plus one additional
-transducer composition, not an upstream patch or a public reducible API. The
-explicit `group_fold` remains a useful lower-allocation control, but it does
-not justify adding a reducer sink or a borrow/reuse protocol before a concrete
-case requires one.
+Do not add `partition_all`, early stop, or a public reducible interface in this
+step. Once checked `map` + `filter` composition works, use it to decide whether
+an internal reducer/step representation scales cleanly. Then add partial final
+chunks, retained chunks, `take` in both orders, initial/downstream stop, and
+completion semantics. Only after those cases are correct and profitable should
+the source side broaden beyond the current List-shaped producer.
+
+The helper check closes the main trust gap from the first prototype, but the
+current optimization remains narrow: it handles one same-element-type List
+map feeding one full fold. It is promising evidence for a structural compiler
+rule, not proof that arbitrary transducers or sources fuse automatically.
+The explicit `group_fold` remains a useful lower-allocation control; it does
+not justify a reducer sink or a borrow/reuse protocol before a concrete case
+requires one.
 
 ## Reproduction
 

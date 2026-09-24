@@ -6,8 +6,9 @@ const FOLD_REGION_STATS: {
   attempts: number;
   fused: number;
   helpers: number;
+  rechecked: number;
   refusals: Record<string, number>;
-} = { attempts: 0, fused: 0, helpers: 0, refusals: {} };
+} = { attempts: 0, fused: 0, helpers: 0, rechecked: 0, refusals: {} };
 if (process.env.BEND_FOLD_REGION_REPORT) {
   process.on("exit", () => fs.writeFileSync(
     process.env.BEND_FOLD_REGION_REPORT!,
@@ -239,6 +240,25 @@ function fold_region_rewrite_match(cb: Carb, body: HTerm,
   return replace(body);
 }
 
+function fold_region_check_helper(cb: Carb, helper_name: Name,
+  template: Def, body: HTerm): boolean {
+  const source = Bend.term_lower(body);
+  const provisional = { ...template, e: undefined,
+    v: Bend.term_higher(source) } as Def & { h?: HTerm };
+  delete provisional.h;
+  cb.book.tlds[helper_name] = provisional;
+  try {
+    const checked = Bend.def_check(cb.book, helper_name, provisional);
+    cb.book.tlds[helper_name] = { ...provisional, e: checked,
+      h: Bend.term_higher(checked) };
+    FOLD_REGION_STATS.rechecked++;
+    return true;
+  } catch (_error) {
+    delete cb.book.tlds[helper_name];
+    return false;
+  }
+}
+
 function fold_region_term(cb: Carb, term: HTerm): HTerm {
   const x = term_force(term);
   const fused = fold_region_try_call(cb, x);
@@ -344,7 +364,9 @@ function fold_region_try_call(cb: Carb, term: HTerm): HTerm | null {
     const helper_body = fold_region_rewrite_match(cb, consumer.h,
       consumer_call.k, helper_name, map_value);
     if (helper_body === null) return fold_region_refuse("consumer-body-shape");
-    cb.book.tlds[helper_name] = { ...consumer, h: helper_body };
+    if (!fold_region_check_helper(cb, helper_name, consumer, helper_body)) {
+      return fold_region_refuse("generated-helper-typecheck");
+    }
     helpers.set(helper_key, helper_name);
     FOLD_REGION_STATS.helpers++;
   }

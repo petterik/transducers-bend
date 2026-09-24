@@ -100,9 +100,11 @@ results = {
 for key in ('custom_producer_fold', 'dynamic_map_fold',
             'independent_source_adapter', 'affine_elements'):
     stats = results[key]['fold_region_stats']
-    assert stats['fused'] > 0 and stats['helpers'] >= 2, (key, stats)
+    assert stats['fused'] > 0 and stats['helpers'] >= 2 \
+        and stats['rechecked'] == stats['helpers'], (key, stats)
 bailout_stats = results['retention_and_unknown_consumer_bailout']['fold_region_stats']
-assert bailout_stats['fused'] == 0 and bailout_stats['helpers'] == 0, bailout_stats
+assert bailout_stats['fused'] == 0 and bailout_stats['helpers'] == 0 \
+    and bailout_stats['rechecked'] == 0, bailout_stats
 
 baseline = json.loads((out / 'prepare-static.json').read_text())
 metadata = {
@@ -114,6 +116,7 @@ metadata = {
     'fold_region': 'single-use direct recursive List producer into a structurally checked tail fold',
     'callback_gate': 'closed checked definitions; reject unsafe, foreign, parallel, dynamic closure calls, and non-whitelisted intrinsic calls',
     'type_gate': 'same source/output List type and same map/fold element type',
+    'generated_helper_check': 'Bend.def_check validates each synthesized recursive helper before it is installed',
     'verification': results,
 }
 (out / 'prepare-fold-region.json').write_text(json.dumps(metadata, indent=2) + '\n')
