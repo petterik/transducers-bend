@@ -96,10 +96,13 @@ results = {
     'type_changing_map_fold': check_fixture(
         'fold-region-type-changing',
         ROOT / 'tests/fold_region_type_changing.bend',
-        '(True{}, True{}, True{}, True{}, True{}, True{})', verification),
+        '(True{}, True{}, True{}, True{}, True{}, True{}, True{})', verification),
+    'single_use_let_alias': check_fixture(
+        'fold-region-let-alias', ROOT / 'tests/fold_region_let_alias.bend',
+        'True{}', verification),
     'retention_and_unknown_consumer_bailout': check_fixture(
         'fold-region-bailouts', ROOT / 'tests/fold_region_bailouts.bend',
-        '(True{}, True{}, True{}, True{}, True{})', verification),
+        '(True{}, True{}, True{}, True{}, True{}, True{})', verification),
 }
 for key in ('custom_producer_fold', 'dynamic_map_fold',
             'independent_source_adapter', 'affine_elements',
@@ -107,9 +110,13 @@ for key in ('custom_producer_fold', 'dynamic_map_fold',
     stats = results[key]['fold_region_stats']
     assert stats['fused'] > 0 and stats['helpers'] >= 2 \
         and stats['rechecked'] == stats['helpers'], (key, stats)
+let_stats = results['single_use_let_alias']['fold_region_stats']
+assert let_stats['let_alias_fused'] > 0 and let_stats['helpers'] >= 1 \
+    and let_stats['rechecked'] == let_stats['helpers'], let_stats
 bailout_stats = results['retention_and_unknown_consumer_bailout']['fold_region_stats']
 assert bailout_stats['fused'] == 0 and bailout_stats['helpers'] == 0 \
     and bailout_stats['rechecked'] == 0, bailout_stats
+assert bailout_stats['let_alias_fused'] == 0, bailout_stats
 assert bailout_stats['refusals'].get('producer-call-shape', 0) > 0, bailout_stats
 
 baseline = json.loads((out / 'prepare-static.json').read_text())
@@ -119,9 +126,10 @@ metadata = {
     'static_callback_candidate_comp_sha256': baseline['candidate_comp_sha256'],
     'fold_region_pass_sha256': sha256(PASS),
     'fold_region_candidate_comp_sha256': sha256(comp),
-    'fold_region': 'single-use direct recursive List producer into a structurally checked tail fold',
+    'fold_region': 'direct recursive List producer into a structurally checked tail fold, with optional single-use immediate-fold let alias',
     'callback_gate': 'closed checked definitions; reject unsafe, foreign, parallel, dynamic closure calls, and non-whitelisted intrinsic calls',
     'type_gate': 'producer input/output List element types may differ; producer output List must match fold input List',
+    'let_gate': 'only one binding, exactly one use, and immediate use as the fold input; otherwise keep the original term',
     'generated_helper_check': 'Bend.def_check validates each synthesized recursive helper before it is installed',
     'verification': results,
 }

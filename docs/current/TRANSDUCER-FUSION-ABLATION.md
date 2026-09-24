@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T22:16:50+02:00
+updated_at: 2026-09-24T22:59:29+02:00
 status: current
 ---
 
@@ -430,8 +430,9 @@ and
 
 | Option | Impact | Effort | Value | Decision |
 | --- | --- | --- | --- | --- |
-| Track direct producer values through a single-use local binding | High: removes the main syntax-shape limitation found by the benchmark | Medium to high: use counts, evaluation order, and affine values must stay explicit | High if it extends fusion without making the pass library-specific | **P1: test one checked let-bound producer/fold** |
-| Extend the fold region to filtering and skip semantics | High: tests whether a real transducer changes source traversal and step count | High: needs skip/continue state and callback-order proofs | High if a compositional fold representation emerges | P2: test map + filter after the alias case |
+| Track direct producer values through a single-use local binding | High: removes the main syntax-shape limitation found by the benchmark | Medium: local use count and checked helper remain explicit | High for this narrow shape; not yet general local propagation | **Complete: one checked immediate-fold alias** |
+| Attribute the let-alias timing gap | Medium: determines whether the remaining cost is generated work or call-site/layout effects | Low to medium: inspect optimized code and vary lane order | High before claiming direct-loop parity | **P1: explain the measured 1.43x gap** |
+| Extend the fold region to filtering and skip semantics | High: tests whether a real transducer changes source traversal and step count | High: needs skip/continue state and callback-order proofs | High if a compositional fold representation emerges | **P2: test map + Boolean filter after attribution** |
 | Keep relying on C optimization and existing affine reuse | Medium: preserves the allocation-free handwritten case and improves generated C locally | Low: no new API or compiler rule | Medium: useful baseline, but leaves the materialized producer cost | Keep as baseline, not the whole strategy |
 | Extend the region to partitioning and reducer stop/finish | High for general transducer pipelines | High: must model buffering, completion, and early stop | Unproven until map/filter composition works | Defer |
 | Add an explicit reducer sink that returns a completed reusable buffer | Medium to high for chunk-building pipelines | High: expands reducer state/API and requires ownership-return semantics | Medium: useful when fusion cannot prove non-escape; premature before a measured need | Defer |
@@ -454,19 +455,28 @@ tail.
 The plain static-callback compiler has `comp.ts` SHA-256
 `cfd14f244c5a6d2d0b4069d03e53f3682bd09fb535fd15d2d8757b5f21546579`. The
 current checked FoldRegion pass has SHA-256
-`a79795eb68773c4054e6757316a0372bbd2e66e6e2cbe24f457b312c9d71ba3f`, and
+`9a062f282f1004107ad75d8827f1fa7985a6db36738aeb54691aadb6674d1e0d`, and
 the prepared compiler has SHA-256
-`d22e950683a257358b3ca61a6dc16f5bd94e52f543c0c6a91d148bfc450ee965`.
+`d5e55b51598f3b1f6cf4e615cdf84f8bb1649d2e1d2266eb7d5f439e28a0ccb4`.
 
 The pass allows different producer input/output List element types, with the
-producer's output List matching the fold's input. It still requires the
-producer call to be the fold's direct input, direct callbacks with a
-conservative checked call graph, and a trivial initial state. It refuses
-unsafe/foreign definitions, parallel calls, dynamic closure calls, unknown
-intrinsics, retained output, unknown consumers, and let-bound producer values.
-It passes the source expression to the generated helper once, preserving its
-evaluation before the fold. This shape has no reducer `Stop` or completion
-protocol; such cases do not match the full-fold consumer and are not optimized.
+producer's output List matching the fold's input. The producer can be the
+fold's direct input or a value held by exactly one local binding that the body
+immediately folds. The pass opens that let, verifies the binder occurs once,
+then asks the same structural rule to prove the producer and consumer shapes.
+Callbacks still need a conservative checked call graph and the initial state
+must be trivial. Unsafe/foreign definitions, parallel calls, dynamic closure
+calls, unknown intrinsics, retained output, and unknown consumers fall back to
+the original checked term. The helper receives the source expression once,
+preserving its evaluation before the fold. This shape has no reducer `Stop` or
+completion protocol; such cases do not match the full-fold consumer and are
+not optimized.
+
+The use-count gate is defensive. `List<A>` has the same quantity as its
+elements, and `List<U32>` is affine by default, so Bend rejects a program that
+uses the same affine mapped list twice before the optimizer sees it. The
+positive fixture covers one binding and one immediate fold; the fallback
+fixture checks an unsafe callback and a let-bound map consumed by `List.length`.
 
 The matched benchmark rebuilt the plain static-callback candidate and the
 checked FoldRegion candidate from the same compiler snapshot. It used 16
@@ -492,9 +502,10 @@ the direct controls on both JS and native.
 
 The pass also fused custom-named map/fold functions and a separate source
 adapter returning a List, and moved fresh affine `Array` values through the
-rewrite. It left retained output, `List.length`, a runtime closure callback,
-an `@unsafe` callback, and a let-bound producer unfused. The complete suite
-now passes 28/28 fixtures on both backends. These are useful checks for
+rewrite. It leaves retained output, `List.length`, a runtime closure callback,
+an `@unsafe` callback, and non-immediate let uses unfused. The full candidate
+suite passes 29/29 with codegen gates; raw upstream and static-callback builds
+pass the same 29/29 semantic JS/native checks. These are useful checks for
 structural matching, order, ownership, and bailouts, but they do not validate
 arbitrary producer/consumer programs.
 
@@ -512,20 +523,29 @@ stop, completion, or retained-chunk semantics.
 This is evidence that a small structural producer/fold optimization can
 eliminate a type-changing intermediate without recognizing library names. It
 is not yet evidence that adding transducers automatically composes into such
-regions: the pass has one producer shape and one consumer shape, only when the
-producer is the fold's immediate input.
+regions: the pass has one producer shape and one consumer shape, with only one
+supported alias form for the producer.
 
 The current four-lane `Maybe` probe compares streaming `keep`, a directly
 nested `List<Maybe<U32>>` map/fold, the same map bound to a local before the
-fold, and direct consumption. With 1.6M values per lane, FoldRegion reduces
-the nested map/fold from 7,315.5µs and 3,200,005 requests on the
-static-callback candidate to 1,841.5µs and five fixed requests. Its paired
-time ratio versus the static-callback build is 0.252 [0.209, 0.291]. The
-let-bound shape stays at 7,245.5µs and 3,200,005 requests, demonstrating the
-current syntactic boundary. Against the direct fold in the same FoldRegion
-build, the nested map/fold ratio is 0.907 [0.833, 1.114], statistically
-consistent with parity. The full report records raw samples, allocation
-counts, code sizes, hashes, and JS semantic smoke results in
+fold, and direct consumption. Each lane processes 1.6M values; 32 randomized
+native sessions use the microsecond clock and allocator requests are counted
+in separate builds. FoldRegion reduces the nested map/fold from 7,351µs and
+3,200,005 requests on the static-callback candidate to 1,680µs and five
+fixed requests. Its paired time ratio versus the static-callback build is
+0.234 [0.217, 0.244]. Against direct consumption in the same FoldRegion build,
+the nested map/fold ratio is 0.954 [0.845, 1.112], consistent with parity.
+
+The single-use let-bound shape now falls from 7,018.5µs and 3,200,005 requests
+to 2,606µs and five fixed requests. Its FoldRegion/static-callback ratio is
+0.373 [0.361, 0.387]. This validates allocation elimination through that
+local alias, but the fused let lane is still 1.426x the direct lane
+(1.324–1.529 paired 95% interval), while both make five heap requests. That
+runtime difference is unresolved; inspect its generated execution path before
+expanding the alias rule. FoldRegion C output is 137,787 bytes versus 146,087
+bytes for static-callback only. The keep lane remains at five fixed requests;
+its FoldRegion/static ratio is 1.043 [0.960, 1.095], consistent with no
+measurable change. Raw sessions, allocations, hashes, code sizes, and JS smoke results are in
 [`maybe-keep-fold-region-results.json`](../../bench/compiler/maybe-keep-fold-region-results.json).
 
 The keep lane remains fixed at five heap requests on both static-callback and
@@ -536,28 +556,31 @@ timing report. Neither result claims a JS performance measurement.
 
 ## Next experiment
 
-The type-changing direct-call case is complete. Keep the next experiment small
-enough to expose the proof boundary. First test whether the producer can be
-tracked through one let-bound local when the value is fresh, single-use, and
-pure. Keep the old materialized behavior whenever any of those conditions is
-not proved. Then test one Boolean `map` + `filter` fold, which adds skipped
-steps and changes traversal behavior:
+The single-use let case is complete: the checked rule only crosses one local
+when it is the immediate fold input and has exactly one use. It eliminates
+3.2M allocations on the benchmark fixture, while its runtime remains 1.43x
+direct consumption. Generated C shows same-shaped recursive loops after
+normalizing generated labels, but that does not explain the measured gap.
+First compare optimized machine code and vary lane order to distinguish
+call-site layout and benchmark-order effects from extra instructions. If the
+gap is only a code-layout effect, record it and proceed; if extra work is
+present, fix that before extending the rule.
 
-1. Add a fresh, single-use let-bound producer case and a multiple-use or
-   effectful counterexample. Check source evaluation count, order, affine
-   transfer, and termination; require the optimizer to recheck the transformed
-   helper.
-2. Benchmark the direct-call and let-bound cases on the same input and
-   compiler builds. Confirm the optimization follows the local binding only
-   when its use and evaluation proofs pass, and that fallback output stays
-   unchanged otherwise.
-3. Add one `map` + Boolean `filter` composition whose predicate rejects some
-   inputs. Verify order, count, empty/all-rejected inputs, and early-stop
-   behavior. Compare allocation traffic and microsecond timings with
-   handwritten fused Bend and ordinary materialized map/filter/fold.
-4. Review the representation after these two shapes. If each transducer
-   requires a separate compiler pattern, pause and design a typed source-step
-   region or reducible interface before adding `partition_all`.
+Then test one Boolean `map` + `filter` fold, which adds skipped steps and
+changes how often the downstream step runs:
+
+1. Add a predicate that rejects some values, plus empty, all-rejected, and
+   order-sensitive cases. Check that rejected values do not call the fold
+   step and accepted values preserve order.
+2. Keep the fallback path for an unsupported filter shape and require every
+   synthesized helper to pass `Bend.def_check`. Exclude `take` and early stop
+   from this experiment unless the checked source/consumer shapes prove them.
+3. Compare allocation counts and microsecond timings against the ordinary
+   materialized map/filter/fold and handwritten fused Bend on identical
+   inputs.
+4. Review the representation after filtering. If each transducer needs a
+   separate compiler pattern, pause and design a typed source-step region or
+   reducible interface before adding `partition_all`.
 
 Do not add `partition_all`, general early stop, or a public reducible interface
 in that experiment. If local aliasing and filtering compose through a small

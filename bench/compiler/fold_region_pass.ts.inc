@@ -5,10 +5,12 @@ let FOLD_REGION_NEXT = 0;
 const FOLD_REGION_STATS: {
   attempts: number;
   fused: number;
+  let_alias_fused: number;
   helpers: number;
   rechecked: number;
   refusals: Record<string, number>;
-} = { attempts: 0, fused: 0, helpers: 0, rechecked: 0, refusals: {} };
+} = { attempts: 0, fused: 0, let_alias_fused: 0, helpers: 0, rechecked: 0,
+  refusals: {} };
 if (process.env.BEND_FOLD_REGION_REPORT) {
   process.on("exit", () => fs.writeFileSync(
     process.env.BEND_FOLD_REGION_REPORT!,
@@ -350,6 +352,8 @@ function fold_region_term(cb: Carb, term: HTerm): HTerm {
       return h === x.h && m === x.m ? x : Bend.Mat(x.k, h, m, x.s);
     }
     case "Let": {
+      const single_use = fold_region_try_single_use_let(cb, x);
+      if (single_use !== null) return single_use;
       const opened = term_open(x);
       const values = x.v.map((v) => fold_region_term(cb, v));
       const body = fold_region_term(cb, opened.b);
@@ -363,6 +367,28 @@ function fold_region_term(cb: Carb, term: HTerm): HTerm {
     }
     default: return x;
   }
+}
+
+// Follow a producer through a local only when the entire let is a single
+// binding, its body immediately folds that binding, and the binding has one
+// use. The call rewrite then preserves the let's evaluation point and the
+// normal helper checker proves the moved value is affine-safe.
+function fold_region_try_single_use_let(cb: Carb, term: HLet): HTerm | null {
+  if (term.k.length !== 1 || term.v.length !== 1) return null;
+  const opened = term_open(term);
+  const p = opened.ps[0];
+  const outer = term_spine(cb, opened.b);
+  const consumer = outer.call;
+  if (consumer === null || consumer.bang || outer.args.length !== 2
+    || !fold_region_var(outer.args[0], p)) return null;
+  if (term_use(term_uses(cb, opened.b), p) !== 1) {
+    return fold_region_refuse("let-bound-use-count");
+  }
+  const candidate = fold_region_rebuild_call(Bend.Ref(consumer.k),
+    [term.v[0], outer.args[1]], ty_ann(opened.b));
+  const fused = fold_region_try_call(cb, candidate);
+  if (fused !== null) FOLD_REGION_STATS.let_alias_fused++;
+  return fused;
 }
 
 function fold_region_try_call(cb: Carb, term: HTerm): HTerm | null {
@@ -449,7 +475,22 @@ function fold_region_try_call(cb: Carb, term: HTerm): HTerm | null {
 function fold_region_rewrite(cb: Carb, body: HTerm): HTerm {
   let found = false;
   term_any(cb, body, (node) => {
-    if (found || (node.$ !== "App" && node.$ !== "Ann")) return found;
+    if (found) return true;
+    if (node.$ === "Let" && node.k.length === 1 && node.v.length === 1) {
+      const opened = term_open(node);
+      const consumer = term_spine(cb, opened.b);
+      if (consumer.call !== null && !consumer.call.bang
+        && consumer.args.length === 2
+        && fold_region_var(consumer.args[0], opened.ps[0])) {
+        const producer = term_spine(cb, node.v[0]);
+        if (producer.call !== null && !producer.call.bang
+          && producer.args.length === 1) {
+          found = true;
+          return true;
+        }
+      }
+    }
+    if (node.$ !== "App" && node.$ !== "Ann") return false;
     const outer = term_spine(cb, node);
     if (outer.call === null || outer.args.length !== 2) return false;
     const producer = term_spine(cb, outer.args[0]);

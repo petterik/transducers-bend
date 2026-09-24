@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T21:22:00+02:00
-updated_at: 2026-09-24T22:16:50+02:00
+updated_at: 2026-09-24T22:59:29+02:00
 status: current
 ---
 
@@ -43,60 +43,70 @@ The current experiment compares four source shapes: public streaming `keep`,
 directly nested `List.map(U32 -> Maybe<U32>)` into `List.foldl`, the same map
 bound to a local variable before folding, and a handwritten direct fold. Each
 lane processes eight prebuilt 200,000-item lists (1.6 million values) per
-sample. It uses 16 randomized native sessions and the microsecond clock.
+sample. It uses 32 randomized native sessions and the microsecond clock.
 Allocation counts come from separate instrumented C builds. The timed map
 callback returns `Some{x}`; the type-changing semantic fixture also covers
-all-`None`, mixed options, an empty list, and an order-sensitive fold.
+all-`None`, mixed options, an empty list, an order-sensitive fold, and an
+affine `Array` payload.
 
 | Compiler | Streaming `keep` µs / allocs | Nested map/fold µs / allocs | Let-bound map/fold µs / allocs | Direct fold µs / allocs |
 | --- | ---: | ---: | ---: | ---: |
-| Raw `bendlang/main` | 50,233.5 / 8,000,021 | 7,422 / 3,200,005 | 7,112.5 / 3,200,005 | 1,880 / 5 |
-| Static-callback candidate | 2,636 / 5 | 7,315.5 / 3,200,005 | 7,004.5 / 3,200,005 | 1,714.5 / 5 |
-| Checked FoldRegion candidate | 2,490.5 / 5 | 1,841.5 / 5 | 7,245.5 / 3,200,005 | 1,990.5 / 5 |
+| Raw `bendlang/main` | 50,382 / 8,000,021 | 7,492 / 3,200,005 | 7,079.5 / 3,200,005 | 1,712.5 / 5 |
+| Static-callback candidate | 2,617.5 / 5 | 7,351 / 3,200,005 | 7,018.5 / 3,200,005 | 1,657 / 5 |
+| Checked FoldRegion candidate | 2,682 / 5 | 1,680 / 5 | 2,606 / 5 | 1,762.5 / 5 |
 
-The directly nested type-changing map/fold goes from 7,315.5µs and 3,200,005
-heap requests on the static-callback candidate to 1,841.5µs and five fixed
-requests with FoldRegion. The paired FoldRegion/static-callback time ratio is
-0.252 [0.209, 0.291], about a 75% reduction. Against the direct fold in the
-same FoldRegion build, the fused map/fold ratio is 0.907 [0.833, 1.114]: the
-timings are statistically consistent with parity, and the measured allocation
-count is the same five fixed requests.
+The directly nested type-changing map/fold goes from 7,351µs and 3,200,005
+heap requests on the static-callback candidate to 1,680µs and five fixed
+requests with FoldRegion. Its paired FoldRegion/static-callback time ratio is
+0.234 [0.217, 0.244], about a 77% reduction. Against the direct fold in the
+same FoldRegion build, the ratio is 0.954 [0.845, 1.112], statistically
+consistent with parity.
 
-The let-bound map/fold stays at about 7.2ms and 3.2 million heap requests. Its
-output remains correct, but the prototype does not propagate the producer
-through a local binding. FoldRegion is 3.6% slower than the static candidate
-on this lane (paired ratio 1.036 [1.021, 1.045]) without changing its
-allocation count; treat that small cross-build difference as an unresolved
-code-layout effect. The benchmark and
-[`fold_region_bailouts.bend`](../../tests/fold_region_bailouts.bend) make that
-limitation explicit: when the structural rule declines, the original
-materialized program remains in place. So this is evidence for a checked
-direct producer/fold rewrite, not yet for optimization that scales across
-ordinary let-bound program shapes.
+The let-bound map/fold now drops from 7,018.5µs and 3,200,005 requests to
+2,606µs and five fixed requests. Its paired FoldRegion/static-callback ratio
+is 0.373 [0.361, 0.387], about a 63% reduction. This confirms that the
+single-use alias rule removes the materialized `List<Maybe<U32>>`. However,
+this lane is still 1.43x slower than the direct fold in the same build
+(paired ratio 1.426 [1.324, 1.529]), despite both making five fixed requests.
+The nested map/fold is near direct parity, so removing allocation is necessary
+but not sufficient to claim equivalent generated execution for the let shape.
+The cause of that remaining gap is unresolved and needs generated-code or
+profile investigation before the rule is generalized further.
+
+The positive and fallback controls are in
+[`fold_region_let_alias.bend`](../../tests/fold_region_let_alias.bend) and
+[`fold_region_bailouts.bend`](../../tests/fold_region_bailouts.bend). The
+positive case has exactly one let binding, one use, and an immediate fold.
+An unsafe callback and a let-bound mapped value consumed by `List.length`
+remain unchanged. Lists of affine elements cannot be legally used twice, but
+the optimizer still counts uses before rewriting. This is evidence for that
+specific checked alias shape, not arbitrary local propagation.
 
 All native lanes and the small JS smoke runs return the same checksum. The JS
 smoke uses two 256-item inputs because the large recursive-list setup exceeds
 the JS stack; it provides semantic parity only, not JS timing. The FoldRegion
-build's generated C is 143,941 bytes versus 146,087 bytes for the
-static-callback build. The native Clang build takes about 0.26 seconds for both
-candidate outputs; this probe does not time Bend source compilation. The
+build's generated C is 137,787 bytes versus 146,087 bytes for the
+static-callback build. Clang -O3 compiles those C files in about 0.25 seconds;
+this probe does not time Bend source compilation. The
 probe records raw samples, build hashes, generated code sizes, and paired
 ratios in
 [`maybe-keep-fold-region-results.json`](../../bench/compiler/maybe-keep-fold-region-results.json).
 
-The checked-term rule now accepts different producer input and output List
-element types. It erases checked type ascriptions from a copied consumer body
-only for this type-changing case, then uses `Bend.def_check` on each generated
-helper. The fixture generated ten helpers and all ten passed that check;
-the full candidate suite passed 28/28 on JS and native. The semantic cases
-also wrap an affine `Array<U32>` in `Maybe` and consume the `Some` branch. This
-preserves the proof boundary while allowing the match-arm head and tail types
-to be re-inferred from the source List.
+The checked-term rule accepts different producer input/output List element
+types and one single-use let alias. For type-changing maps it erases checked
+type ascriptions from a copied consumer body, then uses `Bend.def_check` on
+each generated helper. The type-changing fixture generated ten helpers, all
+rechecked successfully; the isolated let fixture also verifies that its
+generated helpers are rechecked. The full FoldRegion candidate suite passed
+29/29 with codegen gates, and upstream plus static-callback builds passed
+29/29 semantic JS/native checks. The affine array payload still passes through
+the type-changing helper check.
 
 This demonstrates that the current structural rule can eliminate a
-type-changing intermediate when the producer call is the fold's direct input.
-It does not support let-bound producer results, `filter`, `partition_all`,
-early stop, retained chunks, or non-List sources. Keep results also vary with
+type-changing intermediate when the producer call is the fold's direct input
+or is held by one single-use local immediately consumed by the fold. It does
+not support `filter`, `partition_all`, early stop, retained chunks, or
+non-List sources. Keep results also vary with
 the surrounding compiled fixture: use the standalone prior report for
 historical keep/direct timing comparisons, and use this expanded fixture for
 the matched type-changing map/fold result.
@@ -128,5 +138,5 @@ python3 bench/compiler/maybe_keep_probe.py \
   --candidate-main /tmp/transduce-static/main.ts \
   --fold-region-main /tmp/transduce-fold-region/main.ts \
   --output /tmp/maybe-keep-fold-region-results.json \
-  --sessions 16
+  --sessions 32
 ```

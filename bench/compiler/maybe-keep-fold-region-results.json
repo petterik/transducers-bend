@@ -12,7 +12,7 @@
     "let_bound_map_fold",
     "direct"
   ],
-  "sessions": 16,
+  "sessions": 32,
   "clock": "BenchClock.now_us; native monotonic nanoseconds converted to microseconds",
   "allocation_instrumentation": "separate C builds; successful heap allocator requests between each pair of lane clock marks",
   "expected_checksum_per_lane": 1085410048,
@@ -20,10 +20,10 @@
     "upstream": {
       "name": "upstream",
       "compiler": "../bend/bend2/main.ts",
-      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am/upstream",
-      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am/upstream.c",
-      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am/upstream.js",
-      "clang_compile_seconds": 0.3271804579999298,
+      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/upstream",
+      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/upstream.c",
+      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/upstream.js",
+      "clang_compile_seconds": 0.33084587508346885,
       "c_bytes": 184946,
       "js_bytes": 25685,
       "compiler_sha256": "34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850",
@@ -37,11 +37,11 @@
       "instrumented_c_sha256": "439e3f54874c31c078576d38adcddef74ccf4c48c7c642ca331064abbfc62c5d",
       "js_smoke_rows": {
         "keep": {
-          "time_us": 1405,
+          "time_us": 1470,
           "checksum": 65280
         },
         "map_fold": {
-          "time_us": 288,
+          "time_us": 216,
           "checksum": 65280
         },
         "let_bound_map_fold": {
@@ -49,18 +49,18 @@
           "checksum": 65280
         },
         "direct": {
-          "time_us": 151,
+          "time_us": 139,
           "checksum": 65280
         }
       }
     },
     "candidate": {
       "name": "static_callback_candidate",
-      "compiler": "/private/tmp/transduce-static-20260924/main.ts",
-      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am/static_callback_candidate",
-      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am/static_callback_candidate.c",
-      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am/static_callback_candidate.js",
-      "clang_compile_seconds": 0.2568492910359055,
+      "compiler": "/private/tmp/transduce-static-let-20260924/main.ts",
+      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/static_callback_candidate",
+      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/static_callback_candidate.c",
+      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/static_callback_candidate.js",
+      "clang_compile_seconds": 0.25726033304817975,
       "c_bytes": 146087,
       "js_bytes": 21735,
       "compiler_sha256": "cfd14f244c5a6d2d0b4069d03e53f3682bd09fb535fd15d2d8757b5f21546579",
@@ -74,11 +74,11 @@
       "instrumented_c_sha256": "7a59ee5b9d93d08d26c8b8ff17ffe63ab24c7b132637a7a3e4fefda45e3610d4",
       "js_smoke_rows": {
         "keep": {
-          "time_us": 317,
+          "time_us": 287,
           "checksum": 65280
         },
         "map_fold": {
-          "time_us": 379,
+          "time_us": 364,
           "checksum": 65280
         },
         "let_bound_map_fold": {
@@ -86,44 +86,44 @@
           "checksum": 65280
         },
         "direct": {
-          "time_us": 136,
+          "time_us": 137,
           "checksum": 65280
         }
       }
     },
     "fold_region_candidate": {
       "name": "fold_region_candidate",
-      "compiler": "/private/tmp/transduce-fold-type-changing5-20260924/main.ts",
-      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am/fold_region_candidate",
-      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am/fold_region_candidate.c",
-      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am/fold_region_candidate.js",
-      "clang_compile_seconds": 0.25937529106158763,
-      "c_bytes": 143941,
-      "js_bytes": 21990,
-      "compiler_sha256": "d22e950683a257358b3ca61a6dc16f5bd94e52f543c0c6a91d148bfc450ee965",
+      "compiler": "/private/tmp/transduce-fold-let-final2-20260924/main.ts",
+      "binary": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/fold_region_candidate",
+      "c_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/fold_region_candidate.c",
+      "js_path": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6/fold_region_candidate.js",
+      "clang_compile_seconds": 0.25044049997814,
+      "c_bytes": 137787,
+      "js_bytes": 21418,
+      "compiler_sha256": "d5e55b51598f3b1f6cf4e615cdf84f8bb1649d2e1d2266eb7d5f439e28a0ccb4",
       "allocation_requests_by_lane": [
         5,
         5,
-        3200005,
+        5,
         5
       ],
-      "instrumented_c_bytes": 144899,
-      "instrumented_c_sha256": "0089e3d2492ee1aced8854bb0d797ba218f716ffa4b0e0c734f4cb02a2fb1d1a",
+      "instrumented_c_bytes": 138745,
+      "instrumented_c_sha256": "47928b30e12c327725071e77a683409bc653340845075b4c50a6cb28e69d631f",
       "js_smoke_rows": {
         "keep": {
-          "time_us": 285,
+          "time_us": 294,
           "checksum": 65280
         },
         "map_fold": {
-          "time_us": 244,
+          "time_us": 250,
           "checksum": 65280
         },
         "let_bound_map_fold": {
-          "time_us": 247,
+          "time_us": 227,
           "checksum": 65280
         },
         "direct": {
-          "time_us": 131,
+          "time_us": 107,
           "checksum": 65280
         }
       }
@@ -133,7 +133,7 @@
     "keep": {
       "versions": {
         "upstream": {
-          "median_us": 50233.5,
+          "median_us": 50382.0,
           "paired_over_upstream": {
             "median": 1.0,
             "ci95": [
@@ -142,53 +142,69 @@
             ]
           },
           "paired_over_direct": {
-            "median": 27.84846379329063,
+            "median": 29.58545282481178,
             "ci95": [
-              24.39102876645539,
-              31.030927835051546
+              26.95058448459086,
+              31.241338160725263
             ]
           },
           "paired_over_static_callback": {
-            "median": 19.27390708494564,
+            "median": 19.36409056185011,
             "ci95": [
-              18.46600514516722,
-              20.940907199334166
+              18.74282519567648,
+              20.52457051538154
             ]
           },
           "samples_us": [
-            63210,
-            50170,
-            50218,
-            50321,
-            52561,
-            50452,
-            50221,
-            50342,
-            50246,
-            50026,
-            50094,
-            50319,
-            49860,
-            50023,
-            49829,
-            51257
+            63152,
+            50348,
+            49980,
+            50223,
+            50415,
+            50522,
+            50104,
+            50145,
+            50121,
+            50320,
+            50033,
+            50958,
+            50588,
+            50287,
+            50385,
+            50359,
+            50379,
+            50345,
+            49943,
+            51243,
+            50540,
+            50363,
+            50055,
+            50070,
+            50571,
+            50389,
+            50721,
+            50420,
+            50549,
+            50470,
+            50537,
+            51373
           ],
           "allocation_requests": 8000021
         },
         "candidate": {
-          "median_us": 2636.0,
+          "median_us": 2617.5,
           "paired_over_upstream": {
-            "median": 0.05188668238786083,
+            "median": 0.0516421961049645,
             "ci95": [
-              0.047753423024184734,
-              0.054153564462842814
+              0.04872209137095362,
+              0.0533537494779963
             ]
           },
           "paired_over_direct": {
-            "median": 1.422229873958819,
+            "median": 1.5186787214885955,
             "ci95": [
-              1.1615667074663403,
-              1.8304521276595744
+              1.3684559310801856,
+              1.6828225231646472
             ]
           },
           "paired_over_static_callback": {
@@ -199,65 +215,97 @@
             ]
           },
           "samples_us": [
-            2165,
-            2437,
+            3051,
+            2737,
+            2722,
+            3068,
+            2789,
+            2883,
+            2564,
+            2803,
+            2660,
+            2848,
+            2438,
+            2220,
+            2804,
+            2683,
+            2061,
+            2065,
+            2642,
+            2664,
+            2018,
+            2620,
+            2781,
+            2361,
             2718,
-            2403,
-            2753,
-            2852,
-            1541,
-            2592,
-            2721,
-            2780,
-            2452,
-            1355,
-            2847,
-            2760,
-            2224,
-            2680
+            2591,
+            2374,
+            2391,
+            2614,
+            2615,
+            2375,
+            2179,
+            2469,
+            2503
           ],
           "allocation_requests": 5
         },
         "fold_region_candidate": {
-          "median_us": 2490.5,
+          "median_us": 2682.0,
           "paired_over_upstream": {
-            "median": 0.048258365891881254,
+            "median": 0.05347706072887187,
             "ci95": [
-              0.04636287791506098,
-              0.05048508803449515
+              0.048909300824005644,
+              0.05549893455005535
             ]
           },
           "paired_over_direct": {
-            "median": 1.2631702623865455,
+            "median": 1.4500314267756127,
             "ci95": [
-              1.2136194872309467,
-              1.3183582917359955
+              1.3053637812002123,
+              1.528755868544601
             ]
           },
           "paired_over_static_callback": {
-            "median": 0.9221704544838467,
+            "median": 1.0428245339567832,
             "ci95": [
-              0.9004629629629629,
-              1.0768960674157304
+              0.9604063201829383,
+              1.0951127819548871
             ]
           },
           "samples_us": [
-            4369,
-            1528,
-            2699,
-            2322,
-            2533,
-            2507,
-            2377,
-            2334,
-            2220,
-            2549,
-            2529,
+            3537,
+            2771,
+            2880,
+            2825,
+            1625,
+            2552,
+            2458,
+            2659,
+            2913,
+            2283,
+            2703,
+            2845,
+            2859,
+            1884,
+            1983,
             2259,
-            2343,
-            2504,
-            2641,
-            2477
+            2265,
+            2715,
+            2223,
+            1519,
+            2381,
+            2772,
+            2955,
+            2865,
+            2830,
+            2457,
+            2766,
+            2878,
+            2848,
+            2605,
+            2304,
+            2661
           ],
           "allocation_requests": 5
         }
@@ -266,7 +314,7 @@
     "map_fold": {
       "versions": {
         "upstream": {
-          "median_us": 7422.0,
+          "median_us": 7492.0,
           "paired_over_upstream": {
             "median": 1.0,
             "ci95": [
@@ -275,53 +323,69 @@
             ]
           },
           "paired_over_direct": {
-            "median": 3.9638641789734823,
+            "median": 4.375540539328355,
             "ci95": [
-              3.6588540132393232,
-              4.561643492803233
+              3.909099116393461,
+              4.677366702743444
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.011633753304803,
+            "median": 1.0151142362382002,
             "ci95": [
-              0.9903005464480874,
-              1.0326768589081508
+              1.0012221618685497,
+              1.0336340470839556
             ]
           },
           "samples_us": [
-            7589,
-            7366,
-            7517,
-            7322,
-            8041,
-            7249,
-            7393,
-            7349,
-            7306,
-            7544,
-            7129,
-            7675,
-            7451,
-            7527,
-            7346,
-            7727
+            8069,
+            7712,
+            7199,
+            7532,
+            7521,
+            7160,
+            7315,
+            7705,
+            7530,
+            7373,
+            7655,
+            7743,
+            7470,
+            7458,
+            7238,
+            7534,
+            7365,
+            7321,
+            7252,
+            7764,
+            7433,
+            7064,
+            7571,
+            7250,
+            7514,
+            7619,
+            7350,
+            7583,
+            7515,
+            7363,
+            7428,
+            7834
           ],
           "allocation_requests": 3200005
         },
         "candidate": {
-          "median_us": 7315.5,
+          "median_us": 7351.0,
           "paired_over_upstream": {
-            "median": 0.9885002030427419,
+            "median": 0.9851108757547832,
             "ci95": [
-              0.968362928350291,
-              1.0097944544075046
+              0.9670787609390193,
+              0.9986319224461099
             ]
           },
           "paired_over_direct": {
-            "median": 4.393440788931478,
+            "median": 4.40923207599086,
             "ci95": [
-              3.6271617497456763,
-              4.900623291103118
+              4.031955922865014,
+              4.685768261964736
             ]
           },
           "paired_over_static_callback": {
@@ -332,65 +396,97 @@
             ]
           },
           "samples_us": [
-            10269,
-            7430,
-            7284,
-            7589,
-            7997,
-            7320,
-            7311,
+            8718,
+            7464,
+            6962,
             7489,
-            7219,
-            7187,
-            7593,
-            7414,
-            7230,
-            7188,
-            7131,
-            7079
+            7407,
+            7292,
+            7420,
+            7207,
+            7598,
+            7364,
+            7197,
+            7249,
+            6981,
+            7421,
+            7433,
+            7061,
+            7049,
+            7391,
+            7044,
+            7318,
+            7354,
+            7085,
+            7819,
+            7144,
+            7394,
+            7565,
+            7406,
+            7274,
+            7284,
+            7441,
+            6892,
+            7348
           ],
           "allocation_requests": 3200005
         },
         "fold_region_candidate": {
-          "median_us": 1841.5,
+          "median_us": 1680.0,
           "paired_over_upstream": {
-            "median": 0.2418018125874456,
+            "median": 0.22740684798551547,
             "ci95": [
-              0.20316515622886513,
-              0.283944205227069
+              0.2178967994774657,
+              0.2385504160380506
             ]
           },
           "paired_over_direct": {
-            "median": 0.9070491804868774,
+            "median": 0.9540205637079013,
             "ci95": [
-              0.8330560177481975,
-              1.1140285570176807
+              0.8450330731184077,
+              1.1116320013101868
             ]
           },
           "paired_over_static_callback": {
-            "median": 0.25188955382872097,
+            "median": 0.2341819516430097,
             "ci95": [
-              0.20857103102824545,
-              0.29073956751105623
+              0.21707186668076064,
+              0.24406049718699463
             ]
           },
           "samples_us": [
-            4042,
-            1849,
-            2005,
-            3147,
-            1620,
-            1172,
-            1502,
-            2752,
-            1655,
-            1499,
-            1939,
-            1890,
-            2361,
-            1613,
-            1453,
-            1834
+            2234,
+            1808,
+            1634,
+            1955,
+            1299,
+            1995,
+            2971,
+            1450,
+            1674,
+            1056,
+            1668,
+            1550,
+            1686,
+            1734,
+            1605,
+            2138,
+            1764,
+            1668,
+            1723,
+            1556,
+            906,
+            1589,
+            1310,
+            2078,
+            1528,
+            2927,
+            1768,
+            1776,
+            2195,
+            1812,
+            1384,
+            1528
           ],
           "allocation_requests": 5
         }
@@ -399,7 +495,7 @@
     "let_bound_map_fold": {
       "versions": {
         "upstream": {
-          "median_us": 7112.5,
+          "median_us": 7079.5,
           "paired_over_upstream": {
             "median": 1.0,
             "ci95": [
@@ -408,53 +504,69 @@
             ]
           },
           "paired_over_direct": {
-            "median": 3.7210101031983833,
+            "median": 4.134161589488253,
             "ci95": [
-              3.3998049731838127,
-              4.2325849165227405
+              3.692348565356004,
+              4.412523020257827
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.0103210403494518,
+            "median": 1.0102783059909213,
             "ci95": [
-              0.9951628414975779,
-              1.0252568493150684
+              0.9953821818910358,
+              1.018142235123367
             ]
           },
           "samples_us": [
-            7308,
-            6899,
-            7146,
-            7236,
-            7677,
-            6926,
-            6785,
-            7185,
+            7867,
+            7149,
+            6935,
+            7196,
+            6860,
             7100,
-            6973,
-            6904,
-            7222,
-            7352,
-            7082,
-            6897,
-            7125
+            7130,
+            7217,
+            7112,
+            7031,
+            6948,
+            6994,
+            7198,
+            7119,
+            6972,
+            7883,
+            6958,
+            6921,
+            7188,
+            7256,
+            7015,
+            7053,
+            7228,
+            6803,
+            7043,
+            7005,
+            6949,
+            7134,
+            7106,
+            7059,
+            7033,
+            7203
           ],
           "allocation_requests": 3200005
         },
         "candidate": {
-          "median_us": 7004.5,
+          "median_us": 7018.5,
           "paired_over_upstream": {
-            "median": 0.9898128940148053,
+            "median": 0.9898340271370337,
             "ci95": [
-              0.9753653444676409,
-              1.0046315789473683
+              0.9821810406272273,
+              1.0046679676452288
             ]
           },
           "paired_over_direct": {
-            "median": 4.15567533500168,
+            "median": 4.267541917022653,
             "ci95": [
-              3.618006103763988,
-              4.650793650793651
+              3.875807995557212,
+              4.551256022988392
             ]
           },
           "paired_over_static_callback": {
@@ -465,74 +577,106 @@
             ]
           },
           "samples_us": [
-            9068,
-            6983,
-            6973,
-            7219,
+            8113,
+            7240,
+            6828,
+            7364,
+            7650,
+            7095,
+            6832,
+            7100,
+            6805,
+            6928,
+            7081,
+            6719,
+            6900,
+            6836,
+            7042,
+            6873,
+            6817,
+            7227,
+            7095,
+            7151,
+            6890,
+            6519,
+            7192,
+            6970,
             6995,
-            7032,
-            6653,
-            7008,
-            7108,
-            6939,
-            6797,
-            7001,
-            7098,
-            6849,
-            7113,
-            7158
+            7185,
+            7079,
+            7083,
+            6933,
+            7093,
+            6981,
+            6877
           ],
           "allocation_requests": 3200005
         },
         "fold_region_candidate": {
-          "median_us": 7245.5,
+          "median_us": 2606.0,
           "paired_over_upstream": {
-            "median": 1.0232821264313257,
+            "median": 0.3651959480089236,
             "ci95": [
-              1.0057855311807398,
-              1.0529215600985935
+              0.35226019845644985,
+              0.3888493813113355
             ]
           },
           "paired_over_direct": {
-            "median": 3.660343370755366,
+            "median": 1.4260203976723624,
             "ci95": [
-              3.565452304675137,
-              3.9254932441757218
+              1.3243707093821508,
+              1.528742174160501
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.0362310447387895,
+            "median": 0.3734432889018696,
             "ci95": [
-              1.0209475608041614,
-              1.0451160753394657
+              0.3611190002840102,
+              0.3867403314917127
             ]
           },
           "samples_us": [
-            10289,
-            7620,
-            7152,
-            7503,
-            7268,
-            7216,
-            7423,
-            7095,
-            7229,
-            7171,
-            7306,
-            6917,
-            7407,
-            7158,
-            7262,
-            7170
+            3103,
+            2800,
+            2803,
+            2021,
+            2927,
+            2802,
+            2533,
+            2312,
+            2669,
+            2734,
+            2686,
+            1945,
+            2103,
+            2575,
+            2543,
+            2717,
+            2440,
+            2654,
+            2628,
+            2556,
+            2754,
+            2452,
+            2554,
+            2749,
+            2584,
+            2437,
+            2787,
+            2819,
+            2936,
+            2575,
+            2434,
+            2422
           ],
-          "allocation_requests": 3200005
+          "allocation_requests": 5
         }
       }
     },
     "direct": {
       "versions": {
         "upstream": {
-          "median_us": 1880.0,
+          "median_us": 1712.5,
           "paired_over_upstream": {
             "median": 1.0,
             "ci95": [
@@ -548,39 +692,55 @@
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.0456050672643453,
+            "median": 1.0478753129876257,
             "ci95": [
-              0.9339752407152683,
-              1.2568216920400972
+              0.8941354298224757,
+              1.1742170604539015
             ]
           },
           "samples_us": [
-            2037,
-            1812,
-            1768,
-            1503,
-            1645,
-            2737,
-            1486,
-            2127,
-            2188,
-            2051,
-            2426,
-            1987,
-            1737,
-            1413,
-            1930,
-            1830
+            1719,
+            1192,
+            1425,
+            2176,
+            1098,
+            1734,
+            2095,
+            1848,
+            1474,
+            2190,
+            1665,
+            2555,
+            1170,
+            2172,
+            1945,
+            1706,
+            1699,
+            2288,
+            1629,
+            2460,
+            1614,
+            1387,
+            1848,
+            1370,
+            2421,
+            1600,
+            1882,
+            1627,
+            1825,
+            1224,
+            2191,
+            1671
           ],
           "allocation_requests": 5
         },
         "candidate": {
-          "median_us": 1714.5,
+          "median_us": 1657.0,
           "paired_over_upstream": {
-            "median": 0.956973491252487,
+            "median": 0.9544496007192342,
             "ci95": [
-              0.7976596782057533,
-              1.0706921944035346
+              0.8505809672781279,
+              1.1020009225495468
             ]
           },
           "paired_over_direct": {
@@ -598,32 +758,48 @@
             ]
           },
           "samples_us": [
-            2181,
-            1691,
-            1226,
-            1738,
-            1504,
-            1512,
-            2392,
-            2086,
-            1939,
-            1636,
-            1258,
-            2052,
-            2451,
-            1603,
-            1966,
-            1185
+            1621,
+            2054,
+            1947,
+            1292,
+            1545,
+            1460,
+            1314,
+            1672,
+            1451,
+            1594,
+            2102,
+            1306,
+            2069,
+            902,
+            1642,
+            1509,
+            2026,
+            1712,
+            2095,
+            1815,
+            1718,
+            1403,
+            1785,
+            1835,
+            1833,
+            1885,
+            1527,
+            1639,
+            1568,
+            1588,
+            2032,
+            1877
           ],
           "allocation_requests": 5
         },
         "fold_region_candidate": {
-          "median_us": 1990.5,
+          "median_us": 1762.5,
           "paired_over_upstream": {
-            "median": 1.1183736154633737,
+            "median": 1.0341744385368545,
             "ci95": [
-              0.9258898098488543,
-              1.205316742081448
+              0.9065910367005257,
+              1.0754926523912074
             ]
           },
           "paired_over_direct": {
@@ -634,34 +810,50 @@
             ]
           },
           "paired_over_static_callback": {
-            "median": 1.1182056581120121,
+            "median": 1.0758771936565117,
             "ci95": [
-              0.9942462600690449,
-              1.316137566137566
+              0.9273889868281422,
+              1.1953495071053641
             ]
           },
           "samples_us": [
-            2346,
-            2087,
-            2131,
-            1728,
-            2032,
-            1990,
-            1803,
-            2138,
-            1900,
-            1899,
+            2961,
+            1218,
+            1843,
+            1503,
+            1784,
+            1720,
+            1883,
+            1748,
+            997,
+            1591,
+            1757,
+            1669,
+            1664,
+            1876,
+            1513,
+            1822,
+            1840,
+            2076,
             1991,
-            1441,
-            2306,
-            1917,
-            2098,
-            1976
+            1157,
+            2329,
+            2235,
+            1934,
+            1241,
+            2261,
+            1677,
+            1377,
+            1768,
+            1930,
+            1704,
+            1740,
+            2664
           ],
           "allocation_requests": 5
         }
       }
     }
   },
-  "artifacts": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-zw8yz1am"
+  "artifacts": "/var/folders/vh/d6__7mgx1_q0ls7m74k0lhjr0000gn/T/maybe-keep-fold-region-results-artifacts-v6ixk_z6"
 }
