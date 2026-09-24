@@ -211,7 +211,7 @@ This confirms the test actually observes every retained chunk after
 transduction. It does not imply reuse is possible while the emitted chunk is
 still live; allocation accounting is needed to quantify the difference.
 
-### Workset 4: allocation and timing — paused, partial results
+### Workset 4: initial allocation and timing pass — partial checkpoint
 
 [`measure_array_partition.py`](../../bench/array_partition/measure_array_partition.py)
 now compiles separate native binaries for the List, Array, and direct lanes,
@@ -264,19 +264,55 @@ finishes each group. The timed peak growth in Bend's managed heap was 32 bytes
 for these instrumented samples; this is not process RSS. The retained rows are
 needed to see how this changes when groups remain live.
 
-The report marks itself `paused_partial` and lists the six remaining workloads.
-The harness does not resume mid-matrix; rerunning it starts again at the first
-row, so the partial report is kept as a checkpoint. To finish the planned run,
-use the pinned prepared candidate (or regenerate it with the existing
-`prepare_static.py` workflow) and write a separate complete report:
+The report marks itself `paused_partial`. It is a historical checkpoint for
+the two-phase Array reader and the original order schedule. Its allocation
+counts remain useful, but its Array timing ratios are superseded by the
+follow-up measurements below.
 
-```bash
-python3 bench/array_partition/measure_array_partition.py \
-  --bend-main /private/tmp/bend-main-structural-v3/main.ts \
-  --output bench/array_partition/measurement-results.json
-```
+### Array reader A/B and balanced full folds — complete
 
-The remaining work is bounded folding at widths 3 and 8, then retained
-consumers at widths 1, 2, 3, and 8. Afterward, compare the retained allocation
-counts and timing with the fold results, complete the decision gates, and
-commit the finished measurement workset.
+[`reader-ab-results.json`](../../bench/array_partition/reader-ab-results.json)
+compares the original two-phase reader with the single-loop reader. It uses 12
+sessions, five samples per lane per session, and alternates the two lane orders
+six times each. Every sample returns the same checksum. The reader variants
+have identical Array block allocation and free counts, so the timing change
+comes from the read-and-sum implementation.
+
+| Width | Two-phase median (ms) | Single-loop median (ms) | Single-loop / two-phase, 95% interval |
+| ---: | ---: | ---: | ---: |
+| 1 | 188 | 187 | 0.992 [0.983, 1.000] |
+| 2 | 412 | 217 | 0.528 [0.526, 0.530] |
+| 3 | 362 | 188 | 0.533 [0.529, 0.537] |
+| 8 | 425 | 237.5 | 0.546 [0.542, 0.550] |
+
+The simpler reader is about 47% faster at widths 2, 3, and 8, and makes no
+meaningful difference at width 1. This confirms that the earlier full-fold
+Array timings included a substantial consumer cost.
+
+[`corrected-fold-results.json`](../../bench/array_partition/corrected-fold-results.json)
+compares List, the single-loop Array reader, and direct fusion with all six
+three-lane orders cycled twice across 12 sessions. Each lane has five samples
+per session, every checksum is checked, and allocation instrumentation remains
+outside timed binaries.
+
+| Width | List median (ms) | Array median (ms) | Direct median (ms) | Array/List, 95% interval | Direct/List, 95% interval |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 229 | 379.5 | 188 | 1.661 [1.653, 1.669] | 0.823 [0.814, 0.833] |
+| 2 | 321 | 434 | 217 | 1.350 [1.346, 1.354] | 0.637 [0.634, 0.640] |
+| 3 | 329.5 | 378.5 | 214 | 1.176 [1.170, 1.181] | 0.642 [0.640, 0.644] |
+| 8 | 356 | 237 | 193 | 0.649 [0.647, 0.651] | 0.545 [0.543, 0.547] |
+
+With the better reader, Array remains slower than List at widths 1, 2, and 3,
+but is faster at width 8. Direct fusion remains fastest at every width. This
+rules out a simple global conclusion that Array chunks always lose; it also
+does not support replacing List as the default for every width. The fold inputs
+still contain 96 values, so every width divides evenly and this run says
+nothing about partial-final-chunk cost.
+
+The remaining measurement work is to add live Array-block peak counts, run
+retained consumers over 97 values so the last chunk is partial, and compare
+bounded consumers on both 96-value inputs and inputs of `2 * width + 1`. Then
+inspect the generated C only if a material gap remains, and apply the decision
+gates above. The harness cycles through all lane permutations and uses 12
+sessions by default; the pinned candidate can be regenerated with the existing
+`prepare_static.py` workflow if its prepared files are no longer available.

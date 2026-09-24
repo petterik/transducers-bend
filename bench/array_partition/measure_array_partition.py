@@ -2,6 +2,7 @@
 """Measure Array/List/direct partition consumers and separate C allocation counts."""
 import argparse
 import hashlib
+import itertools
 import json
 import math
 import os
@@ -22,7 +23,7 @@ LANES = ('list', 'array', 'direct')
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--bend-main', type=Path, required=True,
                     help='pinned bendlang/main compiler entry point')
-parser.add_argument('--sessions', type=int, default=10)
+parser.add_argument('--sessions', type=int, default=12)
 parser.add_argument('--pairs', type=int, default=5,
                     help='timed samples per lane in each session')
 parser.add_argument('--min-batch-ms', type=int, default=100)
@@ -30,7 +31,7 @@ parser.add_argument('--bootstrap', type=int, default=5000)
 parser.add_argument('--seed', type=int, default=20260923)
 parser.add_argument('--max-repeats', type=int, default=1048576)
 parser.add_argument('--cases', nargs='+',
-                    choices=['fold_full', 'fold_bounded', 'retain'],
+                    choices=['fold_full', 'fold_bounded', 'reader_ab', 'retain'],
                     help='selected workloads; default: all')
 parser.add_argument('--widths', nargs='+', type=int, choices=[1, 2, 3, 8],
                     default=[1, 2, 3, 8], help='selected partition widths')
@@ -55,9 +56,13 @@ WORD_MOD = 1 << 32
 
 
 def lane_functions(kind, lane, width, budget, sample_count):
-    if kind.startswith('fold_'):
+    if kind.startswith('fold_') or kind == 'reader_ab':
         if lane == 'list':
             perform = f'F.list_fold({width}n, {budget}n, xs)'
+            imports = 'import ./fold_probe.bend as F\n'
+        elif lane == 'array_two_phase':
+            depth = (width - 1).bit_length()
+            perform = f'F.array_fold_two_phase({width}n, {depth}n, {budget}n, xs)'
             imports = 'import ./fold_probe.bend as F\n'
         elif lane == 'array':
             depth = (width - 1).bit_length()
@@ -142,7 +147,10 @@ def make_rows():
     selected = a.cases or ['fold_full', 'fold_bounded', 'retain']
     for kind in selected:
         for width in a.widths:
-            if kind == 'fold_full':
+            if kind == 'reader_ab':
+                budget = SOURCE_SIZE // width
+                lanes = ('array_two_phase', 'array')
+            elif kind == 'fold_full':
                 budget = SOURCE_SIZE // width
                 lanes = LANES
             elif kind == 'fold_bounded':
@@ -504,7 +512,7 @@ def instrumented_run(stem, row, lane, repeats, case_dir):
         'timed_peak_extra_bytes': max(
             0, stats['timed_peak_live_words'] - stats['live_words_at_start']) * 8,
     })
-    if lane == 'array':
+    if lane in ('array', 'array_two_phase'):
         assert stats['timed_array_allocs'] > 0, stats
     else:
         assert stats['timed_array_allocs'] == 0, stats
@@ -532,7 +540,7 @@ report = {
         'source_building': 'one fresh source List per repetition, built before IO.now; same ordered values 0..95 in every lane',
         'timed_region': 'batch traversal, transduction and result consumption; source cleanup during traversal included',
         'instrumentation': 'separate instrumented C builds, excluded from native timing binaries',
-        'lane_order': 'rotate forward and reverse lane order by session; pair equal sample positions within each session',
+        'lane_order': 'cycle through every lane permutation; with the default 12 sessions, three-lane workloads run each permutation twice and two-lane workloads alternate six times per order',
     },
     'artifacts': str(out), 'results': [], 'allocation_results': [],
 }
@@ -580,9 +588,8 @@ for row in make_rows():
     row_report['expected_batch'] = expected_per_input(row) * repeats % WORD_MOD
 
     for session in range(a.sessions):
-        lanes = list(row['lanes'])
-        if session % 2:
-            lanes.reverse()
+        lane_orders = list(itertools.permutations(row['lanes']))
+        lanes = list(lane_orders[session % len(lane_orders)])
         session_samples = {}
         for lane in lanes:
             samples = run_batch(stems[lane], repeats, row, SAMPLE_COUNT)
@@ -595,16 +602,18 @@ for row in make_rows():
         })
 
     comparisons = {}
+    reference_lane = 'list' if 'list' in row['lanes'] else row['lanes'][0]
+    row_report['reference_lane'] = reference_lane
     for lane in row['lanes']:
-        if lane == 'list':
+        if lane == reference_lane:
             continue
         session_ratios = []
         for session in row_report['sessions']:
             lane_total = sum(session['samples_ms'][lane])
-            list_total = sum(session['samples_ms']['list'])
-            session_ratios.append(lane_total / list_total)
+            reference_total = sum(session['samples_ms'][reference_lane])
+            session_ratios.append(lane_total / reference_total)
         estimate = geometric_mean(session_ratios)
-        comparisons[f'{lane}_over_list'] = {
+        comparisons[f'{lane}_over_{reference_lane}'] = {
             'geometric_mean_ratio': estimate,
             'bootstrap_95': bootstrap_interval(session_ratios, rng),
             'session_ratios': session_ratios,
