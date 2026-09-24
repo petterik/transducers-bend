@@ -313,6 +313,41 @@ does not support replacing List as the default for every width. The fold inputs
 still contain 96 values, so every width divides evenly and this run says
 nothing about partial-final-chunk cost.
 
+### Matched-size full folds — complete
+
+The earlier compiler baseline used 200,000 input items per operation, while
+the matrix above uses 96. This supplemental run repeats the full-fold
+comparison with 200,000 items at widths 1, 2, 3, and 8. Each row has 12
+sessions and five paired samples per lane in each session (60 samples per
+lane), with 1,024 operations per timed sample. The width-3 case leaves a
+two-item final chunk; the other widths divide 200,000 evenly. All result
+checksums passed, and allocation/free accounting balanced.
+
+[`large-fold-results.json`](../../bench/array_partition/large-fold-results.json)
+contains the full samples, generated-source hashes, and allocation results.
+Times below are medians for each 1,024-operation sample batch; ratio intervals
+are the 5,000-resample session-level bootstrap intervals.
+
+| Width | List batch (ms) | Array batch (ms) | Direct batch (ms) | Array/List, 95% interval | Direct/List, 95% interval |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 438 | 758.5 | 226.5 | 1.718 [1.709, 1.727] | 0.528 [0.519, 0.538] |
+| 2 | 660.5 | 890.5 | 230 | 1.343 [1.335, 1.352] | 0.367 [0.362, 0.372] |
+| 3 | 671 | 794.5 | 220 | 1.165 [1.161, 1.169] | 0.339 [0.334, 0.343] |
+| 8 | 636.5 | 387 | 201 | 0.615 [0.606, 0.623] | 0.344 [0.336, 0.352] |
+
+At this input size, Array is 17–72% slower than List at widths 1–3 and 39%
+faster at width 8. Direct fusion is faster than List at every width, by roughly
+47–66%; it remains about 1.8–3.7 times faster than the Array lane. The
+instrumented Array lane requests one chunk block per emitted group, reaches
+one live Array block at peak, and frees every block before the fold completes.
+
+This run matches the earlier baseline's input size, not its timing boundary.
+The earlier harness includes source-list construction inside the timed region;
+this harness builds each source before `IO.now` and times traversal,
+transduction, result consumption, and source cleanup. Compare the three lanes
+within this report, but do not compare its numeric ratios directly with the
+earlier baseline.
+
 The follow-up harness now records the peak number of live Array backing blocks
 in its separate instrumented builds. It also runs retained consumers on 97
 values, bounded consumers on both the original 96-value inputs and inputs of
@@ -397,8 +432,10 @@ the general default. The evidence is mixed for immediate folds (List wins at
 widths 1–3; Array wins at width 8), and Array loses for retained output.
 Direct fusion wins the full folds and short bounded cases; for the 96-item
 two-group cases it is near List parity at widths 1–3 and 4.5% faster at width
-8. Do not add reference count checks, borrowing, or lifecycle-dependent
-mutation on these results.
+8. At 200,000 items, Array is slower than List at widths 1–3 and faster at
+width 8, while direct fusion stays faster than both at every tested width. Do
+not add reference count checks, borrowing, or lifecycle-dependent mutation on
+these results.
 Retained chunks must stay distinct and live until their consumer finishes. For
 immediate consumers, the measured one-block peak and balanced frees show a
 short lifetime; if allocator reuse itself becomes a design requirement, first
