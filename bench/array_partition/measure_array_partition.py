@@ -36,12 +36,16 @@ parser.add_argument('--cases', nargs='+',
                     help='selected workloads; default: all')
 parser.add_argument('--widths', nargs='+', type=int, choices=[1, 2, 3, 8],
                     default=[1, 2, 3, 8], help='selected partition widths')
+parser.add_argument('--source-size', type=int, default=96,
+                    help='source items per operation for non-retained rows (default: 96)')
 parser.add_argument('--output', type=Path)
 parser.add_argument('--artifact-dir', type=Path)
 a = parser.parse_args()
 if min(a.sessions, a.pairs, a.min_batch_ms, a.bootstrap,
        a.max_repeats) < 1:
     parser.error('sessions, pairs, min-batch-ms, bootstrap and max-repeats must be positive')
+if a.source_size < 1:
+    parser.error('source-size must be positive')
 
 compiler = a.bend_main.resolve()
 if a.artifact_dir:
@@ -52,7 +56,7 @@ else:
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 SAMPLE_COUNT = a.pairs
-SOURCE_SIZE = 96
+SOURCE_SIZE = a.source_size
 WORD_MOD = 1 << 32
 
 
@@ -151,10 +155,10 @@ def make_rows():
         for width in a.widths:
             input_items = SOURCE_SIZE
             if kind == 'reader_ab':
-                budget = SOURCE_SIZE // width
+                budget = (SOURCE_SIZE + width - 1) // width
                 lanes = ('array_two_phase', 'array')
             elif kind == 'fold_full':
-                budget = SOURCE_SIZE // width
+                budget = (SOURCE_SIZE + width - 1) // width
                 lanes = LANES
             elif kind == 'fold_bounded':
                 budget = 2
@@ -168,7 +172,7 @@ def make_rows():
                 budget = (input_items + width - 1) // width
                 lanes = ('list', 'array')
             else:
-                budget = SOURCE_SIZE // width
+                budget = (SOURCE_SIZE + width - 1) // width
                 lanes = ('list', 'array')
             rows.append({'kind': kind, 'width': width, 'budget': budget,
                          'lanes': list(lanes), 'input_items': input_items})

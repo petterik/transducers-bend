@@ -1,64 +1,104 @@
 {
   "compiler_entry_sha256": "8c4dde245581f55afcfc3e731b4f45a62a601e5c6b3368f2efbed6c06a989c14",
   "compiler_source_sha256": "04d2f814c799808efd136f5a56f22236d0dd128045dbf562c227d2f17fae992d",
-  "fold_fixture_sha256": "4f9257b5c5e367127946ae49286d203e6f651444556be3bf1ab2c66ee19dde9c",
+  "fold_fixture_sha256": "8bcb74465a2bb104850ae067eef430ef546a07879b1d9c22dba611c22575853d",
   "partition_fixture_sha256": "a62a62e4179a5f88bd5d084506c63100154d770f9cd029174332a20b6d5d20d3",
-  "runner_sha256": "883726cfac27b052187db6cf2156a28095725e88fda30c60ae852424b07accca",
-  "build_seconds": 0.8446601250907406,
-  "c_bytes": 215000,
-  "js_bytes": 45445,
-  "semantic_checks": 8,
+  "runner_sha256": "8d70375b6e316e01ddd2e33967aa2ff5d772988b1c0392502ce7adcb108c55f8",
+  "build_seconds": 0.6162735420512035,
+  "c_bytes": 168653,
+  "js_bytes": 45795,
+  "semantic_checks": 11,
   "js_native_equal": true,
   "cases": [
     {
       "width": 1,
+      "input_items": 96,
       "budget": 96,
       "consumption": "full",
+      "partial_final_chunk": false,
       "result": true
     },
     {
       "width": 2,
+      "input_items": 96,
       "budget": 48,
       "consumption": "full",
+      "partial_final_chunk": false,
       "result": true
     },
     {
       "width": 3,
+      "input_items": 96,
       "budget": 32,
       "consumption": "full",
+      "partial_final_chunk": false,
       "result": true
     },
     {
       "width": 8,
+      "input_items": 96,
       "budget": 12,
       "consumption": "full",
+      "partial_final_chunk": false,
       "result": true
     },
     {
       "width": 1,
+      "input_items": 96,
       "budget": 2,
       "consumption": "bounded",
+      "partial_final_chunk": false,
       "result": true
     },
     {
       "width": 2,
+      "input_items": 96,
       "budget": 2,
       "consumption": "bounded",
+      "partial_final_chunk": false,
       "result": true
     },
     {
       "width": 3,
+      "input_items": 96,
       "budget": 2,
       "consumption": "bounded",
+      "partial_final_chunk": false,
       "result": true
     },
     {
       "width": 8,
+      "input_items": 96,
       "budget": 2,
       "consumption": "bounded",
+      "partial_final_chunk": false,
+      "result": true
+    },
+    {
+      "width": 2,
+      "input_items": 97,
+      "budget": 49,
+      "consumption": "full",
+      "partial_final_chunk": true,
+      "result": true
+    },
+    {
+      "width": 3,
+      "input_items": 101,
+      "budget": 34,
+      "consumption": "full",
+      "partial_final_chunk": true,
+      "result": true
+    },
+    {
+      "width": 8,
+      "input_items": 97,
+      "budget": 13,
+      "consumption": "full",
+      "partial_final_chunk": true,
       "result": true
     }
   ],
-  "js_output": "[True{}, True{}, True{}, True{}, True{}, True{}, True{}, True{}]",
+  "js_output": "[True{}, True{}, True{}, True{}, True{}, True{}, True{}, True{}, True{}, True{}, True{}]",
   "artifacts": null
 }

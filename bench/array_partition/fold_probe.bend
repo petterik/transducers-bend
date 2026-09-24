@@ -49,7 +49,7 @@ def direct_fold_loop(xs: List<U32>, +width: Nat, budget: Nat,
     case xs budget 0n:
       total
     case Nil{} budget left:
-      total
+      (total + group_total : U32)
     case h <> t 1n+b 1n+p:
       match p:
         case 0n:
@@ -66,14 +66,17 @@ def same_four(a: U32, b: U32, c: U32, +direct: U32) -> Bool:
   Bool.and(U32.is_eq(a, direct),
     Bool.and(U32.is_eq(b, direct), U32.is_eq(c, direct)))
 
-def probe_case(+width: Nat, +depth: Nat, +budget: Nat) -> Bool:
-  same_four(list_fold(width, budget, P.numbers(96n, [])),
-    array_fold_two_phase(width, depth, budget, P.numbers(96n, [])),
-    array_fold(width, depth, budget, P.numbers(96n, [])),
-    direct_fold(width, budget, P.numbers(96n, [])))
+def probe_case(+width: Nat, +depth: Nat, +budget: Nat,
+  +input_items: Nat) -> Bool:
+  same_four(list_fold(width, budget, P.numbers(input_items, [])),
+    array_fold_two_phase(width, depth, budget, P.numbers(input_items, [])),
+    array_fold(width, depth, budget, P.numbers(input_items, [])),
+    direct_fold(width, budget, P.numbers(input_items, [])))
 
 def main() -> List<Bool>:
-  [probe_case(1n, 0n, 96n), probe_case(2n, 1n, 48n),
-   probe_case(3n, 2n, 32n), probe_case(8n, 3n, 12n),
-   probe_case(1n, 0n, 2n), probe_case(2n, 1n, 2n),
-   probe_case(3n, 2n, 2n), probe_case(8n, 3n, 2n)]
+  [probe_case(1n, 0n, 96n, 96n), probe_case(2n, 1n, 48n, 96n),
+   probe_case(3n, 2n, 32n, 96n), probe_case(8n, 3n, 12n, 96n),
+   probe_case(1n, 0n, 2n, 96n), probe_case(2n, 1n, 2n, 96n),
+   probe_case(3n, 2n, 2n, 96n), probe_case(8n, 3n, 2n, 96n),
+   probe_case(2n, 1n, 49n, 97n), probe_case(3n, 2n, 34n, 101n),
+   probe_case(8n, 3n, 13n, 97n)]

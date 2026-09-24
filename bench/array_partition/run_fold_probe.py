@@ -14,6 +14,11 @@ import time
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = Path(__file__).with_name('fold_probe.bend')
 SEMANTIC_FIXTURE = Path(__file__).with_name('semantic_probe.bend')
+CASES = [
+    (1, 96, 96), (2, 96, 48), (3, 96, 32), (8, 96, 12),
+    (1, 96, 2), (2, 96, 2), (3, 96, 2), (8, 96, 2),
+    (2, 97, 49), (3, 101, 34), (8, 97, 13),
+]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--bend-main', type=Path, required=True,
                     help='pinned bendlang/main compiler entry point')
@@ -43,7 +48,7 @@ with tempfile.TemporaryDirectory(prefix='array-partition-fold-') as temp_name:
     assert native.returncode == 0, (native.stdout, native.stderr)
     assert js.stdout == native.stdout, (js.stdout, native.stdout)
     values = re.findall(r'True\{\}', js.stdout)
-    assert len(values) == 8, (len(values), js.stdout)
+    assert len(values) == len(CASES), (len(values), js.stdout)
     assert 'False{}' not in js.stdout, js.stdout
 
     report = {
@@ -60,12 +65,14 @@ with tempfile.TemporaryDirectory(prefix='array-partition-fold-') as temp_name:
         'semantic_checks': len(values),
         'js_native_equal': True,
         'cases': [
-            {'width': width, 'budget': budget,
-             'consumption': 'full' if budget == full else 'bounded',
+            {'width': width, 'input_items': input_items, 'budget': budget,
+             'consumption': (
+                 'bounded' if budget < (input_items + width - 1) // width
+                 else 'full'),
+             'partial_final_chunk': input_items % width != 0 and
+                 budget >= (input_items + width - 1) // width,
              'result': True}
-            for width, full, budget in [
-                (1, 96, 96), (2, 48, 48), (3, 32, 32), (8, 12, 12),
-                (1, 96, 2), (2, 48, 2), (3, 32, 2), (8, 12, 2)]
+            for width, input_items, budget in CASES
         ],
         'js_output': js.stdout.strip(),
         'artifacts': None,

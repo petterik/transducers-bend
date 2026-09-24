@@ -177,8 +177,9 @@ reference and Array chunk summation.
 [`fold_probe.bend`](../../bench/array_partition/fold_probe.bend) compares
 List-backed `partition_all`, the fixture Array reducer, and a direct fused
 partition-and-sum loop. It covers full consumption and a two-group bounded
-consumer at widths 1, 2, 3, and 8. All eight cases return the same sum on JS
-and native; the native output matches JS exactly. See
+consumer at widths 1, 2, 3, and 8, plus partial-final-chunk full folds at
+widths 2, 3, and 8. All 11 cases return the same sum on JS and native; the
+native output matches JS exactly. See
 [`fold_probe-results.json`](../../bench/array_partition/fold_probe-results.json)
 and rerun with `python3 bench/array_partition/run_fold_probe.py --bend-main
 /path/to/bendlang/bend/main.ts`.
@@ -193,9 +194,11 @@ The Array fold now has two readers for an A/B comparison. The original reader
 switches between `ReadArray` and `ReadValue` in two recursive steps per item.
 The second reader uses one recursive loop step per item and a helper to unpack
 the computed `Array.get` result. The JS and native checks confirm that List,
-both Array readers, and direct fusion return equal sums for all eight widths
-and stopping cases. This establishes correctness only; their relative native
-cost remains to be measured.
+both Array readers, and direct fusion return equal sums for full, bounded, and
+partial-final-chunk cases. A 101-item smoke run exposed that the direct
+reference did not flush a partial final group; that reference is fixed and the
+new partial cases guard it. This establishes correctness only; their relative
+native cost remains to be measured.
 
 ### Workset 3: retained chunks — complete
 
