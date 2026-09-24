@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure streaming keep against materialized Maybe lists and direct folds."""
+"""Compare streaming keep, nested/let-bound Maybe map-fold, and direct folds."""
 import argparse
 import hashlib
 import json
@@ -8,22 +8,24 @@ from pathlib import Path
 import random
 import statistics
 import subprocess
+import tempfile
 import time
 
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 SOURCE = HERE / 'fixtures/maybe_keep_pipeline.bend'
-LANES = ('keep', 'materialized', 'direct')
+LANES = ('keep', 'map_fold', 'let_bound_map_fold', 'direct')
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--upstream-main', type=Path, required=True)
 parser.add_argument('--candidate-main', type=Path, required=True)
+parser.add_argument('--fold-region-main', type=Path)
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--sessions', type=int, default=16)
 args = parser.parse_args()
 assert args.sessions >= 8
 
-out = args.output.resolve().parent / (args.output.stem + '-artifacts')
+out = Path(tempfile.mkdtemp(prefix=args.output.stem + '-artifacts-'))
 out.mkdir(parents=True, exist_ok=True)
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
@@ -58,7 +60,7 @@ def compile_lane(name, compiler, stem):
         'binary': str(stem),
         'c_path': str(c_path),
         'js_path': str(js_path),
-        'compile_seconds': compile_seconds,
+        'clang_compile_seconds': compile_seconds,
         'c_bytes': c_path.stat().st_size,
         'js_bytes': js_path.stat().st_size,
         'compiler_sha256': hashlib.sha256(
@@ -98,23 +100,24 @@ def parse_rows(lines):
 def instrument_c(text):
     declarations = r'''
 static u64 maybe_allocations = 0;
-static u64 maybe_starts[3] = {0, 0, 0};
-static u64 maybe_ends[3] = {0, 0, 0};
+static u64 maybe_starts[4] = {0, 0, 0, 0};
+static u64 maybe_ends[4] = {0, 0, 0, 0};
 static u32 maybe_clock_count = 0;
 static void maybe_clock_mark(void) {
   u32 interval = maybe_clock_count / 2;
-  if (interval < 3) {
+  if (interval < 4) {
     if ((maybe_clock_count & 1) == 0) maybe_starts[interval] = maybe_allocations;
     else maybe_ends[interval] = maybe_allocations;
   }
   maybe_clock_count += 1;
 }
 static void maybe_allocation_report(void) {
-  fprintf(stderr, "MAYBE_ALLOC {\"clock_ticks\":%u,\"requests\":[%llu,%llu,%llu]}\n",
+  fprintf(stderr, "MAYBE_ALLOC {\"clock_ticks\":%u,\"requests\":[%llu,%llu,%llu,%llu]}\n",
     maybe_clock_count,
     (unsigned long long)(maybe_ends[0] - maybe_starts[0]),
     (unsigned long long)(maybe_ends[1] - maybe_starts[1]),
-    (unsigned long long)(maybe_ends[2] - maybe_starts[2]));
+    (unsigned long long)(maybe_ends[2] - maybe_starts[2]),
+    (unsigned long long)(maybe_ends[3] - maybe_starts[3]));
 }
 '''
     insert = '#define ALC_AT(e, i)'
@@ -175,7 +178,7 @@ def instrumented_allocations(item):
                  if line.startswith('MAYBE_ALLOC ')), None)
     assert line is not None, result.stderr
     stats = json.loads(line[len('MAYBE_ALLOC '):])
-    assert stats['clock_ticks'] == 6, (item['name'], stats)
+    assert stats['clock_ticks'] == 8, (item['name'], stats)
     return {
         'requests_by_lane': stats['requests'],
         'instrumented_c_bytes': instrumented_path.stat().st_size,
@@ -188,8 +191,13 @@ items = {
     'upstream': compile_lane(
         'upstream', args.upstream_main, out / 'upstream'),
     'candidate': compile_lane(
-        'candidate', args.candidate_main, out / 'candidate'),
+        'static_callback_candidate', args.candidate_main,
+        out / 'static_callback_candidate'),
 }
+if args.fold_region_main is not None:
+    items['fold_region_candidate'] = compile_lane(
+        'fold_region_candidate', args.fold_region_main,
+        out / 'fold_region_candidate')
 for item in items.values():
     allocation_report = instrumented_allocations(item)
     item['allocation_requests_by_lane'] = allocation_report['requests_by_lane']
@@ -213,23 +221,30 @@ for _session in range(args.sessions):
 summary = {}
 for lane in LANES:
     base = samples['upstream'][lane]
-    candidate = samples['candidate'][lane]
-    ratios = [new / old for new, old in zip(candidate, base) if old]
-    boot = []
-    for _ in range(10_000):
-        boot.append(statistics.median(rng.choices(ratios, k=len(ratios))))
-    boot.sort()
+    comparisons = {}
+    for compiler in items:
+        current = samples[compiler][lane]
+        def paired_ratio(numerator, denominator):
+            ratios = [new / old for new, old in zip(numerator, denominator)
+                      if old]
+            boot = sorted(statistics.median(rng.choices(ratios, k=len(ratios)))
+                          for _ in range(10_000))
+            return {
+                'median': statistics.median(ratios),
+                'ci95': [boot[249], boot[9749]],
+            }
+        comparisons[compiler] = {
+            'median_us': statistics.median(current),
+            'paired_over_upstream': paired_ratio(current, base),
+            'paired_over_direct': paired_ratio(current,
+                                                samples[compiler]['direct']),
+            'paired_over_static_callback': paired_ratio(
+                current, samples['candidate'][lane]),
+            'samples_us': current,
+            'allocation_requests': items[compiler]['allocation_requests_by_lane'][LANES.index(lane)],
+        }
     summary[lane] = {
-        'upstream_median_us': statistics.median(base),
-        'candidate_median_us': statistics.median(candidate),
-        'paired_candidate_over_upstream_median': statistics.median(ratios),
-        'paired_ratio_ci95': [boot[249], boot[9749]],
-        'upstream_samples_us': base,
-        'candidate_samples_us': candidate,
-        'allocation_requests': {
-            key: items[key]['allocation_requests_by_lane'][LANES.index(lane)]
-            for key in items
-        },
+        'versions': comparisons,
     }
 
 report = {
@@ -242,9 +257,10 @@ report = {
     'prebuilt_batches_per_lane': BATCHES,
     'js_smoke_items_per_batch': JS_N,
     'js_smoke_batches_per_lane': JS_BATCHES,
+    'lanes': list(LANES),
     'sessions': args.sessions,
     'clock': 'BenchClock.now_us; native monotonic nanoseconds converted to microseconds',
-    'allocation_instrumentation': 'separate C builds; successful heap allocator requests between the two lane clock marks',
+    'allocation_instrumentation': 'separate C builds; successful heap allocator requests between each pair of lane clock marks',
     'expected_checksum_per_lane': expected,
     'items': items,
     'summary': summary,

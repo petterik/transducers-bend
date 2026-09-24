@@ -46,11 +46,16 @@ def closure_mapped_sum(xs: List<U32>) -> U32:
 def unsafe_mapped_sum(xs: List<U32>) -> U32:
   fold_values(~U32.add, map_values(~unsafe_plus_one, xs), 0)
 
-def main() -> Bool & Bool & Bool & Bool:
+def let_bound_mapped_sum(xs: List<U32>) -> U32:
+  values = map_values(~plus_one, xs)
+  fold_values(~U32.add, values, 0)
+
+def main() -> Bool & Bool & Bool & Bool & Bool:
   (Nat.is_eq(List.length(&1, U32,
       retained(numbers(8n, []))), 8n),
    Nat.is_eq(mapped_length(numbers(8n, [])), 8n),
    U32.is_eq(closure_mapped_sum(numbers(8n, [])), 36),
-   U32.is_eq(unsafe_mapped_sum(numbers(8n, [])), 36))
+   U32.is_eq(unsafe_mapped_sum(numbers(8n, [])), 36),
+   U32.is_eq(let_bound_mapped_sum(numbers(8n, [])), 36))
 
-#|(True{}, True{}, True{}, True{})
+#|(True{}, True{}, True{}, True{}, True{})

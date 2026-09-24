@@ -26,7 +26,11 @@ def add_option(acc: U32, value: Maybe<U32>) -> U32:
     case Some{x}:
       (acc + x : U32)
 
-def materialized_sum(xs: List<U32>) -> U32:
+def map_fold_sum(xs: List<U32>) -> U32:
+  List.foldl(~&1, ~Maybe<U32>, ~U32, ~add_option,
+    List.map(~U32, ~Maybe<U32>, ~some_value, xs), 0)
+
+def let_bound_map_fold_sum(xs: List<U32>) -> U32:
   values = List.map(~U32, ~Maybe<U32>, ~some_value, xs)
   List.foldl(~&1, ~Maybe<U32>, ~U32, ~add_option, values, 0)
 
@@ -51,12 +55,20 @@ def keep_batch(xs: List<List<U32>>, acc: U32) -> U32:
     case input <> rest:
       keep_batch(rest, (acc + keep_sum(input) : U32))
 
-def materialized_batch(xs: List<List<U32>>, acc: U32) -> U32:
+def map_fold_batch(xs: List<List<U32>>, acc: U32) -> U32:
   match xs:
     case Nil{}:
       acc
     case input <> rest:
-      materialized_batch(rest, (acc + materialized_sum(input) : U32))
+      map_fold_batch(rest, (acc + map_fold_sum(input) : U32))
+
+def let_bound_map_fold_batch(xs: List<List<U32>>, acc: U32) -> U32:
+  match xs:
+    case Nil{}:
+      acc
+    case input <> rest:
+      let_bound_map_fold_batch(rest,
+        (acc + let_bound_map_fold_sum(input) : U32))
 
 def direct_batch(xs: List<List<U32>>, acc: U32) -> U32:
   match xs:
@@ -72,10 +84,17 @@ def measure_keep(xs: List<List<U32>>) -> IO(Nat & U32):
     after : Nat <- BenchClock.now_us()
     return (Nat.sub(after, before), total)
 
-def measure_materialized(xs: List<List<U32>>) -> IO(Nat & U32):
+def measure_map_fold(xs: List<List<U32>>) -> IO(Nat & U32):
   do IO<Nat & U32>:
     before : Nat <- BenchClock.now_us()
-    total : U32 = materialized_batch(xs, 0)
+    total : U32 = map_fold_batch(xs, 0)
+    after : Nat <- BenchClock.now_us()
+    return (Nat.sub(after, before), total)
+
+def measure_let_bound_map_fold(xs: List<List<U32>>) -> IO(Nat & U32):
+  do IO<Nat & U32>:
+    before : Nat <- BenchClock.now_us()
+    total : U32 = let_bound_map_fold_batch(xs, 0)
     after : Nat <- BenchClock.now_us()
     return (Nat.sub(after, before), total)
 
@@ -93,12 +112,15 @@ def result_text(name: String, result: Nat & U32) -> String:
 
 def main() -> IO(Unit):
   keep_inputs = batch_inputs(200000n, 8n, [])
-  materialized_inputs = batch_inputs(200000n, 8n, [])
+  map_fold_inputs = batch_inputs(200000n, 8n, [])
+  let_bound_inputs = batch_inputs(200000n, 8n, [])
   direct_inputs = batch_inputs(200000n, 8n, [])
   do IO<Unit>:
     kept : Nat & U32 <- measure_keep(keep_inputs)
-    materialized : Nat & U32 <- measure_materialized(materialized_inputs)
+    map_fold : Nat & U32 <- measure_map_fold(map_fold_inputs)
+    let_bound_map_fold : Nat & U32 <- measure_let_bound_map_fold(let_bound_inputs)
     direct : Nat & U32 <- measure_direct(direct_inputs)
     IO.print(result_text("keep", kept))
-    IO.print(result_text("materialized", materialized))
+    IO.print(result_text("map_fold", map_fold))
+    IO.print(result_text("let_bound_map_fold", let_bound_map_fold))
     IO.print(result_text("direct", direct))

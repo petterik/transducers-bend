@@ -240,10 +240,59 @@ function fold_region_rewrite_match(cb: Carb, body: HTerm,
   return replace(body);
 }
 
+// A checked consumer body carries type ascriptions for its original input
+// list. When the producer changes element type, those ascriptions would pin
+// the copied match arms to the producer's output element type. Drop the
+// ascriptions and let the synthesized helper's declared type provide the
+// source element type; the generated helper is fully checked below.
+function fold_region_strip_annotations(term: HTerm): HTerm {
+  const x = term_force(term);
+  switch (x.$) {
+    case "Ann": return fold_region_strip_annotations(x.x);
+    case "Var": return x;
+    case "Ref": return x;
+    case "Sub": {
+      const value = x.v.$ === "PVar" || x.v.$ === "PCtr"
+        ? x.v : fold_region_strip_annotations(x.v as HTerm);
+      return Bend.Sub(x.i, value, fold_region_strip_annotations(x.f), x.s);
+    }
+    case "App": return Bend.App(fold_region_strip_annotations(x.f),
+      fold_region_strip_annotations(x.x), x.s);
+    case "Lam": return Bend.Lam(x.k, x.i,
+      (arg) => fold_region_strip_annotations(x.f(arg)), x.s, x.q);
+    case "Typ": return Bend.Typ(fold_region_strip_annotations(x.g), x.s);
+    case "Qnt": return Bend.Qnt(x.s);
+    case "Qua": return Bend.Qua(x.q, x.s);
+    case "Min": return Bend.Min(fold_region_strip_annotations(x.a),
+      fold_region_strip_annotations(x.b), x.s);
+    case "All": return Bend.All(x.q, x.k, x.i,
+      fold_region_strip_annotations(x.A),
+      (arg) => fold_region_strip_annotations(x.B(arg)), x.s);
+    case "ADT": return Bend.ADT(x.k, x.x.map(fold_region_strip_annotations),
+      x.s, x.r);
+    case "Ctr": return Bend.Ctr(x.k, x.x.map(fold_region_strip_annotations), x.s);
+    case "Mat": return Bend.Mat(x.k, fold_region_strip_annotations(x.h),
+      fold_region_strip_annotations(x.m), x.s);
+    case "Let": return Bend.Let(x.k, x.i,
+      x.v.map(fold_region_strip_annotations),
+      (args) => fold_region_strip_annotations(x.f(args)), x.s, x.q);
+    case "Lit": return x;
+    case "Efq": return Bend.Efq(x.s);
+    case "Eql": return Bend.Eql(fold_region_strip_annotations(x.a),
+      fold_region_strip_annotations(x.b),
+      fold_region_strip_annotations(x.T), x.s);
+    case "Rfl": return Bend.Rfl(x.s);
+    case "Rwt": return Bend.Rwt(fold_region_strip_annotations(x.e),
+      fold_region_strip_annotations(x.p),
+      fold_region_strip_annotations(x.f), x.s);
+    case "Hol": return Bend.Hol(x.k, x.s);
+  }
+}
+
 function fold_region_check_helper(cb: Carb, helper_name: Name,
-  template: Def, body: HTerm): boolean {
+  template: Def, helper_type: HTerm, body: HTerm): boolean {
   const source = Bend.term_lower(body);
-  const provisional = { ...template, e: undefined,
+  const provisional = { ...template, T: helper_type, e: undefined,
     v: Bend.term_higher(source) } as Def & { h?: HTerm };
   delete provisional.h;
   cb.book.tlds[helper_name] = provisional;
@@ -257,6 +306,16 @@ function fold_region_check_helper(cb: Carb, helper_name: Name,
     delete cb.book.tlds[helper_name];
     return false;
   }
+}
+
+function fold_region_helper_type(consumer_type: HTerm,
+  source_list_type: HTerm): HTerm | null {
+  const type = term_strip(consumer_type);
+  if (type.$ !== "All") return null;
+  // The fold body is independent of the list's element type. Keep the
+  // consumer's quantity and result telescope, but make its source list the
+  // producer's input list.
+  return Bend.All(type.q, type.k, type.i, source_list_type, type.B, type.s);
 }
 
 function fold_region_term(cb: Carb, term: HTerm): HTerm {
@@ -338,11 +397,17 @@ function fold_region_try_call(cb: Carb, term: HTerm): HTerm | null {
   const producer_type = tele_unbind(cb.book, producer.T);
   if (consumer_type.doms.length !== 2 || producer_type.doms.length !== 1
     || ty_adt(cb.book, producer_type.doms[0][2])?.k !== "List"
-    || !fold_region_same(producer_type.doms[0][2], producer_type.ret)
+    || ty_adt(cb.book, producer_type.ret)?.k !== "List"
+    || ty_adt(cb.book, consumer_type.doms[0][2])?.k !== "List"
     || !fold_region_same(producer_type.ret, consumer_type.doms[0][2])
     || !fold_region_same(consumer_type.doms[0][2], outer.args[0].$ === "Ann"
       ? ty_ann(outer.args[0])! : producer_type.ret)) {
     return fold_region_refuse("list-type-shape");
+  }
+  const helper_type = fold_region_helper_type(consumer.T,
+    producer_type.doms[0][2]);
+  if (helper_type === null) {
+    return fold_region_refuse("dependent-fold-type");
   }
   const map_shape = fold_region_map_shape(cb, producer, producer_call.k);
   if (map_shape === null) return fold_region_refuse("producer-body-shape");
@@ -361,10 +426,15 @@ function fold_region_try_call(cb: Carb, term: HTerm): HTerm | null {
     const map_value = (head: HTerm): HTerm =>
       fold_region_map_value(cb, map_shape.arm, head)
       ?? die("invalid mapped value in checked fold region");
-    const helper_body = fold_region_rewrite_match(cb, consumer.h,
+    const same_element_type = fold_region_same(producer_type.doms[0][2],
+      producer_type.ret);
+    const consumer_body = same_element_type ? consumer.h
+      : fold_region_strip_annotations(consumer.h);
+    const helper_body = fold_region_rewrite_match(cb, consumer_body,
       consumer_call.k, helper_name, map_value);
     if (helper_body === null) return fold_region_refuse("consumer-body-shape");
-    if (!fold_region_check_helper(cb, helper_name, consumer, helper_body)) {
+    if (!fold_region_check_helper(cb, helper_name, consumer, helper_type,
+      helper_body)) {
       return fold_region_refuse("generated-helper-typecheck");
     }
     helpers.set(helper_key, helper_name);

@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T21:22:00+02:00
-updated_at: 2026-09-24T21:38:41+02:00
+updated_at: 2026-09-24T22:16:50+02:00
 status: current
 ---
 
@@ -30,40 +30,76 @@ The probe no longer assumes an optimization occurred or depends on the missing
 generated-code hashes. The preparer applies the retained patch to a fresh
 static-callback candidate without changing `../bend`.
 
-## Measured `Maybe` consumption
+## Type-changing `Maybe` map/fold experiment
 
-The new probe compares public streaming `keep`, materialized `List<U32>` to
-`List<Maybe<U32>>` followed by a fold, and a direct fold. It uses eight prebuilt
-200,000-item inputs per lane, 16 paired native sessions, and
-`BenchClock.now_us`. Allocation counts come from separate instrumented builds.
-The callback returns `Some{x}` for every item; existing
-[`keep_partition.bend`](../../tests/keep_partition.bend) covers mixed `Some` /
-`None` semantics. JS checks use two 256-item inputs because the larger
-recursive-list setup exceeds the JS stack; no JS timing is claimed.
+The earlier `maybe-keep-results.json` report compared streaming `keep`, a
+materialized map/fold, and a direct fold on the static-callback candidate. It
+showed fixed allocation traffic for streaming `keep` and about 3.2 million
+heap requests for a materialized `List<Maybe<U32>>`. That initial probe used a
+let-bound mapped list, so the checked FoldRegion could not see through the
+local variable.
 
-| Compiler | Lane | Median µs per 1.6M values | Heap allocation requests per sample |
-| --- | --- | ---: | ---: |
-| Raw `bendlang/main` | streaming `keep` | 48,555.5 | 8,000,021 |
-| Static-callback candidate | streaming `keep` | 2,888.5 | 5 |
-| Static-callback candidate | materialized map-to-Maybe + fold | 7,593.5 | 3,200,005 |
-| Static-callback candidate | direct fold | 2,723.5 | 5 |
+The current experiment compares four source shapes: public streaming `keep`,
+directly nested `List.map(U32 -> Maybe<U32>)` into `List.foldl`, the same map
+bound to a local variable before folding, and a handwritten direct fold. Each
+lane processes eight prebuilt 200,000-item lists (1.6 million values) per
+sample. It uses 16 randomized native sessions and the microsecond clock.
+Allocation counts come from separate instrumented C builds. The timed map
+callback returns `Some{x}`; the type-changing semantic fixture also covers
+all-`None`, mixed options, an empty list, and an order-sensitive fold.
 
-All lanes return the same checksum on native and the small JS smoke. On the
-static-callback candidate, streaming `keep` is about 1.06 times the direct-fold
-median and makes only five fixed allocator requests for the whole sample. The
-raw compiler makes about five allocator requests per input item in this
-streaming path. The materialized pipeline makes about two per item, while the
-direct fold also stays at five fixed requests. These totals show that the
-candidate removes per-item allocation traffic from the public `keep` pipeline;
-they do not classify each allocation by constructor type.
+| Compiler | Streaming `keep` µs / allocs | Nested map/fold µs / allocs | Let-bound map/fold µs / allocs | Direct fold µs / allocs |
+| --- | ---: | ---: | ---: | ---: |
+| Raw `bendlang/main` | 50,233.5 / 8,000,021 | 7,422 / 3,200,005 | 7,112.5 / 3,200,005 | 1,880 / 5 |
+| Static-callback candidate | 2,636 / 5 | 7,315.5 / 3,200,005 | 7,004.5 / 3,200,005 | 1,714.5 / 5 |
+| Checked FoldRegion candidate | 2,490.5 / 5 | 1,841.5 / 5 | 7,245.5 / 3,200,005 | 1,990.5 / 5 |
 
-This supports ordinary static composition for `keep`; it does not justify a
-Maybe-specific compiler rule. It also exposes the next structural case: the
-existing FoldRegion rejects a type-changing List map, so it leaves the
-materialized `List<Maybe<U32>>` boundary intact. Generalize the checked
-producer/fold rule to distinct source and output element types, then verify it
-on this case and an independent custom producer. Preserve the generic path for
-retained results, opaque callbacks, and failed checks.
+The directly nested type-changing map/fold goes from 7,315.5µs and 3,200,005
+heap requests on the static-callback candidate to 1,841.5µs and five fixed
+requests with FoldRegion. The paired FoldRegion/static-callback time ratio is
+0.252 [0.209, 0.291], about a 75% reduction. Against the direct fold in the
+same FoldRegion build, the fused map/fold ratio is 0.907 [0.833, 1.114]: the
+timings are statistically consistent with parity, and the measured allocation
+count is the same five fixed requests.
+
+The let-bound map/fold stays at about 7.2ms and 3.2 million heap requests. Its
+output remains correct, but the prototype does not propagate the producer
+through a local binding. FoldRegion is 3.6% slower than the static candidate
+on this lane (paired ratio 1.036 [1.021, 1.045]) without changing its
+allocation count; treat that small cross-build difference as an unresolved
+code-layout effect. The benchmark and
+[`fold_region_bailouts.bend`](../../tests/fold_region_bailouts.bend) make that
+limitation explicit: when the structural rule declines, the original
+materialized program remains in place. So this is evidence for a checked
+direct producer/fold rewrite, not yet for optimization that scales across
+ordinary let-bound program shapes.
+
+All native lanes and the small JS smoke runs return the same checksum. The JS
+smoke uses two 256-item inputs because the large recursive-list setup exceeds
+the JS stack; it provides semantic parity only, not JS timing. The FoldRegion
+build's generated C is 143,941 bytes versus 146,087 bytes for the
+static-callback build. The native Clang build takes about 0.26 seconds for both
+candidate outputs; this probe does not time Bend source compilation. The
+probe records raw samples, build hashes, generated code sizes, and paired
+ratios in
+[`maybe-keep-fold-region-results.json`](../../bench/compiler/maybe-keep-fold-region-results.json).
+
+The checked-term rule now accepts different producer input and output List
+element types. It erases checked type ascriptions from a copied consumer body
+only for this type-changing case, then uses `Bend.def_check` on each generated
+helper. The fixture generated ten helpers and all ten passed that check;
+the full candidate suite passed 28/28 on JS and native. The semantic cases
+also wrap an affine `Array<U32>` in `Maybe` and consume the `Some` branch. This
+preserves the proof boundary while allowing the match-arm head and tail types
+to be re-inferred from the source List.
+
+This demonstrates that the current structural rule can eliminate a
+type-changing intermediate when the producer call is the fold's direct input.
+It does not support let-bound producer results, `filter`, `partition_all`,
+early stop, retained chunks, or non-List sources. Keep results also vary with
+the surrounding compiled fixture: use the standalone prior report for
+historical keep/direct timing comparisons, and use this expanded fixture for
+the matched type-changing map/fold result.
 
 For `keep`, the correct library composition is `map(f)` followed by
 `cat_maybe`: `None` skips a downstream step and `Some{x}` transfers `x` once.
@@ -82,13 +118,15 @@ python3 bench/compiler/local_representation_probe.py \
   --output bench/compiler/local-representation-results.json
 ```
 
-Reproduce the streaming/materialized `Maybe` comparison with:
+Reproduce the streaming, nested/let-bound map/fold, and direct comparison with:
 
 ```sh
 python3 bench/compiler/prepare_static.py --output-dir /tmp/transduce-static
+python3 bench/compiler/prepare_fold_region.py --output-dir /tmp/transduce-fold-region
 python3 bench/compiler/maybe_keep_probe.py \
   --upstream-main ../bend/bend2/main.ts \
   --candidate-main /tmp/transduce-static/main.ts \
-  --output /tmp/maybe-keep-results.json \
+  --fold-region-main /tmp/transduce-fold-region/main.ts \
+  --output /tmp/maybe-keep-fold-region-results.json \
   --sessions 16
 ```

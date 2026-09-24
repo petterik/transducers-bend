@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T21:38:41+02:00
+updated_at: 2026-09-24T22:16:50+02:00
 status: current
 ---
 
@@ -430,7 +430,8 @@ and
 
 | Option | Impact | Effort | Value | Decision |
 | --- | --- | --- | --- | --- |
-| Extend the checked FoldRegion to type-changing map + fold | High: tests whether the same rule handles a different input/output element type | Medium: helper input type must be rebuilt and checked | Very high if it removes the materialized boundary safely | **P1: fuse `List<A> -> List<B>` into a full fold** |
+| Track direct producer values through a single-use local binding | High: removes the main syntax-shape limitation found by the benchmark | Medium to high: use counts, evaluation order, and affine values must stay explicit | High if it extends fusion without making the pass library-specific | **P1: test one checked let-bound producer/fold** |
+| Extend the fold region to filtering and skip semantics | High: tests whether a real transducer changes source traversal and step count | High: needs skip/continue state and callback-order proofs | High if a compositional fold representation emerges | P2: test map + filter after the alias case |
 | Keep relying on C optimization and existing affine reuse | Medium: preserves the allocation-free handwritten case and improves generated C locally | Low: no new API or compiler rule | Medium: useful baseline, but leaves the materialized producer cost | Keep as baseline, not the whole strategy |
 | Extend the region to partitioning and reducer stop/finish | High for general transducer pipelines | High: must model buffering, completion, and early stop | Unproven until map/filter composition works | Defer |
 | Add an explicit reducer sink that returns a completed reusable buffer | Medium to high for chunk-building pipelines | High: expands reducer state/API and requires ownership-return semantics | Medium: useful when fusion cannot prove non-escape; premature before a measured need | Defer |
@@ -452,18 +453,20 @@ tail.
 
 The plain static-callback compiler has `comp.ts` SHA-256
 `cfd14f244c5a6d2d0b4069d03e53f3682bd09fb535fd15d2d8757b5f21546579`. The
-checked FoldRegion pass has SHA-256
-`b5aa99cf954f50bbab65da083271ce5481816c8cfc066e18cb75f8b7f62aed87`, and its
-prepared compiler has SHA-256
-`718bc924469de4b293c59d9b4f1efd8c97c3f12d414b6db194074f06c5329580`.
+current checked FoldRegion pass has SHA-256
+`a79795eb68773c4054e6757316a0372bbd2e66e6e2cbe24f457b312c9d71ba3f`, and
+the prepared compiler has SHA-256
+`d22e950683a257358b3ca61a6dc16f5bd94e52f543c0c6a91d148bfc450ee965`.
 
-The pass requires the producer input and output List types to be identical,
-direct callbacks with a conservative checked call graph, and a trivial initial
-state. It refuses unsafe/foreign definitions, parallel calls, dynamic closure
-calls, unknown intrinsics, retained output, and unknown consumers. It passes
-the source expression to the generated helper once, preserving its evaluation
-before the fold. This shape has no reducer `Stop` or completion protocol; such
-cases do not match the full-fold consumer and are not optimized.
+The pass allows different producer input/output List element types, with the
+producer's output List matching the fold's input. It still requires the
+producer call to be the fold's direct input, direct callbacks with a
+conservative checked call graph, and a trivial initial state. It refuses
+unsafe/foreign definitions, parallel calls, dynamic closure calls, unknown
+intrinsics, retained output, unknown consumers, and let-bound producer values.
+It passes the source expression to the generated helper once, preserving its
+evaluation before the fold. This shape has no reducer `Stop` or completion
+protocol; such cases do not match the full-fold consumer and are not optimized.
 
 The matched benchmark rebuilt the plain static-callback candidate and the
 checked FoldRegion candidate from the same compiler snapshot. It used 16
@@ -487,84 +490,88 @@ to parity with the streaming transducer pipeline. Its paired runtime is about
 shows no measurable regression. The order-sensitive hash and sum agree with
 the direct controls on both JS and native.
 
-The pass also fused custom-named map/fold functions and a separate `range_list`
-source adapter, and moved fresh affine `Array` values through the rewrite. It
-left retained output, `List.length`, a runtime closure callback, and an
-`@unsafe` callback unfused. The complete suite passed 27/27 fixtures on both
-backends. These are useful checks for structural matching, order, ownership,
-and bailouts, but they do not validate arbitrary producer/consumer programs.
+The pass also fused custom-named map/fold functions and a separate source
+adapter returning a List, and moved fresh affine `Array` values through the
+rewrite. It left retained output, `List.length`, a runtime closure callback,
+an `@unsafe` callback, and a let-bound producer unfused. The complete suite
+now passes 28/28 fixtures on both backends. These are useful checks for
+structural matching, order, ownership, and bailouts, but they do not validate
+arbitrary producer/consumer programs.
 
 Each synthesized helper is converted back to a source term and passed through
-`Bend.def_check` before installation. The verifier checks its type, affine
-uses, and recursive decrease; the harness asserts that every installed helper
-was rechecked. Across the four positive fixtures, all 14 generated helper
-instances passed this check. The rule still handles only same-element-type
-recursive List maps into full folds. It has not fused `filter`, `keep`,
-`partition_all`,
-arrays, ranges, channels, strings, or file/map sources, and it has no early
+`Bend.def_check` before installation. For type-changing maps, the pass removes
+the old consumer body's checked type ascriptions, lets the helper's new source
+List type determine the branch variables, then checks the entire generated
+helper again. The type-changing fixture generated ten helpers and all ten
+passed the checker, including a `Maybe<Array<U32>>` payload; the harness asserts
+every installed helper was rechecked.
+The rule still handles only a direct recursive List producer into a full fold.
+It has not fused `filter`, `keep`, `partition_all`, a non-List source, early
 stop, completion, or retained-chunk semantics.
 
-This is evidence for the general idea that a small structural producer/fold
-optimization can eliminate an intermediate allocation without recognizing
-library names. It is not yet evidence that adding transducers automatically
-composes into such regions: the present pass has one producer shape and one
-consumer shape, and the test source adapter still produces a List.
+This is evidence that a small structural producer/fold optimization can
+eliminate a type-changing intermediate without recognizing library names. It
+is not yet evidence that adding transducers automatically composes into such
+regions: the pass has one producer shape and one consumer shape, only when the
+producer is the fold's immediate input.
 
-The separate `Maybe` probe compares streaming `keep`, a materialized
-`List<Maybe<U32>>` followed by a fold, and a direct fold. On 1.6M values per
-sample, the static-callback candidate takes 2,888.5µs for streaming `keep` and
-2,723.5µs for the direct fold; both make five fixed allocator requests. The
-materialized path takes 7,593.5µs and makes 3,200,005 requests. Raw upstream
-streaming `keep` takes 48,555.5µs and makes 8,000,021 requests. This is strong
-evidence that the existing static-callback candidate removes per-item traffic
-from public `keep`, but it does not show that raw `bendlang/main` does so, nor
-does it classify each allocation by value type. See
-[`maybe-keep-results.json`](../../bench/compiler/maybe-keep-results.json) and
-[`maybe_keep_probe.py`](../../bench/compiler/maybe_keep_probe.py).
+The current four-lane `Maybe` probe compares streaming `keep`, a directly
+nested `List<Maybe<U32>>` map/fold, the same map bound to a local before the
+fold, and direct consumption. With 1.6M values per lane, FoldRegion reduces
+the nested map/fold from 7,315.5µs and 3,200,005 requests on the
+static-callback candidate to 1,841.5µs and five fixed requests. Its paired
+time ratio versus the static-callback build is 0.252 [0.209, 0.291]. The
+let-bound shape stays at 7,245.5µs and 3,200,005 requests, demonstrating the
+current syntactic boundary. Against the direct fold in the same FoldRegion
+build, the nested map/fold ratio is 0.907 [0.833, 1.114], statistically
+consistent with parity. The full report records raw samples, allocation
+counts, code sizes, hashes, and JS semantic smoke results in
+[`maybe-keep-fold-region-results.json`](../../bench/compiler/maybe-keep-fold-region-results.json).
+
+The keep lane remains fixed at five heap requests on both static-callback and
+FoldRegion builds. This expanded fixture changes the generated program, so its
+keep/direct timing should not be mixed with the earlier standalone
+[`maybe-keep-results.json`](../../bench/compiler/maybe-keep-results.json)
+timing report. Neither result claims a JS performance measurement.
 
 ## Next experiment
 
-The `Maybe` allocation experiment is complete. On the static-callback
-candidate, public `keep` (`map(f)` followed by `cat_maybe`) reaches near-direct
-timing and fixed allocation traffic; raw upstream still has substantial
-per-item overhead. Do not add a Maybe-specific rule yet. The next step is to
-extend the checked FoldRegion from same-element-type maps to type-changing maps:
+The type-changing direct-call case is complete. Keep the next experiment small
+enough to expose the proof boundary. First test whether the producer can be
+tracked through one let-bound local when the value is fresh, single-use, and
+pure. Keep the old materialized behavior whenever any of those conditions is
+not proved. Then test one Boolean `map` + `filter` fold, which adds skipped
+steps and changes traversal behavior:
 
-1. Remove the current equality requirement between the producer's input and
-   output List types. Synthesize the helper over `List<A>`, apply the mapped
-   callback to each `A`, and feed the resulting `B` to the existing fold step.
-   Continue matching checked term shapes rather than names such as `List.map`,
-   `Maybe`, or `keep`.
-2. Use materialized `List.map(U32 -> Maybe<U32>)` plus a fold that consumes each
-   option as the first positive case. Compare it to streaming `keep` and the
-   direct fold using the already measured all-`Some` workload. Add all-`None`,
-   mixed, order-sensitive, and custom-named producers as semantic cases.
-3. Build the synthesized helper with the new source-list input type, then run
-   `Bend.def_check` on every helper. If a type, affine-use, or termination check
-   fails, preserve the original program and record the refusal.
-4. Add a callback returning an affine payload (such as an array) and verify
-   that the `Some` branch transfers it once. Keep retained List outputs, opaque
-   producers, dynamic callbacks, `@unsafe` definitions, and source expressions
-   with effects on the fallback path.
-5. Compare raw upstream, static-callback, and type-changing FoldRegion builds
-   on JS and native. Use the microsecond clock, paired sessions, separate
-   allocation instrumentation, compile time, and generated C size. If this
-   passes, test a separate Boolean `map` + `filter` composition.
+1. Add a fresh, single-use let-bound producer case and a multiple-use or
+   effectful counterexample. Check source evaluation count, order, affine
+   transfer, and termination; require the optimizer to recheck the transformed
+   helper.
+2. Benchmark the direct-call and let-bound cases on the same input and
+   compiler builds. Confirm the optimization follows the local binding only
+   when its use and evaluation proofs pass, and that fallback output stays
+   unchanged otherwise.
+3. Add one `map` + Boolean `filter` composition whose predicate rejects some
+   inputs. Verify order, count, empty/all-rejected inputs, and early-stop
+   behavior. Compare allocation traffic and microsecond timings with
+   handwritten fused Bend and ordinary materialized map/filter/fold.
+4. Review the representation after these two shapes. If each transducer
+   requires a separate compiler pattern, pause and design a typed source-step
+   region or reducible interface before adding `partition_all`.
 
-Do not add `partition_all`, early stop, or a public reducible interface in this
-step. Once the type-changing map/fold and Boolean-filter cases work, use them to
-decide whether the internal reducer/step representation scales cleanly. Then add partial final
-chunks, retained chunks, `take` in both orders, initial/downstream stop, and
-completion semantics. Only after those cases are correct and profitable should
-the source side broaden beyond the current List-shaped producer.
+Do not add `partition_all`, general early stop, or a public reducible interface
+in that experiment. If local aliasing and filtering compose through a small
+checked representation, then add partial final chunks, retained chunks,
+`take` in both orders, initial/downstream stop, and completion semantics.
+Broaden source adapters only after those laws are explicit and measured.
 
-The helper check closes the main trust gap from the first prototype, but the
-current optimization remains narrow: it handles one same-element-type List
-map feeding one full fold. It is promising evidence for a structural compiler
-rule, not proof that arbitrary transducers or sources fuse automatically.
-The explicit `group_fold` remains a useful lower-allocation control; it does
-not justify a reducer sink or a borrow/reuse protocol before a concrete case
-requires one.
+The helper check closes the main trust gap from the first prototype, and the
+type-changing result shows measurable allocation elimination. The unresolved
+design question is whether local-use tracking and a more general fold region
+can handle additional transducer shapes without recognizing library names or
+duplicating correctness rules per transducer. The explicit `group_fold`
+remains a useful lower-allocation control; it does not justify a reducer sink
+or a borrow/reuse protocol before a concrete case requires one.
 
 ## Reproduction
 
