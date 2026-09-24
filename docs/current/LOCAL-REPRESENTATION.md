@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T21:22:00+02:00
-updated_at: 2026-09-24T23:17:59+02:00
+updated_at: 2026-09-24T23:47:21+02:00
 status: current
 ---
 
@@ -117,8 +117,8 @@ type ascriptions from a copied consumer body, then uses `Bend.def_check` on
 each generated helper. The type-changing fixture generated ten helpers, all
 rechecked successfully; the isolated let fixture also verifies that its
 generated helpers are rechecked. The full FoldRegion candidate suite passed
-29/29 with codegen gates, and upstream plus static-callback builds passed
-29/29 semantic JS/native checks. The affine array payload still passes through
+30/30 with codegen gates, and upstream plus static-callback builds passed
+30/30 semantic JS/native checks. The affine array payload still passes through
 the type-changing helper check.
 
 This demonstrates that the current structural rule can eliminate a
@@ -134,8 +134,14 @@ For `keep`, the correct library composition is `map(f)` followed by
 `cat_maybe`: `None` skips a downstream step and `Some{x}` transfers `x` once.
 `map(f)` followed by `filter(some?)` is not equivalent: it leaves a list of
 `Maybe<B>` values, and the filter requires `B` to be `Data`, so it cannot
-support affine payloads such as arrays. A separate map-plus-Boolean-filter
-experiment can follow once the Maybe boundary has evidence.
+support affine payloads such as arrays. The Boolean map/filter shape is now
+tested in [`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md): a
+custom reusable map producer followed by `List.filter` and a fold preserves
+order and skips rejected steps, but the current FoldRegion rule refuses to
+fuse it because it only models one output per source item. The exact
+`List.map` → `List.filter` spelling also fails the library's quantity types
+(`List<&1, B>` versus `List<&2, A>`). The next step is to design a typed
+producer-step/fold region before adding a filter-specific match to the pass.
 
 Rebuild and rerun the current candidate with:
 

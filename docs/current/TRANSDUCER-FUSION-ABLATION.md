@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T23:17:59+02:00
+updated_at: 2026-09-24T23:47:21+02:00
 status: current
 ---
 
@@ -561,43 +561,71 @@ keep/direct timing should not be mixed with the earlier standalone
 [`maybe-keep-results.json`](../../bench/compiler/maybe-keep-results.json)
 timing report. Neither result claims a JS performance measurement.
 
-## Next experiment
+## Map/filter producer-shape experiment
 
-The single-use let case is complete: the checked rule only crosses one local
-when it is the immediate fold input and has exactly one use. It eliminates
-3.2M allocations on the benchmark fixture. Balanced lane-order runs show that
-shared-process latency ratios change with measurement order, so these runs
-support the allocation result but cannot establish a let-versus-direct speed
-gap. Keep future timing controls isolated or balanced. The next compiler
-experiment is one Boolean `map` + `filter` fold, which adds skipped steps and
-changes how often the downstream step runs:
+The single-use let case still only crosses one local when it is the immediate
+fold input and has exactly one use; it eliminated 3.2M allocations in the
+benchmark fixture. The new fixture
+[`fold_region_map_filter.bend`](../../tests/fold_region_map_filter.bend)
+checks a reusable custom map producer, then `List.filter`, then `List.foldl`.
+It covers accepted-value order with a rolling hash, the exact number of fold
+steps, empty input, and an all-rejected predicate. The FoldRegion candidate
+and raw Bend both pass the fixture on JS and native. Raw upstream was run in
+semantic-only mode because it does not pass this repository's static-callback
+code-shape gates; the static-callback and FoldRegion candidates pass all
+30 fixture gates.
 
-1. Add a predicate that rejects some values, plus empty, all-rejected, and
-   order-sensitive cases. Check that rejected values do not call the fold
-   step and accepted values preserve order.
-2. Keep the fallback path for an unsupported filter shape and require every
-   synthesized helper to pass `Bend.def_check`. Exclude `take` and early stop
-   from this experiment unless the checked source/consumer shapes prove them.
-3. Compare allocation counts and microsecond timings against the ordinary
-   materialized map/filter/fold and handwritten fused Bend on identical
-   inputs.
-4. Review the representation after filtering. If each transducer needs a
-   separate compiler pattern, pause and design a typed source-step region or
-   reducible interface before adding `partition_all`.
+The usual `List.map` then `List.filter` spelling cannot form this test: Base
+types `List.map` as returning `List<&1, B>`, while `List.filter` requires
+`List<&2, A>`. The fixture uses a custom checked producer that returns the
+reusable list required by `List.filter`, without relying on the compiler to
+recognize that producer by name.
 
-Do not add `partition_all`, general early stop, or a public reducible interface
-in that experiment. If local aliasing and filtering compose through a small
-checked representation, then add partial final chunks, retained chunks,
-`take` in both orders, initial/downstream stop, and completion semantics.
-Broaden source adapters only after those laws are explicit and measured.
+This is a deliberate negative optimization result. The FoldRegion preparer
+records 72 attempts, zero fused calls, zero generated helpers, and zero helper
+rechecks for the fixture; it safely falls back with `producer-body-shape`.
+The existing producer matcher accepts a branch shaped like
+`Con{mapped_head, recursive_tail}`. Checked `List.filter` instead calls a
+Boolean-selecting helper whose two branches either return the recursive list
+unchanged or prepend the head. That means the producer emits zero or one value
+per input, while the current rule only models exactly one. Since the compiler
+did not generate a fused helper, no timing or allocation claim is made for this
+case; benchmarking that unchanged fallback would not measure fusion.
 
-The helper check closes the main trust gap from the first prototype, and the
-type-changing result shows measurable allocation elimination. The unresolved
-design question is whether local-use tracking and a more general fold region
-can handle additional transducer shapes without recognizing library names or
-duplicating correctness rules per transducer. The explicit `group_fold`
-remains a useful lower-allocation control; it does not justify a reducer sink
-or a borrow/reuse protocol before a concrete case requires one.
+### Prioritized options
+
+| Option | Impact | Effort | Value | Priority |
+| --- | --- | --- | --- | --- |
+| Add a checked `List.filter.put`-shaped exception to FoldRegion | Medium, limited to one helper/control-flow form | Medium: branch and ownership proof; future filters need more cases | Low–medium: tests this library shape but encourages one rule per operation | Defer |
+| Design a typed producer-step/fold region for map, skip, and downstream step | High, potentially reusable across sources and transducers | High: define the normalized checked shape and prove order, ownership, and bailout rules | High: best evidence for whether the compiler can grow this generally | **P1** |
+| Add a public `Reducible`/iterator API now | Potentially high and language-wide | Very high: source lifecycle, completion, early stop, affine elements, and compatibility | Uncertain before the lowering is proven | P2, after the region design |
+| Benchmark the current unfused map/filter candidate | Low for the fusion question | Low | Low: it measures the fallback, not the proposed optimization | P3, after a positive rewrite exists |
+
+### Recommended next work
+
+Do not add a one-off filter exception. First specify a small typed region in
+which a source step can transform an input and either skip the downstream step
+or call it with the transformed value. Composition should be represented in
+source order, and the compiler should prove each callback closed, checked, and
+safe to move. Retained results, unknown calls, unsafe callbacks, and shapes
+outside the region must keep their original code. Every synthesized helper
+must still pass `Bend.def_check`.
+
+Then lower only the tested map → Boolean filter → full fold shape. Require the
+same order-sensitive, step-count, empty, all-rejected, and fallback cases, and
+confirm the allocation reduction before timing it. Compare native microsecond
+timings in balanced or isolated lanes against both materialized and
+handwritten-fused Bend, and record Clang time and generated-code size. Keep
+`take`, early stop, completion changes, and `partition_all` out of that first
+lowering. A partition stage can emit multiple values and has flush/completion
+behavior, so it needs a richer region rule than the zero-or-one filter case.
+
+If this region requires a separate bespoke compiler pattern for every
+transducer, stop and consider a source-level reducible interface with checked
+static steps. Do not make that public API change until the region experiment
+shows what semantics it must expose. Balanced lane-order runs also remain
+necessary: shared-process ratios changed with lane position in the previous
+probe, so they cannot establish a let-versus-direct latency gap.
 
 ## Reproduction
 

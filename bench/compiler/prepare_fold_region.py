@@ -100,6 +100,9 @@ results = {
     'single_use_let_alias': check_fixture(
         'fold-region-let-alias', ROOT / 'tests/fold_region_let_alias.bend',
         'True{}', verification),
+    'map_filter_skip_experiment': check_fixture(
+        'fold-region-map-filter', ROOT / 'tests/fold_region_map_filter.bend',
+        '(True{}, True{}, True{}, True{}, True{})', verification),
     'retention_and_unknown_consumer_bailout': check_fixture(
         'fold-region-bailouts', ROOT / 'tests/fold_region_bailouts.bend',
         '(True{}, True{}, True{}, True{}, True{}, True{})', verification),
@@ -113,6 +116,11 @@ for key in ('custom_producer_fold', 'dynamic_map_fold',
 let_stats = results['single_use_let_alias']['fold_region_stats']
 assert let_stats['let_alias_fused'] > 0 and let_stats['helpers'] >= 1 \
     and let_stats['rechecked'] == let_stats['helpers'], let_stats
+map_filter_stats = results['map_filter_skip_experiment']['fold_region_stats']
+assert map_filter_stats['fused'] == 0 and map_filter_stats['helpers'] == 0 \
+    and map_filter_stats['rechecked'] == 0, map_filter_stats
+assert map_filter_stats['refusals'].get('producer-body-shape', 0) > 0, \
+    map_filter_stats
 bailout_stats = results['retention_and_unknown_consumer_bailout']['fold_region_stats']
 assert bailout_stats['fused'] == 0 and bailout_stats['helpers'] == 0 \
     and bailout_stats['rechecked'] == 0, bailout_stats
@@ -130,6 +138,8 @@ metadata = {
     'callback_gate': 'closed checked definitions; reject unsafe, foreign, parallel, dynamic closure calls, and non-whitelisted intrinsic calls',
     'type_gate': 'producer input/output List element types may differ; producer output List must match fold input List',
     'let_gate': 'only one binding, exactly one use, and immediate use as the fold input; otherwise keep the original term',
+    'map_filter_experiment': 'a checked reusable custom map producer followed by List.filter and List.foldl; empty, all-rejected, step-count, and ordered-hash cases pass, but the current one-output producer shape refuses the filter producer and generates no helper',
+    'map_filter_api_constraint': 'standard List.map returns List<&1, B>, while List.filter requires List<&2, A>; the composed test uses a checked producer returning a reusable list',
     'generated_helper_check': 'Bend.def_check validates each synthesized recursive helper before it is installed',
     'verification': results,
 }
