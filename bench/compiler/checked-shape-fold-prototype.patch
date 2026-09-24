@@ -1,0 +1,288 @@
+--- a/comp.ts
++++ b/comp.ts
+@@ -1311,6 +1311,9 @@
+     if (call_kind(cb, r) === null || flat_call(cb, r)) {
+       return r;
+     }
++    if (T === null && process.env.BEND_INLINE_DEBUG) {
++      console.error("ANF untyped cut", JSON.stringify(Bend.term_lower(r)));
++    }
+     const p = probe("h");
+     binds.push([p, Bend.Ann(r, T ?? die("an untyped cut"))]);
+     return Bend.Ann(p, T!);
+@@ -1667,9 +1670,122 @@
+   return result;
+ }
+ 
++type SpecializeBudget = {
++  left: number;
++  inline_left: number;
++  inline: Map<Bend.Name, number>;
++};
++
++function raw_term_nodes(term: Bend.LTerm, limit: number): number {
++  let count = 0;
++  const todo: unknown[] = [term];
++  while (todo.length > 0) {
++    const value = todo.pop();
++    if (value === null || typeof value !== "object") continue;
++    if (Array.isArray(value)) {
++      todo.push(...value);
++      continue;
++    }
++    const node = value as Record<string, unknown>;
++    if (typeof node.$ !== "string") continue;
++    if (++count > limit) return count;
++    for (const [key, child] of Object.entries(node)) {
++      if (key !== "s") todo.push(child);
++    }
++  }
++  return count;
++}
++
++// Do not inline through effects, unsafe calls, mutation, or parallel lets.
++// This prototype only wants ordinary pure, sequential bodies.
++function inline_body_safe(book: Book, term: Bend.LTerm): boolean {
++  const todo: unknown[] = [term];
++  const seen = new Set<object>();
++  while (todo.length > 0) {
++    const value = todo.pop();
++    if (value === null || typeof value !== "object") continue;
++    if (Array.isArray(value)) {
++      todo.push(...value);
++      continue;
++    }
++    const node = value as Record<string, unknown>;
++    if (seen.has(node)) continue;
++    seen.add(node);
++    if (node.$ === "Sub" || (node.$ === "Let"
++      && Array.isArray(node.k) && node.k.length > 1)) return false;
++    if (node.$ === "Ref" && typeof node.k === "string") {
++      const target = book.tlds[node.k];
++      if (node.b === true || (target?.$ === "Def"
++        && (target.u === true || target.i !== undefined))) return false;
++    }
++    for (const [key, child] of Object.entries(node)) {
++      if (key !== "s") todo.push(child);
++    }
++  }
++  return true;
++}
++
++function specialize_call_spine(term: HTerm): { head: HTerm; args: HTerm[] } {
++  const args: HTerm[] = [];
++  let head = term_strip(term);
++  while (head.$ === "App") {
++    args.unshift(head.x);
++    head = term_strip(head.f);
++  }
++  return { head, args };
++}
++
++function inline_result_is_known_spine(book: Book, def: Bend.Def): boolean {
++  if (def.e === undefined) return false;
++  let body = term_strip(Bend.term_higher(def.e));
++  for (let i = 0; i < def.n; i += 1) {
++    if (body.$ !== "Lam") {
++      return false;
++    }
++    body = term_strip(body.f(Bend.Var("inline_probe", 0)));
++  }
++  return known_ctr_spine(book, body);
++}
++
++function known_spine_size(book: Book, term: HTerm): number | null {
++  const x = term_strip(term);
++  if (x.$ !== "Ctr" || !known_ctr_spine(book, x)) return null;
++  let size = 0;
++  const todo: HTerm[] = [x];
++  while (todo.length > 0) {
++    const next = term_strip(todo.pop() as HTerm);
++    if (next.$ !== "Ctr") continue;
++    size += 1;
++    if (size > 4096) return null;
++    todo.push(...ctr_flds(book, next.k, next.x));
++  }
++  return size;
++}
++
++function inline_matched_argument_size(book: Book, def: Bend.Def,
++  args: HTerm[]): number | null {
++  if (def.e === undefined) return null;
++  let body = term_strip(Bend.term_higher(def.e));
++  for (let i = 0; i < def.n && i < args.length; i += 1) {
++    const arg = term_strip(args[i]);
++    if (body.$ === "Mat" && arg.$ === "Ctr"
++      && known_ctr_spine(book, arg)) {
++      const arms = mat_arms(body).arms;
++      if (arms.some(([k]) => k === arg.k)) {
++        return known_spine_size(book, arg);
++      }
++    }
++    if (body.$ !== "Lam") return null;
++    body = term_strip(body.f(Bend.Var("inline_probe", 0)));
++  }
++  return null;
++}
++
+ // Keep annotations and bind a dynamic argument once when eliminating a
+ // static callback. Re-run on its body so nested callback records disappear.
+-function specialize(book: Book, tm: HTerm, budget = { left: 256 }): HTerm {
++function specialize(book: Book, tm: HTerm, budget: SpecializeBudget = {
++  left: 256, inline_left: 4, inline: new Map(),
++}): HTerm {
+   const x = Bend.term_force(tm);
+   switch (x.$) {
+     case "Ann": return Bend.Ann(specialize(book, x.x, budget), x.T, x.s);
+@@ -1693,6 +1809,65 @@
+           return specialize(book, Bend.App(T === null ? b : Bend.Ann(b, T), a), budget);
+         }, held.s, held.q);
+       }
++      const scrutinee = term_strip(a);
++      const match_type = ty_wnf(book, ty_ann(f));
++      if (held.$ === "Mat" && scrutinee.$ === "Ctr"
++        && known_ctr_spine(book, scrutinee) && match_type?.$ === "All") {
++        const arms = mat_arms(held);
++        const arm = arms.arms.find(([k]) => k === scrutinee.k);
++        if (arm !== undefined) {
++          let body = arm[1];
++          for (const field of ctr_flds(book, scrutinee.k, scrutinee.x)) {
++            body = Bend.App(body, field);
++          }
++          return specialize(book, Bend.Ann(body,
++            ty_all(book, ty_ann(f)).B(a), x.s), budget);
++        }
++      }
++      const call = specialize_call_spine(Bend.App(f, a, x.s));
++      const callee = call.head.$ === "Ref" && !call.head.b
++        ? book.tlds[call.head.k] : undefined;
++      const matched_size = callee?.$ === "Def"
++        ? inline_matched_argument_size(book, callee, call.args) : null;
++      const previous_size = call.head.$ === "Ref"
++        ? budget.inline.get(call.head.k) : undefined;
++      const shape_candidate = callee?.$ === "Def"
++        && (inline_result_is_known_spine(book, callee)
++          || (matched_size !== null
++            && (previous_size === undefined || matched_size < previous_size)));
++      const safe_candidate = callee?.$ === "Def" && callee.e !== undefined
++        ? inline_body_safe(book, callee.e) : false;
++      if (budget.inline_left > 0 && call.head.$ === "Ref"
++        && callee?.$ === "Def"
++        && shape_candidate
++        && callee.e !== undefined && callee.v !== null && !callee.u
++        && callee.i === undefined && !callee.b && callee.x === 0
++        && call.args.length === callee.n
++        && raw_term_nodes(callee.e, 128) <= 128
++        && safe_candidate) {
++        const nested: SpecializeBudget = {
++          left: budget.left,
++          inline_left: budget.inline_left - 1,
++          inline: new Map(budget.inline).set(call.head.k,
++            matched_size ?? 0),
++        };
++        let body: HTerm = Bend.Ann(Bend.term_higher(callee.e), callee.T);
++        for (const arg of call.args) body = Bend.App(body, arg);
++        const out = specialize(book, body, nested);
++        budget.left = nested.left;
++        budget.inline_left = nested.inline_left;
++        return out;
++      }
++      if (call.head.$ === "Ref" && callee?.$ === "Def"
++        && callee.e !== undefined && !callee.u && callee.i === undefined
++        && call.args.length === callee.n && callee.x === 0) {
++        return Bend.Ann(Bend.App(f, a, x.s),
++          Bend.tele_fill(book, callee.T, call.args, Bend.ctx_nil()), x.s);
++      }
++      const fty = ty_wnf(book, ty_ann(f));
++      if (Bend.term_strip(f).$ === "Mat" && fty?.$ === "All") {
++        return Bend.Ann(Bend.App(f, a, x.s), ty_all(book, ty_ann(f)).B(a), x.s);
++      }
+       // A bare named function stays a call. Only computed function heads
+       // need specialization; this does not inline every ordinary call.
+       if (Bend.term_strip(f).$ !== "App"
+@@ -1704,7 +1879,8 @@
+       if (ty === null) return Bend.App(f, a, x.s);
+       budget.left--;
+       if (!quant_live(ty.q) || term_const(a)
+-        || Bend.term_strip(a).$ === "Var") {
++        || Bend.term_strip(a).$ === "Var"
++        || (ty.q.$ === "Lone" && known_ctr_spine(book, a))) {
+         return specialize(book, lam.f(a), budget);
+       }
+       return Bend.Let([lam.k], [0], [Bend.Ann(a, ty.A)],
+@@ -1842,8 +2018,10 @@
+   const tld = cb.book.tlds[k];
+   if (tld?.$ === "Def" && tld.e !== undefined && tld.h === undefined) {
+     // Materialize the bounded rewrite once; emission may open a body repeatedly.
+-    const h = Bend.term_higher(Bend.term_lower(
+-      specialize(cb.book, Bend.term_higher(tld.e))));
++    const h = Bend.term_higher(Bend.term_lower(specialize(
++      cb.book, Bend.term_higher(tld.e), {
++        left: 256, inline_left: 4, inline: new Map([[k, 0]]),
++      })));
+     const n = tld.n + Math.min(def_raise(cb.book, h, tld.n),
+       tele_unbind(cb.book, tld.T).doms.length - tld.n);
+     cb.book.tlds[k] = { ...tld, n, h };
+@@ -2803,6 +2981,21 @@
+   return r === s ? t : r;
+ }
+ 
++// A bounded constructor spine has known shape even when its leaf values are
++// dynamic. Expose it to a matched consumer only when every dynamic leaf is a
++// variable; moving a call, let, or effect across the consumer would be unsafe.
++function known_ctr_spine(book: Bend.Book, term: HTerm,
++  fuel = 64): boolean {
++  if (fuel <= 0) return false;
++  const x = term_strip(term);
++  if (x.$ !== "Ctr") return false;
++  return ctr_flds(book, x.k, x.x).every((field) => {
++    const value = term_strip(field);
++    return term_const(value) || value.$ === "Var"
++      || known_ctr_spine(book, field, fuel - 1);
++  });
++}
++
+ function emit_unfold(fl: File, s: HTerm): HTerm | null {
+   const m = term_spine(fl, s);
+   const d = m.tld;
+@@ -2823,7 +3016,8 @@
+         continue;
+       }
+       const c = w.$ === "Mat" ? term_strip(xs[0]) : null;
+-      if (c === null || c.$ !== "Ctr" || !term_const(c)) {
++      if (c === null || c.$ !== "Ctr"
++        || !known_ctr_spine(fl.book, c)) {
+         return null;
+       }
+       const { arms, end } = mat_arms(w);
+@@ -2833,7 +3027,9 @@
+         : [...ctr_flds(fl.book, c.k, c.x), ...xs.slice(1)];
+       hit = true;
+     }
+-    return !hit || term_any(fl, b, (y) => y.$ === "Lam" || mat_head(y))
++    const exposes_constructor = known_ctr_spine(fl.book, b);
++    return (!hit && !exposes_constructor)
++      || term_any(fl, b, (y) => y.$ === "Lam" || mat_head(y))
+       ? null : b;
+   };
+   const doms = tele_unbind(fl.book, d.T).doms;
+@@ -2843,7 +3039,7 @@
+       return walk(ys) as HTerm;
+     }
+     if (!m.args.includes(m.all[i]) || term_const(a)
+-      || term_strip(a).$ === "Var") {
++      || term_strip(a).$ === "Var" || known_ctr_spine(fl.book, a)) {
+       return bind(i + 1, [...ys, a]);
+     }
+     return Bend.Let(["a"], [0], [Bend.Ann(a, doms[i][2])], (xs: HTerm[]) =>
+@@ -2987,6 +3183,10 @@
+       // as is); a call whose return disagrees becomes a cut.
+       if (!lay_eq(fl.seg.ret, ret)
+         && (fl.seg.ret.arms !== null || ret.arms !== null)) {
++        if (ty === null && process.env.BEND_INLINE_DEBUG) {
++          console.error("emit untyped cut", Bend.term_show(fl.book,
++            Bend.term_lower(x)));
++        }
+         return emit_body(fl, Bend.Let(["r"], [0], [Bend.Ann(x,
+           ty ?? die("an untyped cut"))], (xs) => xs[0]), ty,
+           ers, args, dst);

@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T16:22:11+02:00
+updated_at: 2026-09-24T17:38:39+02:00
 status: current
 ---
 
@@ -34,16 +34,15 @@ construction is outside the timed region; traversal, reduction, and source
 cleanup are inside it. Allocation instrumentation uses separate builds and
 does not affect the reported timings.
 
-All checked-in timings in this document, including the group-fold probe, use
-`IO.now()`, which reports whole milliseconds on both backends. The calibrated
-batches still last at least 150ms, but short samples and per-operation values
-inherit that timer's millisecond quantization. The harness now uses the
-benchmark-only `BenchClock.now_us()` effect and writes sample durations in
-integer microseconds. Native uses the compiler runtime's monotonic nanosecond
-clock, converted to microseconds; JS scales `performance.now()` to
-microseconds, with effective resolution determined by its host. Historical
-reports remain in their original units and are not relabeled as
-higher-precision measurements.
+The earlier fold and retention tables, including the historical group-fold
+probe, use `IO.now()`, which reports whole milliseconds on both backends. Their
+per-operation values inherit that quantization. The later C-inline and
+checked-term probes use the benchmark-only `BenchClock.now_us()` effect and
+record calibrated sample durations in integer microseconds. Native uses the
+runtime's monotonic nanosecond clock, converted to microseconds; JS scales
+`performance.now()` to microseconds, with effective resolution determined by
+its host. Historical reports remain in their original units and are not
+relabeled as higher-precision measurements.
 
 The three lanes are:
 
@@ -182,15 +181,12 @@ current measurements do not explain that change; keep it as an open Array
 fixture question instead of treating its speed result as a general Array
 allocation win.
 
-This evidence changes the next compiler step. Static-callback specialization
-already removes the per-input Control/Partitioning heap traffic in this
-retaining pipeline. Do not add a separate Control-record rewrite without a
-new profile showing another concrete cost. The fold ablation still has one
-additional Cons per input and remains 1.4–1.6x slower than the handwritten
-materialized control, so the next experiment should test a general
-fresh-producer-to-single-use-fold rewrite. It must remove the temporary List
-only when it proves non-escape; retained consumers remain the required
-negative case.
+This evidence motivated the checked-term producer/fold experiment below.
+Static-callback specialization already removes the per-input
+Control/Partitioning heap traffic in the retaining pipeline. Do not add a
+separate Control-record rewrite without a new profile showing another concrete
+cost. The remaining List-pipeline allocation is not removed by merely
+inlining small functions or relying on Clang.
 
 ## Explicit group-state fold probe
 
@@ -273,22 +269,76 @@ construction and traversal with equivalent state updates. The complete paired
 samples and generated-code hashes are in
 [`clang-inline-ablation.json`](../../bench/array_partition/clang-inline-ablation.json).
 
+## Checked-term constructor-spine prototype
+
+I tested whether a bounded, name-independent rewrite over checked terms could
+cover the missing producer/fold case. The temporary compiler prototype
+inlined small, pure, fully applied user definitions when either the producer
+returned a visibly known constructor spine or the consumer matched a
+visibly-known constructor argument. It unrolled recursive folds only while
+that matched spine got strictly smaller, and substituted a non-constant
+constructor argument directly only when its parameter was affine. It did not
+edit `../bend` or the checked-in compiler.
+
+The positive fixture used ordinary names: `produce_pair` returned a two-item
+List and `consume_sum` folded it. At the larger inline budget, generated C
+reduced the pipeline to scalar additions and removed both List Cons
+allocations. This proves that a small, statically visible producer/fold can be
+rewritten without recognizing transducer names. It does not cover a
+runtime-length List built in a loop.
+
+The dynamic benchmark gives the more important result. It used 96 source items,
+widths 3 and 8, four sessions with two paired samples per session, and a
+100ms minimum sample batch. The candidate allowed four inlines per checked
+definition; the budget-32 prototype did not finish compiling the width-3
+List-pipeline fixture within 20 seconds, while the unchanged candidate
+compiled it in about 0.20 seconds and the constructor-only patch also compiled
+in about 0.20 seconds. With the four-inline budget, lane builds took about
+1.03–1.14 seconds versus 0.45–0.56 seconds for the baseline; the List lane
+was 1.11–1.14 seconds versus 0.54–0.56 seconds.
+
+| Width | Baseline List µs/op | Prototype List µs/op | Timed Cons per op, baseline/prototype | Generated C bytes, baseline/prototype |
+| ---: | ---: | ---: | ---: | ---: |
+| 3 | 0.315129 | 0.314857 | 96 / 96 | 142,944 / 142,944 |
+| 8 | 0.337014 | 0.337672 | 96 / 96 | 142,944 / 142,944 |
+
+The per-operation timings come from long calibrated batches; the cross-compiler
+comparison was not paired, so the sub-percent differences are not evidence of
+a speedup or regression. More decisively, the compiler emitted byte-identical
+C for each lane, and allocator instrumentation found the same 96 List Cons
+allocations per 96 inputs. The materialized, direct, and `group_fold` lanes
+also had identical C and allocation counts between the two compiler inputs.
+The rule does not see the runtime-accumulated chunk in `partition_all`, so it
+does not improve the real transducer pipeline.
+
+All 23 existing fixtures produced matching JS/native outputs with the bounded
+prototype. The full runner's lifecycle callback-count probe could not find its
+`expand_one` JavaScript function after the compiler inlined it, so that
+function-name-based instrumentation gate needs a call-site-aware replacement
+before it can validate an inlining candidate. No semantic fixture failed.
+
+This is not a viable general fusion pass: a static two-item example fuses, but
+the runtime producer shape that matters stays unchanged, and a larger inlining
+budget has severe compile-time cost. Do not move this pass into
+`bendlang/main`. The checked-term rewrite also needed extra typing and affine
+substitution rules; those costs are not justified by the benchmark result.
+
 ## Options, prioritized
 
 | Option | Impact | Effort | Value | Decision |
 | --- | --- | --- | --- | --- |
-| Prototype checked-term producer/consumer fusion for a fresh result consumed exactly once by a fold | High: could remove the temporary chunk and its traversal when semantics permit | High: requires escape, effect, ownership, callback-order, and stop proofs | Very high if it retains all fallbacks and works across user functions | **P1: next experiment** |
+| Design a dedicated internal producer/fold representation for runtime-built chunks | High if it proves single-use and preserves stop/finish behavior | High: requires escape, effect, ownership, callback-order, and stop proofs | Very high only if it removes measured allocations across user functions | **P1: design the proof boundary, then test one dynamic List producer/fold** |
 | Keep relying on C optimization and existing affine reuse | Medium: preserves the allocation-free handwritten case and improves generated C locally | Low: no new API or compiler rule | Medium: already useful, but the transducer-vs-materialized gap remains | Keep as baseline, not the whole strategy |
 | Add an explicit reducer sink that returns a completed reusable buffer | Medium to high for chunk-building pipelines | High: expands reducer state/API and requires ownership-return semantics | Medium: useful when fusion cannot prove non-escape; premature before the fold experiment | Defer |
 | Special-case `partition_all` or individual transducer names in the compiler | High for selected examples | High: compiler/library coupling and correctness burden grows per transducer | Low: conflicts with the goal that new transducers compose automatically | Reject |
 
 ## Next experiment
 
-Implement only an isolated, checked-term prototype for the general pattern
-“a known, fresh List result is consumed exactly once by a known fold.” Do not
-match `partition_all`, `Reducer`, or transducer names. Keep this first step
-small enough to inspect generated terms and C. The candidate must leave the
-original program unchanged whenever it cannot prove all of the following:
+Do not increase the checked-term inline budget. First design an internal
+producer/fold representation for a runtime-built List, with a clear proof
+boundary and an unchanged fallback. Test it on a custom `map-then-fold`
+producer/consumer pair with no transducer names. It must remove the temporary
+List only when it proves all of the following:
 
 - the intermediate List is fresh, locally owned, and does not escape or get
   observed by another use;
@@ -298,14 +348,13 @@ original program unchanged whenever it cannot prove all of the following:
   initially stopped reducer and a stop in the middle of a chunk;
 - the rewrite does not duplicate, drop, or reorder live affine values.
 
-Use the sum and ordered-hash folds as positive cases, then add a custom
-producer/fold pair with no transducer-library names to demonstrate the rule is
-general. Retaining a chunk, an unknown consumer, and an effectful callback are
-negative cases that must keep the original materialized code. Compare JS and
-native results, check source cleanup and callback counts, and inspect emitted
-C for the disappearance of intermediate Cons construction. Measure generated
-code growth and retain a small explicit limit. Do not move a prototype into
-upstream compiler code or claim the general optimization works until these
+Use the sum and order-sensitive folds as consumers, and try both List and an
+independent source adapter. A retained chunk, an unknown consumer, an
+effectful callback, an early stop, and affine elements are negative or
+boundary cases. Compare JS and native results, check source cleanup and
+callback counts, and inspect emitted C for intermediate Cons construction.
+Measure compile time and generated-code size as well as runtime. Do not move a
+prototype into upstream compiler code or claim general fusion until these
 gates pass.
 
 The experiment is deliberately about a fold consuming a fresh result, not a
@@ -328,11 +377,16 @@ The paired result files retain raw samples and build/source hashes:
 - [`retain-current-main-static-callback.json`](../../bench/array_partition/retain-current-main-static-callback.json)
 - [`group-fold-current-main-static-callback-ms.json`](../../bench/array_partition/group-fold-current-main-static-callback-ms.json)
 - [`clang-inline-ablation.json`](../../bench/array_partition/clang-inline-ablation.json)
+- [`checked-shape-fold-baseline-us.json`](../../bench/array_partition/checked-shape-fold-baseline-us.json)
+- [`checked-shape-fold-budget4-us.json`](../../bench/array_partition/checked-shape-fold-budget4-us.json)
+- [`checked-shape-fold-prototype.patch`](../../bench/compiler/checked-shape-fold-prototype.patch)
 
 The fold fixture was checked on both JS and native with 17 semantic cases,
 including partial final chunks and order-sensitive results, against both raw
-upstream and the candidate. The candidate also passed the 23-fixture library
-suite on both backends. The benchmark harness is
+upstream and the candidate. The static-callback candidate passed the
+23-fixture library suite on both backends. The isolated checked-term prototype
+passed all 23 semantic outputs on both backends, with the lifecycle
+function-name instrumentation limitation described above. The benchmark harness is
 [`measure_array_partition.py`](../../bench/array_partition/measure_array_partition.py),
 and the cases are in [`fold_probe.bend`](../../bench/array_partition/fold_probe.bend).
 The group-fold reducer and its affine-input probe are in
