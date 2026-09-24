@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T21:10:37+02:00
+updated_at: 2026-09-24T21:38:41+02:00
 status: current
 ---
 
@@ -430,7 +430,7 @@ and
 
 | Option | Impact | Effort | Value | Decision |
 | --- | --- | --- | --- | --- |
-| Extend the checked FoldRegion to a structural Maybe-producing step and immediate consumer | High: tests whether another transducer shape reuses checked machinery | Medium/high: must preserve `None` skipping and move `Some` payloads once | Very high if new compositions reuse checked machinery | **P1: measure and then test `map` + `cat_maybe` (`keep`)** |
+| Extend the checked FoldRegion to type-changing map + fold | High: tests whether the same rule handles a different input/output element type | Medium: helper input type must be rebuilt and checked | Very high if it removes the materialized boundary safely | **P1: fuse `List<A> -> List<B>` into a full fold** |
 | Keep relying on C optimization and existing affine reuse | Medium: preserves the allocation-free handwritten case and improves generated C locally | Low: no new API or compiler rule | Medium: useful baseline, but leaves the materialized producer cost | Keep as baseline, not the whole strategy |
 | Extend the region to partitioning and reducer stop/finish | High for general transducer pipelines | High: must model buffering, completion, and early stop | Unproven until map/filter composition works | Defer |
 | Add an explicit reducer sink that returns a completed reusable buffer | Medium to high for chunk-building pipelines | High: expands reducer state/API and requires ownership-return semantics | Medium: useful when fusion cannot prove non-escape; premature before a measured need | Defer |
@@ -510,36 +510,50 @@ library names. It is not yet evidence that adding transducers automatically
 composes into such regions: the present pass has one producer shape and one
 consumer shape, and the test source adapter still produces a List.
 
+The separate `Maybe` probe compares streaming `keep`, a materialized
+`List<Maybe<U32>>` followed by a fold, and a direct fold. On 1.6M values per
+sample, the static-callback candidate takes 2,888.5µs for streaming `keep` and
+2,723.5µs for the direct fold; both make five fixed allocator requests. The
+materialized path takes 7,593.5µs and makes 3,200,005 requests. Raw upstream
+streaming `keep` takes 48,555.5µs and makes 8,000,021 requests. This is strong
+evidence that the existing static-callback candidate removes per-item traffic
+from public `keep`, but it does not show that raw `bendlang/main` does so, nor
+does it classify each allocation by value type. See
+[`maybe-keep-results.json`](../../bench/compiler/maybe-keep-results.json) and
+[`maybe_keep_probe.py`](../../bench/compiler/maybe_keep_probe.py).
+
 ## Next experiment
 
-The next step is to test whether the checked region can consume a value that is
-created and immediately matched. Start with `keep`, whose library composition
-is `map(f)` followed by `cat_maybe`; do not model it as `map(f)` followed by
-`filter(some?)`:
+The `Maybe` allocation experiment is complete. On the static-callback
+candidate, public `keep` (`map(f)` followed by `cat_maybe`) reaches near-direct
+timing and fixed allocation traffic; raw upstream still has substantial
+per-item overhead. Do not add a Maybe-specific rule yet. The next step is to
+extend the checked FoldRegion from same-element-type maps to type-changing maps:
 
-1. First measure a checked `Maybe` producer followed immediately by a consumer
-   match, with all-`Some`, all-`None`, and mixed cases. Compare it to a direct
-   conditional fold, and measure allocations separately from microsecond
-   timings. If the current compiler already removes the wrapper, do not add a
-   redundant rule.
-2. Repeat the semantic and allocation comparison through public `keep`, whose
-   definition is `map(f)` composed with `cat_maybe`. `cat_maybe` consumes
-   `Some{x}` exactly once and works when `B` is affine. In contrast,
-   `filter(some?)` would retain `Maybe<B>` values and requires `B: Data`.
-3. If a wrapper cost remains, prototype one structural rule over the checked
-   producer and consumer terms. Preserve the ordinary path for opaque producers
-   and retained results. Run `Bend.def_check` on each synthesized helper and
-   require every installed helper to have passed that check.
-4. Test affine payloads, including arrays, and check that `None` drops no live
-   value and `Some{x}` transfers ownership once. Compare JS and native results,
-   microsecond timings, allocation counts, compile time, and generated C size.
-5. After this case has evidence, test a separate Boolean `map` + `filter`
-   composition. Keep partitioning, early stop, completion, and source generality
-   deferred until the basic transition composes correctly.
+1. Remove the current equality requirement between the producer's input and
+   output List types. Synthesize the helper over `List<A>`, apply the mapped
+   callback to each `A`, and feed the resulting `B` to the existing fold step.
+   Continue matching checked term shapes rather than names such as `List.map`,
+   `Maybe`, or `keep`.
+2. Use materialized `List.map(U32 -> Maybe<U32>)` plus a fold that consumes each
+   option as the first positive case. Compare it to streaming `keep` and the
+   direct fold using the already measured all-`Some` workload. Add all-`None`,
+   mixed, order-sensitive, and custom-named producers as semantic cases.
+3. Build the synthesized helper with the new source-list input type, then run
+   `Bend.def_check` on every helper. If a type, affine-use, or termination check
+   fails, preserve the original program and record the refusal.
+4. Add a callback returning an affine payload (such as an array) and verify
+   that the `Some` branch transfers it once. Keep retained List outputs, opaque
+   producers, dynamic callbacks, `@unsafe` definitions, and source expressions
+   with effects on the fallback path.
+5. Compare raw upstream, static-callback, and type-changing FoldRegion builds
+   on JS and native. Use the microsecond clock, paired sessions, separate
+   allocation instrumentation, compile time, and generated C size. If this
+   passes, test a separate Boolean `map` + `filter` composition.
 
 Do not add `partition_all`, early stop, or a public reducible interface in this
-step. Once checked Maybe and Boolean-filter compositions work, use them to decide
-whether the internal reducer/step representation scales cleanly. Then add partial final
+step. Once the type-changing map/fold and Boolean-filter cases work, use them to
+decide whether the internal reducer/step representation scales cleanly. Then add partial final
 chunks, retained chunks, `take` in both orders, initial/downstream stop, and
 completion semantics. Only after those cases are correct and profitable should
 the source side broaden beyond the current List-shaped producer.

@@ -9,6 +9,9 @@ def bool_value(x: Bool) -> Maybe<U32>:
     case True{}:
       Some{42}
 
+def no_value(x: Bool) -> Maybe<U32>:
+  None{}
+
 def keep_value(x: U32) -> Maybe<U32>:
   Some{(x + 10 : U32)}
 
@@ -69,6 +72,10 @@ def main() -> IO(Unit):
       T.transduce(~Tree.over_tree(~Bool, ~List<U32>,
         ~T.keep(~Bool, ~U32, ~List<U32>, ~bool_value, ~T.into_list(~U32))),
         Unit{}, bool_values())))
+    IO.print(List.show(~&1, ~U32, ~U32.show,
+      T.transduce(~T.over_list(~Bool, ~List<U32>,
+        ~T.keep(~Bool, ~U32, ~List<U32>, ~no_value, ~T.into_list(~U32))),
+        Unit{}, [True{}, False{}])))
     IO.print(show_groups(T.transduce(~Tree.over_tree(~U32, ~List<List<U32>>,
       ~T.partition_all(~U32, ~List<List<U32>>, ~T.into_list(~List<U32>))),
       (2n, Unit{}), values())))
@@ -110,6 +117,7 @@ def main() -> IO(Unit):
         (2n, []), Tree.Branch{Tree.Leaf{u => 7}, Tree.Leaf{u => 8}})))
 #|[11, 12, 13, 14, 15]
 #|[42, 42]
+#|[]
 #|[[1, 2], [3, 4], [5]]
 #|[[1, 2], [3]]
 #|[[1, 2]]

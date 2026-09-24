@@ -1,0 +1,229 @@
+{
+  "base_commit": "2f50df1ed36fcc3ebe6c75a2046e94001a44645d",
+  "source_sha256": "9d6464f517374e1318442ed47f2bb0e794c0f58ce665195b5a520706f146f231",
+  "runner_sha256": "abf342bca57b4be558baa4331370410dd6dcdd3fbf96214aadb0f7ebc80a42a8",
+  "input_items_per_batch": 200000,
+  "prebuilt_batches_per_lane": 8,
+  "js_smoke_items_per_batch": 256,
+  "js_smoke_batches_per_lane": 2,
+  "sessions": 16,
+  "clock": "BenchClock.now_us; native monotonic nanoseconds converted to microseconds",
+  "allocation_instrumentation": "separate C builds; successful heap allocator requests between the two lane clock marks",
+  "expected_checksum_per_lane": 1085410048,
+  "items": {
+    "upstream": {
+      "name": "upstream",
+      "compiler": "../bend/bend2/main.ts",
+      "binary": "/private/tmp/maybe-keep-probe-20260924-final-artifacts/upstream",
+      "c_path": "/private/tmp/maybe-keep-probe-20260924-final-artifacts/upstream.c",
+      "js_path": "/private/tmp/maybe-keep-probe-20260924-final-artifacts/upstream.js",
+      "compile_seconds": 0.27923120907507837,
+      "c_bytes": 168581,
+      "js_bytes": 24270,
+      "compiler_sha256": "34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850",
+      "allocation_requests_by_lane": [
+        8000021,
+        3200005,
+        5
+      ],
+      "instrumented_c_bytes": 169469,
+      "instrumented_c_sha256": "3d45431f4afbd1dd29671dab1db81f7121ced857765583c71c1d4a00a11c2048",
+      "js_smoke_rows": {
+        "keep": {
+          "time_us": 1400,
+          "checksum": 65280
+        },
+        "materialized": {
+          "time_us": 241,
+          "checksum": 65280
+        },
+        "direct": {
+          "time_us": 94,
+          "checksum": 65280
+        }
+      }
+    },
+    "candidate": {
+      "name": "candidate",
+      "compiler": "/private/tmp/transduce-static-20260924/main.ts",
+      "binary": "/private/tmp/maybe-keep-probe-20260924-final-artifacts/candidate",
+      "c_path": "/private/tmp/maybe-keep-probe-20260924-final-artifacts/candidate.c",
+      "js_path": "/private/tmp/maybe-keep-probe-20260924-final-artifacts/candidate.js",
+      "compile_seconds": 0.2319699169602245,
+      "c_bytes": 129876,
+      "js_bytes": 20320,
+      "compiler_sha256": "cfd14f244c5a6d2d0b4069d03e53f3682bd09fb535fd15d2d8757b5f21546579",
+      "allocation_requests_by_lane": [
+        5,
+        3200005,
+        5
+      ],
+      "instrumented_c_bytes": 130764,
+      "instrumented_c_sha256": "3be90b64d81aa2c62108d00480f628538559885e77de169580050005da31b3e8",
+      "js_smoke_rows": {
+        "keep": {
+          "time_us": 282,
+          "checksum": 65280
+        },
+        "materialized": {
+          "time_us": 384,
+          "checksum": 65280
+        },
+        "direct": {
+          "time_us": 129,
+          "checksum": 65280
+        }
+      }
+    }
+  },
+  "summary": {
+    "keep": {
+      "upstream_median_us": 48555.5,
+      "candidate_median_us": 2888.5,
+      "paired_candidate_over_upstream_median": 0.05913400930959631,
+      "paired_ratio_ci95": [
+        0.05835680654089081,
+        0.05992569535093885
+      ],
+      "upstream_samples_us": [
+        59990,
+        47087,
+        49795,
+        49091,
+        48290,
+        48077,
+        49536,
+        48795,
+        48414,
+        48527,
+        48832,
+        48182,
+        48035,
+        48697,
+        48584,
+        48459
+      ],
+      "candidate_samples_us": [
+        3825,
+        2985,
+        2984,
+        2577,
+        2858,
+        2701,
+        2914,
+        2883,
+        2894,
+        2905,
+        2982,
+        2839,
+        2776,
+        2547,
+        2855,
+        2918
+      ],
+      "allocation_requests": {
+        "upstream": 8000021,
+        "candidate": 5
+      }
+    },
+    "materialized": {
+      "upstream_median_us": 7524.5,
+      "candidate_median_us": 7593.5,
+      "paired_candidate_over_upstream_median": 1.0123648899128868,
+      "paired_ratio_ci95": [
+        0.9875331564986738,
+        1.02324352879028
+      ],
+      "upstream_samples_us": [
+        8180,
+        7405,
+        8273,
+        7650,
+        7540,
+        7409,
+        7509,
+        7280,
+        7647,
+        7419,
+        7408,
+        7572,
+        7672,
+        7566,
+        7396,
+        7473
+      ],
+      "candidate_samples_us": [
+        10588,
+        8052,
+        7398,
+        7647,
+        7446,
+        7542,
+        7582,
+        7741,
+        7531,
+        7255,
+        7605,
+        7748,
+        7491,
+        7615,
+        7507,
+        7609
+      ],
+      "allocation_requests": {
+        "upstream": 3200005,
+        "candidate": 3200005
+      }
+    },
+    "direct": {
+      "upstream_median_us": 2757.0,
+      "candidate_median_us": 2723.5,
+      "paired_candidate_over_upstream_median": 0.950920818863169,
+      "paired_ratio_ci95": [
+        0.9373910621111725,
+        1.0197916552261919
+      ],
+      "upstream_samples_us": [
+        2801,
+        2655,
+        2937,
+        2763,
+        2681,
+        2719,
+        2716,
+        2596,
+        2905,
+        2751,
+        2977,
+        2966,
+        2194,
+        2991,
+        2698,
+        2905
+      ],
+      "candidate_samples_us": [
+        3515,
+        2955,
+        2763,
+        2747,
+        2700,
+        2510,
+        2595,
+        2829,
+        2487,
+        2554,
+        2794,
+        2807,
+        2339,
+        1834,
+        2532,
+        2828
+      ],
+      "allocation_requests": {
+        "upstream": 5,
+        "candidate": 5
+      }
+    }
+  },
+  "artifacts": "/private/tmp/maybe-keep-probe-20260924-final-artifacts"
+}
