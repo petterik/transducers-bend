@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T17:38:39+02:00
+updated_at: 2026-09-24T19:20:07+02:00
 status: current
 ---
 
@@ -323,22 +323,129 @@ budget has severe compile-time cost. Do not move this pass into
 `bendlang/main`. The checked-term rewrite also needed extra typing and affine
 substitution rules; those costs are not justified by the benchmark result.
 
+## Dynamic List producer/fold probe
+
+This is a deliberately small dynamic case: a recursively built List is either
+mapped into a new List and then folded, or passed through the public `map`
+transducer into the same fold. The consumer is tested with both a sum and an
+order-sensitive hash. The source List is prebuilt before each timed sample.
+The fixture checks equal results on JS and native; the timing fixtures measure
+eight 200,000-item inputs per sample using `BenchClock.now_us()`.
+
+Both compiler inputs use `bendlang/main` commit
+`2f50df1ed36fcc3ebe6c75a2046e94001a44645d`. The raw compiler has `comp.ts`
+SHA-256 `34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850`;
+the isolated static-callback candidate has SHA-256
+`083adb324e749a1ca20376896d3a14e716ccc355f019736e7b4c9dba6ab54bee`.
+`../bend` remained clean and on `bendlang/main`.
+
+| Compiler | Lane | Median µs per 200k-item input | Stream / materialized, paired 95% interval | Allocator calls per eight inputs | Generated C bytes |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Raw upstream | `List.map` + fold | 884.6 | — | 3,200,058 | 101,383 |
+| Raw upstream | `over_list` + transducer `map` + fold | 2,777.1 | 3.16 [3.10, 3.28] | 6,400,074 | 125,764 |
+| Static-callback candidate | `List.map` + fold | 876.3 | — | 3,200,058 | 101,383 |
+| Static-callback candidate | `over_list` + transducer `map` + fold | 208.1 | 0.24 [0.22, 0.27] | 1,600,057 | 98,529 |
+
+This exposes two separate compiler effects. On raw upstream, the streaming
+transducer form is about 3.2 times slower than ordinary `List.map` plus fold;
+the generated C retains runtime `TransduceContinue` records and makes about
+3.2 million more allocator calls across the eight inputs. Relative to raw
+upstream, the static-callback candidate removes about 4.8 million allocator
+calls from the streaming lane. That candidate takes
+about one quarter of the materialized lane's time and makes no per-element
+mapped-List allocations. The callback optimization is already doing useful
+work, but it is a distinct optimization from eliminating arbitrary
+List-producing computations.
+
+The C output makes the boundary concrete. The materialized lane contains a
+dynamic `Cons` construction in the map loop. The streaming lane does not have
+that constructor, because its source fold calls the downstream step directly.
+Clang cannot remove the mapped List from the materialized lane under the
+current compiler output. This confirms that source-level producer/fold
+composition can be efficient after the compiler specializes the static
+callbacks; it does not show that the compiler recognizes and fuses a normal
+`List.map` call with a later fold.
+
+The best internal shape is a **typed fold region**, not a runtime producer
+closure:
+
+- The source and its loop remain explicit: List, Range, Array, or another
+  reducible source.
+- The accumulator and configuration remain ordinary runtime state.
+- The step callback is closed checked code supplied statically, so the compiler
+  can specialize it into the source loop without allocating a closure or
+  reducer object per element.
+- A List builder may stay virtual inside that region only while the compiler
+  proves the result is fresh, single-use, and consumed by a known fold. If the
+  List escapes, is retained, has another use, or reaches an unknown consumer,
+  emit the existing materialized program.
+
+For `partition_all`, this representation needs a nested chunk producer: it must
+represent the elements of the current chunk as foldable work that a known
+consumer can accept directly. A consumer that stores or otherwise inspects the
+chunk still receives a real List or Array. This keeps `partition_all`'s public
+value semantics intact while creating a narrow optimization path for
+non-escaping consumers.
+
+The optimizer also has to preserve evaluation order. `List.map` finishes
+mapping the whole source before a later fold starts. A fused fold interleaves
+mapping and reducing, and an early stop could skip later mapping work. The
+compiler may cross this boundary only when callback effects, failure/divergence
+behavior, reducer stop behavior, completion, and affine uses are all accounted
+for. Linear ownership helps prove that a value is consumed once; it does not
+prove that a constructed List cannot escape or be observed.
+
+A naive first-class encoding that passes one runtime fold callback through a
+recursive producer was also rejected by the current affine checker when the
+callback was invoked repeatedly. That points toward storing callback code in
+the compiler's fold region, with dynamic state kept separately; it does not
+justify a new runtime callback capability or a language change.
+
+This probe is not a compiler fusion implementation. The next experiment is to
+build a small checked-term `FoldRegion`/virtual-List prototype in an isolated
+compiler copy. It should recognize producer and consumer structure rather than
+library or function names, start with a total single-use List map/fold case,
+and leave other cases unchanged. Only after that case works should it add an
+independent source adapter, retained-output and unknown-consumer bailouts,
+early stop, effectful callbacks, and affine elements.
+
+Keep that prototype in this repository's compiler-preparation harness, with
+the transformation beside the existing `emit_fold`/`emit_unfold` experiment.
+Those functions already simplify checked terms before C and JS emission, while
+the current `emit_unfold` deliberately refuses a runtime constructor spine.
+If the region passes its gates, the likely upstream change is confined to
+`bend2/comp.ts` plus compiler tests under `tests/compile`; there is no current
+reason to edit the type checker in `bend2/bend.ts` or add a public transducer
+API. Leave `../bend` untouched during the experiment.
+
+The test program is
+[`dynamic_map_fold_probe.bend`](../../bench/array_partition/dynamic_map_fold_probe.bend);
+the microsecond fixtures are
+[`dynamic_map_fold_bench_materialized.bend`](../../bench/array_partition/dynamic_map_fold_bench_materialized.bend)
+and
+[`dynamic_map_fold_bench_stream.bend`](../../bench/array_partition/dynamic_map_fold_bench_stream.bend).
+The repeatable runner and raw samples are
+[`run_dynamic_map_fold_probe.py`](../../bench/array_partition/run_dynamic_map_fold_probe.py)
+and
+[`dynamic-map-fold-results.json`](../../bench/array_partition/dynamic-map-fold-results.json).
+
 ## Options, prioritized
 
 | Option | Impact | Effort | Value | Decision |
 | --- | --- | --- | --- | --- |
-| Design a dedicated internal producer/fold representation for runtime-built chunks | High if it proves single-use and preserves stop/finish behavior | High: requires escape, effect, ownership, callback-order, and stop proofs | Very high only if it removes measured allocations across user functions | **P1: design the proof boundary, then test one dynamic List producer/fold** |
+| Prototype a typed producer/fold region for runtime-built Lists and chunks | High if it proves single-use and preserves stop/finish behavior | High: requires escape, effect, ownership, callback-order, and stop proofs | Very high only if it removes measured allocations across user functions | **P1: implement one generic dynamic List producer/fold rule in an isolated compiler** |
 | Keep relying on C optimization and existing affine reuse | Medium: preserves the allocation-free handwritten case and improves generated C locally | Low: no new API or compiler rule | Medium: already useful, but the transducer-vs-materialized gap remains | Keep as baseline, not the whole strategy |
 | Add an explicit reducer sink that returns a completed reusable buffer | Medium to high for chunk-building pipelines | High: expands reducer state/API and requires ownership-return semantics | Medium: useful when fusion cannot prove non-escape; premature before the fold experiment | Defer |
 | Special-case `partition_all` or individual transducer names in the compiler | High for selected examples | High: compiler/library coupling and correctness burden grows per transducer | Low: conflicts with the goal that new transducers compose automatically | Reject |
 
 ## Next experiment
 
-Do not increase the checked-term inline budget. First design an internal
-producer/fold representation for a runtime-built List, with a clear proof
-boundary and an unchanged fallback. Test it on a custom `map-then-fold`
-producer/consumer pair with no transducer names. It must remove the temporary
-List only when it proves all of the following:
+Do not increase the checked-term inline budget. Prototype an internal
+producer/fold region for a runtime-built List, with a clear proof boundary and
+an unchanged fallback. The measured dynamic `List.map` plus fold and public
+transducer map/fold are now the baseline pair. The compiler rule must be
+structural and remove the temporary List only when it proves all of the
+following:
 
 - the intermediate List is fresh, locally owned, and does not escape or get
   observed by another use;
@@ -368,6 +475,17 @@ compiler rule with an independent producer/consumer pair or retained-output
 negative cases.
 
 ## Reproduction
+
+The dynamic producer/fold probe can be rerun against the synced upstream
+compiler and a freshly prepared static-callback candidate:
+
+```sh
+python3 bench/compiler/prepare_static.py --output-dir /tmp/transduce-static
+python3 bench/array_partition/run_dynamic_map_fold_probe.py \
+  --upstream-main ../bend/bend2/main.ts \
+  --candidate-main /tmp/transduce-static/main.ts \
+  --output bench/array_partition/dynamic-map-fold-results.json
+```
 
 The paired result files retain raw samples and build/source hashes:
 

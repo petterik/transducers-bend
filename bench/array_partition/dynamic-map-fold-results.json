@@ -1,0 +1,449 @@
+{
+  "scope": "dynamic List map/fold versus the public map transducer over a List source",
+  "base_commit": "2f50df1ed36fcc3ebe6c75a2046e94001a44645d",
+  "fixture_sha256": "5980f01ae9a9dd671d7b3989a91a630efa7673cdc060116a589349d7f392fdf2",
+  "benchmark_fixtures_sha256": {
+    "materialized": "2159ba34db350e296e112c27b663d347430758b59a71e3763874f6e95351c35f",
+    "stream": "a6570ea42a59b730cda6bd5aeffcfe4ea315843e54af70d4a7bd80ca4cc711b0"
+  },
+  "runner_sha256": "3d8b975e3b5a3a0510ae8bc5375fc5db556d27c129209cfc1be1a935a99c5a4c",
+  "values_per_input": 200000,
+  "inputs_per_sample": 8,
+  "paired_sessions": 16,
+  "timing_unit": "microseconds from BenchClock.now_us; source construction is outside the timed region",
+  "allocation_note": "heap_alloc call counts are from separate instrumented binaries",
+  "upstream": {
+    "main_sha256": "0984154bb5f8bfb0718e4ad60d58f5098af0f01812dc8ef75b6e793e800552f8",
+    "comp_sha256": "34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850",
+    "correctness": {
+      "build_seconds": 0.3350090410094708,
+      "c_bytes": 134939,
+      "js_bytes": 19389,
+      "js_and_native_output": "(True{}, True{})"
+    },
+    "lanes": {
+      "materialized": {
+        "build_seconds": 0.09931345900986344,
+        "c_bytes": 101383,
+        "c_sha256": "48210710477eff7c65e40d21931c736341a26c5dd3b89f21bd51d78b2304d785",
+        "allocation_calls": 3200058
+      },
+      "stream": {
+        "build_seconds": 0.09872887504752725,
+        "c_bytes": 125764,
+        "c_sha256": "d39592eaf94a9ba99afc1bb9a33ac63ce82a8cc294b9fc543ff0777ebed25969",
+        "allocation_calls": 6400074
+      }
+    },
+    "timings": {
+      "paired_samples": [
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 33670
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7461
+          },
+          "stream_over_materialized": 4.512799892775767
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22820
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6187
+          },
+          "stream_over_materialized": 3.6883788588976887
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22402
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7228
+          },
+          "stream_over_materialized": 3.0993359158826785
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7360
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22565
+          },
+          "stream_over_materialized": 3.0658967391304346
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6854
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21917
+          },
+          "stream_over_materialized": 3.1976947767726873
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7537
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22245
+          },
+          "stream_over_materialized": 2.9514395648135863
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6706
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22056
+          },
+          "stream_over_materialized": 3.2889949299135104
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7103
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22283
+          },
+          "stream_over_materialized": 3.1371251583837814
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7010
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22330
+          },
+          "stream_over_materialized": 3.1854493580599144
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7302
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21999
+          },
+          "stream_over_materialized": 3.012736236647494
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22188
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6765
+          },
+          "stream_over_materialized": 3.2798226164079822
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21910
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6444
+          },
+          "stream_over_materialized": 3.400062073246431
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7089
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22184
+          },
+          "stream_over_materialized": 3.1293553392580056
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22147
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7064
+          },
+          "stream_over_materialized": 3.1351925254813136
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6840
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 22417
+          },
+          "stream_over_materialized": 3.2773391812865498
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 21927
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7471
+          },
+          "stream_over_materialized": 2.9349484674073083
+        }
+      ],
+      "median_us_per_eight_inputs": {
+        "materialized": 7076.5,
+        "stream": 22216.5
+      },
+      "median_us_per_input": {
+        "materialized": 884.5625,
+        "stream": 2777.0625
+      },
+      "median_stream_over_materialized": 3.161287258221848,
+      "paired_bootstrap_95_interval": [
+        3.0993359158826785,
+        3.2798226164079822
+      ]
+    }
+  },
+  "candidate": {
+    "main_sha256": "0984154bb5f8bfb0718e4ad60d58f5098af0f01812dc8ef75b6e793e800552f8",
+    "comp_sha256": "083adb324e749a1ca20376896d3a14e716ccc355f019736e7b4c9dba6ab54bee",
+    "correctness": {
+      "build_seconds": 0.2798984580440447,
+      "c_bytes": 86147,
+      "js_bytes": 14502,
+      "js_and_native_output": "(True{}, True{})"
+    },
+    "lanes": {
+      "materialized": {
+        "build_seconds": 0.10228204203303903,
+        "c_bytes": 101383,
+        "c_sha256": "48210710477eff7c65e40d21931c736341a26c5dd3b89f21bd51d78b2304d785",
+        "allocation_calls": 3200058
+      },
+      "stream": {
+        "build_seconds": 0.10244870802853256,
+        "c_bytes": 98529,
+        "c_sha256": "4a621e20cd2619710b71c3d053689df85e7e2831a841afac54e2e6736e897491",
+        "allocation_calls": 1600057
+      }
+    },
+    "timings": {
+      "paired_samples": [
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 13050
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 4778
+          },
+          "stream_over_materialized": 0.3661302681992337
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 3060
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 10059
+          },
+          "stream_over_materialized": 0.3042051893826424
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1666
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7617
+          },
+          "stream_over_materialized": 0.2187212813443613
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7941
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1952
+          },
+          "stream_over_materialized": 0.24581286991562776
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1934
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6713
+          },
+          "stream_over_materialized": 0.2880977208401609
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6934
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 2129
+          },
+          "stream_over_materialized": 0.3070377848283819
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6708
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1663
+          },
+          "stream_over_materialized": 0.2479129397734049
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1576
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6938
+          },
+          "stream_over_materialized": 0.22715479965407898
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6788
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1177
+          },
+          "stream_over_materialized": 0.17339422510312316
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1507
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7189
+          },
+          "stream_over_materialized": 0.20962581722075393
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6605
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1601
+          },
+          "stream_over_materialized": 0.24239212717638153
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1385
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7322
+          },
+          "stream_over_materialized": 0.18915596831466813
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6940
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1498
+          },
+          "stream_over_materialized": 0.21585014409221903
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1678
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 6932
+          },
+          "stream_over_materialized": 0.24206578188113098
+        },
+        {
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1440
+          },
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7081
+          },
+          "stream_over_materialized": 0.20336110718825023
+        },
+        {
+          "materialized": {
+            "total": 1087010048,
+            "elapsed_us": 7101
+          },
+          "stream": {
+            "total": 1087010048,
+            "elapsed_us": 1838
+          },
+          "stream_over_materialized": 0.25883678355161244
+        }
+      ],
+      "median_us_per_eight_inputs": {
+        "materialized": 7010.5,
+        "stream": 1664.5
+      },
+      "median_us_per_input": {
+        "materialized": 876.3125,
+        "stream": 208.0625
+      },
+      "median_stream_over_materialized": 0.24222895452875626,
+      "paired_bootstrap_95_interval": [
+        0.21585014409221903,
+        0.2669552953778943
+      ]
+    }
+  }
+}
