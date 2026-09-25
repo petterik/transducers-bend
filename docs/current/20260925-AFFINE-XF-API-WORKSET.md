@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T10:26:47+02:00
-updated_at: 2026-09-25T11:40:00+02:00
+updated_at: 2026-09-25T11:43:00+02:00
 status: active
 ---
 
@@ -480,3 +480,28 @@ stage and elaborated without a per-item callback. Then validate a
 type-changing map, completion and stopping, JS/native, allocation slope,
 native timing, compile time, and code size. Until that proof exists, keep the
 current library interface and compiler candidate unchanged.
+
+## Eighth feasibility checkpoint — 2026-09-25
+
+The smallest apparent library workaround is a closed stage-plan tree plus a
+recursive interpreter. [`static_plan_interpreter.bend`](../../experiments/affine_xf/static_plan_interpreter.bend)
+confirms that an ordinary plan works on JS/native, but emitted JS branches on
+its `Add` tag at runtime. The corresponding closed-template attempt in
+[`static_plan_template_rejected.bend`](../../experiments/affine_xf/static_plan_template_rejected.bend)
+is rejected while checking a `match` on the template argument. Giving the
+plan an erased parameter instead, as in
+[`static_plan_erased_rejected.bend`](../../experiments/affine_xf/static_plan_erased_rejected.bend),
+is rejected because a live computation cannot scrutinize erased data. These
+are specific checker observations, not an impossibility proof for all library
+encodings or a specification of the eventual feature.
+
+A closed tagged tree also bakes the stage variants into one library type. Even
+if the interpreter could be made static, that representation would not let
+another package add a stage without editing the tree. The design target is
+therefore an *extensible static stage composition* mechanism, where each stage
+supplies checked code and its config/state transformations, and composition
+retains those definitions in erased metadata. The compiler should elaborate
+the resulting composition by a general rule, then hand the fully closed
+reducer to the existing source fold. This is the smallest promising language
+boundary supported by the probes; the detailed type rule and implementation
+remain future work.
