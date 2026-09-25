@@ -1,5 +1,6 @@
 import Base
 import ./rank2_static_typed.bend as S
+import ./rank2_sources.bend as Sources
 import ./custom_shift.bend as Shift
 import ../../transduce.bend as T
 
@@ -44,23 +45,61 @@ def list_prepend(~A: Type) -> T.Reducer<A, List<A>>:
 def list_prepend_rf(~A: Type) -> Rf<A, List<A>, list_prepend(~A), List<A>>:
   Rf{xs => xs}
 
+# A destination selects its insertion reducer while owning an existing value.
+type Destination<-B: Type, -D: Type, -Q: T.Reducer<B, D>> is Type:
+  Destination{value: D, consumer: Rf<B, D, Q, D>}
+
+def transduce_from(~A: Type, ~B: Type,
+  ~P: @-Result: Type -> @-consumer: T.Reducer<B, Result> ->
+    T.Reducer<A, Result>,
+  ~R: Type, ~Q: T.Reducer<B, R>, ~Init: Type,
+  ~X: Type,
+  ~Drive: @-Result: Type -> @-recipe: T.Reducer<A, Result> ->
+    X -> T.Control<T.State(A, Result, recipe)> ->
+      T.Control<T.State(A, Result, recipe)>,
+  xf: S.Xf<A, B, P>, rf: Rf<B, R, Q, Init>,
+  initial: Init, source: Sources.Source<A, X, Drive>) -> R:
+  match xf rf source:
+    case S.Xf{configure} Rf{prepare} Sources.Source{input}:
+      config = configure(R, Q, prepare(initial))
+      T.finish_control(~A, ~R, ~P(R, Q),
+        Drive(R, P(R, Q), input,
+          T.start(A, R, P(R, Q), config)))
+
 def transduce(~A: Type, ~B: Type,
   ~P: @-Result: Type -> @-consumer: T.Reducer<B, Result> ->
     T.Reducer<A, Result>,
   ~R: Type, ~Q: T.Reducer<B, R>, ~Init: Type,
   xf: S.Xf<A, B, P>, rf: Rf<B, R, Q, Init>,
   initial: Init, xs: List<A>) -> R:
-  match xf rf:
-    case S.Xf{configure} Rf{prepare}:
-      config = configure(R, Q, prepare(initial))
-      T.transduce(~T.over_list(~A, ~R, ~P(R, Q)), config, xs)
+  transduce_from(~A, ~B, ~P, ~R, ~Q, ~Init,
+    ~List<A>, ~(Result => recipe => ys => c =>
+      T.reduce_list_static(~A, ~Result, ~recipe, ys, c)),
+    xf, rf, initial, Sources.list_source(~A, xs))
+
+def into_from(~A: Type, ~B: Type,
+  ~P: @-Result: Type -> @-consumer: T.Reducer<B, Result> ->
+    T.Reducer<A, Result>,
+  ~D: Type, ~Q: T.Reducer<B, D>, ~X: Type,
+  ~Drive: @-Result: Type -> @-recipe: T.Reducer<A, Result> ->
+    X -> T.Control<T.State(A, Result, recipe)> ->
+      T.Control<T.State(A, Result, recipe)>,
+  dest: Destination<B, D, Q>, xf: S.Xf<A, B, P>,
+  source: Sources.Source<A, X, Drive>) -> D:
+  match dest:
+    case Destination{value, consumer}:
+      transduce_from(~A, ~B, ~P, ~D, ~Q, ~D, ~X, ~Drive,
+        xf, consumer, value, source)
 
 def into(~A: Type, ~B: Type,
   ~P: @-Result: Type -> @-consumer: T.Reducer<B, Result> ->
     T.Reducer<A, Result>,
   dest: List<B>, xf: S.Xf<A, B, P>, xs: List<A>) -> List<B>:
-  transduce(~A, ~B, ~P, ~List<B>, ~list_prepend(~B), ~List<B>,
-    xf, list_prepend_rf(~B), dest, xs)
+  into_from(~A, ~B, ~P, ~List<B>, ~list_prepend(~B), ~List<A>,
+    ~(Result => recipe => ys => c =>
+      T.reduce_list_static(~A, ~Result, ~recipe, ys, c)),
+    Destination{dest, list_prepend_rf(~B)},
+    xf, Sources.list_source(~A, xs))
 
 def main() -> U32:
   xf_sum = S.compose(U32, U32, U32,
