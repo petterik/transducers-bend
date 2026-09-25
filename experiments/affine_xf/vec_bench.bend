@@ -110,6 +110,9 @@ def run_lane(mode: Nat, xs: List<U32>, size: U32) -> U32:
     case 9n:
       fill_sum(Auto.into(Fill.reserve(~U32, 18n, 0),
         V.shifted(1), xs))
+    case 10n:
+      fast_sum(Auto.into(Fast.reserve(~U32, 18n),
+        V.shifted(1), xs))
     case _:
       vec = VecProbe.empty(~U32)
       vec_sum(Auto.into(vec, V.shifted(1), xs))
@@ -122,11 +125,58 @@ def measure(mode: Nat, +size: Nat) -> IO(Nat & U32):
     after : Nat <- Clock.now_us()
     return (Nat.sub(after, before), answer)
 
+# Keep the built collection live past the second clock read. This makes
+# construction, rather than construction plus traversal, the timed operation.
+def measure_array_retained(xs: List<U32>, size: U32) -> IO(Nat & U32):
+  do IO<Nat & U32>:
+    before : Nat <- Clock.now_us()
+    array : Array<U32> <- IO.pure(Array<U32>,
+      array_fill(xs, 0, Array.new(U32, 18n, 0)))
+    after : Nat <- Clock.now_us()
+    return (Nat.sub(after, before), array_sum(array, size))
+
+def measure_data_retained(xs: List<U32>) -> IO(Nat & U32):
+  do IO<Nat & U32>:
+    before : Nat <- Clock.now_us()
+    vec : Fast.VecData<U32> <- IO.pure(Fast.VecData<U32>,
+      Auto.into(Fast.reserve(~U32, 18n), V.shifted(1), xs))
+    after : Nat <- Clock.now_us()
+    return (Nat.sub(after, before), fast_sum(vec))
+
+def measure_fill_retained(xs: List<U32>) -> IO(Nat & U32):
+  do IO<Nat & U32>:
+    before : Nat <- Clock.now_us()
+    vec : Fill.VecFill<U32> <- IO.pure(Fill.VecFill<U32>,
+      Auto.into(Fill.reserve(~U32, 18n, 0), V.shifted(1), xs))
+    after : Nat <- Clock.now_us()
+    return (Nat.sub(after, before), fill_sum(vec))
+
+def measure_list_retained(xs: List<U32>) -> IO(Nat & U32):
+  do IO<Nat & U32>:
+    before : Nat <- Clock.now_us()
+    ys : List<U32> <- IO.pure(List<U32>,
+      Auto.into(empty_list(), V.shifted(1), xs))
+    after : Nat <- Clock.now_us()
+    return (Nat.sub(after, before), sum_list(ys, 0))
+
+def measure_any(mode: Nat, +size: Nat) -> IO(Nat & U32):
+  match mode:
+    case 11n:
+      measure_array_retained(B.numbers(size, []), U32.from_nat(size))
+    case 12n:
+      measure_data_retained(B.numbers(size, []))
+    case 13n:
+      measure_fill_retained(B.numbers(size, []))
+    case 14n:
+      measure_list_retained(B.numbers(size, []))
+    case _:
+      measure(mode, size)
+
 def run_args(args: List<String>) -> IO(Unit):
   match args:
     case mode <> size <> rest:
       do IO<Unit>:
-        result : Nat & U32 <- measure(B.arg_nat(mode), B.arg_nat(size))
+        result : Nat & U32 <- measure_any(B.arg_nat(mode), B.arg_nat(size))
         IO.print(B.show_result(result))
     case _:
       IO.print("usage: vec_bench <mode> <size>")

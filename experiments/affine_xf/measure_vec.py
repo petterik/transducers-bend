@@ -21,7 +21,9 @@ MODES = {'list_direct': 0, 'list_into': 1,
          'vec_direct': 2, 'vec_into': 3, 'array_direct': 4,
          'vec_data_direct': 5, 'vec_data_into': 6,
          'vec_fill_direct': 7, 'vec_fill_into': 8,
-         'vec_fill_reserved': 9}
+         'vec_fill_reserved': 9, 'vec_data_reserved': 10,
+         'array_retained': 11, 'vec_data_retained': 12,
+         'vec_fill_retained': 13, 'list_retained': 14}
 ENV = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 
@@ -85,7 +87,17 @@ def main():
                 ('vec_fill_reserved', 'array_direct'),
             'vec_fill_into_over_reserved':
                 ('vec_fill_into', 'vec_fill_reserved'),
+            'vec_data_reserved_over_array_direct':
+                ('vec_data_reserved', 'array_direct'),
+            'vec_data_reserved_over_vec_fill_reserved':
+                ('vec_data_reserved', 'vec_fill_reserved'),
             'list_into_over_list_direct': ('list_into', 'list_direct'),
+            'vec_data_retained_over_array_retained':
+                ('vec_data_retained', 'array_retained'),
+            'vec_fill_retained_over_array_retained':
+                ('vec_fill_retained', 'array_retained'),
+            'vec_data_retained_over_vec_fill_retained':
+                ('vec_data_retained', 'vec_fill_retained'),
         }
         ratios = {name: [s[n] / s[d] for s in sessions]
                   for name, (n, d) in comparisons.items()}

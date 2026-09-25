@@ -11,6 +11,16 @@ type VecData<-A: Data> is Type:
 def empty(~A: Data) -> VecData<A>:
   VecData{0, 1, 0n, Array.new(Maybe<&2, A>, 0n, None{})}
 
+def reserve_after_size(~A: Data, depth: Nat,
+  result: Array<Maybe<&2, A>> & U32) -> VecData<A>:
+  (slots, capacity) = result
+  VecData{0, capacity, depth, slots}
+
+def reserve(~A: Data, +depth: Nat) -> VecData<A>:
+  reserve_after_size(~A, depth,
+    Array.size(Maybe<&2, A>,
+      Array.new(Maybe<&2, A>, depth, None{})))
+
 def grow(~A: Data, slots: Array<Maybe<&2, A>>, depth: Nat) ->
   Array<Maybe<&2, A>>:
   ANode{slots, Array.new(Maybe<&2, A>, depth, None{})}
