@@ -33,6 +33,19 @@ def order() -> List<U32>:
     Xf.map(~U32, ~U32, ~(x => x)), nums())
   Xf.into(empty_u32(), Xf.map(~U32, ~U32, ~(x => x)), vec)
 
+def nine() -> List<U32>:
+  [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+def order_nine() -> List<U32>:
+  vec = Xf.into(Vec.empty(~U32),
+    Xf.map(~U32, ~U32, ~(x => x)), nine())
+  Xf.into(empty_u32(), Xf.map(~U32, ~U32, ~(x => x)), vec)
+
+def take_zero() -> U32:
+  vec = Xf.into(Vec.empty(~U32),
+    Xf.map(~U32, ~U32, ~(x => x)), nine())
+  Xf.transduce(Xf.take(~U32, 0n), Xf.sum_rf(), 0, vec)
+
 def after_get(result: Vec.VecMaybe<U32> & Maybe<&2, U32>) ->
   Maybe<&2, U32>:
   (vec, found) = result
@@ -57,7 +70,8 @@ def too_large(choice: Maybe<Vec.VecMaybe<U32>>) -> Bool:
     case Some{vec}:
       False{}
 
-def main() -> U32 & List<U32> & (Maybe<&2, U32> & Maybe<&2, U32>) & Bool:
-  (labels(), order(), indexed(),
+def main() -> U32 & List<U32> & List<U32> & U32 &
+  (Maybe<&2, U32> & Maybe<&2, U32>) & Bool:
+  (labels(), order(), order_nine(), take_zero(), indexed(),
    too_large(Vec.with_capacity(~U32, 8388609)))
-#|(6, [3, 2, 1], (Some{2}, Some{20}), True{})
+#|(6, [3, 2, 1], [9, 8, 7, 6, 5, 4, 3, 2, 1], 0, (Some{2}, Some{20}), True{})

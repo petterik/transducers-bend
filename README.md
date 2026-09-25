@@ -48,6 +48,17 @@ across modules, so fabricated records with inconsistent fields are outside
 the collection contract. Arbitrary affine `T: Type` is not supported by this
 fast Vec.
 
+When no appropriate filler exists, [`vec_maybe.bend`](vec_maybe.bend) provides
+`VecMaybe<T: Data>` with optional Array slots. Start with
+`VecMaybe.empty(~T)`, or use `VecMaybe.with_capacity(~T, count)`, and pass the
+resulting collection to the same `Xf.into` and `Xf.transduce` calls.
+`VecMaybe.get` returns `Maybe<T>`; `VecMaybe.set` returns the previous
+optional slot in `Updated`, or the unchanged collection and input value in
+`Invalid`. Its initialized prefix contains `Some` values when constructed
+through its API. The optional tag makes this path slower than filled Vec,
+but it removes the filler requirement. Both collections require `T: Data`;
+neither claims fast arbitrary affine `T: Type` collection.
+
 For a loop that already establishes `index < vec.length`,
 `Vec.get_unchecked` and `Vec.set_unchecked` skip bounds checks. They have the
 same index-wrapping behavior as Bend's `Array.get` and `Array.swap` when given
