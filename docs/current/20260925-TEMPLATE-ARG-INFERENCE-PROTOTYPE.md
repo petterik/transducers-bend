@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T12:38:00+02:00
-updated_at: 2026-09-25T12:49:00+02:00
+updated_at: 2026-09-25T12:53:00+02:00
 status: experimental
 ---
 
@@ -146,12 +146,23 @@ C and took about 0.15 seconds for Bend code generation plus 0.24 seconds for
 Clang in these runs; these absolute figures are not a controlled code-size or
 compile-time comparison to a smaller API.
 
+The diagnostic build of the same candidate emits three specialized List
+loops for the current recipe, API List, and API source. Each loop has a flat
+call to `map_with_step` and a direct recursive jump; none has a closure call
+in its emitted loop segment. Inspection of the generated C shows the same
+List match, stop check, element step, and tail iteration structure in all
+three. This makes an extra *dynamic callback* in the API loop unlikely. It
+does not establish identical optimized machine code or explain the observed
+timing spread. Reproduce this inspection by building the candidate with
+`prepare_infer_candidate.py --diagnostics` and compiling
+`auto_api_bench.bend` with `BEND_CALLSITE_REPORT` set to an output JSON path.
+
 ## Decision after this prototype
 
 The representation and generic source/destination contracts pass the semantic
 and allocation feasibility gates. Keep them experimental. Before adopting the
-compiler rule, inspect generated call paths and rerun a more stable timing
-experiment to distinguish code-generation overhead from workload noise.
+compiler rule, compare optimized machine code and rerun a more stable timing
+experiment to distinguish code-placement effects from workload noise.
 Then specify a small, coherent implicit instance mechanism for raw custom
 sources and destinations, including ambiguity and coherence rules. Avoid a
 collection-name registry in the compiler. The template-inference feature also

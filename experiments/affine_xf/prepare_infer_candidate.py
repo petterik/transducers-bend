@@ -16,10 +16,15 @@ CALL = '      const xs = ts.concat(parse_term_args(p, ")"));\n'
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-dir', type=Path, required=True)
+    parser.add_argument('--diagnostics', action='store_true',
+                        help='include static callback call-site diagnostics')
     args = parser.parse_args()
     out = args.output_dir.resolve()
-    subprocess.run(['python3', str(ROOT / 'bench/compiler/prepare_static.py'),
-                    '--output-dir', str(out)], check=True)
+    command = ['python3', str(ROOT / 'bench/compiler/prepare_static.py'),
+               '--output-dir', str(out)]
+    if args.diagnostics:
+        command.append('--diagnostics')
+    subprocess.run(command, check=True)
     compiler = out / 'bend.ts'
     original = compiler.read_text()
     assert original.count(ANCHOR) == 1
