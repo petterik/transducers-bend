@@ -1,5 +1,6 @@
 ---
 created_at: 2026-09-25T17:09:23+02:00
+updated_at: 2026-09-25T18:02:00+02:00
 status: validated-on-fork-branch
 ---
 
@@ -80,9 +81,8 @@ earlier roughly 1.24 ratio. These process-inclusive numbers are a real
 remaining compile-time cost, not a claim of parity; samples are in
 `experiments/affine_xf/compiler-overhead-followup.json`.
 
-The branch remains the supported compiler for this library. Before merging
-it into the fork's `main` or offering it to upstream Bend, run the cluster's
-full gate and decide whether the remaining compile-time cost is acceptable.
-The cluster gate was attempted locally but its SSH host `cluster` did not
-resolve on this machine, so that final gate is outstanding. Neither merge
-action is implied by the present validation.
+The branch remains the supported compiler for this library. The later
+[local gate and Array ablation](20260925-LOCAL-GATE-ARRAY-ABLATION.md)
+ran the upstream gate on this Mac and repaired one companion interpreter gap.
+Neither a fork-main merge nor an upstream proposal follows automatically from
+these measurements.

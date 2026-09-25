@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T20:26:35+02:00
-updated_at: 2026-09-25T17:22:00+02:00
+updated_at: 2026-09-25T18:02:00+02:00
 status: current
 ---
 
@@ -12,9 +12,10 @@ filename records its origin, not its latest revision; check `updated_at` and
 `status` in the front matter for that. The folders separate current work,
 foundation material, reviews, and historical experiments.
 
-The latest result is the [general mapcat and compiler hardening report](current/20260925-MAPCAT-COMPILER-HARDENING.md).
-It records the public reducible-fragment API, compiler regression repair,
-runtime allocation split, and remaining compile-time cost. The
+The latest result is the [local compiler gate and Array ablation](current/20260925-LOCAL-GATE-ARRAY-ABLATION.md).
+It records the local upstream gate, companion interpreter repair, and source
+of the Array traversal gap. The [general mapcat report](current/20260925-MAPCAT-COMPILER-HARDENING.md)
+records the raw-fragment API and its allocation split. The
 [Vec public contract](current/20260925-VEC-PUBLIC-CONTRACT.md) records the
 ordered Data collection paths.
 
@@ -22,7 +23,8 @@ ordered Data collection paths.
 
 Read these first for the current direction and its measured limits:
 
-- [General mapcat and compiler hardening](current/20260925-MAPCAT-COMPILER-HARDENING.md) — validated on the fork branch.
+- [Local compiler gate and Array ablation](current/20260925-LOCAL-GATE-ARRAY-ABLATION.md) — current correctness and Array cost boundary.
+- [General mapcat and compiler hardening](current/20260925-MAPCAT-COMPILER-HARDENING.md) — raw-fragment API and allocation split.
 - [Vec public contract](current/20260925-VEC-PUBLIC-CONTRACT.md) — supported ordered Data destinations and sources.
 - [Affine `Xf` API workset](current/20260925-AFFINE-XF-API-WORKSET.md) — historical plan, now implemented.
 - [Producer/fold region](current/20260925-PRODUCER-STEP-FOLD-REGION.md) — latest map/filter compiler experiment.

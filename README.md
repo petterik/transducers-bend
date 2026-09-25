@@ -84,6 +84,12 @@ both forms, mid-fragment stopping, affine elements, and collection into List
 and Vec. The [mapcat measurements](docs/current/20260925-MAPCAT-COMPILER-HARDENING.md)
 record the performance difference.
 
+For allocation-equivalent pipelines, the public List and custom-source paths
+are close to handwritten folds. Ordered Array traversal retains about a 10%
+stopping-control cost even with a plain source fold; the public adapter adds
+little beyond it. The [local gate and Array ablation](docs/current/20260925-LOCAL-GATE-ARRAY-ABLATION.md)
+records the evidence and limits of that comparison.
+
 ## Example
 
 The equivalent of `(transduce (map inc) + 0 (range 10))` is:

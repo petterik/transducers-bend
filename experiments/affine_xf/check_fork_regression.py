@@ -31,7 +31,7 @@ def upstream_compiler(temp, ref):
     target = temp / 'upstream'
     shutil.copytree(BEND / 'bend2', target,
                     ignore=shutil.ignore_patterns('docs', 'pack'))
-    for name in ('bend.ts', 'comp.ts'):
+    for name in ('bend.ts', 'comp.ts', 'main.ts'):
         (target / name).write_bytes(git('show', f'{ref}:bend2/{name}'))
     return target / 'main.ts'
 

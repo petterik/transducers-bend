@@ -1,10 +1,14 @@
 ---
 created_at: 2026-09-25T14:51:00+02:00
-updated_at: 2026-09-25T15:33:58+02:00
+updated_at: 2026-09-25T18:02:00+02:00
 status: measured
 ---
 
 # Companion API performance and semantics matrix
+
+The later [local gate and Array ablation](20260925-LOCAL-GATE-ARRAY-ABLATION.md)
+separates Array `Control` traversal from reducer composition and public
+adapter selection. This matrix remains the earlier measurement on `2eae5f28`.
 
 The compiler is `petterik/bend:codex/transducer-companions` at `2eae5f28`,
 based on upstream `3276efac`. `companion_semantics_matrix.bend` checks
