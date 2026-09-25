@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T10:26:47+02:00
-updated_at: 2026-09-25T10:51:09+02:00
+updated_at: 2026-09-25T10:59:00+02:00
 status: active
 ---
 
@@ -204,3 +204,54 @@ whether to implement a general, ownership-preserving partial specialization
 of a known `Xf` constructor that retains its runtime configuration exactly
 once, or make static recipe plus owned configuration the explicit language
 boundary. The current alias rule alone cannot settle that choice.
+
+## Third feasibility checkpoint — 2026-09-25
+
+The independent [`type_indexed_plan.bend`](../../experiments/affine_xf/type_indexed_plan.bend)
+stores a closed map function as an erased type index and a runtime `Nat` limit
+as the owned `Plan` value. It runs on unmodified `bendlang/main` and the
+static-callback candidate, returning `5` on JS/native. The static-callback
+candidate emits no runtime `Reducer` record for this small example. This
+demonstrates a plausible *code in the type, settings in the value* split, but
+the `run` call must repeat `~f` explicitly; Bend does not infer a template
+argument from `Plan<f>` for the target public spelling.
+
+The [`rank2_type_indexed_plan.bend`](../../experiments/affine_xf/rank2_type_indexed_plan.bend)
+probe tries the same split for a general reducer-transforming function. Both
+compiler builds reject it at `Config`: the type checker cannot reduce the
+dependent configuration type through an opaque template code index, so it
+cannot establish that `0` is the downstream configuration. This is a failed
+*construction strategy*, not a proof that type-indexed transducers are
+impossible. In fact,
+[`rank2_config_plan.bend`](../../experiments/affine_xf/rank2_config_plan.bend)
+works on JS/native when the plan stores its downstream configuration at the
+dependent `Config` type. The static-callback candidate again erases runtime
+`Reducer` records. That plan is tied to the chosen `sum` consumer, however,
+whereas the desired `Xf` must be constructed independently of any consumer.
+It also repeats its closed code at `run`.
+
+These results make the next type-design question concrete: how can an `Xf`
+carry only its own runtime settings while exposing enough *static* information
+about the configuration/state transformation for an arbitrary downstream
+reducer? Explicit configuration/state type witnesses, a different reducer
+signature, or a more capable specialization mechanism may answer it. Reproduce
+these probes with:
+
+```sh
+python3 experiments/affine_xf/probe_type_index.py \
+  --bend-main ../bend/bend2/main.ts
+python3 experiments/affine_xf/probe_type_index.py \
+  --bend-main /tmp/affine-alias-candidate/main.ts \
+  --expect-static-erasure
+```
+
+**Current decision:** keep the measured template-based library path intact.
+Neither local-alias substitution nor the type-indexed plans prove the
+ordinary-value API or consumer-independent rank-2 composition. The next
+experiment should make reducer configuration and state types explicit in the static recipe's
+signature, then test whether one owned `Xf` value can hold runtime settings
+without repeating stage code at the call site. If that requires arbitrary
+whole-program specialization, prefer a small language elaboration rule that
+separates static code from owned settings rather than adding transducer-name
+cases to the compiler. Semantic and performance gates from this workset still
+apply before adopting any new API.
