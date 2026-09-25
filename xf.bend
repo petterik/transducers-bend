@@ -40,6 +40,16 @@ def remove(~A: Data, ~predicate: A -> Bool) -> Xf<A, A,
     ~(x => Bool.not(predicate(x))), ~down))>:
   Xf{R => down => config => config}
 
+# Adjacent duplicates only. The caller provides equality for Data values.
+def dedupe(~A: Data, ~equal: A -> A -> Bool) -> Xf<A, A,
+  (R => down => T.dedupe(~A, ~R, ~equal, ~down))>:
+  Xf{R => down => config => config}
+
+# Separator is copied between values, so it and the input type must be Data.
+def interpose(~A: Data, separator: A) -> Xf<A, A,
+  (R => down => T.interpose(~A, ~R, ~down))>:
+  Xf{R => down => config => (separator, config)}
+
 def keep(~A: Type, ~B: Type, ~f: A -> Maybe<B>) -> Xf<A, B,
   (R => down => T.keep(~A, ~B, ~R, ~f, ~down))>:
   Xf{R => down => config => config}

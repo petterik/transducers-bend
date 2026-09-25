@@ -112,6 +112,27 @@ def flattened_cat(xs: List<U32>, n: Nat) -> U32:
 
 '''
 
+ADJACENT = '''
+def deduped(xs: List<U32>) -> U32:
+  X.transduce(X.dedupe(~U32, ~U32.is_eq), X.sum_rf(), 0, xs)
+
+def interposed(xs: List<U32>, separator: U32) -> U32:
+  X.transduce(X.interpose(~U32, separator), X.sum_rf(), 0, xs)
+
+def interpose_then_take(xs: List<U32>, separator: U32, n: Nat) -> U32:
+  X.transduce(X.comp2(X.interpose(~U32, separator), X.take(~U32, n)),
+    X.sum_rf(), 0, xs)
+
+def take_then_interpose(xs: List<U32>, separator: U32, n: Nat) -> U32:
+  X.transduce(X.comp2(X.take(~U32, n), X.interpose(~U32, separator)),
+    X.sum_rf(), 0, xs)
+
+def dedupe_then_interpose(xs: List<U32>, separator: U32) -> U32:
+  X.transduce(X.comp2(X.dedupe(~U32, ~U32.is_eq),
+    X.interpose(~U32, separator)), X.sum_rf(), 0, xs)
+
+'''
+
 
 def show(value):
     if isinstance(value, list):
@@ -156,6 +177,18 @@ def oracle_traversal(xs, width, n):
             sum(flat[:n]) & U32]
 
 
+def oracle_adjacent(xs, separator, n):
+    deduped = [x for i, x in enumerate(xs) if i == 0 or x != xs[i - 1]]
+    def interpose(items):
+        return [value for i, x in enumerate(items)
+                for value in ([separator, x] if i else [x])]
+    return [sum(deduped) & U32,
+            sum(interpose(xs)) & U32,
+            sum(interpose(xs)[:n]) & U32,
+            sum(interpose(xs[:n])) & U32,
+            sum(interpose(deduped)) & U32]
+
+
 def cases():
     rng = random.Random(SEED)
     lengths = list(range(9))
@@ -186,6 +219,12 @@ def source(case_rows, body, kind):
                                 f'kept_indexed(xs{i}())',
                                 f'every(xs{i}(), {width}n)',
                                 f'flattened_cat(xs{i}(), {n}n)'))
+        elif kind.startswith('adjacent'):
+            expressions.extend((f'deduped(xs{i}())',
+                                f'interposed(xs{i}(), {width})',
+                                f'interpose_then_take(xs{i}(), {width}, {n}n)',
+                                f'take_then_interpose(xs{i}(), {width}, {n}n)',
+                                f'dedupe_then_interpose(xs{i}(), {width})'))
         else:
             expressions.extend((f'after(xs{i}(), {n}n)',
                                 f'before(xs{i}(), {n}n)',
@@ -232,6 +271,12 @@ def main():
         for offset in range(0, len(rows), 16):
             check(temp, rows[offset:offset + 16],
                   f'traversal_{offset // 16}', TRAVERSAL, oracle_traversal)
+        adjacent_rows = rows + [([1, 1, 2, 2, 1], 3, 9),
+                                ([0, 0, 0], 2, 0),
+                                ([1, 2, 1, 1, 2], 5, 7)]
+        for offset in range(0, len(adjacent_rows), 16):
+            check(temp, adjacent_rows[offset:offset + 16],
+                  f'adjacent_{offset // 16}', ADJACENT, oracle_adjacent)
 
 
 if __name__ == '__main__':

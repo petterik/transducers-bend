@@ -3,9 +3,9 @@
 A Bend library for composing pure data transformations without intermediate
 stage collections. It provides an owned reducer protocol, extensible
 source-owned reduction, map/filter/keep/take/drop and their predicate-based
-variants, indexed mapping and selection, partitioning, mapcat/cat, and
-sum/count/ordered-list consumers. Built-in
-sources are lists, balanced arrays, finite ranges, and strings; other modules
+variants, indexed mapping and selection, partitioning, mapcat/cat,
+adjacent deduplication and interposition, and sum/count/ordered-list consumers.
+Built-in sources are lists, balanced arrays, finite ranges, and strings; other modules
 can add sources without changing this library.
 
 ## Public transducer API
@@ -81,6 +81,14 @@ flattening, use `comp2(map(~A, ~List<B>, ~f), cat(T.List.adapter(~B)))`.
 Custom sources can define their own `.adapter` alongside `.source`.
 `mapcat` and `cat_drive` remain available when supplying a closed drive
 directly. See the [indexed and cat tests](tests/xf_public_indexed_cat.bend).
+
+`dedupe(~A, ~equal)` removes consecutive equal inputs; equality is a
+caller-supplied template function, and a later recurrence of a value is still
+emitted. `interpose(~A, separator)` inserts a separator between inputs, never
+before the first or after the last. Both require `A: Data`: `dedupe` retains
+the previous input while it forwards the current one, and `interpose` reuses
+the separator. A downstream stop on a separator prevents the following input
+from being forwarded. See the [adjacent-stage tests](tests/xf_public_dedupe_interpose.bend).
 
 `into(List, ...)` prepends, following Clojure's `conj` order. For encounter
 order, collect into [`Vec`](vec.bend) or [`VecMaybe`](vec_maybe.bend).

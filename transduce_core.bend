@@ -107,6 +107,105 @@ def filter(~A: Data, ~R: Type, ~predicate: A -> Bool,
     state => x => filter_step(~A, ~R, ~predicate, ~down, state, x),
     state => finish(A, R, down, state)}
 
+type Deduping<-A: Data, -S: Type> is Type:
+  Deduping{previous: Maybe<A>, inner: S}
+
+def dedupe_control(~A: Data, ~K: Data, ~S: Type,
+  previous: Maybe<A>, control: Control<K, S>) ->
+  Control<K, Deduping<A, S>>:
+  match control:
+    case Continue{state}: Continue{Deduping{previous, state}}
+    case Stop{permit, state}: Stop{permit, Deduping{previous, state}}
+
+def dedupe_choose(~A: Data, ~R: Type, ~down: Reducer<A, R>,
+  duplicate: Bool, +x: A, state: State(A, R, down)) ->
+  Control<Permit(A, R, down), Deduping<A, State(A, R, down)>>:
+  match duplicate:
+    case True{}: Continue{Deduping{Some{x}, state}}
+    case False{}:
+      dedupe_control(~A, ~Permit(A, R, down), ~State(A, R, down),
+        Some{x}, step(A, R, down, state, x))
+
+def dedupe_step(~A: Data, ~R: Type, ~equal: A -> A -> Bool,
+  ~down: Reducer<A, R>, deduping: Deduping<A, State(A, R, down)>,
+  +x: A) -> Control<Permit(A, R, down), Deduping<A, State(A, R, down)>>:
+  match deduping:
+    case Deduping{None{}, state}:
+      dedupe_control(~A, ~Permit(A, R, down), ~State(A, R, down),
+        Some{x}, step(A, R, down, state, x))
+    case Deduping{Some{previous}, state}:
+      dedupe_choose(~A, ~R, ~down, equal(previous, x), x, state)
+
+def dedupe_finish(~A: Data, ~R: Type, ~down: Reducer<A, R>,
+  deduping: Deduping<A, State(A, R, down)>) -> R:
+  match deduping:
+    case Deduping{previous, state}: finish(A, R, down, state)
+
+# Compare adjacent input values. Equality is supplied by the caller; A must
+# be Data because the previous value is retained while the current is emitted.
+def dedupe(~A: Data, ~R: Type, ~equal: A -> A -> Bool,
+  ~down: Reducer<A, R>) -> Reducer<A, R>:
+  Reducer{Permit(A, R, down), Config(A, R, down),
+    Deduping<A, State(A, R, down)>,
+    config => dedupe_control(~A, ~Permit(A, R, down),
+      ~State(A, R, down), None{}, start(A, R, down, config)),
+    state => x => dedupe_step(~A, ~R, ~equal, ~down, state, x),
+    state => dedupe_finish(~A, ~R, ~down, state)}
+
+type Interposing<-A: Data, -S: Type> is Type:
+  Interposing{separator: A, seen: Bool, inner: S}
+
+def interpose_control(~A: Data, ~K: Data, ~S: Type,
+  separator: A, seen: Bool, control: Control<K, S>) ->
+  Control<K, Interposing<A, S>>:
+  match control:
+    case Continue{state}: Continue{Interposing{separator, seen, state}}
+    case Stop{permit, state}: Stop{permit, Interposing{separator, seen, state}}
+
+def interpose_start(~A: Data, ~R: Type, ~down: Reducer<A, R>,
+  config: A & Config(A, R, down)) ->
+  Control<Permit(A, R, down), Interposing<A, State(A, R, down)>>:
+  (separator, initial) = config
+  interpose_control(~A, ~Permit(A, R, down), ~State(A, R, down),
+    separator, False{}, start(A, R, down, initial))
+
+def interpose_after_separator(~A: Data, ~R: Type,
+  ~down: Reducer<A, R>, separator: A, x: A,
+  control: Control<Permit(A, R, down), State(A, R, down)>) ->
+  Control<Permit(A, R, down), Interposing<A, State(A, R, down)>>:
+  match control:
+    case Continue{state}:
+      interpose_control(~A, ~Permit(A, R, down), ~State(A, R, down),
+        separator, True{}, step(A, R, down, state, x))
+    case Stop{permit, state}:
+      Stop{permit, Interposing{separator, True{}, state}}
+
+def interpose_step(~A: Data, ~R: Type, ~down: Reducer<A, R>,
+  interposing: Interposing<A, State(A, R, down)>, x: A) ->
+  Control<Permit(A, R, down), Interposing<A, State(A, R, down)>>:
+  match interposing:
+    case Interposing{separator, False{}, state}:
+      interpose_control(~A, ~Permit(A, R, down), ~State(A, R, down),
+        separator, True{}, step(A, R, down, state, x))
+    case Interposing{+separator, True{}, state}:
+      interpose_after_separator(~A, ~R, ~down, separator, x,
+        step(A, R, down, state, separator))
+
+def interpose_finish(~A: Data, ~R: Type, ~down: Reducer<A, R>,
+  interposing: Interposing<A, State(A, R, down)>) -> R:
+  match interposing:
+    case Interposing{separator, seen, state}: finish(A, R, down, state)
+
+# Emit separator only between inputs, and propagate a stop on that separator
+# before forwarding the next input.
+def interpose(~A: Data, ~R: Type,
+  ~down: Reducer<A, R>) -> Reducer<A, R>:
+  Reducer{Permit(A, R, down), A & Config(A, R, down),
+    Interposing<A, State(A, R, down)>,
+    config => interpose_start(~A, ~R, ~down, config),
+    state => x => interpose_step(~A, ~R, ~down, state, x),
+    state => interpose_finish(~A, ~R, ~down, state)}
+
 type Taking<-K: Data, -S: Type> is Type:
   Taking{left: Nat, inner: Control<K, S>}
 
