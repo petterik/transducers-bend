@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T10:26:47+02:00
-updated_at: 2026-09-25T10:36:52+02:00
+updated_at: 2026-09-25T10:51:09+02:00
 status: active
 ---
 
@@ -166,3 +166,41 @@ setting. It must preserve one evaluation of captures, support a custom
 producer, reject unknown/dynamic heads, and stay under a fixed expansion
 budget. Only after this boundary passes should the broader `into`/source/
 destination slice be implemented.
+
+## Second feasibility checkpoint — 2026-09-25
+
+The isolated [`prepare_alias_candidate.py`](../../experiments/affine_xf/prepare_alias_candidate.py)
+adds one bounded checker experiment to the same static-callback compiler: at
+an explicit `~` call, it resolves a local alias only if its initializer is an
+inert syntactic value (a reference, lambda, literal, or constructor of such
+values). It then checks the resolved argument in Bend's usual empty template
+context. A call used to construct the alias is deliberately refused: dropping
+the now-unused local could otherwise skip an unsafe or diverging computation.
+Unknown parameters and closures that capture runtime values are also refused.
+
+[`probe_alias.py`](../../experiments/affine_xf/probe_alias.py) passes on JS and
+native: a locally named `rf` folds to `6`; a locally constructed `Xf` maps and
+sums to `9` with no emitted JS `Xf` or `Reducer` records; a `take` recipe with a
+runtime `Nat` limit returns `5`; and an independent two-element source adapter
+returns `5`. Five negative cases retain the expected checker refusals,
+including an ordinary `rf` parameter, ordinary `xf` parameter, runtime
+capture, unknown template head, and computed `xf` alias. The candidate starts
+from `bendlang/main` at `2f50df1e`; no sibling checkout was changed. Rebuild
+and run it with:
+
+```sh
+python3 experiments/affine_xf/prepare_alias_candidate.py \
+  --output-dir /tmp/affine-alias-candidate
+python3 experiments/affine_xf/probe_alias.py \
+  --bend-main /tmp/affine-alias-candidate/main.ts
+```
+
+This is a narrow positive result for *static aliases*, not the requested
+`transduce(xf, rf, init, coll)` API. The successful `Xf` has no runtime capture;
+the runtime `take` limit is deliberately supplied separately as reducer
+configuration. The ordinary value-parameter cases still fail, and no timing or
+allocation comparison has been made for this candidate. The next decision is
+whether to implement a general, ownership-preserving partial specialization
+of a known `Xf` constructor that retains its runtime configuration exactly
+once, or make static recipe plus owned configuration the explicit language
+boundary. The current alias rule alone cannot settle that choice.
