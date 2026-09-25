@@ -16,7 +16,8 @@ import tempfile
 
 HERE = Path(__file__).resolve().parent
 FIXTURE = HERE / 'explicit_reducer_bench.bend'
-MODES = {'direct': 0, 'current_transducer': 1, 'explicit_xf': 2}
+MODES = {'direct': 0, 'current_transducer': 1, 'explicit_xf': 2,
+         'composed_xf': 3, 'staged_xf': 4}
 ENV = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 
@@ -117,6 +118,10 @@ def main():
                                      for s in paired],
             'explicit_over_current': [s['explicit_xf'] / s['current_transducer']
                                       for s in paired],
+            'composed_over_current': [s['composed_xf'] / s['current_transducer']
+                                      for s in paired],
+            'staged_over_current': [s['staged_xf'] / s['current_transducer']
+                                    for s in paired],
         }
         report = {
             'created_at': datetime.now(timezone.utc).isoformat(),

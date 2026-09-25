@@ -1,5 +1,7 @@
 import Base
 import ./explicit_reducer_types.bend as E
+import ./composable_xf_probe.bend as C
+import ./staged_value_elaboration.bend as Staged
 import ../../transduce.bend as T
 import ../../bench/array_partition/bench_clock.bend as Clock
 
@@ -23,14 +25,29 @@ def explicit(xs: List<U32>, n: Nat) -> U32:
   E.run(~U32, ~U32, ~U32, ~U32, ~U32,
     ~E.plus_one, ~E.sum2(), xf, 0, xs)
 
+def composed(xs: List<U32>, n: Nat) -> U32:
+  xf = C.compose(
+    ~(K => K), ~(K => K), ~C.map_code,
+    ~(K => Nat & K), ~(K => T.Taking<K>), ~C.take_code,
+    C.mapped(), C.taking(n))
+  C.run(~U32, ~U32, ~U32,
+    ~(K => Nat & K), ~(K => T.Taking<K>),
+    ~(R => K => S => down =>
+      C.map_code(R, Nat & K, T.Taking<S>, C.take_code(R, K, S, down))),
+    ~E.sum2(), xf, 0, xs)
+
 def once(mode: Nat, xs: List<U32>, n: Nat) -> U32:
   match mode:
     case 0n:
       direct(xs, n, 0)
     case 1n:
       old_static(xs, n)
-    case _:
+    case 2n:
       explicit(xs, n)
+    case 3n:
+      composed(xs, n)
+    case _:
+      Staged.run(n, xs)
 
 def numbers(n: Nat, acc: List<U32>) -> List<U32>:
   match n:

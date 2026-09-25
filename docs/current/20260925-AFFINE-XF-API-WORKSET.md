@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T10:26:47+02:00
-updated_at: 2026-09-25T11:09:11+02:00
+updated_at: 2026-09-25T11:33:00+02:00
 status: active
 ---
 
@@ -294,22 +294,22 @@ and [`2m`](../../experiments/affine_xf/explicit-types-static-2m-results.json):
 
 | Inputs | Direct median | Current median | Explicit median | Explicit/current paired median [bootstrap 95%] | Timed heap calls, each |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 200,000 | 199.5µs | 250.0µs | 239.0µs | 0.989 [0.955, 1.004] | 9 |
-| 2,000,000 | 3,846µs | 2,605.5µs | 2,898µs | 1.050 [1.006, 1.082] | 9 |
+| 200,000 | 178µs | 201.5µs | 200µs | 1.000 [0.990, 1.005] | 9 |
+| 2,000,000 | 3,497.5µs | 3,035µs | 2,323µs | 0.843 [0.696, 0.978] | 9 |
 
 The explicit representation introduces no per-item heap requests in this
-workload and is close to the current transducer, but the 2m run does not meet
-a strict upper-95% within 1.05 comparison against it. At 200k both
-transducer paths trail the direct loop by about 20%; at 2m both lead it.
+workload and is close to the current transducer. At 200k both transducer
+paths trail the direct loop; at 2m both lead it.
 These are workload-specific measurements, not proof of a general crossover.
-The benchmark uses randomized paired mode order, 256 sessions at 200k and 128
-at 2m, microsecond timing, and an independent arithmetic checksum.
+The benchmark uses randomized paired mode order, 128 sessions at 200k and 32
+at 2m, microsecond timing, and an independent arithmetic checksum. The stored
+report now also includes the composed and staged variants described below.
 For example, reproduce the larger run with:
 
 ```sh
 python3 experiments/affine_xf/measure_explicit_types.py \
   --bend-main /tmp/transduce-affine-xf-static/main.ts \
-  --items 2000000 --sessions 128 \
+  --items 2000000 --sessions 32 \
   --output /tmp/explicit-types-recheck.json
 ```
 
@@ -323,3 +323,95 @@ the public `transduce(xf, rf, init, coll)` call. If that inference cannot be
 specified generally and boundedly, retain the explicit static recipe/config
 split as the honest API boundary rather than introducing a special compiler
 path for transducer names.
+
+## Fifth feasibility checkpoint — 2026-09-25
+
+[`config_functor_probe.bend`](../../experiments/affine_xf/config_functor_probe.bend)
+shows that an affine value can hold an owned runtime configuration function
+while its type records how that function changes an arbitrary downstream
+configuration type. Those type-level transformations compose. The larger
+[`composable_xf_probe.bend`](../../experiments/affine_xf/composable_xf_probe.bend)
+adds a state-type transformation and generic reducer code composition: a
+separately constructed map and take compose into one owned `Xf`, then run with
+sum. Upstream and the static-callback candidate return `5` on JS/native. The
+candidate emits no `R2` reducer records. Reproduce with
+[`probe_composable.py`](../../experiments/affine_xf/probe_composable.py).
+
+That positive *typing and semantics* result fails the performance gate.
+Adding the composed lane to the same benchmark gives the following matched
+results on the static-callback candidate:
+
+| Inputs | Composed median | Composed/current paired median [bootstrap 95%] | Timed heap calls, composed | Timed heap calls, current |
+| ---: | ---: | ---: | ---: | ---: |
+| 200,000 | 1,619µs | 7.967 [7.745, 8.110] | 400,013 | 9 |
+| 2,000,000 | 16,925µs | 5.511 [5.354, 6.599] | 4,000,013 | 9 |
+
+The generated JS makes the cause visible: its item loop creates a callback
+closure for the ordinary `take_step` helper. The native allocation probe
+independently finds about two extra heap requests per item. Eliminating the
+`R2` wrapper therefore does not fuse the inner callback. This representation
+cannot be adopted as the fast path as it stands, regardless of its attractive
+type-level composition. The result does not refute composable first-class
+transducers in general; it identifies the ordinary callback handoff as the
+specific missing optimization.
+
+The handoff is isolated in
+[`callback_handoff.bend`](../../experiments/affine_xf/callback_handoff.bend): a
+recursive loop supplies a known closure to an ordinary helper, and both
+compiler builds emit that closure in the item loop. The next compiler
+experiment should specialize a *checked helper definition* on the known
+callback, then call the specialized helper with dynamic state and input. That
+keeps a pattern match in a function body, where Bend already compiles it
+directly. Merely inserting a match-valued function into the caller risks
+emitting another closure for its application. The rule must be bounded and
+name-independent, preserve one evaluation of captured runtime values, and
+reject unknown heads. Only if it removes the measured per-item allocations
+should it be tried on `take_step` and the composed `Xf`; then redo all semantic
+and paired performance gates. If this cannot be made local and general, keep
+composition in closed `~` recipes and evaluate language elaboration for the
+desired public call separately.
+
+## Sixth feasibility checkpoint — 2026-09-25
+
+[`staged_value_elaboration.bend`](../../experiments/affine_xf/staged_value_elaboration.bend)
+hand-elaborates the same composed affine value into two parts: it consumes the
+value once to obtain its owned runtime configuration, then runs a closed
+`T.map`/`T.take` reducer recipe through the existing static driver. JS/native
+return `5`; emitted JS has no per-item callback closure. The matched native
+benchmark finds:
+
+| Inputs | Staged median | Staged/current paired median [bootstrap 95%] | Timed heap calls, staged | Timed heap calls, current |
+| ---: | ---: | ---: | ---: | ---: |
+| 200,000 | 200µs | 0.995 [0.973, 1.005] | 12 | 9 |
+| 2,000,000 | 2,550µs | 0.831 [0.756, 0.943] | 12 | 9 |
+
+The three extra allocations are a fixed cost of constructing and consuming
+the composed configuration, not a cost per item. These timings support staged
+values as an API representation, subject to broader source, stage, ownership,
+and lifecycle checks. The exact public call still needs a way to infer and
+assemble the *closed template recipe* from the consumed `Xf`; the hand-written
+fixture repeats that recipe.
+
+The same hand elaboration drives a `Range` through `T.over_range` in
+[`staged_range_elaboration.bend`](../../experiments/affine_xf/staged_range_elaboration.bend).
+It checks a partial take, zero take, empty range, and limit past the end on
+JS/native. This supports source independence for the staged recipe, though it
+does not solve automatic source protocol selection.
+
+[`staged_generic_elaboration.bend`](../../experiments/affine_xf/staged_generic_elaboration.bend)
+checks an important alternative: apply the composed type-indexed reducer code
+directly inside closed `~` syntax, instead of spelling `T.map` and `T.take`.
+It returns the correct value, but emitted JS still constructs a callback in
+the item loop. Closed syntax alone does not turn an ordinary higher-order
+reducer transformer into a static template transformer. A general API cannot
+obtain the fast path merely by substituting the current `code` index.
+
+The design choice is now sharper. Prefer a language-level representation of
+*composable template code with owned runtime settings*, or a general
+elaboration rule that can produce such code from a staged value. That rule
+must let user-defined stages participate without naming `map`, `take`, or
+particular source types in the compiler. A checked helper-cloning optimization
+may still improve ordinary higher-order Bend code, but it is no longer a
+prerequisite for testing this staged API path. Do not promote either probe to
+the public library until generic composition and source/destination protocol
+selection are expressible without hand-written recipe duplication.
