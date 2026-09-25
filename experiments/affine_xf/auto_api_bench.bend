@@ -2,6 +2,7 @@ import Base
 import ./static_recipe_bench.bend as B
 import ./rank2_rf_values.bend as V
 import ./rank2_sources.bend as Sources
+import ./custom_shift.bend as Shift
 import ../../bench/array_partition/bench_clock.bend as Clock
 
 def api_list(xs: List<U32>, n: Nat) -> U32:
@@ -11,6 +12,11 @@ def api_list(xs: List<U32>, n: Nat) -> U32:
 def api_source(xs: List<U32>, n: Nat) -> U32:
   V.transduce_from(V.compose(V.shifted(1), V.taking_u32(n)),
     V.sum_rf(), 0, Sources.list_source(~U32, xs))
+
+def api_generic_stages(xs: List<U32>, n: Nat) -> U32:
+  V.transduce(V.comp2(
+    V.map_with(~U32, ~U32, ~U32, ~Shift.add, 1),
+    V.take(~U32, n)), V.sum_rf(), 0, xs)
 
 def once(mode: Nat, xs: List<U32>, n: Nat) -> U32:
   match mode:
@@ -22,8 +28,10 @@ def once(mode: Nat, xs: List<U32>, n: Nat) -> U32:
       B.rank2(xs, n)
     case 3n:
       api_list(xs, n)
-    case _:
+    case 4n:
       api_source(xs, n)
+    case _:
+      api_generic_stages(xs, n)
 
 def measure(mode: Nat, +size: Nat) -> IO(Nat & U32):
   xs = B.numbers(size, [])

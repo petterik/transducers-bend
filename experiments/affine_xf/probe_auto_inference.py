@@ -41,6 +41,8 @@ NEGATIVE = {
         'xf (consumed more than once)',
     'comp_type_mismatch_rejected.bend':
         '~?AUTO solved by a unique structural type match',
+    'auto_bad_stage_callback_rejected.bend':
+        'expected : @_:U32 -> Maybe',
 }
 
 

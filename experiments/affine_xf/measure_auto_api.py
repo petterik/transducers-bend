@@ -19,7 +19,7 @@ from measure_explicit_types import allocation_counts, interval
 HERE = Path(__file__).resolve().parent
 FIXTURE = HERE / 'auto_api_bench.bend'
 MODES = {'direct': 0, 'current_static': 1, 'rank2_explicit': 2,
-         'api_list': 3, 'api_source': 4}
+         'api_list': 3, 'api_source': 4, 'api_generic_stages': 5}
 ENV = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 
@@ -80,6 +80,12 @@ def main():
                 [s['api_source'] / s['api_list'] for s in paired],
             'api_list_over_rank2_explicit':
                 [s['api_list'] / s['rank2_explicit'] for s in paired],
+            'api_generic_over_api_list':
+                [s['api_generic_stages'] / s['api_list'] for s in paired],
+            'api_generic_over_current':
+                [s['api_generic_stages'] / s['current_static'] for s in paired],
+            'api_generic_over_direct':
+                [s['api_generic_stages'] / s['direct'] for s in paired],
         }
         report = {
             'created_at': datetime.now(timezone.utc).isoformat(),

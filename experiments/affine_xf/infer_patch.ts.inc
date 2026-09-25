@@ -43,16 +43,17 @@ function infer_template_autos(book: Book, lhs: LHS, tm: Extract<HTerm, { $: "Ref
   let last: HTerm = tm;
   for (let j = def.x; j < sp.length && found.size < autos.length; j++) {
     const h = tele_head(book, T, ctx, lhs.def, tm.s);
-    let actual: HTerm;
-    try {
-      actual = term_infer(book, lhs, sp[j], Lone(), ctx, d).ty;
-    } catch (e) {
-      if ((e as Err)?.$ !== "Err") throw e;
-      // An unannotated literal may need its expected type. Defer its
-      // ordinary check until the other arguments determine the holes.
+    const arg = sp[j];
+    // These forms require an expected type. Do not speculate on them, and
+    // especially do not swallow an error from an inferable application:
+    // inference can instantiate templates and mutate the checked book.
+    if (arg.$ === "Lam" || arg.$ === "Let" || arg.$ === "Ctr"
+      || arg.$ === "Mat" || arg.$ === "Efq" || arg.$ === "Rfl"
+      || arg.$ === "Rwt" || arg.$ === "Hol" || arg.$ === "Lit") {
       T = h.B(sp[j]);
       continue;
     }
+    const actual = term_infer(book, lhs, arg, Lone(), ctx, d).ty;
     last = actual;
     if (!unify(h.A, actual)) {
       throw Err(book, ctx, "~?AUTO solved by a unique structural type match", actual, tm.s, lhs.def);

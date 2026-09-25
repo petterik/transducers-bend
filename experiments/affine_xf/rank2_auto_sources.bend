@@ -1,7 +1,6 @@
 import Base
 import ./rank2_rf_values.bend as V
 import ./rank2_sources.bend as Sources
-import ./rank2_static_typed.bend as S
 import ../../transduce.bend as T
 
 # This source and destination live outside the transducer library.
@@ -24,7 +23,7 @@ def fold_pair(~R: Type, ~r: T.Reducer<U32, R>, pair: SamplePair,
     case SamplePair{a, b} T.Continue{s}:
       second(~R, ~r, b, T.step(U32, R, r, s, a))
 
-def pair_source(input: SamplePair) -> Sources.Source<U32, SamplePair,
+def SamplePair.source(input: SamplePair) -> Sources.Source<U32, SamplePair,
   (R => r => pair => c => fold_pair(~R, ~r, pair, c))>:
   Sources.Source{input}
 
@@ -48,7 +47,7 @@ def bag_reducer() -> T.Reducer<U32, Bag>:
 def bag_rf() -> V.Rf<U32, Bag, bag_reducer(), Bag>:
   V.Rf{initial => initial}
 
-def bag_destination(bag: Bag) -> V.Destination<U32, Bag, bag_reducer()>:
+def Bag.destination(bag: Bag) -> V.Destination<U32, Bag, bag_reducer()>:
   V.Destination{bag, bag_rf()}
 
 def main() -> U32 & U32 & Bag & Bag & Nat & Bag:
@@ -57,14 +56,15 @@ def main() -> U32 & U32 & Bag & Bag & Nat & Bag:
     Sources.range_source(T.range_between(1, 4)))
   pair_sum = V.transduce_from(
     V.compose(V.shifted(1), V.taking_u32(2n)), V.sum_rf(), 0,
-    pair_source(SamplePair{1, 2}))
-  range_bag = V.into_from(bag_destination(Bag{[9], 0}),
+    SamplePair.source(SamplePair{1, 2}))
+  range_bag = V.into_from(Bag.destination(Bag{[9], 0}),
     V.taking_u32(1n), Sources.range_source(T.range_between(1, 4)))
-  pair_bag = V.into_from(bag_destination(Bag{[9], 0}),
-    V.taking_u32(0n), pair_source(SamplePair{1, 2}))
-  pair_count = V.transduce_from(S.mapped(), V.count_nat_rf(), Unit{},
-    pair_source(SamplePair{1, 2}))
-  composed_stop = V.into_from(bag_destination(Bag{[9], 0}),
+  pair_bag = V.into_from(Bag.destination(Bag{[9], 0}),
+    V.taking_u32(0n), SamplePair.source(SamplePair{1, 2}))
+  pair_count = V.transduce_from(V.map(~U32, ~Nat, ~U32.to_nat),
+    V.count_nat_rf(), Unit{},
+    SamplePair.source(SamplePair{1, 2}))
+  composed_stop = V.into_from(Bag.destination(Bag{[9], 0}),
     V.comp5(V.shifted(1), V.taking_u32(0n), V.shifted(2),
       V.shifted(3), V.shifted(4)),
     Sources.range_source(T.range_between(1, 4)))
