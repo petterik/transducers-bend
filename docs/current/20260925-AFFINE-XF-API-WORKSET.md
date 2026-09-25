@@ -1,6 +1,7 @@
 ---
 created_at: 2026-09-25T10:26:47+02:00
-status: planned
+updated_at: 2026-09-25T10:36:52+02:00
+status: active
 ---
 
 # Affine transducer API workset
@@ -52,6 +53,7 @@ maintenance. It does not estimate typing time or lines of code.
 | --- | --- | --- | --- | --- |
 | P0 | Specify `Xf`, reducer, source, and destination lifecycles | High: prevents state leakage and ambiguous completion | Medium | Very high |
 | P0 | Prototype a single-use `Xf` carrying static stage code and runtime settings | Critical: decides whether the API preserves the fast path | High: higher-order typing and specialization | Highest |
+| P0 | Prove call-site specialization of affine `xf` and `rf` values | Critical: current Bend rejects the proposed ordinary-value call shape | High: checked identities, runtime captures, and ownership | Highest |
 | P0 | Make `into` call one `transduce` core, using explicit protocol witnesses internally | High: tests both custom ends without duplicating execution logic | Medium | Very high |
 | P0 | Verify semantics, generated code, allocations, and matched timing | Critical: catches an elegant but expensive abstraction | Medium | Highest |
 | P1 | Design implicit source/destination instance lookup for the exact public spelling | Critical for raw custom collections | High: language and compiler rules | High after the P0 prototype |
@@ -66,12 +68,15 @@ maintenance. It does not estimate typing time or lines of code.
    Preserve the current rule that a stopped downstream reducer receives no
    more inputs. Distinguish an unstarted `Xf` from the active state it creates
    inside one run.
-2. **Prototype the representation.** Try a consuming reducer transformer
-   with `map` and `take(runtime_n)`, including a type-changing map. If Bend's
-   current higher-order/template rules leave a per-item runtime closure or
-   prevent extensible composition, try a closed static recipe plus owned
-   runtime settings. Record the exact compiler/type boundary; do not add a
-   special case for either transducer name.
+2. **Prototype the representation and call boundary.** Try a consuming reducer
+   transformer with `map` and `take(runtime_n)`, including a type-changing map.
+   The first probe below shows that an ordinary `xf` or `rf` parameter cannot
+   simply enter the current closed-template driver. Test a name-independent
+   call-site specialization that makes statically known affine code available
+   to that driver while binding runtime settings once. If this is not sound
+   or bounded, try a closed static recipe plus owned runtime settings and
+   identify the language sugar needed for the target spelling. Do not add a
+   compiler case for `map` or `take` by name.
 3. **Exercise both protocols.** Use List and range plus one independently
    written source. Use List plus one independently written destination.
    Explicit source/destination witnesses are acceptable inside this prototype.
@@ -117,3 +122,47 @@ This workset should end with the prototype, semantic and performance report,
 the recommended compiler/language boundary, and a clear go/no-go decision for
 the exact public API. It does not require implementing implicit instance
 resolution, a growable Array destination, `sequence`, or new pipeline syntax.
+
+## First feasibility checkpoint — 2026-09-25
+
+The reproducible probe lives in
+[`experiments/affine_xf`](../../experiments/affine_xf). It was run against
+the local `bendlang/main` checkout at `2f50df1ed36fcc3ebe6c75a2046e94001a44645d`
+and the isolated static-callback candidate built from the same commit.
+
+The type-polymorphic `Xf<A, B>` can be expressed as a value holding an
+`@-R: Type -> Reducer<B, R> -> Reducer<A, R>` function. A `map` implementation
+can consume a downstream reducer, unpack its three callbacks, and build a new
+reducer. When that entire application is supplied as *closed template syntax*
+to the existing List driver, both JS and native return the independent result
+`9`; the static-callback candidate emits no JS `Xf` or `Reducer` records.
+This is a positive result for a static representation, not yet for the target
+ordinary-value API.
+
+Two negative fixtures locate the missing feature. A normal `xf` parameter
+cannot be supplied inside the driver's `~` argument: Bend reports that `xf`
+is a variable, not compile-time syntax. A normal reducing-function parameter
+cannot be called and passed along the recursive List tail: Bend reports that
+`rf` is consumed more than once. These are type/checker boundaries, not
+performance observations. The proposed public spelling therefore needs a
+general way to specialize known affine `xf` and `rf` arguments at a call site,
+or a language-level surface that resolves them to closed code while carrying
+runtime settings separately. Implicit source/destination selection alone
+would not solve this.
+
+Reproduce with:
+
+```sh
+python3 experiments/affine_xf/probe.py \
+  --bend-main /tmp/transduce-affine-xf-static/main.ts \
+  --expect-static-erasure
+python3 experiments/affine_xf/probe.py \
+  --bend-main ../bend/bend2/main.ts
+```
+
+The next narrow compiler test is call-site specialization on a statically
+known affine `rf` in a simple fold, then on a known `xf` value with one runtime
+setting. It must preserve one evaluation of captures, support a custom
+producer, reject unknown/dynamic heads, and stay under a fixed expansion
+budget. Only after this boundary passes should the broader `into`/source/
+destination slice be implemented.
