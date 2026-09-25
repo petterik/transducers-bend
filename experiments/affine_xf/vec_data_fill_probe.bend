@@ -1,6 +1,7 @@
 import Base
 import ./rank2_rf_values.bend as V
 import ../../transduce.bend as T
+import ./vec_capacity.bend as Capacity
 
 # Data can be copied, so a caller-provided filler permits one-block growth
 # without a Maybe tag. The filler never appears in the initialized prefix.
@@ -19,6 +20,18 @@ def reserve_after_size(~A: Data, filler: A, depth: Nat,
 def reserve(~A: Data, +depth: Nat, +filler: A) -> VecFill<A>:
   reserve_after_size(~A, filler, depth,
     Array.size(A, Array.new(A, depth, filler)))
+
+def reserve_items_at(~A: Data, +filler: A,
+  choice: Maybe<Nat>) -> Maybe<VecFill<A>>:
+  match choice:
+    case None{}:
+      None{}
+    case Some{depth}:
+      Some{reserve(~A, depth, filler)}
+
+def reserve_items(~A: Data, requested: U32, filler: A) ->
+  Maybe<VecFill<A>>:
+  reserve_items_at(~A, filler, Capacity.depth_for_items(requested))
 
 def grow(~A: Data, slots: Array<A>, depth: Nat, filler: A) -> Array<A>:
   ANode{slots, Array.new(A, depth, filler)}

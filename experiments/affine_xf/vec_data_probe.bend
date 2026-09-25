@@ -1,6 +1,7 @@
 import Base
 import ./rank2_rf_values.bend as V
 import ../../transduce.bend as T
+import ./vec_capacity.bend as Capacity
 
 # Fast generic variant for Data elements. Explicit &2 keeps Maybe<A> Data,
 # allowing Array.new to allocate a vacant half as one flat block.
@@ -20,6 +21,17 @@ def reserve(~A: Data, +depth: Nat) -> VecData<A>:
   reserve_after_size(~A, depth,
     Array.size(Maybe<&2, A>,
       Array.new(Maybe<&2, A>, depth, None{})))
+
+def reserve_items_at(~A: Data, choice: Maybe<Nat>) ->
+  Maybe<VecData<A>>:
+  match choice:
+    case None{}:
+      None{}
+    case Some{depth}:
+      Some{reserve(~A, depth)}
+
+def reserve_items(~A: Data, requested: U32) -> Maybe<VecData<A>>:
+  reserve_items_at(~A, Capacity.depth_for_items(requested))
 
 def grow(~A: Data, slots: Array<Maybe<&2, A>>, depth: Nat) ->
   Array<Maybe<&2, A>>:

@@ -96,3 +96,18 @@ interleaved, so absolute times should not be compared. New samples are in
 The source-level `VecFill` prototype is not yet a production collection.
 The significant unresolved design choice is how to make its representation
 invariant enforceable without adding a Vec-specific compiler feature.
+
+## Count-based reservation probe
+
+Both Data prototypes now have `reserve_items(requested)` alongside their
+older depth-based `reserve`. The new call rounds a requested element count to
+the next power of two, keeping capacity one for requests zero and one. It
+returns `None` above 2^23 instead of overflowing U32 arithmetic or calling
+`Array.new` at a depth where nontrivial shared fillers produce a runtime
+error. Native and JS agree on counts 0–5 and the 2^23 boundary, and on
+actual four-slot reservations for `U32` and `String`.
+
+This is only a constructor probe. Dynamic `push` can still grow past that
+limit; raw `reserve(depth)` is still exposed; and `None` does not explain the
+rejected request. A public API needs one consistent checked-capacity policy
+for construction *and* growth. Silent truncation would violate `into`.
