@@ -106,9 +106,27 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
                 # source records, including the empty fragment.
                 assert result.returncode == 0 and result.stderr == '14,2', result.stderr
                 assert result.stdout.strip() == want, result.stdout
+            if not args.semantic_only and file.stem == 'mapcat_stop_propagation':
+                source, replacements = re.subn(
+                    r'(function \$make_fragment\$\([^\n]*\) \{)',
+                    r'\1 fragmentCalls++;', source)
+                assert replacements == 1, 'mapcat fragment instrumentation target changed'
+                source = ('let fragmentCalls = 0; process.on("exit", () => '
+                          'process.stderr.write(String(fragmentCalls)));\n' + source)
+                instrumented = Path(d) / 'mapcat-instrumented.js'
+                instrumented.write_text(source)
+                result = subprocess.run(['bun', str(instrumented)], capture_output=True,
+                                        text=True, timeout=10)
+                assert result.returncode == 0 and result.stderr == '2', result.stderr
+                assert result.stdout.strip() == want, result.stdout
         passed += 1
         print('PASS', file.name)
+    forged = ROOT / 'experiments' / 'affine_xf' / 'opaque_source_reject.bend'
+    rejected = subprocess.run(compiler + [str(forged), '--check-only'],
+                              env=env, capture_output=True, text=True, timeout=30)
+    assert rejected.returncode != 0 and 'forged~S' in (rejected.stdout + rejected.stderr), \
+        ('opaque source Stop fabrication unexpectedly accepted', rejected.stdout, rejected.stderr)
 if args.semantic_only:
-    print(f'PASS: {passed} / {passed}; JS/native outputs match')
+    print(f'PASS: {passed} / {passed}; JS/native outputs and source rejection match')
 else:
-    print(f'PASS: {passed} / {passed}; code generation, source/mapper counts, and bounded laws verified')
+    print(f'PASS: {passed} / {passed}; code generation, source/mapper counts, source rejection, and bounded laws verified')

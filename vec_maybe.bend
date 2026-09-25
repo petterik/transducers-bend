@@ -134,71 +134,63 @@ def VecMaybe.destination(~A: Data, vec: VecMaybe<A>) ->
   V.Destination<A, VecMaybe<A>, reducer(~A)>:
   V.Destination{vec, rf(~A)}
 
-def done(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  slots: Array<Maybe<&2, A>>, control: T.Control<T.State(A, R, r)>) ->
-  T.Control<(Array<Maybe<&2, A>> & T.State(A, R, r))>:
-  match control:
-    case T.Stop{state}:
-      T.Stop{(slots, state)}
-    case T.Continue{state}:
-      T.Continue{(slots, state)}
+def source_vec_checked(~A: Data, ~S: Type,
+  checked: T.Checked<S>, slots: Array<Maybe<&2, A>>) ->
+  T.Checked<(Array<Maybe<&2, A>> & S)>:
+  match checked:
+    case T.Ready{s}:
+      T.Ready{(slots, s)}
+    case T.Halted{s}:
+      T.Halted{(slots, s)}
 
-def after_get(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  state: T.State(A, R, r),
-  result: Array<Maybe<&2, A>> & Maybe<&2, A>) ->
-  T.Control<(Array<Maybe<&2, A>> & T.State(A, R, r))>:
-  (slots, item) = result
+def source_vec_inspect(~A: Data, ~S: Type,
+  ~inspect: S -> T.Checked<S>, pair: Array<Maybe<&2, A>> & S) ->
+  T.Checked<(Array<Maybe<&2, A>> & S)>:
+  (slots, s) = pair
+  source_vec_checked(~A, ~S, inspect(s), slots)
+
+def source_vec_after_get(~A: Data, ~S: Type,
+  ~advance: S -> A -> S, s: S,
+  got: Array<Maybe<&2, A>> & Maybe<&2, A>) ->
+  Array<Maybe<&2, A>> & S:
+  (slots, item) = got
   match item:
     case None{}:
-      T.Continue{(slots, state)}
-    case Some{value}:
-      done(~A, ~R, ~r, slots, T.step(A, R, r, state, value))
+      (slots, s)
+    case Some{x}:
+      (slots, advance(s, x))
 
-def fold_step(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  pair: Array<Maybe<&2, A>> & T.State(A, R, r), index: U32) ->
-  T.Control<(Array<Maybe<&2, A>> & T.State(A, R, r))>:
-  (slots, state) = pair
-  after_get(~A, ~R, ~r, state,
+def source_vec_step(~A: Data, ~S: Type,
+  ~advance: S -> A -> S, pair: Array<Maybe<&2, A>> & S,
+  index: U32) -> Array<Maybe<&2, A>> & S:
+  (slots, s) = pair
+  source_vec_after_get(~A, ~S, ~advance, s,
     Array.swap(Maybe<&2, A>, slots, index, None{}))
 
-def start(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  slots: Array<Maybe<&2, A>>,
-  control: T.Control<T.State(A, R, r)>) ->
-  T.Control<(Array<Maybe<&2, A>> & T.State(A, R, r))>:
-  match control:
-    case T.Stop{state}:
-      T.Stop{(slots, state)}
-    case T.Continue{state}:
-      T.Continue{(slots, state)}
+def source_vec_finish(~A: Data, ~S: Type,
+  pair: Array<Maybe<&2, A>> & S) -> S:
+  (slots, s) = pair
+  s
 
-def finish(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  control: T.Control<(Array<Maybe<&2, A>> & T.State(A, R, r))>) ->
-  T.Control<T.State(A, R, r)>:
-  match control:
-    case T.Stop{(slots, state)}:
-      T.Stop{state}
-    case T.Continue{(slots, state)}:
-      T.Continue{state}
+def source_vec_sized(~A: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> T.Checked<S>,
+  length: U32, sized: Array<Maybe<&2, A>> & U32, s: S) -> S:
+  (slots, actual) = sized
+  source_vec_finish(~A, ~S, T.source_range(
+    ~(Array<Maybe<&2, A>> & S),
+    ~(pair => index => source_vec_step(~A, ~S, ~advance, pair, index)),
+    ~(pair => source_vec_inspect(~A, ~S, ~inspect, pair)),
+    T.range_between(0, U32.min(length, actual)), (slots, s)))
 
-def drive_sized(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  length: U32, result: Array<Maybe<&2, A>> & U32,
-  control: T.Control<T.State(A, R, r)>) ->
-  T.Control<T.State(A, R, r)>:
-  (slots, actual) = result
-  finish(~A, ~R, ~r, T.reduce_range(
-    ~(Array<Maybe<&2, A>> & T.State(A, R, r)),
-    ~(pair => index => fold_step(~A, ~R, ~r, pair, index)),
-    T.range_between(0, U32.min(length, actual)),
-    start(~A, ~R, ~r, slots, control)))
-
-def drive(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  vec: VecMaybe<A>, control: T.Control<T.State(A, R, r)>) ->
-  T.Control<T.State(A, R, r)>:
+def source_vec(~A: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> T.Checked<S>,
+  vec: VecMaybe<A>, s: S) -> S:
   match vec:
     case VecMaybe{length, capacity, depth, slots}:
-      drive_sized(~A, ~R, ~r, length,
-        Array.size(Maybe<&2, A>, slots), control)
+      source_vec_sized(~A, ~S, ~advance, ~inspect,
+        length, Array.size(Maybe<&2, A>, slots), s)
 
 def VecMaybe.source(~A: Data, vec: VecMaybe<A>) -> T.Source<A, VecMaybe<A>,
-  (R => r => v => c => drive(~A, ~R, ~r, v, c))>:
+  (S => advance => inspect => v => s =>
+    source_vec(~A, ~S, ~advance, ~inspect, v, s))>:
   T.Source{vec}

@@ -7,32 +7,29 @@ type PairSource is Type:
 def example() -> PairSource:
   PairSource{3, 4}
 
-def after_first(~R: Type, ~r: T.Reducer<U32, R>,
-  second: U32, control: T.Control<T.State(U32, R, r)>) ->
-  T.Control<T.State(U32, R, r)>:
-  match control:
-    case T.Stop{state}:
-      T.Stop{state}
-    case T.Continue{state}:
-      T.step(U32, R, r, state, second)
+def source_after_first(~S: Type, ~advance: S -> U32 -> S,
+  second: U32, checked: T.Checked<S>) -> S:
+  match checked:
+    case T.Halted{s}:
+      s
+    case T.Ready{s}:
+      advance(s, second)
 
-def drive_started(~R: Type, ~r: T.Reducer<U32, R>,
-  first: U32, second: U32,
-  control: T.Control<T.State(U32, R, r)>) ->
-  T.Control<T.State(U32, R, r)>:
-  match control:
-    case T.Stop{state}:
-      T.Stop{state}
-    case T.Continue{state}:
-      after_first(~R, ~r, second, T.step(U32, R, r, state, first))
+def source_pair_checked(~S: Type, ~advance: S -> U32 -> S,
+  ~inspect: S -> T.Checked<S>, pair: PairSource,
+  checked: T.Checked<S>) -> S:
+  match pair checked:
+    case PairSource{first, second} T.Halted{s}:
+      s
+    case PairSource{first, second} T.Ready{s}:
+      source_after_first(~S, ~advance, second,
+        inspect(advance(s, first)))
 
-def drive(~R: Type, ~r: T.Reducer<U32, R>,
-  source: PairSource, control: T.Control<T.State(U32, R, r)>) ->
-  T.Control<T.State(U32, R, r)>:
-  match source:
-    case PairSource{first, second}:
-      drive_started(~R, ~r, first, second, control)
+def source_pair(~S: Type, ~advance: S -> U32 -> S,
+  ~inspect: S -> T.Checked<S>, pair: PairSource, s: S) -> S:
+  source_pair_checked(~S, ~advance, ~inspect, pair, inspect(s))
 
 def PairSource.source(source: PairSource) ->
-  T.Source<U32, PairSource, (R => r => v => c => drive(~R, ~r, v, c))>:
+  T.Source<U32, PairSource, (S => advance => inspect => v => s =>
+    source_pair(~S, ~advance, ~inspect, v, s))>:
   T.Source{source}

@@ -41,9 +41,8 @@ def take(~A: Type, n: Nat) -> Xf<A, A,
 # Source wrapper is needed. A mapper that builds a List still allocates that
 # List; a small structural fragment can avoid per-input allocation.
 def mapcat(~A: Type, ~B: Type, ~X: Type,
-  ~Drive: @-Result: Type -> @-recipe: T.Reducer<B, Result> ->
-    X -> T.Control<T.State(B, Result, recipe)> ->
-      T.Control<T.State(B, Result, recipe)>,
+  ~Drive: @-S: Type -> @-advance: (S -> B -> S) ->
+    @-inspect: (S -> T.Checked<S>) -> X -> S -> S,
   ~f: A -> X) -> Xf<A, B,
     (R => down => T.mapcat(~A, ~B, ~X, ~Drive, ~R, ~f, ~down))>:
   Xf{R => down => config => config}
@@ -142,25 +141,25 @@ def transduce_from(~A: Type, ~B: Type,
     T.Reducer<A, Result>,
   ~R: Type, ~Q: T.Reducer<B, R>, ~Init: Type,
   ~X: Type,
-  ~Drive: @-Result: Type -> @-recipe: T.Reducer<A, Result> ->
-    X -> T.Control<T.State(A, Result, recipe)> ->
-      T.Control<T.State(A, Result, recipe)>,
+  ~Drive: @-S: Type -> @-advance: (S -> A -> S) ->
+    @-inspect: (S -> T.Checked<S>) -> X -> S -> S,
   xf: Xf<A, B, P>, rf: Rf<B, R, Q, Init>,
   initial: Init, source: T.Source<A, X, Drive>) -> R:
   match xf rf source:
     case Xf{configure} Rf{prepare} T.Source{input}:
       config = configure(R, Q, prepare(initial))
       T.finish_control(~A, ~R, ~P(R, Q),
-        Drive(R, P(R, Q), input,
+        Drive((T.Control<T.State(A, R, P(R, Q))>),
+          (c => x => T.step_control(~A, ~R, ~P(R, Q), c, x)),
+          (c => T.inspect_control(~T.State(A, R, P(R, Q)), c)), input,
           T.start(A, R, P(R, Q), config)))
 
 def into_from(~A: Type, ~B: Type,
   ~P: @-Result: Type -> @-consumer: T.Reducer<B, Result> ->
     T.Reducer<A, Result>,
   ~D: Type, ~Q: T.Reducer<B, D>, ~X: Type,
-  ~Drive: @-Result: Type -> @-recipe: T.Reducer<A, Result> ->
-    X -> T.Control<T.State(A, Result, recipe)> ->
-      T.Control<T.State(A, Result, recipe)>,
+  ~Drive: @-S: Type -> @-advance: (S -> A -> S) ->
+    @-inspect: (S -> T.Checked<S>) -> X -> S -> S,
   dest: Destination<B, D, Q>, xf: Xf<A, B, P>,
   source: T.Source<A, X, Drive>) -> D:
   match dest:
@@ -176,9 +175,8 @@ def transduce(~A: Type, ~B: Type,
     T.Reducer<A, Result>,
   ~R: Type, ~Q: T.Reducer<B, R>, ~Init: Type,
   ~X: Type,
-  ~Drive: @-Result: Type -> @-recipe: T.Reducer<A, Result> ->
-    X -> T.Control<T.State(A, Result, recipe)> ->
-      T.Control<T.State(A, Result, recipe)>,
+  ~Drive: @-S: Type -> @-advance: (S -> A -> S) ->
+    @-inspect: (S -> T.Checked<S>) -> X -> S -> S,
   xf: Xf<A, B, P>, rf: Rf<B, R, Q, Init>,
   initial: Init, source: T.Source<A, X, Drive>) -> R:
   transduce_from(~A, ~B, ~P, ~R, ~Q, ~Init, ~X, ~Drive,
@@ -188,9 +186,8 @@ def into(~A: Type, ~B: Type,
   ~P: @-Result: Type -> @-consumer: T.Reducer<B, Result> ->
     T.Reducer<A, Result>,
   ~D: Type, ~Q: T.Reducer<B, D>, ~X: Type,
-  ~Drive: @-Result: Type -> @-recipe: T.Reducer<A, Result> ->
-    X -> T.Control<T.State(A, Result, recipe)> ->
-      T.Control<T.State(A, Result, recipe)>,
+  ~Drive: @-S: Type -> @-advance: (S -> A -> S) ->
+    @-inspect: (S -> T.Checked<S>) -> X -> S -> S,
   dest: Destination<B, D, Q>, xf: Xf<A, B, P>,
   source: T.Source<A, X, Drive>) -> D:
   into_from(~A, ~B, ~P, ~D, ~Q, ~X, ~Drive,

@@ -360,57 +360,159 @@ def reduce_array(~A: Type, ~S: Type, ~advance: S -> A -> Control<S>,
       reduce_array(~A, ~S, ~advance, right,
         reduce_array(~A, ~S, ~advance, left, Continue{s}))
 
-# A source owns its input while its erased Drive index supplies a closed fold
-# for every downstream reducer. Keep this contract beside Range and the folds
-# so those types can provide companions without an import cycle.
+# A source receives an opaque accumulator. Inspect consumes and returns that
+# accumulator, as Bend cannot borrow an arbitrary affine value. A source may
+# stop feeding items and return an accumulator it received, but it cannot
+# construct a reducer's Stop (or any other value of the abstract accumulator
+# type). Only the public transduce boundary unwraps Control.
+type Checked<-S: Type> is Type:
+  Ready{state: S}
+  Halted{state: S}
+
+def inspect_control(~S: Type, c: Control<S>) -> Checked<Control<S>>:
+  match c:
+    case Continue{s}:
+      Ready{Continue{s}}
+    case Stop{s}:
+      Halted{Stop{s}}
+
+def step_control(~A: Type, ~R: Type, ~r: Reducer<A, R>,
+  c: Control<State(A, R, r)>, x: A) -> Control<State(A, R, r)>:
+  match c:
+    case Continue{s}:
+      step(A, R, r, s, x)
+    case Stop{s}:
+      Stop{s}
+
+def source_list_loop(~A: Type, ~S: Type, ~advance: S -> A -> S,
+  ~inspect: S -> Checked<S>, xs: List<A>, checked: Checked<S>) -> S:
+  match xs checked:
+    case Nil{} Ready{s}:
+      s
+    case Nil{} Halted{s}:
+      s
+    case h <> t Halted{s}:
+      s
+    case h <> t Ready{s}:
+      source_list_loop(~A, ~S, ~advance, ~inspect, t,
+        inspect(advance(s, h)))
+
+def source_list(~A: Type, ~S: Type, ~advance: S -> A -> S,
+  ~inspect: S -> Checked<S>, xs: List<A>, s: S) -> S:
+  source_list_loop(~A, ~S, ~advance, ~inspect, xs, inspect(s))
+
+def source_range_loop(~S: Type, ~advance: S -> U32 -> S,
+  ~inspect: S -> Checked<S>, +remaining: Nat, checked: Checked<S>,
+  +end: U32) -> S:
+  match remaining checked:
+    case n Halted{s}:
+      s
+    case 0n Ready{s}:
+      s
+    case 1n+p Ready{s}:
+      source_range_loop(~S, ~advance, ~inspect, p,
+        inspect(advance(s, range_value(end, 1n+p))), end)
+
+def source_range_bounds(~S: Type, ~advance: S -> U32 -> S,
+  ~inspect: S -> Checked<S>, valid: Bool, begin: U32, +end: U32,
+  s: S) -> S:
+  match valid:
+    case False{}:
+      s
+    case True{}:
+      source_range_loop(~S, ~advance, ~inspect,
+        U32.to_nat((end - begin : U32)), inspect(s), end)
+
+def source_range(~S: Type, ~advance: S -> U32 -> S,
+  ~inspect: S -> Checked<S>, xs: Range, s: S) -> S:
+  match xs:
+    case Range{+begin, +end}:
+      source_range_bounds(~S, ~advance, ~inspect,
+        U32.is_lt(begin, end), begin, end, s)
+
+def source_string_loop(~S: Type, ~advance: S -> Char -> S,
+  ~inspect: S -> Checked<S>, xs: String, checked: Checked<S>) -> S:
+  match xs checked:
+    case SNil{} Ready{s}:
+      s
+    case SNil{} Halted{s}:
+      s
+    case SCon{h, t} Halted{s}:
+      s
+    case SCon{h, t} Ready{s}:
+      source_string_loop(~S, ~advance, ~inspect, t,
+        inspect(advance(s, h)))
+
+def source_string(~S: Type, ~advance: S -> Char -> S,
+  ~inspect: S -> Checked<S>, xs: String, s: S) -> S:
+  source_string_loop(~S, ~advance, ~inspect, xs, inspect(s))
+
+def source_array_loop(~A: Type, ~S: Type, ~advance: S -> A -> S,
+  ~inspect: S -> Checked<S>, xs: Array<A>, checked: Checked<S>) -> S:
+  match xs checked:
+    case ALeaf{x} Halted{s}:
+      s
+    case ALeaf{x} Ready{s}:
+      advance(s, x)
+    case ANode{left, right} Halted{s}:
+      s
+    case ANode{left, right} Ready{s}:
+      source_array_loop(~A, ~S, ~advance, ~inspect, right,
+        inspect(source_array_loop(~A, ~S, ~advance, ~inspect,
+          left, Ready{s})))
+
+def source_array(~A: Type, ~S: Type, ~advance: S -> A -> S,
+  ~inspect: S -> Checked<S>, xs: Array<A>, s: S) -> S:
+  source_array_loop(~A, ~S, ~advance, ~inspect, xs, inspect(s))
+
+# Drive is closed code indexed by the accumulator and callbacks. Its result
+# is that same accumulator, without a source-owned stopping constructor.
 type Source<-A: Type, -X: Type,
-  -Drive: @-R: Type -> @-r: Reducer<A, R> ->
-    X -> Control<State(A, R, r)> ->
-      Control<State(A, R, r)>> is Type:
+  -Drive: @-S: Type -> @-advance: (S -> A -> S) ->
+    @-inspect: (S -> Checked<S>) -> X -> S -> S> is Type:
   Source{input: X}
 
 def Source.allow_companion() -> Unit:
   Unit{}
 
 def List.source(~A: Type, xs: List<A>) ->
-  Source<A, List<A>, (R => r => ys => c =>
-    reduce_list_static(~A, ~R, ~r, ys, c))>:
+  Source<A, List<A>, (S => advance => inspect => ys => s =>
+    source_list(~A, ~S, ~advance, ~inspect, ys, s))>:
   Source{xs}
 
 def Range.source(xs: Range) ->
-  Source<U32, Range, (R => r => ys => c =>
-    reduce_range(~State(U32, R, r),
-      ~(s => x => step(U32, R, r, s, x)), ys, c))>:
+  Source<U32, Range, (S => advance => inspect => ys => s =>
+    source_range(~S, ~advance, ~inspect, ys, s))>:
   Source{xs}
 
 def Array.source(~A: Type, xs: Array<A>) ->
-  Source<A, Array<A>, (R => r => ys => c =>
-    reduce_array(~A, ~State(A, R, r),
-      ~(s => x => step(A, R, r, s, x)), ys, c))>:
+  Source<A, Array<A>, (S => advance => inspect => ys => s =>
+    source_array(~A, ~S, ~advance, ~inspect, ys, s))>:
   Source{xs}
 
 def String.source(xs: String) ->
-  Source<Char, String, (R => r => ys => c =>
-    reduce_string(~State(Char, R, r),
-      ~(s => x => step(Char, R, r, s, x)), ys, c))>:
+  Source<Char, String, (S => advance => inspect => ys => s =>
+    source_string(~S, ~advance, ~inspect, ys, s))>:
   Source{xs}
 
 # Flatten a raw fragment without starting or finishing the downstream reducer
 # for each input. The concrete source drive is fixed at this stage's type;
-# its fold must honor an incoming Stop and preserve encounter order.
+# its fold must preserve the opaque accumulator returned by the downstream
+# step, including one marked Halted by inspection.
 def cat_source_step(~B: Type, ~X: Type,
-  ~Drive: @-Result: Type -> @-recipe: Reducer<B, Result> ->
-    X -> Control<State(B, Result, recipe)> ->
-      Control<State(B, Result, recipe)>,
+  ~Drive: @-S: Type -> @-advance: (S -> B -> S) ->
+    @-inspect: (S -> Checked<S>) -> X -> S -> S,
   ~R: Type, ~down: Reducer<B, R>,
   input: X, state: State(B, R, down)) ->
   Control<State(B, R, down)>:
-  Drive(R, down, input, Continue{state})
+  Drive((Control<State(B, R, down)>),
+    (c => x => step_control(~B, ~R, ~down, c, x)),
+    (c => inspect_control(~State(B, R, down), c)),
+    input, Continue{state})
 
 def cat_source(~B: Type, ~X: Type,
-  ~Drive: @-Result: Type -> @-recipe: Reducer<B, Result> ->
-    X -> Control<State(B, Result, recipe)> ->
-      Control<State(B, Result, recipe)>,
+  ~Drive: @-S: Type -> @-advance: (S -> B -> S) ->
+    @-inspect: (S -> Checked<S>) -> X -> S -> S,
   ~R: Type, ~down: Reducer<B, R>) -> Reducer<X, R>:
   Reducer{Config(B, R, down), State(B, R, down),
     c => start(B, R, down, c),
@@ -421,15 +523,14 @@ def cat_source(~B: Type, ~X: Type,
 # known, the callback may return the raw collection directly. A callback that
 # constructs a List still pays for the List's storage.
 def mapcat(~A: Type, ~B: Type, ~X: Type,
-  ~Drive: @-Result: Type -> @-recipe: Reducer<B, Result> ->
-    X -> Control<State(B, Result, recipe)> ->
-      Control<State(B, Result, recipe)>,
+  ~Drive: @-S: Type -> @-advance: (S -> B -> S) ->
+    @-inspect: (S -> Checked<S>) -> X -> S -> S,
   ~R: Type, ~f: A -> X,
   ~down: Reducer<B, R>) -> Reducer<A, R>:
   map(~A, ~X, ~R, ~f,
     ~cat_source(~B, ~X, ~Drive, ~R, ~down))
 
-# Static binding of a source-owned stopping fold to a reducer. This is open:
+# Static binding of a source-owned stopping fold to a reducer. This older API is open:
 # third-party adapters construct it with reducible; no source registry exists.
 # Type metadata is delayed so specialization need not evaluate type expressions
 # while projecting run. The code-generation tests require this record to vanish.

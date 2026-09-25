@@ -12,8 +12,10 @@ filename records its origin, not its latest revision; check `updated_at` and
 `status` in the front matter for that. The folders separate current work,
 foundation material, reviews, and historical experiments.
 
-The latest result is the [local compiler gate and Array ablation](current/20260925-LOCAL-GATE-ARRAY-ABLATION.md).
-It records the local upstream gate, companion interpreter repair, and source
+The latest result is the [opaque source protocol](current/20260925-OPAQUE-SOURCE-PROTOCOL.md).
+It records the source-owned fold contract, nested stopping semantics, and the
+remaining Array no-stop cost. The [local compiler gate and Array ablation](current/20260925-LOCAL-GATE-ARRAY-ABLATION.md)
+records the local upstream gate, companion interpreter repair, and source
 of the Array traversal gap. The [general mapcat report](current/20260925-MAPCAT-COMPILER-HARDENING.md)
 records the raw-fragment API and its allocation split. The
 [Vec public contract](current/20260925-VEC-PUBLIC-CONTRACT.md) records the
@@ -23,6 +25,7 @@ ordered Data collection paths.
 
 Read these first for the current direction and its measured limits:
 
+- [Opaque source protocol](current/20260925-OPAQUE-SOURCE-PROTOCOL.md) — current source type and nested stop semantics.
 - [Local compiler gate and Array ablation](current/20260925-LOCAL-GATE-ARRAY-ABLATION.md) — current correctness and Array cost boundary.
 - [General mapcat and compiler hardening](current/20260925-MAPCAT-COMPILER-HARDENING.md) — raw-fragment API and allocation split.
 - [Vec public contract](current/20260925-VEC-PUBLIC-CONTRACT.md) — supported ordered Data destinations and sources.

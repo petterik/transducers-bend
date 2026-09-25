@@ -163,63 +163,55 @@ def Vec.destination(~A: Data, vec: Vec<A>) ->
   V.Destination<A, Vec<A>, reducer(~A)>:
   V.Destination{vec, rf(~A)}
 
-def done(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  slots: Array<A>, control: T.Control<T.State(A, R, r)>) ->
-  T.Control<(Array<A> & T.State(A, R, r))>:
-  match control:
-    case T.Stop{state}:
-      T.Stop{(slots, state)}
-    case T.Continue{state}:
-      T.Continue{(slots, state)}
+def source_vec_checked(~A: Data, ~S: Type,
+  checked: T.Checked<S>, slots: Array<A>) ->
+  T.Checked<(Array<A> & S)>:
+  match checked:
+    case T.Ready{s}:
+      T.Ready{(slots, s)}
+    case T.Halted{s}:
+      T.Halted{(slots, s)}
 
-def after_get(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  state: T.State(A, R, r), result: Array<A> & A) ->
-  T.Control<(Array<A> & T.State(A, R, r))>:
-  (slots, value) = result
-  done(~A, ~R, ~r, slots, T.step(A, R, r, state, value))
+def source_vec_inspect(~A: Data, ~S: Type,
+  ~inspect: S -> T.Checked<S>, pair: Array<A> & S) ->
+  T.Checked<(Array<A> & S)>:
+  (slots, s) = pair
+  source_vec_checked(~A, ~S, inspect(s), slots)
 
-def fold_step(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  pair: Array<A> & T.State(A, R, r), index: U32) ->
-  T.Control<(Array<A> & T.State(A, R, r))>:
-  (slots, state) = pair
-  after_get(~A, ~R, ~r, state, Array.get(A, slots, index))
+def source_vec_after_get(~A: Data, ~S: Type,
+  ~advance: S -> A -> S, s: S, got: Array<A> & A) -> Array<A> & S:
+  (slots, x) = got
+  (slots, advance(s, x))
 
-def start(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  slots: Array<A>, control: T.Control<T.State(A, R, r)>) ->
-  T.Control<(Array<A> & T.State(A, R, r))>:
-  match control:
-    case T.Stop{state}:
-      T.Stop{(slots, state)}
-    case T.Continue{state}:
-      T.Continue{(slots, state)}
+def source_vec_step(~A: Data, ~S: Type,
+  ~advance: S -> A -> S, pair: Array<A> & S,
+  index: U32) -> Array<A> & S:
+  (slots, s) = pair
+  source_vec_after_get(~A, ~S, ~advance, s, Array.get(A, slots, index))
 
-def finish(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  control: T.Control<(Array<A> & T.State(A, R, r))>) ->
-  T.Control<T.State(A, R, r)>:
-  match control:
-    case T.Stop{(slots, state)}:
-      T.Stop{state}
-    case T.Continue{(slots, state)}:
-      T.Continue{state}
+def source_vec_finish(~A: Data, ~S: Type, pair: Array<A> & S) -> S:
+  (slots, s) = pair
+  s
 
-def drive_sized(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  length: U32, result: Array<A> & U32,
-  control: T.Control<T.State(A, R, r)>) ->
-  T.Control<T.State(A, R, r)>:
-  (slots, actual) = result
-  finish(~A, ~R, ~r, T.reduce_range(
-    ~(Array<A> & T.State(A, R, r)),
-    ~(pair => index => fold_step(~A, ~R, ~r, pair, index)),
-    T.range_between(0, U32.min(length, actual)),
-    start(~A, ~R, ~r, slots, control)))
+def source_vec_sized(~A: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> T.Checked<S>,
+  length: U32, sized: Array<A> & U32, s: S) -> S:
+  (slots, actual) = sized
+  source_vec_finish(~A, ~S, T.source_range(
+    ~(Array<A> & S),
+    ~(pair => index => source_vec_step(~A, ~S, ~advance, pair, index)),
+    ~(pair => source_vec_inspect(~A, ~S, ~inspect, pair)),
+    T.range_between(0, U32.min(length, actual)), (slots, s)))
 
-def drive(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
-  vec: Vec<A>, control: T.Control<T.State(A, R, r)>) ->
-  T.Control<T.State(A, R, r)>:
+def source_vec(~A: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> T.Checked<S>,
+  vec: Vec<A>, s: S) -> S:
   match vec:
     case Vec{length, capacity, depth, filler, slots}:
-      drive_sized(~A, ~R, ~r, length, Array.size(A, slots), control)
+      source_vec_sized(~A, ~S, ~advance, ~inspect,
+        length, Array.size(A, slots), s)
 
 def Vec.source(~A: Data, vec: Vec<A>) -> T.Source<A, Vec<A>,
-  (R => r => v => c => drive(~A, ~R, ~r, v, c))>:
+  (S => advance => inspect => v => s =>
+    source_vec(~A, ~S, ~advance, ~inspect, v, s))>:
   T.Source{vec}

@@ -1,10 +1,14 @@
 ---
 created_at: 2026-09-25T14:24:00+02:00
 updated_at: 2026-09-25T14:51:00+02:00
-status: experimental
+status: superseded-by-opaque-source-protocol
 ---
 
 # Source companion contract
+
+This records the original reducer-indexed `Source` contract. The current
+[opaque accumulator protocol](20260925-OPAQUE-SOURCE-PROTOCOL.md) replaces its
+`Drive` type while keeping the same owner-scoped companion lookup.
 
 `Source<A,X,Drive>` now lives in `transduce.bend`, beside the ordered folds.
 `Range.source` owns the Range adapter. `List.source` and `Array.source` are

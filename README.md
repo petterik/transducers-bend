@@ -84,6 +84,15 @@ both forms, mid-fragment stopping, affine elements, and collection into List
 and Vec. The [mapcat measurements](docs/current/20260925-MAPCAT-COMPILER-HARDENING.md)
 record the performance difference.
 
+Public source companions now fold over an opaque accumulator: the source
+receives a step callback and an inspection callback, and returns the
+accumulator without unwrapping it. The reducing pipeline alone constructs
+`Stop`; the source can only return an accumulator it received. This preserves
+early termination across nested `mapcat` folds, like Clojure's
+`preserving-reduced`, while allowing a source to drive traversal itself. See
+the [source protocol report](docs/current/20260925-OPAQUE-SOURCE-PROTOCOL.md)
+for the type boundary and measured costs.
+
 For allocation-equivalent pipelines, the public List and custom-source paths
 are close to handwritten folds. Ordered Array traversal retains about a 10%
 stopping-control cost even with a plain source fold; the public adapter adds
@@ -208,6 +217,14 @@ The sequential list and array drivers stop transformation immediately when they 
 
 ## Adding a source
 
+For the value API, define an owner-scoped `Type.source` companion returning
+`Source<A, X, Drive>`. `Drive` is generic in an opaque accumulator and receives
+the step and inspection callbacks; [the custom pair source](tests/support/vec_pair_source.bend)
+is a small complete example. It must preserve the accumulator returned by the
+step, including one carrying a downstream stop request.
+
+The following describes the older `T.Reduction` API, which remains available:
+
 A source implements an ordered stopping fold, receiving closed step code and an owned `Control<S>` and returning the final control without calling completion. A small adapter binds that fold and the user's reducer with `reducible`, producing a static `Reduction` description. `transduce` has no source cases or registry.
 
 [The extension guide](docs/foundation/20260919-EXTENDING.md) describes the contract and reusable conformance checks. [examples/tree.bend](examples/tree.bend) supplies an independent affine tree source; callers use it without repeating their pipeline:
@@ -227,9 +244,8 @@ isolated experiment against upstream; it does not change `../bend`.
 
 ```sh
 python3 tests/run.py
-python3 experiments/affine_xf/probe_companion.py --bend-main ../bend/bend2/main.ts
-python3 experiments/affine_xf/measure_public_mapcat.py \
-  --bend-main ../bend/bend2/main.ts --output /tmp/public-mapcat.json
+python3 experiments/affine_xf/measure_opaque_source.py \
+  --bend-main ../bend/bend2/main.ts --output /tmp/opaque-source.json
 ```
 
 `tests/run.py` uses the supported sibling compiler branch by default. The
@@ -246,7 +262,7 @@ The test runner compares emitted JS and native output against each Bend file's `
 buffer, flushes one partial group during completion, and honors downstream
 stopping. Arbitrary buffered transformations, parallel collection drivers, and
 IO drivers are not implemented. `cat` still consumes List fragments, while
-`mapcat` drives any fragment type with a supplied fold; fragment construction remains a real
+`mapcat` drives any fragment type with a supplied opaque-accumulator fold; fragment construction remains a real
 cost when the callback builds a collection. Existing sequential
 pipelines can run inside caller-defined parallel batches; see [CPU/GPU
 measurements](bench/PARALLEL.md) and the [array mapcat benchmark](bench/wordscan/README.md).

@@ -5,6 +5,12 @@ status: current
 
 # General no-stop specialization investigation
 
+The later [opaque source protocol](20260925-OPAQUE-SOURCE-PROTOCOL.md)
+replaces the public `Source` contract described below. It prevents a generic
+source from constructing `Stop`, but its `Checked` tag still costs time in
+the Array total fold. The benchmarks and candidate options in this document
+record the preceding design state.
+
 ## Result
 
 There is a real, recoverable cost in the current stopping fold. A total fold

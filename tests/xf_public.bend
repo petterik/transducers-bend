@@ -51,7 +51,7 @@ def kept() -> U32:
 
 def flattened() -> U32:
   Xf.transduce(Xf.mapcat(~U32, ~U32, ~List<U32>,
-    ~(R => r => input => c => T.reduce_list_static(~U32, ~R, ~r, input, c)),
+    ~(S => advance => inspect => input => s => T.source_list(~U32, ~S, ~advance, ~inspect, input, s)),
     ~(x => duplicate(x))),
     Xf.sum_rf(), 0, three())
 
