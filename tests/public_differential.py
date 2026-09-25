@@ -153,11 +153,11 @@ def windowed(xs: List<U32>, width: Nat) -> List<List<U32>>:
   X.into(empty_groups(), X.windows(~U32, width), xs)
 
 def pair_windowed(xs: List<U32>) -> List<List<U32>>:
-  X.into(empty_groups(), X.comp2(X.window2(~U32),
+  X.into(empty_groups(), X.comp2(X.windows2(~U32),
     X.map(~(U32 & U32), ~List<U32>, ~pair_to_list)), xs)
 
 def triple_windowed(xs: List<U32>) -> List<List<U32>>:
-  X.into(empty_groups(), X.comp2(X.window3(~U32),
+  X.into(empty_groups(), X.comp2(X.windows3(~U32),
     X.map(~(U32 & U32 & U32), ~List<U32>, ~triple_to_list)), xs)
 
 def windowed_take(xs: List<U32>, width: Nat, n: Nat) -> List<List<U32>>:

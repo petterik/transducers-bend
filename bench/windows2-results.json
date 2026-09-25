@@ -1,8 +1,8 @@
 {
   "compiler_commit": "1b4f641b9fea9b48fee37fc10b0a07977bba6e7d",
-  "library_base_commit": "73e23718f7df7b196dc47f3b4e7350190282b400",
+  "library_base_commit": "2565331fa5b9ea7abb6d796f7ba2353fd17864d8",
   "library_worktree_dirty": true,
-  "fixture_sha256": "32403dd2896d556c638a93c03fcc6379e7886dd062ba0872b0d572a7d9b2ada1",
+  "fixture_sha256": "c1d375dc0822473a28eb04f51ec44bfe9b2017b29409a210fd8cae08ca38ae2d",
   "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
   "clock": "native monotonic microseconds; input built before timer",
   "allocation_metric": "generated C heap_alloc calls inside timer",
@@ -11,64 +11,64 @@
     "65536": {
       "timings_us": {
         "direct": [
-          206,
-          213,
-          268,
-          218,
-          268,
-          247,
-          182,
-          275,
-          242,
-          237,
-          266,
-          272,
-          259,
+          229,
+          244,
           239,
-          273,
-          274
+          262,
+          236,
+          286,
+          270,
+          265,
+          269,
+          300,
+          256,
+          225,
+          288,
+          249,
+          251,
+          268
         ],
         "windows2_list": [
-          1791,
-          1839,
-          1809,
-          1792,
-          1844,
-          1849,
-          1851,
-          1835,
-          1818,
-          1805,
-          1793,
-          1821,
-          1940,
+          1777,
+          1804,
+          1816,
+          1789,
+          1932,
+          1869,
+          1814,
+          1847,
+          1817,
           1829,
-          1782,
-          1793
+          1826,
+          1810,
+          1827,
+          1839,
+          1806,
+          1799
         ],
-        "window2_tuple": [
-          260,
-          250,
-          185,
-          259,
+        "windows2_tuple": [
+          246,
+          197,
+          201,
+          257,
           230,
-          230,
-          251,
-          224,
-          215,
-          233,
-          254,
           214,
-          253,
-          229,
-          238,
-          251
+          269,
+          275,
+          215,
+          257,
+          272,
+          259,
+          240,
+          294,
+          284,
+          219
         ]
       },
       "medians_us": {
-        "direct": 253.0,
-        "windows2_list": 1819.5,
-        "window2_tuple": 235.5
+        "direct": 259.0,
+        "windows2_list": 1816.5,
+        "windows2_tuple": 251.5
       },
       "allocations": {
         "direct": {
@@ -79,7 +79,7 @@
           "total_heap_alloc_calls": 589902,
           "timed_heap_alloc_calls": 458758
         },
-        "window2_tuple": {
+        "windows2_tuple": {
           "total_heap_alloc_calls": 131152,
           "timed_heap_alloc_calls": 10
         }
@@ -88,64 +88,64 @@
     "262144": {
       "timings_us": {
         "direct": [
-          975,
-          1046,
-          910,
-          1034,
-          1105,
-          1034,
-          1106,
+          940,
+          976,
           1040,
-          1075,
-          1034,
-          1060,
-          1028,
-          926,
-          851,
-          1019,
-          971
+          948,
+          974,
+          882,
+          1079,
+          1040,
+          1038,
+          979,
+          1059,
+          947,
+          1029,
+          1026,
+          941,
+          985
         ],
         "windows2_list": [
-          7181,
-          7207,
+          7712,
+          7221,
+          7209,
           7192,
-          7271,
-          7174,
-          7305,
-          7224,
-          7220,
-          7223,
-          7251,
-          7208,
-          7183,
+          7186,
+          7189,
+          7202,
+          7250,
+          7160,
           7184,
-          7183,
-          7210,
-          7203
+          7196,
+          7191,
+          7187,
+          7196,
+          7193,
+          7210
         ],
-        "window2_tuple": [
-          996,
-          944,
-          1002,
-          865,
-          998,
-          963,
-          951,
-          1083,
+        "windows2_tuple": [
+          925,
+          847,
+          930,
+          967,
           941,
-          995,
-          997,
-          1000,
-          1059,
-          1080,
-          1005,
-          977
+          979,
+          981,
+          921,
+          1003,
+          1026,
+          992,
+          981,
+          914,
+          954,
+          1002,
+          1013
         ]
       },
       "medians_us": {
-        "direct": 1034.0,
-        "windows2_list": 7207.5,
-        "window2_tuple": 996.5
+        "direct": 982.0,
+        "windows2_list": 7194.5,
+        "windows2_tuple": 973.0
       },
       "allocations": {
         "direct": {
@@ -156,8 +156,8 @@
           "total_heap_alloc_calls": 2359380,
           "timed_heap_alloc_calls": 1835014
         },
-        "window2_tuple": {
-          "total_heap_alloc_calls": 524378,
+        "windows2_tuple": {
+          "total_heap_alloc_calls": 524374,
           "timed_heap_alloc_calls": 10
         }
       }

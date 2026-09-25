@@ -949,94 +949,94 @@ def windows(~A: Data, ~R: Type,
     state => x => windows_step(~A, ~R, ~down, state, x),
     state => windows_finish(~A, ~R, ~down, state)}
 
-type Window2<-A: Data, -S: Type> is Type:
-  Window2{previous: Maybe<A>, inner: S}
+type Windows2<-A: Data, -S: Type> is Type:
+  Windows2{previous: Maybe<A>, inner: S}
 
-def window2_control(~A: Data, ~K: Data, ~S: Type,
+def windows2_control(~A: Data, ~K: Data, ~S: Type,
   previous: Maybe<A>, control: Control<K, S>) ->
-  Control<K, Window2<A, S>>:
+  Control<K, Windows2<A, S>>:
   match control:
-    case Continue{state}: Continue{Window2{previous, state}}
-    case Stop{permit, state}: Stop{permit, Window2{previous, state}}
+    case Continue{state}: Continue{Windows2{previous, state}}
+    case Stop{permit, state}: Stop{permit, Windows2{previous, state}}
 
-def window2_step(~A: Data, ~R: Type,
+def windows2_step(~A: Data, ~R: Type,
   ~down: Reducer<(A & A), R>,
-  windowing: Window2<A, State((A & A), R, down)>, +x: A) ->
-  Control<Permit((A & A), R, down), Window2<A, State((A & A), R, down)>>:
+  windowing: Windows2<A, State((A & A), R, down)>, +x: A) ->
+  Control<Permit((A & A), R, down), Windows2<A, State((A & A), R, down)>>:
   match windowing:
-    case Window2{None{}, state}:
-      Continue{Window2{Some{x}, state}}
-    case Window2{Some{previous}, state}:
-      window2_control(~A, ~Permit((A & A), R, down),
+    case Windows2{None{}, state}:
+      Continue{Windows2{Some{x}, state}}
+    case Windows2{Some{previous}, state}:
+      windows2_control(~A, ~Permit((A & A), R, down),
         ~State((A & A), R, down), Some{x},
         step((A & A), R, down, state, (previous, x)))
 
-def window2_finish(~A: Data, ~R: Type,
+def windows2_finish(~A: Data, ~R: Type,
   ~down: Reducer<(A & A), R>,
-  windowing: Window2<A, State((A & A), R, down)>) -> R:
+  windowing: Windows2<A, State((A & A), R, down)>) -> R:
   match windowing:
-    case Window2{previous, state}: finish((A & A), R, down, state)
+    case Windows2{previous, state}: finish((A & A), R, down, state)
 
 # Full adjacent pairs. The current Data value also becomes the next pair's
 # previous value; unlike List windows, no group List is built.
-def window2(~A: Data, ~R: Type,
+def windows2(~A: Data, ~R: Type,
   ~down: Reducer<(A & A), R>) -> Reducer<A, R>:
   Reducer{Permit((A & A), R, down), Config((A & A), R, down),
-    Window2<A, State((A & A), R, down)>,
-    config => window2_control(~A, ~Permit((A & A), R, down),
+    Windows2<A, State((A & A), R, down)>,
+    config => windows2_control(~A, ~Permit((A & A), R, down),
       ~State((A & A), R, down), None{},
       start((A & A), R, down, config)),
-    state => x => window2_step(~A, ~R, ~down, state, x),
-    state => window2_finish(~A, ~R, ~down, state)}
+    state => x => windows2_step(~A, ~R, ~down, state, x),
+    state => windows2_finish(~A, ~R, ~down, state)}
 
-type Window3Prefix<-A: Data> is Type:
-  Window3Zero{}
-  Window3One{first: A}
-  Window3Two{first: A, second: A}
+type Windows3Prefix<-A: Data> is Type:
+  Windows3Zero{}
+  Windows3One{first: A}
+  Windows3Two{first: A, second: A}
 
-type Window3<-A: Data, -S: Type> is Type:
-  Window3{prefix: Window3Prefix<A>, inner: S}
+type Windows3<-A: Data, -S: Type> is Type:
+  Windows3{prefix: Windows3Prefix<A>, inner: S}
 
-def window3_control(~A: Data, ~K: Data, ~S: Type,
-  prefix: Window3Prefix<A>, control: Control<K, S>) ->
-  Control<K, Window3<A, S>>:
+def windows3_control(~A: Data, ~K: Data, ~S: Type,
+  prefix: Windows3Prefix<A>, control: Control<K, S>) ->
+  Control<K, Windows3<A, S>>:
   match control:
-    case Continue{state}: Continue{Window3{prefix, state}}
-    case Stop{permit, state}: Stop{permit, Window3{prefix, state}}
+    case Continue{state}: Continue{Windows3{prefix, state}}
+    case Stop{permit, state}: Stop{permit, Windows3{prefix, state}}
 
-def window3_step(~A: Data, ~R: Type,
+def windows3_step(~A: Data, ~R: Type,
   ~down: Reducer<(A & A & A), R>,
-  windowing: Window3<A, State((A & A & A), R, down)>, +x: A) ->
+  windowing: Windows3<A, State((A & A & A), R, down)>, +x: A) ->
   Control<Permit((A & A & A), R, down),
-    Window3<A, State((A & A & A), R, down)>>:
+    Windows3<A, State((A & A & A), R, down)>>:
   match windowing:
-    case Window3{Window3Zero{}, state}:
-      Continue{Window3{Window3One{x}, state}}
-    case Window3{Window3One{first}, state}:
-      Continue{Window3{Window3Two{first, x}, state}}
-    case Window3{Window3Two{first, +second}, state}:
-      window3_control(~A, ~Permit((A & A & A), R, down),
-        ~State((A & A & A), R, down), Window3Two{second, x},
+    case Windows3{Windows3Zero{}, state}:
+      Continue{Windows3{Windows3One{x}, state}}
+    case Windows3{Windows3One{first}, state}:
+      Continue{Windows3{Windows3Two{first, x}, state}}
+    case Windows3{Windows3Two{first, +second}, state}:
+      windows3_control(~A, ~Permit((A & A & A), R, down),
+        ~State((A & A & A), R, down), Windows3Two{second, x},
         step((A & A & A), R, down, state, (first, second, x)))
 
-def window3_finish(~A: Data, ~R: Type,
+def windows3_finish(~A: Data, ~R: Type,
   ~down: Reducer<(A & A & A), R>,
-  windowing: Window3<A, State((A & A & A), R, down)>) -> R:
+  windowing: Windows3<A, State((A & A & A), R, down)>) -> R:
   match windowing:
-    case Window3{prefix, state}:
+    case Windows3{prefix, state}:
       finish((A & A & A), R, down, state)
 
 # Full adjacent triples without List construction.
-def window3(~A: Data, ~R: Type,
+def windows3(~A: Data, ~R: Type,
   ~down: Reducer<(A & A & A), R>) -> Reducer<A, R>:
   Reducer{Permit((A & A & A), R, down),
     Config((A & A & A), R, down),
-    Window3<A, State((A & A & A), R, down)>,
-    config => window3_control(~A, ~Permit((A & A & A), R, down),
-      ~State((A & A & A), R, down), Window3Zero{},
+    Windows3<A, State((A & A & A), R, down)>,
+    config => windows3_control(~A, ~Permit((A & A & A), R, down),
+      ~State((A & A & A), R, down), Windows3Zero{},
       start((A & A & A), R, down, config)),
-    state => x => window3_step(~A, ~R, ~down, state, x),
-    state => window3_finish(~A, ~R, ~down, state)}
+    state => x => windows3_step(~A, ~R, ~down, state, x),
+    state => windows3_finish(~A, ~R, ~down, state)}
 
 def identity(~A: Type, ~R: Type,
   ~down: Reducer<A, R>) -> Reducer<A, R>:

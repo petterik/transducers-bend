@@ -15,7 +15,7 @@ from public_list_map_fold import command, instrument_allocations
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / 'bench/windows2.bend'
-MODES = {0: 'direct', 1: 'windows2_list', 2: 'window2_tuple'}
+MODES = {0: 'direct', 1: 'windows2_list', 2: 'windows2_tuple'}
 
 
 def sample(binary, mode, size):

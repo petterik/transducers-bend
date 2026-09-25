@@ -106,7 +106,7 @@ ordered Lists. It requires `Data` inputs and keys because it computes a key
 while retaining the input for its group. `windows(~A, width)` produces only
 full, overlapping List windows; `windows(2)` on `[1, 2, 3]` emits `[1, 2]`
 and `[2, 3]`. The zero-width convention stops before reading the source.
-`window2(~A)` and `window3(~A)` emit adjacent tuples instead, avoiding List
+`windows2(~A)` and `windows3(~A)` emit adjacent tuples instead, avoiding List
 window construction. All window stages require `Data` elements for overlap.
 See the [window comparison](docs/current/20260925-GROUPING-WINDOWS-VEC-ADAPTER.md)
 for measured native costs.

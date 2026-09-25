@@ -28,7 +28,7 @@ def list_windows(xs: List<U32>) -> U32:
     X.map(~List<U32>, ~U32, ~list_pair_sum)), X.sum_rf(), 0, xs)
 
 def tuple_windows(xs: List<U32>) -> U32:
-  X.transduce(X.comp2(X.window2(~U32),
+  X.transduce(X.comp2(X.windows2(~U32),
     X.map(~(U32 & U32), ~U32, ~pair_sum)), X.sum_rf(), 0, xs)
 
 def run(mode: Nat, xs: List<U32>) -> U32:

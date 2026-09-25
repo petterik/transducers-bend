@@ -127,13 +127,13 @@ def windows(~A: Data, width: Nat) -> Xf<A, List<A>,
   Xf{R => down => config => (width, config)}
 
 # The common width-two case emits a tuple instead of allocating a List.
-def window2(~A: Data) -> Xf<A, (A & A),
-  (R => down => T.window2(~A, ~R, ~down))>:
+def windows2(~A: Data) -> Xf<A, (A & A),
+  (R => down => T.windows2(~A, ~R, ~down))>:
   Xf{R => down => config => config}
 
 # Full width-three windows as tuples.
-def window3(~A: Data) -> Xf<A, (A & A & A),
-  (R => down => T.window3(~A, ~R, ~down))>:
+def windows3(~A: Data) -> Xf<A, (A & A & A),
+  (R => down => T.windows3(~A, ~R, ~down))>:
   Xf{R => down => config => config}
 
 def compose(~A: Type, ~B: Type, ~C: Type,
