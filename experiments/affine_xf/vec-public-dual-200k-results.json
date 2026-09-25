@@ -1,0 +1,585 @@
+{
+  "created_at": "2026-09-25T14:31:32.660993+00:00",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_comp_sha256": "668fb691056ef953a6b68113920c910b1edfbbbb40529b50d92f219caae72b02",
+  "fixture_sha256": "db953542c55aac6ae9a30df856e364e18fc978ffb98146d8e877e8e825104174",
+  "items": 200000,
+  "sessions": 12,
+  "seed": 20260925,
+  "expected": 2820230816,
+  "samples_us": {
+    "list_direct": [
+      400,
+      293,
+      270,
+      253,
+      297,
+      252,
+      268,
+      270,
+      287,
+      256,
+      272,
+      252
+    ],
+    "list_into": [
+      595,
+      402,
+      400,
+      397,
+      605,
+      384,
+      373,
+      388,
+      610,
+      416,
+      401,
+      586
+    ],
+    "vec_direct": [
+      5303,
+      5660,
+      5183,
+      5307,
+      5665,
+      5320,
+      5255,
+      5239,
+      5194,
+      5261,
+      5357,
+      5184
+    ],
+    "vec_into": [
+      5163,
+      5310,
+      5297,
+      5142,
+      5216,
+      5313,
+      5204,
+      5241,
+      5348,
+      5351,
+      5301,
+      5596
+    ],
+    "array_direct": [
+      281,
+      257,
+      236,
+      272,
+      438,
+      264,
+      277,
+      259,
+      257,
+      267,
+      260,
+      260
+    ],
+    "vec_data_direct": [
+      2030,
+      2318,
+      1919,
+      1917,
+      1935,
+      1933,
+      1899,
+      1896,
+      1926,
+      1927,
+      1908,
+      1897
+    ],
+    "vec_data_into": [
+      1881,
+      1882,
+      1976,
+      1978,
+      1895,
+      1904,
+      1914,
+      1922,
+      1919,
+      1918,
+      1901,
+      1928
+    ],
+    "vec_fill_direct": [
+      508,
+      492,
+      481,
+      515,
+      529,
+      484,
+      492,
+      495,
+      533,
+      499,
+      498,
+      503
+    ],
+    "vec_fill_into": [
+      518,
+      665,
+      561,
+      551,
+      584,
+      577,
+      555,
+      551,
+      551,
+      560,
+      530,
+      608
+    ],
+    "vec_fill_reserved": [
+      303,
+      306,
+      300,
+      442,
+      269,
+      506,
+      504,
+      498,
+      471,
+      305,
+      501,
+      303
+    ],
+    "vec_data_reserved": [
+      1416,
+      1378,
+      1379,
+      1413,
+      1392,
+      1386,
+      1383,
+      1388,
+      1392,
+      1419,
+      1815,
+      1441
+    ],
+    "array_retained": [
+      410,
+      462,
+      227,
+      236,
+      431,
+      231,
+      431,
+      223,
+      445,
+      243,
+      412,
+      233
+    ],
+    "vec_data_retained": [
+      678,
+      645,
+      659,
+      659,
+      645,
+      644,
+      660,
+      668,
+      636,
+      702,
+      657,
+      646
+    ],
+    "vec_fill_retained": [
+      442,
+      447,
+      379,
+      274,
+      394,
+      453,
+      254,
+      439,
+      434,
+      273,
+      259,
+      442
+    ],
+    "list_retained": [
+      239,
+      361,
+      238,
+      238,
+      236,
+      238,
+      235,
+      243,
+      235,
+      304,
+      235,
+      406
+    ],
+    "public_vec_reserved": [
+      316,
+      303,
+      496,
+      479,
+      320,
+      477,
+      503,
+      497,
+      296,
+      317,
+      307,
+      351
+    ],
+    "public_vec_retained": [
+      255,
+      459,
+      255,
+      265,
+      248,
+      439,
+      255,
+      441,
+      274,
+      294,
+      456,
+      255
+    ],
+    "public_vec_dynamic": [
+      598,
+      663,
+      542,
+      555,
+      507,
+      551,
+      522,
+      572,
+      571,
+      591,
+      499,
+      511
+    ],
+    "public_vec_dynamic_retained": [
+      497,
+      576,
+      469,
+      591,
+      519,
+      473,
+      453,
+      509,
+      484,
+      536,
+      484,
+      573
+    ],
+    "public_maybe_reserved": [
+      1421,
+      1824,
+      1400,
+      1429,
+      1435,
+      1398,
+      1389,
+      1432,
+      1421,
+      1392,
+      1403,
+      1396
+    ],
+    "public_maybe_retained": [
+      631,
+      646,
+      654,
+      675,
+      647,
+      646,
+      652,
+      638,
+      655,
+      656,
+      658,
+      662
+    ]
+  },
+  "median_us": {
+    "list_direct": 270.0,
+    "list_into": 401.5,
+    "vec_direct": 5282.0,
+    "vec_into": 5299.0,
+    "array_direct": 262.0,
+    "vec_data_direct": 1922.5,
+    "vec_data_into": 1916.0,
+    "vec_fill_direct": 498.5,
+    "vec_fill_into": 557.5,
+    "vec_fill_reserved": 374.0,
+    "vec_data_reserved": 1392.0,
+    "array_retained": 326.5,
+    "vec_data_retained": 658.0,
+    "vec_fill_retained": 414.0,
+    "list_retained": 238.0,
+    "public_vec_reserved": 335.5,
+    "public_vec_retained": 269.5,
+    "public_vec_dynamic": 553.0,
+    "public_vec_dynamic_retained": 503.0,
+    "public_maybe_reserved": 1412.0,
+    "public_maybe_retained": 653.0
+  },
+  "paired_ratio": {
+    "vec_into_over_vec_direct": {
+      "median": 0.9944895838549752,
+      "bootstrap_95": [
+        0.9712544186354407,
+        1.0195509987379603
+      ]
+    },
+    "vec_into_over_list_into": {
+      "median": 13.080548140907553,
+      "bootstrap_95": [
+        9.158350584680804,
+        13.375115979381444
+      ]
+    },
+    "vec_into_over_array_direct": {
+      "median": 20.180260617760617,
+      "bootstrap_95": [
+        18.845707687407092,
+        20.735408560311285
+      ]
+    },
+    "vec_data_into_over_vec_data_direct": {
+      "median": 0.9963483806500911,
+      "bootstrap_95": [
+        0.982162789360903,
+        1.0150273360780624
+      ]
+    },
+    "vec_data_into_over_array_direct": {
+      "median": 7.291798642533937,
+      "bootstrap_95": [
+        7.046633945834854,
+        7.418117018117018
+      ]
+    },
+    "vec_data_into_over_vec_into": {
+      "median": 0.3610654719842519,
+      "bootstrap_95": [
+        0.35840197330532336,
+        0.3672589561315243
+      ]
+    },
+    "vec_fill_into_over_vec_fill_direct": {
+      "median": 1.1176879010546346,
+      "bootstrap_95": [
+        1.0670799703669045,
+        1.1792344633253724
+      ]
+    },
+    "vec_fill_into_over_array_direct": {
+      "median": 2.112395702283343,
+      "bootstrap_95": [
+        2.014672701210448,
+        2.2620337995338
+      ]
+    },
+    "vec_fill_into_over_vec_data_into": {
+      "median": 0.2885486824544523,
+      "bootstrap_95": [
+        0.2813537569189027,
+        0.30561281900623044
+      ]
+    },
+    "vec_fill_reserved_over_array_direct": {
+      "median": 1.4480932203389831,
+      "bootstrap_95": [
+        1.1538533563814464,
+        1.8746757457846952
+      ]
+    },
+    "vec_fill_into_over_reserved": {
+      "median": 1.4780886459686693,
+      "bootstrap_95": [
+        1.123370954172421,
+        1.9383003300330033
+      ]
+    },
+    "vec_data_reserved_over_array_direct": {
+      "median": 5.336840050323197,
+      "bootstrap_95": [
+        5.11699942432489,
+        5.479325052379528
+      ]
+    },
+    "vec_data_reserved_over_vec_fill_reserved": {
+      "median": 4.063011232437087,
+      "bootstrap_95": [
+        2.871281303558182,
+        4.662863171563058
+      ]
+    },
+    "list_into_over_list_direct": {
+      "median": 1.5056547619047618,
+      "bootstrap_95": [
+        1.455650871459695,
+        1.8310185185185186
+      ]
+    },
+    "vec_data_retained_over_array_retained": {
+      "median": 2.213095362713284,
+      "bootstrap_95": [
+        1.513921113689095,
+        2.8406308851224105
+      ]
+    },
+    "vec_fill_retained_over_array_retained": {
+      "median": 1.100752785305631,
+      "bootstrap_95": [
+        0.9408427998915239,
+        1.7832996161917907
+      ]
+    },
+    "vec_data_retained_over_vec_fill_retained": {
+      "median": 1.5854962445735812,
+      "bootstrap_95": [
+        1.4634881247784475,
+        2.470894512865316
+      ]
+    },
+    "public_vec_reserved_over_vec_fill_reserved": {
+      "median": 1.0186800676554775,
+      "bootstrap_95": [
+        0.9664419127334729,
+        1.1210631244119886
+      ]
+    },
+    "public_vec_retained_over_array_retained": {
+      "median": 1.1006083586816118,
+      "bootstrap_95": [
+        0.6188407782954234,
+        1.166612280415511
+      ]
+    },
+    "public_vec_retained_over_vec_fill_retained": {
+      "median": 0.9681241037044198,
+      "bootstrap_95": [
+        0.630389014947718,
+        1.0157007231199646
+      ]
+    },
+    "public_vec_dynamic_over_vec_fill_into": {
+      "median": 0.9815621942556927,
+      "bootstrap_95": [
+        0.9410249872514024,
+        1.0372050816696916
+      ]
+    },
+    "public_vec_dynamic_retained_over_array_retained": {
+      "median": 1.647186147186147,
+      "bootstrap_95": [
+        1.1894668078300632,
+        2.24413626381738
+      ]
+    },
+    "public_maybe_retained_over_array_retained": {
+      "median": 2.148337928003516,
+      "bootstrap_95": [
+        1.5069605568445477,
+        2.8506856041318107
+      ]
+    },
+    "public_maybe_retained_over_vec_data_retained": {
+      "median": 1.00153622880606,
+      "bootstrap_95": [
+        0.9714843041190346,
+        1.0136924004938783
+      ]
+    }
+  },
+  "heap_alloc_calls": {
+    "list_direct": {
+      "total": 200083,
+      "timed": 9
+    },
+    "list_into": {
+      "total": 400087,
+      "timed": 200011
+    },
+    "vec_direct": {
+      "total": 724380,
+      "timed": 524298
+    },
+    "vec_into": {
+      "total": 724382,
+      "timed": 524302
+    },
+    "array_direct": {
+      "total": 200086,
+      "timed": 10
+    },
+    "vec_data_direct": {
+      "total": 200128,
+      "timed": 48
+    },
+    "vec_data_into": {
+      "total": 200132,
+      "timed": 52
+    },
+    "vec_fill_direct": {
+      "total": 200124,
+      "timed": 48
+    },
+    "vec_fill_into": {
+      "total": 200128,
+      "timed": 52
+    },
+    "vec_fill_reserved": {
+      "total": 200092,
+      "timed": 16
+    },
+    "vec_data_reserved": {
+      "total": 200098,
+      "timed": 16
+    },
+    "array_retained": {
+      "total": 200088,
+      "timed": 10
+    },
+    "vec_data_retained": {
+      "total": 200095,
+      "timed": 15
+    },
+    "vec_fill_retained": {
+      "total": 200095,
+      "timed": 15
+    },
+    "list_retained": {
+      "total": 400089,
+      "timed": 200011
+    },
+    "public_vec_reserved": {
+      "total": 200094,
+      "timed": 16
+    },
+    "public_vec_retained": {
+      "total": 200096,
+      "timed": 16
+    },
+    "public_vec_dynamic": {
+      "total": 200130,
+      "timed": 52
+    },
+    "public_vec_dynamic_retained": {
+      "total": 200131,
+      "timed": 51
+    },
+    "public_maybe_reserved": {
+      "total": 200098,
+      "timed": 16
+    },
+    "public_maybe_retained": {
+      "total": 200100,
+      "timed": 16
+    }
+  }
+}

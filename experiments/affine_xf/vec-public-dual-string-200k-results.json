@@ -1,0 +1,162 @@
+{
+  "created_at": "2026-09-25T14:31:41.749332+00:00",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_comp_sha256": "668fb691056ef953a6b68113920c910b1edfbbbb40529b50d92f219caae72b02",
+  "fixture_sha256": "8f30804203779ddd877b162cabab42a0d4bfdde0167a5291bf5452d59ffffbac",
+  "items": 200000,
+  "sessions": 12,
+  "seed": 20260925,
+  "expected": 1088890,
+  "samples_us": {
+    "array": [
+      787,
+      730,
+      717,
+      709,
+      722,
+      728,
+      774,
+      720,
+      722,
+      728,
+      704,
+      714
+    ],
+    "maybe_vec": [
+      906,
+      921,
+      907,
+      968,
+      895,
+      913,
+      925,
+      933,
+      935,
+      905,
+      937,
+      889
+    ],
+    "fill_vec": [
+      728,
+      712,
+      745,
+      717,
+      712,
+      736,
+      716,
+      751,
+      737,
+      713,
+      736,
+      723
+    ],
+    "public_vec": [
+      736,
+      712,
+      709,
+      720,
+      726,
+      712,
+      701,
+      734,
+      781,
+      740,
+      730,
+      727
+    ],
+    "public_maybe_vec": [
+      895,
+      898,
+      888,
+      910,
+      909,
+      902,
+      900,
+      951,
+      889,
+      984,
+      912,
+      925
+    ]
+  },
+  "median_us": {
+    "array": 722.0,
+    "maybe_vec": 917.0,
+    "fill_vec": 725.5,
+    "public_vec": 726.5,
+    "public_maybe_vec": 905.5
+  },
+  "paired_ratio": {
+    "fill_vec_over_array": {
+      "median": 1.0111362544366775,
+      "bootstrap_95": [
+        0.9773690350745146,
+        1.0299136135869293
+      ]
+    },
+    "maybe_vec_over_array": {
+      "median": 1.2578823573686586,
+      "bootstrap_95": [
+        1.2413720282487595,
+        1.2954235918744228
+      ]
+    },
+    "maybe_vec_over_fill_vec": {
+      "median": 1.2628395941640114,
+      "bootstrap_95": [
+        1.2414163361894286,
+        1.2824986337138693
+      ]
+    },
+    "public_vec_over_array": {
+      "median": 1.0105274878979795,
+      "bootstrap_95": [
+        0.9766822218877014,
+        1.0188258636788048
+      ]
+    },
+    "public_vec_over_fill_vec": {
+      "median": 1.002092050209205,
+      "bootstrap_95": [
+        0.9782068973212625,
+        1.0153259661686627
+      ]
+    },
+    "public_maybe_vec_over_array": {
+      "median": 1.249006879547046,
+      "bootstrap_95": [
+        1.2307194626797706,
+        1.2954863763687294
+      ]
+    },
+    "public_maybe_vec_over_maybe_vec": {
+      "median": 0.9834552694154612,
+      "bootstrap_95": [
+        0.9731460382474257,
+        1.0174675313010833
+      ]
+    }
+  },
+  "heap_alloc_calls": {
+    "array": {
+      "total": 2577856,
+      "timed": 10
+    },
+    "maybe_vec": {
+      "total": 2377862,
+      "timed": 13
+    },
+    "fill_vec": {
+      "total": 2577863,
+      "timed": 13
+    },
+    "public_vec": {
+      "total": 2577862,
+      "timed": 14
+    },
+    "public_maybe_vec": {
+      "total": 2377863,
+      "timed": 14
+    }
+  }
+}

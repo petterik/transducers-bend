@@ -2,6 +2,7 @@ import Base
 import ./vec_data_probe.bend as MaybeVec
 import ./vec_data_fill_probe.bend as FillVec
 import ../../vec.bend as PublicVec
+import ../../vec_maybe.bend as PublicMaybe
 import ../../xf.bend as Xf
 import ./rank2_companion_api.bend as Auto
 import ./rank2_rf_values.bend as V
@@ -83,6 +84,30 @@ def public_sum_maybe(choice: Maybe<PublicVec.Vec<String>>) -> U32:
     case Some{vec}:
       public_sum(vec)
 
+def public_maybe_sum(vec: PublicMaybe.VecMaybe<String>) -> U32:
+  Xf.transduce(Xf.map(~String, ~U32, ~string_size),
+    Xf.sum_rf(), 0, vec)
+
+def public_maybe_build_at(xs: List<String>,
+  choice: Maybe<PublicMaybe.VecMaybe<String>>) ->
+  Maybe<PublicMaybe.VecMaybe<String>>:
+  match choice:
+    case None{}:
+      None{}
+    case Some{vec}:
+      Some{Xf.into(vec, Xf.map(~String, ~String, ~(s => s)), xs)}
+
+def public_maybe_build(xs: List<String>) ->
+  Maybe<PublicMaybe.VecMaybe<String>>:
+  public_maybe_build_at(xs, PublicMaybe.with_capacity(~String, 200000))
+
+def public_maybe_result(choice: Maybe<PublicMaybe.VecMaybe<String>>) -> U32:
+  match choice:
+    case None{}:
+      0
+    case Some{vec}:
+      public_maybe_sum(vec)
+
 def array_lane(xs: List<String>, size: U32) -> IO(Nat & U32):
   do IO<Nat & U32>:
     before : Nat <- Clock.now_us()
@@ -117,6 +142,15 @@ def public_lane(xs: List<String>) -> IO(Nat & U32):
     after : Nat <- Clock.now_us()
     return (Nat.sub(after, before), public_sum_maybe(result))
 
+def public_maybe_lane(xs: List<String>) -> IO(Nat & U32):
+  do IO<Nat & U32>:
+    before : Nat <- Clock.now_us()
+    result : Maybe<PublicMaybe.VecMaybe<String>> <-
+      IO.pure(Maybe<PublicMaybe.VecMaybe<String>>,
+        public_maybe_build(xs))
+    after : Nat <- Clock.now_us()
+    return (Nat.sub(after, before), public_maybe_result(result))
+
 def measure_for(mode: Nat, xs: List<String>, size: U32) -> IO(Nat & U32):
   match mode:
     case 0n:
@@ -125,8 +159,10 @@ def measure_for(mode: Nat, xs: List<String>, size: U32) -> IO(Nat & U32):
       maybe_lane(xs)
     case 2n:
       fill_lane(xs)
-    case _:
+    case 3n:
       public_lane(xs)
+    case _:
+      public_maybe_lane(xs)
 
 def measure(mode: Nat, +size: Nat) -> IO(Nat & U32):
   measure_for(mode, strings(B.numbers(size, []), []), U32.from_nat(size))

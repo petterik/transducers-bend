@@ -25,7 +25,8 @@ MODES = {'list_direct': 0, 'list_into': 1,
          'array_retained': 11, 'vec_data_retained': 12,
          'vec_fill_retained': 13, 'list_retained': 14,
          'public_vec_reserved': 15, 'public_vec_retained': 16,
-         'public_vec_dynamic': 17, 'public_vec_dynamic_retained': 18}
+         'public_vec_dynamic': 17, 'public_vec_dynamic_retained': 18,
+         'public_maybe_reserved': 19, 'public_maybe_retained': 20}
 ENV = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 
@@ -110,6 +111,10 @@ def main():
                 ('public_vec_dynamic', 'vec_fill_into'),
             'public_vec_dynamic_retained_over_array_retained':
                 ('public_vec_dynamic_retained', 'array_retained'),
+            'public_maybe_retained_over_array_retained':
+                ('public_maybe_retained', 'array_retained'),
+            'public_maybe_retained_over_vec_data_retained':
+                ('public_maybe_retained', 'vec_data_retained'),
         }
         ratios = {name: [s[n] / s[d] for s in sessions]
                   for name, (n, d) in comparisons.items()}

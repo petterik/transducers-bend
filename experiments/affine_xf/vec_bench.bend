@@ -3,6 +3,7 @@ import ./vec_probe.bend as VecProbe
 import ./vec_data_probe.bend as Fast
 import ./vec_data_fill_probe.bend as Fill
 import ../../vec.bend as PublicVec
+import ../../vec_maybe.bend as PublicMaybe
 import ../../xf.bend as Xf
 import ./rank2_companion_api.bend as Auto
 import ./rank2_rf_values.bend as V
@@ -84,6 +85,29 @@ def public_dynamic(xs: List<U32>) -> PublicVec.Vec<U32>:
   Xf.into(PublicVec.empty(~U32, 0),
     Xf.map_with(~U32, ~U32, ~U32, ~add, 1), xs)
 
+def maybe_sum_public(vec: PublicMaybe.VecMaybe<U32>) -> U32:
+  Xf.transduce(Xf.map_with(~U32, ~U32, ~U32, ~add, 0),
+    Xf.sum_rf(), 0, vec)
+
+def maybe_build_at(xs: List<U32>,
+  choice: Maybe<PublicMaybe.VecMaybe<U32>>) ->
+  Maybe<PublicMaybe.VecMaybe<U32>>:
+  match choice:
+    case None{}:
+      None{}
+    case Some{vec}:
+      Some{Xf.into(vec, Xf.map_with(~U32, ~U32, ~U32, ~add, 1), xs)}
+
+def maybe_build(xs: List<U32>) -> Maybe<PublicMaybe.VecMaybe<U32>>:
+  maybe_build_at(xs, PublicMaybe.with_capacity(~U32, 200000))
+
+def maybe_sum_result(choice: Maybe<PublicMaybe.VecMaybe<U32>>) -> U32:
+  match choice:
+    case None{}:
+      0
+    case Some{vec}:
+      maybe_sum_public(vec)
+
 def array_fill(xs: List<U32>, +index: U32, array: Array<U32>) -> Array<U32>:
   match xs:
     case Nil{}:
@@ -148,6 +172,8 @@ def run_lane(mode: Nat, xs: List<U32>, size: U32) -> U32:
       public_sum_maybe(public_build(xs))
     case 17n:
       public_sum(public_dynamic(xs))
+    case 19n:
+      maybe_sum_result(maybe_build(xs))
     case _:
       vec = VecProbe.empty(~U32)
       vec_sum(Auto.into(vec, V.shifted(1), xs))
@@ -210,6 +236,14 @@ def measure_public_dynamic_retained(xs: List<U32>) -> IO(Nat & U32):
     after : Nat <- Clock.now_us()
     return (Nat.sub(after, before), public_sum(vec))
 
+def measure_maybe_retained(xs: List<U32>) -> IO(Nat & U32):
+  do IO<Nat & U32>:
+    before : Nat <- Clock.now_us()
+    result : Maybe<PublicMaybe.VecMaybe<U32>> <-
+      IO.pure(Maybe<PublicMaybe.VecMaybe<U32>>, maybe_build(xs))
+    after : Nat <- Clock.now_us()
+    return (Nat.sub(after, before), maybe_sum_result(result))
+
 def measure_any(mode: Nat, +size: Nat) -> IO(Nat & U32):
   match mode:
     case 11n:
@@ -224,6 +258,8 @@ def measure_any(mode: Nat, +size: Nat) -> IO(Nat & U32):
       measure_public_retained(B.numbers(size, []))
     case 18n:
       measure_public_dynamic_retained(B.numbers(size, []))
+    case 20n:
+      measure_maybe_retained(B.numbers(size, []))
     case _:
       measure(mode, size)
 
