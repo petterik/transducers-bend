@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T10:26:47+02:00
-updated_at: 2026-09-25T11:43:00+02:00
+updated_at: 2026-09-25T12:16:00+02:00
 status: active
 ---
 
@@ -505,3 +505,16 @@ the resulting composition by a general rule, then hand the fully closed
 reducer to the existing source fold. This is the smallest promising language
 boundary supported by the probes; the detailed type rule and implementation
 remain future work.
+
+## Ninth checkpoint — 2026-09-25: narrower compiler boundary
+
+The later [static-provider prototype](20260925-STATIC-RECIPE-PROTOTYPE.md)
+supersedes the language-feature recommendation above. A closed lambda can
+forward its own binder into `~` calls; a rank-2 provider indexed in an affine
+`Xf` composes in current Bend, including a user-defined stage with owned
+settings and a type-changing map. The isolated static-callback compiler emits
+the fast closed source loop. The remaining API gap is inferring that closed
+provider and the downstream reducer from ordinary value arguments at the
+call site, plus independent source/destination protocol lookup. The earlier
+tagged-plan and ordinary code-index failures remain valid observations, but
+they do not require inventing a new static-stage syntax first.

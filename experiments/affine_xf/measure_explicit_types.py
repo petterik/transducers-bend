@@ -36,7 +36,7 @@ def interval(values, rng):
     return [medians[249], medians[9749]]
 
 
-def allocation_counts(c_source, temp, items, expected):
+def allocation_counts(c_source, temp, items, expected, modes=None):
     source = c_source.read_text()
     heap_anchor = 'INLINE Loc heap_alloc(Env e, Cls cls) {\n'
     tick_anchor = 'static u64 io_tick(void) {\n'
@@ -65,7 +65,7 @@ def allocation_counts(c_source, temp, items, expected):
     inst_c.write_text(source)
     run('clang', '-O3', inst_c, '-o', inst_binary)
     counts = {}
-    for name, mode in MODES.items():
+    for name, mode in (MODES if modes is None else modes).items():
         result = run(inst_binary, '--threads', '1', '--gpu', 'off', '--',
                      mode, items)
         _, answer = map(int, result.stdout.split())
