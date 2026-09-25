@@ -30,6 +30,8 @@ def main():
                                   ('composable_xf_probe.bend', '5'),
                                   ('staged_value_elaboration.bend', '5'),
                                   ('staged_range_elaboration.bend', '25'),
+                                  ('staged_custom_ends.bend',
+                                   '[[1, 3, 2, 9], [1, 2, 9], [1, 9]]'),
                                   ('staged_generic_elaboration.bend', '5'),
                                   ('callback_handoff.bend', '6')]:
             js = temp / (fixture + '.js')
@@ -58,10 +60,12 @@ def main():
                     assert handoff in emitted
                 print('SHAPE generic stage callback handoff in loop',
                       handoff in emitted)
-            if fixture == 'staged_value_elaboration.bend' and args.expect_static_erasure:
+            if fixture in ('staged_value_elaboration.bend',
+                           'staged_range_elaboration.bend',
+                           'staged_custom_ends.bend') and args.expect_static_erasure:
                 emitted = js.read_text()
                 assert 'run_loop($composable_xf_probe$take_step$(run_clo' not in emitted
-                print('PASS staged template recipe has no callback handoff')
+                print('PASS', fixture, 'has no generic callback handoff')
 
 
 if __name__ == '__main__':

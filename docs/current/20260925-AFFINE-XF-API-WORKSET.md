@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T10:26:47+02:00
-updated_at: 2026-09-25T11:33:00+02:00
+updated_at: 2026-09-25T11:40:00+02:00
 status: active
 ---
 
@@ -415,3 +415,68 @@ may still improve ordinary higher-order Bend code, but it is no longer a
 prerequisite for testing this staged API path. Do not promote either probe to
 the public library until generic composition and source/destination protocol
 selection are expressible without hand-written recipe duplication.
+
+## Seventh feasibility checkpoint — 2026-09-25
+
+[`staged_custom_ends.bend`](../../experiments/affine_xf/staged_custom_ends.bend)
+uses a source and a destination defined wholly outside `transduce.bend`. The
+source is an ordered pair; the destination owns a nonempty List and prepends
+insertions. Its completion increments a counter. The single `T.transduce`
+core produces `[3, 2, 9]` with limit two, `[2, 9]` with limit one, and `[9]`
+with limit zero; each result records exactly one completion. JS and native
+agree on upstream and the static-callback candidate. Together with the Range
+probe, this supports the source/destination *protocol* and lifecycle design.
+It does not supply implicit protocol lookup or automatic stage elaboration.
+
+Run the combined gate with:
+
+```sh
+python3 experiments/affine_xf/probe_composable.py \
+  --bend-main ../bend/bend2/main.ts
+python3 experiments/affine_xf/probe_composable.py \
+  --bend-main /tmp/transduce-affine-xf-static/main.ts \
+  --expect-static-erasure
+```
+
+The current result is a **no-go for exposing the exact four-argument API as
+a fast general API today**. The owned configuration and independent ends work,
+but the only generic composition we can currently express hands a callback
+through `take_step` on each item: about two heap requests per item and
+5.5–8 times the current transducer timing in the measured List workload.
+Hand-staging the identical value into a closed `~` recipe restores the fast
+loop, but every call repeats the recipe and its type witnesses. That is a
+probe, not a usable public abstraction. The 200k staged path also misses the
+workset's strict 1.05 upper-ratio target against the direct loop; the 2m
+ranking reverses. Do not claim general direct-loop parity from these data.
+
+The next language design should focus on a *static recipe representation*.
+Its minimum contract is:
+
+1. Constructing and composing stages builds an affine value containing only
+   owned runtime settings; static stage code and type transformations live in
+   erased metadata. A user-defined stage can provide the same metadata.
+2. At `transduce(xf, rf, init, coll)`, consume `xf` once, extract settings
+   once, and elaborate its static composition against the chosen downstream
+   reducer into a closed reducer recipe. Elaboration must happen before the
+   source loop, with a bounded expansion rule and ordinary type checking of
+   the result. Stage names are library definitions, not compiler cases.
+3. Separately select the source fold from `coll`'s type and insertion from
+   `dest`'s type for `into(dest, xf, coll)`. Keep `into` a wrapper around the
+   same `transduce` core. These two protocol lookups cannot substitute for
+   step 2; they solve a different problem.
+
+There are three credible next paths, in priority order:
+
+| Path | Expected value | Cost and risk | Recommendation |
+| --- | --- | --- | --- |
+| Language-level composable static recipes, with explicit witnesses first | Makes the desired affine API and arbitrary stages possible while retaining the measured closed loop | New typing/elaboration rules; must specify erasure, expansion bounds, and code-size behavior | Prototype a tiny map/take language feature in an isolated compiler branch |
+| Keep closed recipes plus owned configuration as the library API | Already correct and fast for the measured stages and sources | Repeats recipe and type witnesses; does not deliver the requested Clojure-like call | Keep as the working fallback and performance control |
+| General checked-helper specialization for ordinary callbacks | Could speed this probe and unrelated higher-order Bend | Type specialization across erased state parameters, ownership, and code growth are unproved; helper cloning alone did not close the staged-code gap | Investigate independently only with a small, sound rule and a measured win |
+
+Hard-coding `map`, `take`, or source names in the compiler would be a fourth
+path, but it violates the extension goal and should not be pursued. The next
+compiler probe must first show a *user-defined* stage composed with another
+stage and elaborated without a per-item callback. Then validate a
+type-changing map, completion and stopping, JS/native, allocation slope,
+native timing, compile time, and code size. Until that proof exists, keep the
+current library interface and compiler candidate unchanged.
