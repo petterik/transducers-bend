@@ -8,8 +8,8 @@ def make_fragment(+x: U32) -> Pair.PairSource:
 def run(xs: List<U32>) -> U32:
   Xf.transduce(Xf.comp2(
     Xf.mapcat(~U32, ~U32, ~Pair.PairSource,
-      ~(S => advance => inspect => pair => s =>
-        Pair.source_pair(~S, ~advance, ~inspect, pair, s)),
+      ~(K => S => advance => inspect => pair => s =>
+        Pair.source_pair(~K, ~S, ~advance, ~inspect, pair, s)),
       ~(x => make_fragment(x))),
     Xf.take(~U32, 3n)), Xf.sum_rf(), 0, xs)
 

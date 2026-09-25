@@ -1,6 +1,6 @@
 import Base
 import ../xf.bend as Xf
-import ../transduce.bend as T
+import ../transduce_core.bend as T
 
 def range_sum() -> U32:
   Xf.transduce(Xf.map(~U32, ~U32, ~U32.inc),

@@ -1,5 +1,5 @@
 import Base
-import ../../xf.bend as Xf
+import ../../xf_legacy.bend as Xf
 import ../../transduce.bend as T
 import ../../bench/array_partition/bench_clock.bend as Clock
 import ./static_recipe_bench.bend as B

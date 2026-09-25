@@ -1,24 +1,28 @@
 --- a/bend2/comp.ts
 +++ b/bend2/comp.ts
-@@ -3166,3 +3166,20 @@
+@@ -588,2 +588,4 @@
+ const LAYS: Map<string, Lay> = new Map();
++
++const REACH: Map<string, Set<Name>> = new Map();
+ 
+@@ -3166,3 +3168,19 @@
    } else {
 -    lv = mat_ctrs(fl, x, adt, adt.k === "IO.OP").map(([k, h]) => {
-+    // Experiment: omit matches whose constructor requires a live value of
-+    // a zero-constructor datatype, while retaining the original ABI layout.
-+    const impossible = (k: Name): boolean => {
-+      const ctr = fl.book.ctrs[k];
-+      return ctr !== undefined && ctr_doms(fl.book, ctr, adt.x).some((A) => {
-+        const t = ty_adt(fl.book, A);
-+        const d = t === null ? null : fl.book.tlds[t.k];
-+        return d?.$ === "ADT" && d.c.length === 0;
-+      });
-+    };
-+    const present = mat_ctrs(fl, x, adt, adt.k === "IO.OP")
-+      .filter(([k]) => k === "" || !impossible(k));
++    // A live field of an empty datatype makes its constructor unreachable.
++    // Keep the original layout so generic functions retain one ABI.
 +    const tld = fl.book.tlds[adt.k];
-+    const complete = tld?.$ === "ADT" && tld.c
-+      .filter((ctr) => !impossible(ctr.k))
-+      .every((ctr) => present.some(([k]) => k === ctr.k));
++    const reachable = tld?.$ === "ADT" ? memo(REACH,
++      Bend.term_key(Bend.term_lower(adt)), () => new Set(tld.c
++        .filter((ctr) => !ctr_doms(fl.book, ctr, adt.x).some((A) => {
++          const t = ty_adt(fl.book, A);
++          const d = t === null ? null : fl.book.tlds[t.k];
++          return d?.$ === "ADT" && d.c.length === 0;
++        })).map((ctr) => ctr.k))) : null;
++    const present = mat_ctrs(fl, x, adt, adt.k === "IO.OP")
++      .filter(([k]) => k === "" || reachable === null || reachable.has(k));
++    const complete = adt.k !== "IO.OP" && reachable !== null
++      && reachable.size > 0 && [...reachable]
++        .every((k) => present.some(([p]) => p === k));
 +    lv = (complete ? present.filter(([k]) => k !== "") : present)
 +      .map(([k, h]) => {
        if (k === "") {

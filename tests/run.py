@@ -126,6 +126,13 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
                               env=env, capture_output=True, text=True, timeout=30)
     assert rejected.returncode != 0 and 'forged~S' in (rejected.stdout + rejected.stderr), \
         ('opaque source Stop fabrication unexpectedly accepted', rejected.stdout, rejected.stderr)
+    forged_permit = ROOT / 'experiments' / 'affine_xf' / 'permit_source_reject.bend'
+    rejected_permit = subprocess.run(compiler + [str(forged_permit), '--check-only'],
+                                     env=env, capture_output=True, text=True, timeout=30)
+    assert rejected_permit.returncode != 0 and 'expected : forged~K' in \
+        (rejected_permit.stdout + rejected_permit.stderr), \
+        ('abstract stop-permit fabrication unexpectedly accepted',
+         rejected_permit.stdout, rejected_permit.stderr)
 if args.semantic_only:
     print(f'PASS: {passed} / {passed}; JS/native outputs and source rejection match')
 else:

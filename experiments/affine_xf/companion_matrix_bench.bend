@@ -6,7 +6,7 @@ import ./companion_semantics_matrix.bend as M
 import ./reducible_cat_probe.bend as Cat
 import ./rank2_auto_sources.bend as PairSources
 import ../../transduce.bend as T
-import ../../xf.bend as Xf
+import ../../xf_legacy.bend as Xf
 import ../../bench/array_partition/bench_clock.bend as Clock
 
 type Counted is Type:

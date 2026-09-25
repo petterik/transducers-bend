@@ -1,7 +1,7 @@
 import Base
 import ../xf.bend as Xf
 import ../vec.bend as Vec
-import ../transduce.bend as T
+import ../transduce_core.bend as T
 import ./support/vec_pair_source.bend as Custom
 
 def empty_u32() -> List<U32>:

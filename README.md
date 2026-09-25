@@ -2,104 +2,68 @@
 
 A Bend library for composing pure data transformations without intermediate stage collections. It provides an owned reducer protocol, extensible source-owned reduction, map/filter/keep/take/partition-all/mapcat, and sum/count/ordered-list consumers. Built-in sources are lists, balanced arrays, finite ranges, and strings; other modules can add sources without changing this library.
 
-## Value API and Vec collection
+## Public transducer API
 
-The value API in [`xf.bend`](xf.bend) offers Clojure-ordered
+[`xf.bend`](xf.bend) exposes Clojure-ordered
 `transduce(xf, rf, initial, source)` and `into(destination, xf, source)`.
-Stages own their runtime settings, compose with `comp2` through `comp5`,
-and run through the source's companion adapter. This API requires the
-`codex/transducer-companions` compiler branch in `../bend`, based on
-`bendlang/main`; stock `bendlang/main` does not yet
-provide companion insertion. The older reducer API below remains available.
-Run `python3 tests/run.py` from this repository to check the supported
-sibling compiler on native and JS; pass `--bend-main PATH` for another
-checkout of that compiler branch.
-
-[`vec.bend`](vec.bend) provides an ordered, growable `Vec<T: Data>` destination
-and source backed by Bend Array. For example:
+Stages compose with `comp2` through `comp5`. A stage value owns its runtime
+settings and is used once; wrap a stage constructor in a zero-argument function
+when it needs to be recreated. A source supplies its own reduction loop through
+a `.source` companion, and a destination supplies a reducer through `.destination`.
+Lists, Arrays, finite ranges, strings, `Vec`, and `VecMaybe` are built in.
 
 ```python
 import Base
 import ./xf.bend as Xf
-import ./vec.bend as Vec
+import ./transduce_core.bend as T
 
 def inc(x: U32) -> U32:
-  (x + 1 : U32)
+  U32.inc(x)
 
-def source() -> List<U32>:
-  [1, 2, 3]
-
-def main() -> Vec.Vec<U32>:
-  Xf.into(Vec.empty(~U32, 0), Xf.map(~U32, ~U32, ~inc),
-    source())
+def main() -> U32:
+  Xf.transduce(Xf.comp2(
+    Xf.map(~U32, ~U32, ~inc), Xf.take(~U32, 5n)),
+    Xf.sum_rf(), 0, T.range(10))
+# 15
 ```
 
-`Vec.empty(~T, filler)` owns a filler value for unused capacity. The filler
-must be a valid `T`, but never appears among the collected elements. When
-the expected output size is known, `Vec.with_capacity(~T, count, filler)`
-returns `Some{vec}` with capacity rounded up to a power of two, or `None{}`
-for a request above 2²³ elements. The conservative limit accommodates
-nontrivial shared fillers. Dynamic growth follows Bend Array's runtime
-allocation limits and exits with a Bend runtime error if a required Array
-cannot be allocated. `Vec.get` and `Vec.set` reject indices outside both the
-logical length and physical Array. `Vec` values must be created through its
-constructors and operations; Bend currently exposes datatype constructors
-across modules, so fabricated records with inconsistent fields are outside
-the collection contract. Arbitrary affine `T: Type` is not supported by this
-fast Vec.
+The compiler selects source and destination companions. This requires the
+`codex/transducer-no-stop` branch of the sibling [`bend`](../bend) checkout,
+which includes the companion rules based on `bendlang/main` and a general
+uninhabited-match-arm optimization. Run `python3 tests/run.py` for JS/native
+semantics and code-generation checks. The associated reducer permit in
+[`transduce_core.bend`](transduce_core.bend) is `Empty` for a total pipeline
+and `Unit` for a pipeline that can stop. Sources remain generic and return an
+opaque accumulator; they cannot fabricate a downstream stop. `take` and
+`partition_all` can stop, while `map`, `filter`, `keep`, and `mapcat` inherit
+the downstream permit. `mapcat` drives the reducible fragment returned by its
+mapping function and preserves a stop from the middle of that fragment.
 
-When no appropriate filler exists, [`vec_maybe.bend`](vec_maybe.bend) provides
-`VecMaybe<T: Data>` with optional Array slots. Start with
-`VecMaybe.empty(~T)`, or use `VecMaybe.with_capacity(~T, count)`, and pass the
-resulting collection to the same `Xf.into` and `Xf.transduce` calls.
-`VecMaybe.get` returns `Maybe<T>`; `VecMaybe.set` returns the previous
-optional slot in `Updated`, or the unchanged collection and input value in
-`Invalid`. Its initialized prefix contains `Some` values when constructed
-through its API. The optional tag makes this path slower than filled Vec,
-but it removes the filler requirement. Both collections require `T: Data`;
-neither claims fast arbitrary affine `T: Type` collection.
+`into(List, ...)` prepends, following Clojure's `conj` order. For encounter
+order, collect into [`Vec`](vec.bend) or [`VecMaybe`](vec_maybe.bend).
+`Vec<T: Data>` is backed by Bend Array and uses a caller-provided filler for
+unused capacity; `VecMaybe<T: Data>` stores optional slots when no filler is
+available. Both are sources and destinations. `Vec.with_capacity` and
+`VecMaybe.with_capacity` return `None` above the conservative 2²³-element
+initial-reservation limit; dynamic growth follows Bend Array's runtime limits.
+The constructors of both Vec types are currently visible across modules, so
+callers should use their functions rather than fabricate inconsistent records.
 
-For a loop that already establishes `index < vec.length`,
-`Vec.get_unchecked` and `Vec.set_unchecked` skip bounds checks. They have the
-same index-wrapping behavior as Bend's `Array.get` and `Array.swap` when given
-an invalid index, so use the checked operations when that precondition is
-uncertain. In a paired 200,000-operation native benchmark, unchecked Vec
-reads and writes matched direct Array timing; checked reads and writes cost
-more but made no timed heap requests.
+`partition_all` produces ordered List chunks and allocates those chunks. A
+consumer that retains chunks must pay that cost, and even a consuming fold may
+not remove it. `mapcat` over a List-producing callback similarly allocates the
+fragment; a custom source can emit values directly. See the
+[public mapcat test](tests/mapcat_public.bend) and the
+[no-stop integration report](docs/current/20260925-NO-STOP-PUBLIC-INTEGRATION.md).
 
-Collecting into a List prepends, following Clojure's `conj` ordering; use Vec
-when encounter order matters. The native benchmark with 200,000 retained
-`U32` values places Vec construction near direct preallocated Array; the
-same is true for distinct `String` values. Results and limits are in the
-[Vec public contract](docs/current/20260925-VEC-PUBLIC-CONTRACT.md).
+## Legacy low-level reducer API
 
-`Xf.mapcat` accepts a callback returning a raw List, Array, or custom
-fragment. Its concrete type and closed source drive are supplied in the
-stage declaration, so `mapcat` feeds the raw result into that drive without
-making a `Source` wrapper. List literals and List-producing callbacks work
-without a compiler conversion. A List fragment is
-still allocated for each input; a small custom source can emit its values
-directly. The [public mapcat test](tests/mapcat_public.bend) shows
-both forms, mid-fragment stopping, affine elements, and collection into List
-and Vec. The [mapcat measurements](docs/current/20260925-MAPCAT-COMPILER-HARDENING.md)
-record the performance difference.
+[`transduce.bend`](transduce.bend) keeps the original explicit reducer and
+source-driver API for existing examples and benchmark comparisons. The older
+value API is retained as [`xf_legacy.bend`](xf_legacy.bend) for historical
+benchmarks. New pipelines should import `xf.bend`.
 
-Public source companions now fold over an opaque accumulator: the source
-receives a step callback and an inspection callback, and returns the
-accumulator without unwrapping it. The reducing pipeline alone constructs
-`Stop`; the source can only return an accumulator it received. This preserves
-early termination across nested `mapcat` folds, like Clojure's
-`preserving-reduced`, while allowing a source to drive traversal itself. See
-the [source protocol report](docs/current/20260925-OPAQUE-SOURCE-PROTOCOL.md)
-for the type boundary and measured costs.
-
-For allocation-equivalent pipelines, the public List and custom-source paths
-are close to handwritten folds. Ordered Array traversal retains about a 10%
-stopping-control cost even with a plain source fold; the public adapter adds
-little beyond it. The [local gate and Array ablation](docs/current/20260925-LOCAL-GATE-ARRAY-ABLATION.md)
-records the evidence and limits of that comparison.
-
-## Example
+### Example
 
 The equivalent of `(transduce (map inc) + 0 (range 10))` is:
 
@@ -167,7 +131,7 @@ T.transduce(~T.over_range(~Nat, ~pipeline(~Nat, ~T.count(~U32))),
 
 These examples execute in [tests/range.bend](tests/range.bend). `into_list` is a consumer description, so it also plugs into the list driver and accepts affine elements. It prepends during traversal and reverses once on completion; output storage and reversal remain real costs.
 
-## API
+### API
 
 `Reducer<A, R>` is a static description with a configuration type, an owned state type, and three operations: start, step, and finish. Pass descriptions as `~` arguments. Ordinary runtime closures are not reused.
 
@@ -215,7 +179,7 @@ Custom consumers can construct `Reducer{C, S, start, step, finish}` directly. Bo
 
 The sequential list and array drivers stop transformation immediately when they observe Stop. This includes `take(0)` at initialization. Releasing unused owned source data may still take time. Future strategies may permit bounded speculative pure work; that does not change the ordering or values of results.
 
-## Adding a source
+### Adding a source
 
 For the value API, define an owner-scoped `Type.source` companion returning
 `Source<A, X, Drive>`. `Drive` is generic in an opaque accumulator and receives
@@ -234,12 +198,12 @@ T.transduce(~Tree.over_tree(~U32, ~U32, ~T.sum()),
   0, Tree.Branch{Tree.Leaf{1}, Tree.Leaf{2}})  # 3
 ```
 
-## Compiler and verification
+### Compiler and verification
 
-The library targets the `codex/transducer-companions` branch of the
-`petterik/bend` fork, based on `bendlang/bend:main`. That branch supplies
-checked template inference, owner companions, and bounded static callback
-specialization. `bench/compiler/prepare_static.py` remains a historical,
+The public value API targets the `codex/transducer-no-stop` branch of the
+`petterik/bend` fork, based on `bendlang/bend:main`. It includes
+checked template inference, owner companions, bounded static callback
+specialization, and conservative unreachable-match-arm elimination. `bench/compiler/prepare_static.py` remains a historical,
 isolated experiment against upstream; it does not change `../bend`.
 
 ```sh
@@ -249,20 +213,20 @@ python3 experiments/affine_xf/measure_opaque_source.py \
 ```
 
 `tests/run.py` uses the supported sibling compiler branch by default. The
-regular run keeps code-shape gates enabled and currently passes 38 JS/native
+regular run keeps code-shape gates enabled and currently passes 45 JS/native
 fixtures; `--semantic-only` skips only those code-shape gates. These scripts
 require Python 3, Bun, and a native compiler. They build in temporary
 directories and do not install dependencies.
 
 The test runner compares emitted JS and native output against each Bend file's `#|` expectations, verifies rejection of affine filtering, checks elimination of callback records, and instruments generated JS to verify source/mapper counts. It includes 18,750 bounded law checks per backend. [Laws and invariants](docs/foundation/20260919-LAWS.md) distinguish tested properties, mathematical reasoning, and outstanding formal proof work. Bend reports template specializations as “unsafe annotations”; the library adds no explicit `@unsafe`. Passing these tests is not a formal proof of the implementation.
 
-## Current limits
+### Current limits
 
 `partition_all` is the first public buffered transformation: it owns a group
 buffer, flushes one partial group during completion, and honors downstream
 stopping. Arbitrary buffered transformations, parallel collection drivers, and
-IO drivers are not implemented. `cat` still consumes List fragments, while
-`mapcat` drives any fragment type with a supplied opaque-accumulator fold; fragment construction remains a real
+IO drivers are not implemented. The legacy `cat` consumes List fragments, while
+public `mapcat` drives any fragment type with a supplied opaque-accumulator fold; fragment construction remains a real
 cost when the callback builds a collection. Existing sequential
 pipelines can run inside caller-defined parallel batches; see [CPU/GPU
 measurements](bench/PARALLEL.md) and the [array mapcat benchmark](bench/wordscan/README.md).

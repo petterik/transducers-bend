@@ -1,6 +1,6 @@
 import Base
 import ./xf.bend as V
-import ./transduce.bend as T
+import ./transduce_core.bend as T
 import ./vec_capacity.bend as Capacity
 
 # Filler-free ordered Data collection. Explicit &2 keeps Maybe<A> Data,
@@ -120,11 +120,11 @@ def set(~A: Data, vec: VecMaybe<A>, +index: U32, value: A) ->
       set_sized(~A, length, capacity, depth,
         Array.size(Maybe<&2, A>, slots), index, value)
 
-def step(~A: Data, vec: VecMaybe<A>, value: A) -> T.Control<VecMaybe<A>>:
+def step(~A: Data, vec: VecMaybe<A>, value: A) -> T.Control<Empty, VecMaybe<A>>:
   T.Continue{push(~A, vec, value)}
 
 def reducer(~A: Data) -> T.Reducer<A, VecMaybe<A>>:
-  T.Reducer{VecMaybe<A>, VecMaybe<A>, vec => T.Continue{vec},
+  T.Reducer{Empty, VecMaybe<A>, VecMaybe<A>, vec => T.Continue{vec},
     vec => value => step(~A, vec, value), vec => vec}
 
 def rf(~A: Data) -> V.Rf<A, VecMaybe<A>, reducer(~A), VecMaybe<A>>:
@@ -134,20 +134,20 @@ def VecMaybe.destination(~A: Data, vec: VecMaybe<A>) ->
   V.Destination<A, VecMaybe<A>, reducer(~A)>:
   V.Destination{vec, rf(~A)}
 
-def source_vec_checked(~A: Data, ~S: Type,
-  checked: T.Checked<S>, slots: Array<Maybe<&2, A>>) ->
-  T.Checked<(Array<Maybe<&2, A>> & S)>:
+def source_vec_checked(~A: Data, ~K: Data, ~S: Type,
+  checked: T.Checked<K, S>, slots: Array<Maybe<&2, A>>) ->
+  T.Checked<K, (Array<Maybe<&2, A>> & S)>:
   match checked:
     case T.Ready{s}:
       T.Ready{(slots, s)}
-    case T.Halted{s}:
-      T.Halted{(slots, s)}
+    case T.Halted{permit, s}:
+      T.Halted{permit, (slots, s)}
 
-def source_vec_inspect(~A: Data, ~S: Type,
-  ~inspect: S -> T.Checked<S>, pair: Array<Maybe<&2, A>> & S) ->
-  T.Checked<(Array<Maybe<&2, A>> & S)>:
+def source_vec_inspect(~A: Data, ~K: Data, ~S: Type,
+  ~inspect: S -> T.Checked<K, S>, pair: Array<Maybe<&2, A>> & S) ->
+  T.Checked<K, (Array<Maybe<&2, A>> & S)>:
   (slots, s) = pair
-  source_vec_checked(~A, ~S, inspect(s), slots)
+  source_vec_checked(~A, ~K, ~S, inspect(s), slots)
 
 def source_vec_after_get(~A: Data, ~S: Type,
   ~advance: S -> A -> S, s: S,
@@ -172,25 +172,25 @@ def source_vec_finish(~A: Data, ~S: Type,
   (slots, s) = pair
   s
 
-def source_vec_sized(~A: Data, ~S: Type,
-  ~advance: S -> A -> S, ~inspect: S -> T.Checked<S>,
+def source_vec_sized(~A: Data, ~K: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> T.Checked<K, S>,
   length: U32, sized: Array<Maybe<&2, A>> & U32, s: S) -> S:
   (slots, actual) = sized
   source_vec_finish(~A, ~S, T.source_range(
-    ~(Array<Maybe<&2, A>> & S),
+    ~K, ~(Array<Maybe<&2, A>> & S),
     ~(pair => index => source_vec_step(~A, ~S, ~advance, pair, index)),
-    ~(pair => source_vec_inspect(~A, ~S, ~inspect, pair)),
+    ~(pair => source_vec_inspect(~A, ~K, ~S, ~inspect, pair)),
     T.range_between(0, U32.min(length, actual)), (slots, s)))
 
-def source_vec(~A: Data, ~S: Type,
-  ~advance: S -> A -> S, ~inspect: S -> T.Checked<S>,
+def source_vec(~A: Data, ~K: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> T.Checked<K, S>,
   vec: VecMaybe<A>, s: S) -> S:
   match vec:
     case VecMaybe{length, capacity, depth, slots}:
-      source_vec_sized(~A, ~S, ~advance, ~inspect,
+      source_vec_sized(~A, ~K, ~S, ~advance, ~inspect,
         length, Array.size(Maybe<&2, A>, slots), s)
 
 def VecMaybe.source(~A: Data, vec: VecMaybe<A>) -> T.Source<A, VecMaybe<A>,
-  (S => advance => inspect => v => s =>
-    source_vec(~A, ~S, ~advance, ~inspect, v, s))>:
+  (K => S => advance => inspect => v => s =>
+    source_vec(~A, ~K, ~S, ~advance, ~inspect, v, s))>:
   T.Source{vec}
