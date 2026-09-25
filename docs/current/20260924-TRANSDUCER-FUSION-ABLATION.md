@@ -97,7 +97,7 @@ with handwritten code; FoldRegion does not materially change that transducer
 lane. It also removes the materialized pipeline's List nodes, while exposing
 a remaining per-input branch closure. The separate result and next compiler
 experiment are documented in
-[`PRODUCER-STEP-FOLD-REGION.md`](PRODUCER-STEP-FOLD-REGION.md).
+[`20260925-PRODUCER-STEP-FOLD-REGION.md`](20260925-PRODUCER-STEP-FOLD-REGION.md).
 
 ## Allocation and generated-code evidence
 

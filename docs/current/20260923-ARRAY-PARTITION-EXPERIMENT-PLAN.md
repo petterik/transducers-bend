@@ -26,7 +26,7 @@ place, and the allocator can reuse freed cells. The List path is therefore a
 real optimized baseline, not a model where every reverse necessarily allocates
 a second list. Existing full group-sum measurements are 1.455–1.491x the
 handwritten direct baseline by the upper confidence bound; those results did
-not measure an Array implementation. See the [current baseline](BENDLANG-MAIN-BASELINE.md).
+not measure an Array implementation. See the [current baseline](20260923-BENDLANG-MAIN-BASELINE.md).
 
 ## Prototype shape
 

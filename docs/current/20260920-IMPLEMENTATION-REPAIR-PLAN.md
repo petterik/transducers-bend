@@ -5,14 +5,14 @@ status: current
 
 # Completing the transducer design
 
-> Review update: the [follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
+> Review update: the [follow-up review](../review/20260920-FOLLOWUP-IMPLEMENTATION-REVIEW.md)
 > reproduces wrong code in the facts compiler and a broken direct keep oracle.
 > Its workset assessment supersedes the completion/acceptance claims below;
 > historical individual test results remain recorded evidence.
 
 
 Proposed execution plan, 2026-09-20. Prepared after the
-[implementation review](../review/IMPLEMENTATION-REVIEW.md), for discussion before
+[implementation review](../review/20260920-IMPLEMENTATION-REVIEW.md), for discussion before
 the next implementation worksets. This document specifies work; it does not
 claim the work has been performed.
 
@@ -104,7 +104,7 @@ and device/upstream promotion have their own explicit exit criteria in 7.
 
 ## 0. Repair the acceptance machinery
 
-**Files:** `DESIGN-WORK-PLAN.md`, `HANDOFF.md`, `FINAL-VALIDATION.md`,
+**Files:** `20260920-DESIGN-WORK-PLAN.md`, `20260919-HANDOFF.md`, `20260920-FINAL-VALIDATION.md`,
 `bench/compiler/representation_probe.py`, `static_composition_probe.py`,
 `bench/fusion_parity.py`, and a shared codegen inspection helper under
 `bench/compiler/`.
@@ -138,7 +138,7 @@ Refresh current conclusions to match the repaired measurements.
 ## 1. Complete semantics and implement compositional keep
 
 **Files:** `transduce.bend`, focused fixtures under `tests/`, `tests/run.py`,
-`LAWS.md`, `EXTENDING.md`. Use `examples/tree.bend` without source-specific logic.
+`20260919-LAWS.md`, `20260919-EXTENDING.md`. Use `examples/tree.bend` without source-specific logic.
 
 1. Introduce `cat_maybe` with the lifecycle above. Express keep through map and
    this adapter, retaining its current public signature and runtime configuration.
@@ -293,7 +293,7 @@ excluded from reports. Existing map-chain behavior remains protected.
 ## 5. Establish extension performance, with honest statistics
 
 Status: measurement checkpoint complete. The retained List matrix is in
-`EXTENSION-PARITY.md`. `keep` with an early budget and bounded partitioning are
+`20260920-EXTENSION-PARITY.md`. `keep` with an early budget and bounded partitioning are
 within the provisional 1.05 ratio, while full `keep` and full partitioning are
 slower than the independent direct loops. Those rows stay open; the target was
 not changed after seeing the result.
@@ -333,7 +333,7 @@ Status: the concrete named-settings experiment is complete in
 `tests/configured_pipeline.bend`. The generic `comp` and derived dependent
 configuration remain open language questions; the tuple API remains the
 internal implementation, while applications can use the tested named wrapper
-pattern at their initialization boundary. `CONFIGURED-API.md` records both
+pattern at their initialization boundary. `20260920-CONFIGURED-API.md` records both
 the passing wrapper and the retained generic-composition blockers.
 
 **Files:** `transduce.bend`, `tests/api_surface.bend`, README and extension examples.
@@ -363,7 +363,7 @@ the passing wrapper and the retained generic-composition blockers.
 multiple consumers and sources work, settings are typechecked without callers
 constructing the internal nested tuple, and a non-`Unit` consumer configuration
 is covered. The remaining result-type repetition and generic builder question
-are recorded as language limitations in `CONFIGURED-API.md`; they are not
+are recorded as language limitations in `20260920-CONFIGURED-API.md`; they are not
 silently counted as solved.
 
 ## 7. Control-flow performance and promotion
@@ -407,10 +407,10 @@ reproducer, or blocked by a named external dependency. The latter two remain ope
 Worksets 0 and 1 are now implemented. Workset 2 has a scoped memoization
 prototype and a minimized, reproducible Array blocker. Workset 3 now has the
 first isolated constructor-fact prototype, recorded in
-[SCOPED-FACTS.md](SCOPED-FACTS.md), with positive and dynamic-field refusal
+[20260920-SCOPED-FACTS.md](20260920-SCOPED-FACTS.md), with positive and dynamic-field refusal
 evidence. The full typed-region, join, recursion, and continuation work remains
 open. Workset 4 now demonstrates one general tagged constructor-match rewrite,
-recorded in [LOCAL-REPRESENTATION.md](LOCAL-REPRESENTATION.md); the composed
+recorded in [20260920-LOCAL-REPRESENTATION.md](20260920-LOCAL-REPRESENTATION.md); the composed
 Maybe wrapper remains an explicit next target. The next compiler change should
 use this boundary to measure that Maybe cost before changing the public staging
 boundary. A surprising result should revise the explanation and tests before

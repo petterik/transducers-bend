@@ -1,6 +1,6 @@
 # Static reducer composition: implementation gate
 
-Historical experiment: this records the pre-specialization candidate and the tradeoff that paused priority #1. Subsequent compiler specialization and the initial library are described in [implementation status](../../IMPLEMENTATION.md); the original measurements are retained for comparison.
+Historical experiment: this records the pre-specialization candidate and the tradeoff that paused priority #1. Subsequent compiler specialization and the initial library are described in [implementation status](../../docs/foundation/20260919-IMPLEMENTATION.md); the original measurements are retained for comparison.
 
 ## What works
 

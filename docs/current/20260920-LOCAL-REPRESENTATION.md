@@ -135,20 +135,20 @@ For `keep`, the correct library composition is `map(f)` followed by
 `map(f)` followed by `filter(some?)` is not equivalent: it leaves a list of
 `Maybe<B>` values, and the filter requires `B` to be `Data`, so it cannot
 support affine payloads such as arrays. The Boolean map/filter shape is now
-tested in [`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md): a
+tested in [`20260924-TRANSDUCER-FUSION-ABLATION.md`](20260924-TRANSDUCER-FUSION-ABLATION.md): a
 custom reusable map producer followed by `List.filter` and a fold preserves
 order and skips rejected steps. The typed producer-step/fold region now fuses
 this zero-or-one-output shape. The exact
 `List.map` → `List.filter` spelling also fails the library's quantity types
 (`List<&1, B>` versus `List<&2, A>`). The typed producer-step/fold region,
 including the effect, totality, ownership, and fallback proof gates, is
-specified in [`PRODUCER-STEP-FOLD-REGION.md`](PRODUCER-STEP-FOLD-REGION.md).
+specified in [`20260925-PRODUCER-STEP-FOLD-REGION.md`](20260925-PRODUCER-STEP-FOLD-REGION.md).
 The isolated candidate now lowers the analyzed map plus `List.filter` pipeline
 to a checked recursive fold helper. JS/native tests also cover a Nat-to-U32
 map before filtering and folding. Its emitted C contains no dynamic producer
 List-cons sites for the scalar fixture. Runtime allocation and timing are now
 measured in the dedicated
-[`producer-step/fold-region checkpoint`](PRODUCER-STEP-FOLD-REGION.md): the
+[`producer-step/fold-region checkpoint`](20260925-PRODUCER-STEP-FOLD-REGION.md): the
 fused path removes timed List nodes, but still allocates one branch closure per
 input item and remains about 3.5x slower than the handwritten loop. The new
 measurement also separates the FoldRegion contribution from static-callback

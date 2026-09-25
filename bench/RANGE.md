@@ -33,4 +33,4 @@ Generated JS for each library benchmark contains neither Reducer nor Reduction r
 
 Millisecond resolution, optimizer behavior, warm caches, and workload selection limit interpretation. Early results with constant inputs were below timer resolution, so the runner uses varying inputs and longer batches. No speedup ratio is inferred from zero-duration samples. The retained snapshot is from the final methodology and API.
 
-This is a generated-source comparison. Historical prebuilt-list timings in [PARALLEL.md](PARALLEL.md) and [../docs/foundation/IMPLEMENTATION.md](../docs/foundation/IMPLEMENTATION.md) include different source and cleanup costs and must not be treated as directly comparable. No new range GPU/CUDA tests, allocation profiling, or peak-memory measurements were performed.
+This is a generated-source comparison. Historical prebuilt-list timings in [PARALLEL.md](PARALLEL.md) and [../docs/foundation/20260919-IMPLEMENTATION.md](../docs/foundation/20260919-IMPLEMENTATION.md) include different source and cleanup costs and must not be treated as directly comparable. No new range GPU/CUDA tests, allocation profiling, or peak-memory measurements were performed.

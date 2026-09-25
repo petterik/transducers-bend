@@ -33,7 +33,7 @@ can cover built-ins and extensions together.
 
 ## Scoped facts boundary
 
-`bench/compiler/SCOPED-FACTS.md` and `test_scoped_facts.py` add a same-layout
+`bench/compiler/20260920-SCOPED-FACTS.md` and `test_scoped_facts.py` add a same-layout
 exceptional caller to the guarded-loop experiment. The candidate must retain a
 guarded loop and its generic fallback while matching the original JS/native
 result. This validates the current loop boundary; it does not yet provide the
@@ -53,15 +53,15 @@ The current isolated candidate passes a calibrated List parity matrix against
 independent direct Bend traversals. Three-map, type-changing, mixed full, mixed
 early, and expensive-callback rows all stay below the provisional 1.05 upper
 bootstrap limit; the report is
-[fusion-parity-acceptance-current.json](bench/fusion-parity-acceptance-current.json).
+[fusion-parity-acceptance-current.json](../../bench/fusion-parity-acceptance-current.json).
 The dynamic-short smoke row is retained for correctness only because its timer
 resolution is zero.
 
 This does not reopen the Array/tree path. The known wrong-code reproducer is
 fixed by refusal, and the continuation/control proof needed for a tree fast
 path is still absent. The short-loop measurements likewise do not support a
-general profitability heuristic. See [PROFITABILITY.md](bench/compiler/PROFITABILITY.md)
-and [SHORT-LOOPS.md](bench/compiler/SHORT-LOOPS.md).
+general profitability heuristic. See [PROFITABILITY.md](../../bench/compiler/PROFITABILITY.md)
+and [SHORT-LOOPS.md](../../bench/compiler/SHORT-LOOPS.md).
 
 ## Public surface checkpoint
 
@@ -75,23 +75,23 @@ separate type-system/API proposal rather than a compatibility wrapper.
 ## Final validation
 
 The complete candidate/reference validation matrix is recorded in
-[FINAL-VALIDATION.md](../current/FINAL-VALIDATION.md). It separates passing host-CPU
+[20260920-FINAL-VALIDATION.md](../current/20260920-FINAL-VALIDATION.md). It separates passing host-CPU
 correctness and parity evidence from the tree proof, GPU, and upstream project
 gates that remain open.
 
 ## Priority #3 follow-up
 
-The library now includes balanced-array, range, string, and list reduction implementations plus `into_list`, `count`, and streaming `cat`/`mapcat`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_array`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](examples/tree.bend) independently adds an affine tree; [EXTENDING.md](EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.
+The library now includes balanced-array, range, string, and list reduction implementations plus `into_list`, `count`, and streaming `cat`/`mapcat`. `transduce(~reduction, config, source)` receives a static `Reduction` description from `over_list`, `over_array`, `over_range`, `over_string`, or a third-party adapter. The description derives input/configuration/output types and binds the pipeline once. There is no closed source enum or registry. [examples/tree.bend](../../examples/tree.bend) independently adds an affine tree; [20260919-EXTENDING.md](20260919-EXTENDING.md) documents the public `reducible` binding helper and source-owned stopping-fold contract.
 
 The range is ascending with unit step, empty for reversed/equal bounds. It checks bounds before subtraction and structurally decreases a Nat budget. A source value is computed as `end - remaining` only after checking control; there is no source list or overflowing endpoint increment. Strings traverse Char elements directly. `into_list` accepts affine values and reverses its prepended accumulator once; both new consumers use Unit configuration and start fresh. `count` returns checked Nat. List data is passed directly through `over_list`.
 
 The test suite covers emitted JS and native CPU execution, including affine-filter rejection and the array/mapcat fixture. Seven completion fixtures run through list and range. Boundary tests cover maximum U32 bounds, reversed/empty ranges, a near-full-domain range stopped at zero/one output, and consumer-originated Stop. JS instrumentation observes 16 source-value calls and 13 mapper calls in the range fixture, and nine mapper calls in the list fixture. The source fixture checks the map/inc/sum/range example returns 55 and string character traversal. Reusable conformance checks exercise the list, range, string, and external tree sources; a lifecycle fixture observes exactly 12 starts, 8 steps, and 12 finishes. The external tree supports affine elements and accumulators.
 
-`tests/laws.bend` executes 18,750 bounded assertions per backend over 3,125 small parameter tuples. [LAWS.md](LAWS.md) states their scope, intended laws, the mathematical no-wrap/termination argument, and outstanding formal proof work. These checks are not mechanized proofs and do not establish compiler correctness. No compiler changes or explicit library `@unsafe` were added in this follow-up; the compiler still reports generated templates as unsafe annotations.
+`tests/laws.bend` executes 18,750 bounded assertions per backend over 3,125 small parameter tuples. [20260919-LAWS.md](20260919-LAWS.md) states their scope, intended laws, the mathematical no-wrap/termination argument, and outstanding formal proof work. These checks are not mechanized proofs and do not establish compiler correctness. No compiler changes or explicit library `@unsafe` were added in this follow-up; the compiler still reports generated templates as unsafe annotations.
 
 The binding delays its reducer recipe and type metadata as closed functions, avoiding repeated eager evaluation at binding boundaries that exhausted the existing specialization fuel. Representative fixtures eliminate both Reducer and Reduction records. The specialization remains bounded: custom callbacks that are bare pattern matchers may retain records, whereas forwarding lambdas allow the current pass to resolve those function heads. The lifecycle fixture uses that form. This is a documented code-generation limitation, not a semantic restriction or claim of universal allocation elimination.
 
-See [range measurements](bench/RANGE.md) for the focused generated-range comparison. Existing CPU/GPU list measurements below are historical evidence; they do not validate this new range driver on GPU. Full compiler project gates remain outstanding for the existing compiler patch.
+See [range measurements](../../bench/RANGE.md) for the focused generated-range comparison. Existing CPU/GPU list measurements below are historical evidence; they do not validate this new range driver on GPU. Full compiler project gates remain outstanding for the existing compiler patch.
 
 The remaining sections record the original priorities #1/#2 work.
 
@@ -136,7 +136,7 @@ Full cluster testing remains unavailable: the `cluster` SSH hostname cannot be r
 
 ## Performance evidence
 
-The [benchmark source](bench/pipeline.bend), [runner](bench/run.py), and [raw samples](bench/results.json) compare equivalent owned inputs and outputs on one native CPU thread. Seven timed runs follow a warm-up for each case, with rotating execution order. Times include process startup, input-list construction, transformation/reduction, and cleanup; compilation is recorded separately.
+The [benchmark source](../../bench/pipeline.bend), [runner](../../bench/run.py), and [raw samples](../../bench/results.json) compare equivalent owned inputs and outputs on one native CPU thread. Seven timed runs follow a warm-up for each case, with rotating execution order. Times include process startup, input-list construction, transformation/reduction, and cleanup; compilation is recorded separately.
 
 | Workload | Library | Materialized operations | Handwritten fused traversal |
 | --- | ---: | ---: | ---: |
@@ -146,7 +146,7 @@ The [benchmark source](bench/pipeline.bend), [runner](bench/run.py), and [raw sa
 
 The expensive map uses 256 rounds of a nonlinear U32 recurrence. All benchmark variants validate their result. These local samples support retaining this representation: library execution is close to the direct reference for these workloads. They do not establish a universal speedup. In particular, input construction, owned-tail cleanup, and startup dominate early-consumption timings; fewer mapper calls need not imply a proportional wall-time reduction.
 
-The historical single-map experiment was also rerun with specialization: its median was 31.7 ms versus 32.2 ms direct and 30.2 ms for direct template callbacks in that run, compared with the previously recorded 65.3 ms for the record implementation. See [specialized samples](experiments/static_reducer/specialized-results.json).
+The historical single-map experiment was also rerun with specialization: its median was 31.7 ms versus 32.2 ms direct and 30.2 ms for direct template callbacks in that run, compared with the previously recorded 65.3 ms for the record implementation. See [specialized samples](../../experiments/static_reducer/specialized-results.json).
 
 Allocation traffic and peak live heap were not measured. Absence of intermediate stage collections does not imply absence of per-element wrapper allocation, especially in JS. Native compiler specialization and these timing results do not justify a zero-allocation claim.
 
@@ -155,11 +155,11 @@ Allocation traffic and peak live heap were not measured. Absence of intermediate
 The library now has an ordered `over_array` source for Bend's balanced array
 tree, plus streaming `cat` and `mapcat` reducer adapters. `tests/array.bend`
 checks structural order, an empty fragment, and stopping in the middle of a
-fragment. The [wordscan benchmark](bench/wordscan/README.md) compares a
+fragment. The [wordscan benchmark](../../bench/wordscan/README.md) compares a
 transduced `Array<Quad>` mapcat/filter/map/reduce pipeline with a materialized
 Core Bend list path, a direct fused Bend traversal, and handwritten C,
 TypeScript, and Lean twins. Its default report is in
-[bench/wordscan/REPORT.md](bench/wordscan/REPORT.md).
+[bench/wordscan/REPORT.md](../../bench/wordscan/REPORT.md).
 
 The checked-in report records the local CPU medians and the independent
 checksum for every successful variant. This supports the expected benefit over
@@ -172,4 +172,4 @@ observation and not an allocation-free claim.
 
 ## CPU threads and GPU follow-up
 
-[Parallel benchmark report](bench/PARALLEL.md) records actual Metal execution and 1/2/4/8/16-thread CPU measurements against equally parallel handwritten and materialized baselines. Balanced independent reductions scale well; a single list remains serial. Long GPU samples give 52 ms library versus 53 ms handwritten for full consumption, and 7 ms for both versus 50 ms materialized with early stopping. Every output matched. Cheap prebuilt lists expose an important limit: unused-tail cleanup can make early stopping slower than full consumption, for both fused implementations. No library/compiler changes were needed. This validates the measured workloads on this M3 Max, not arbitrary pipelines, CUDA, or the unavailable cluster gates.
+[Parallel benchmark report](../../bench/PARALLEL.md) records actual Metal execution and 1/2/4/8/16-thread CPU measurements against equally parallel handwritten and materialized baselines. Balanced independent reductions scale well; a single list remains serial. Long GPU samples give 52 ms library versus 53 ms handwritten for full consumption, and 7 ms for both versus 50 ms materialized with early stopping. Every output matched. Cheap prebuilt lists expose an important limit: unused-tail cleanup can make early stopping slower than full consumption, for both fused implementations. No library/compiler changes were needed. This validates the measured workloads on this M3 Max, not arbitrary pipelines, CUDA, or the unavailable cluster gates.

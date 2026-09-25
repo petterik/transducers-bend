@@ -61,8 +61,8 @@ The harness is
 [`bench/extension_parity.py`](../../bench/extension_parity.py). These numbers
 do not describe the current `bendlang/main` candidate and are not its
 performance gate. See the active
-[`BENDLANG-MAIN-INTEGRATION-PLAN.md`](BENDLANG-MAIN-INTEGRATION-PLAN.md) and
-[`BENDLANG-MAIN-BASELINE.md`](BENDLANG-MAIN-BASELINE.md).
+[`20260923-BENDLANG-MAIN-INTEGRATION-PLAN.md`](20260923-BENDLANG-MAIN-INTEGRATION-PLAN.md) and
+[`20260923-BENDLANG-MAIN-BASELINE.md`](20260923-BENDLANG-MAIN-BASELINE.md).
 
 This closes only the historical measurement workset. The open rows
 remain performance work; the 1.05 target is kept unchanged. The next useful

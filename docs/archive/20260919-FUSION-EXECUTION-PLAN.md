@@ -33,8 +33,8 @@ parity. The September
 scalar-state pipeline: it permits one boxed recursive source argument, proves the
 source match structurally, and applies the typed scalar transition under a guarded
 clone. The original list driver remains the fallback. Five-sample candidate timings
-and the proof boundary are recorded in [COMPOSITION](bench/COMPOSITION.md) and
-[AUTOMATIC](bench/compiler/AUTOMATIC.md). This is still an experimental host-CPU
+and the proof boundary are recorded in [COMPOSITION](../../bench/COMPOSITION.md) and
+[AUTOMATIC](../../bench/compiler/AUTOMATIC.md). This is still an experimental host-CPU
 milestone; the balanced acceptance matrix, other boxed sources/states and device
 validation remain open. String now has an explicit positive source-shape gate.
 Array now has a separate conservative tree-driver specialization for the simple
@@ -80,14 +80,14 @@ reported a 95% ratio interval of 0.983–1.009; this is a protocol check, not th
 required 20-block/two-session acceptance result.
 
 The first full list acceptance run is retained in
-[fusion-parity-results.json](bench/fusion-parity-results.json). It used 20
+[fusion-parity-results.json](../../bench/fusion-parity-results.json). It used 20
 blocks in two sessions, 320 reductions per batch and an observed minimum of
 100 ms. Every row's upper 95% ratio bound was at most 1.036, so the provisional
 1.05 engineering gate passed for this candidate-only host-CPU matrix. This is
 not yet a claim for arrays, GPU/CUDA, or the production compiler.
 
 The calibrated range acceptance snapshot is retained in
-[range-parity-results.json](bench/range-parity-results.json). It used 20 blocks
+[range-parity-results.json](../../bench/range-parity-results.json). It used 20 blocks
 in each of two sessions, balanced order, fourfold repetition and an observed
 minimum of 169 ms. Cheap full and cheap early runtime-threshold rows had upper
 95% ratio bounds of 0.965 and 0.972 respectively. Both pass the same provisional
@@ -135,7 +135,7 @@ not reachable through ordinary initialization.
 
 Read, in this order:
 
-1. `FUSION.md` for scope and ownership constraints.
+1. `20260919-FUSION.md` for scope and ownership constraints.
 2. `bench/compiler/SHORT-LOOPS.md` for the latest failed profitability policies.
 3. `bench/compiler/AUTO-LOOP.md` for the implemented loop pass and proof boundary.
 4. `bench/compiler/ABLATION.md` for the controlled evidence behind its code shape.

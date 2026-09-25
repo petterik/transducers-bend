@@ -6,11 +6,11 @@ status: current
 # Transducer architecture work plan
 
 Status: partially implemented, reviewed 2026-09-20. The
-[implementation review](../review/IMPLEMENTATION-REVIEW.md) found that several
+[implementation review](../review/20260920-IMPLEMENTATION-REVIEW.md) found that several
 checkpoints below are probes, not completion of their work packages. The
-[repair and completion plan](IMPLEMENTATION-REPAIR-PLAN.md) details the next
+[repair and completion plan](20260920-IMPLEMENTATION-REPAIR-PLAN.md) details the next
 worksets and the proposed compositional keep design. The original acceptance
-criteria below remain applicable. [PRIORITIES.md](PRIORITIES.md) contains the
+criteria below remain applicable. [20260919-PRIORITIES.md](20260919-PRIORITIES.md) contains the
 original impact, effort, and value ranking.
 
 ## Objective and boundaries
@@ -189,7 +189,7 @@ shows why current templates cannot express the desired boundary cleanly.
 
 Status: first local constructor fact prototype complete in an isolated compiler;
 the general typed-region and summary API remain open. The prototype is recorded
-in [SCOPED-FACTS.md](SCOPED-FACTS.md). It attaches exact constructor provenance
+in [20260920-SCOPED-FACTS.md](20260920-SCOPED-FACTS.md). It attaches exact constructor provenance
 to emitted values, rebinds it across the two fused-call paths, specializes only
 unboxed all-static scalar fields, and falls back for dynamic or boxed fields.
 The focused fixture reports positive selection and dynamic-field rejection, and
@@ -227,7 +227,7 @@ emitted or found in a call graph.
 ## 4. Eliminate local representation overhead
 
 Status: first general constructor-match rewrite demonstrated in an isolated
-compiler. [LOCAL-REPRESENTATION.md](LOCAL-REPRESENTATION.md) records a tagged
+compiler. [20260920-LOCAL-REPRESENTATION.md](20260920-LOCAL-REPRESENTATION.md) records a tagged
 two-constructor fixture where an exact static arm fact removes the generic arm
 branch and shrinks native C by 85 bytes, with equal JS/native output and UBSan
 coverage. The rule is general and does not name a transducer. The existing
@@ -259,7 +259,7 @@ and report residual costs in extension/direct comparisons.
 
 Status: the established map/list loop gate is historical evidence from a
 separate isolated candidate, and the extension/direct checkpoint is now recorded in
-[`EXTENSION-PARITY.md`](EXTENSION-PARITY.md). Early `keep` and bounded
+[`20260920-EXTENSION-PARITY.md`](20260920-EXTENSION-PARITY.md). Early `keep` and bounded
 partitioning are near the provisional target; full `keep` and full partitioning
 remain slower and open. Tree specialization remains refused and short-loop
 policy remains experimental. `bench/compiler/PROFITABILITY.md` records the
@@ -295,7 +295,7 @@ performance gaps remain open.
 Status: semantic acceptance fixture complete; named configuration remains open.
 `tests/api_surface.bend` reuses one type-changing `keep` declaration with
 `count` and `into_list` over range, list, and the external tree source.
-`CONFIGURED-API.md` records why the current positional configuration is still
+`20260920-CONFIGURED-API.md` records why the current positional configuration is still
 the simplest form supported by Bend's type syntax and why no second
 compatibility API is introduced yet.
 
@@ -321,7 +321,7 @@ and measured lowering survive the API simplification.
 ## 7. Validate and prepare promotion
 
 Status: current facts-compiler validation is recorded in
-`FINAL-VALIDATION.md`: the 20-file JS/native suite and the scoped-fact,
+`20260920-FINAL-VALIDATION.md`: the 20-file JS/native suite and the scoped-fact,
 representation, and extension probes pass their stated checks. Historical
 guarded-loop/tree artifacts retain separate compiler identities, including a
 tree-entry mismatch; GPU execution, full upstream project gates, and tree
@@ -374,6 +374,6 @@ requirement for successful fusion.
 
 Package 0's conservative repair is complete. Packages 1, 5, 6, and 7 are partial;
 packages 2–4 have investigation evidence but their planned general compiler
-implementation is incomplete. See IMPLEMENTATION-REPAIR-PLAN.md for concrete
+implementation is incomplete. See 20260920-IMPLEMENTATION-REPAIR-PLAN.md for concrete
 remaining work and acceptance criteria. The host-CPU List matrix does not close
 the static-composition, scoped-fact, representation, or configured-API work.

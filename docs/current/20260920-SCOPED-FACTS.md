@@ -5,7 +5,7 @@ status: historical
 
 # Scoped constructor facts
 
-> Review update: the [follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
+> Review update: the [follow-up review](../review/20260920-FOLLOWUP-IMPLEMENTATION-REVIEW.md)
 > reproduces wrong code in the facts compiler and a broken direct keep oracle.
 > Its workset assessment supersedes the completion/acceptance claims below;
 > historical individual test results remain recorded evidence.

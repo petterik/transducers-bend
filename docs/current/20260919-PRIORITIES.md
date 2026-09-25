@@ -9,8 +9,8 @@ status: current
 ## Current ranking — design review, 2026-09-20
 
 This ranking supersedes the historical build orders below and the earlier
-benchmark-driven execution order. The [adversarial review](DESIGN-REVIEW.md)
-explains the findings; [the work plan](DESIGN-WORK-PLAN.md) specifies tasks,
+benchmark-driven execution order. The [adversarial review](20260920-DESIGN-REVIEW.md)
+explains the findings; [the work plan](20260920-DESIGN-WORK-PLAN.md) specifies tasks,
 dependencies, acceptance criteria, and implementation boundaries. These are
 planned tasks, not completed compiler changes.
 
@@ -46,7 +46,7 @@ upstream readiness remain explicit later gates, not assumptions.
 
 ## Historical priorities
 
-Current implementation: priorities #1–#3 are implemented experimentally; see [implementation status and validation](../foundation/IMPLEMENTATION.md). The original ranking and scope decision below are historical; later user authorization included compiler specialization.
+Current implementation: priorities #1–#3 are implemented experimentally; see [implementation status and validation](../foundation/20260919-IMPLEMENTATION.md). The original ranking and scope decision below are historical; later user authorization included compiler specialization.
 
 ## Priority #3 follow-up ranking
 
@@ -67,7 +67,7 @@ Effort here means semantic complexity, API commitments, and maintenance, not lin
 | Mechanized driver/composition proofs | High | High; formalization fit unknown | Higher after API settles | Follow-up investigation |
 | Configurable range steps, parallel drivers, public buffering/mapcat | Potentially high | High | Lower now | Deferred |
 
-This pass ranks the proposed design by impact, lasting effort, and value before initial implementation. It does not expand the scope in DESIGN.md.
+This pass ranks the proposed design by impact, lasting effort, and value before initial implementation. It does not expand the scope in 20260919-DESIGN.md.
 
 Impact means contribution to efficient composition, correctness, or a usable API. Effort means conceptual complexity, ownership reasoning, API commitments, and ongoing maintenance—not lines of code or familiarity with Bend. Value balances impact and effort, including how much uncertainty an item removes. Ratings are qualitative judgments rather than benchmark results.
 

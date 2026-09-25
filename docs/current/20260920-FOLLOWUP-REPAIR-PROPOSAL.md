@@ -11,7 +11,7 @@ worksets below are now landed as separate commits; this document remains the
 decision record for the open performance and language-design follow-ups.
 
 This proposal addressed all six findings in the
-[follow-up review](../review/FOLLOWUP-IMPLEMENTATION-REVIEW.md) of `cd2bcb7`.
+[follow-up review](../review/20260920-FOLLOWUP-IMPLEMENTATION-REVIEW.md) of `cd2bcb7`.
 Keep the existing source-independent reducer protocol and
 `keep = map(f) → cat_maybe`. Compiler experiments remain in isolated copies.
 Each workset ended with its own commit; open rows and limits are recorded

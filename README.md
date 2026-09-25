@@ -120,7 +120,7 @@ The sequential list and array drivers stop transformation immediately when they 
 
 A source implements an ordered stopping fold, receiving closed step code and an owned `Control<S>` and returning the final control without calling completion. A small adapter binds that fold and the user's reducer with `reducible`, producing a static `Reduction` description. `transduce` has no source cases or registry.
 
-[The extension guide](docs/foundation/EXTENDING.md) describes the contract and reusable conformance checks. [examples/tree.bend](examples/tree.bend) supplies an independent affine tree source; callers use it without repeating their pipeline:
+[The extension guide](docs/foundation/20260919-EXTENDING.md) describes the contract and reusable conformance checks. [examples/tree.bend](examples/tree.bend) supplies an independent affine tree source; callers use it without repeating their pipeline:
 
 ```python
 T.transduce(~Tree.over_tree(~U32, ~U32, ~T.sum()),
@@ -140,7 +140,7 @@ python3 bench/range.py --bend-main /tmp/transduce-main/main.ts
 
 `tests/run.py` prepares its compiler from the local `bendlang/main` ref by default. Refresh it with `git -C ../bend fetch bendlang main` when needed. The regular run keeps code-shape gates enabled and passes all 23 JS/native fixtures, including the reducer-record checks for `keep_partition`; `--semantic-only` skips only the code-shape gates. These scripts require Python 3, Bun, and a native compiler. They build in temporary directories and do not install dependencies.
 
-The test runner compares emitted JS and native output against each Bend file's `#|` expectations, verifies rejection of affine filtering, checks elimination of callback records, and instruments generated JS to verify source/mapper counts. It includes 18,750 bounded law checks per backend. [Laws and invariants](docs/foundation/LAWS.md) distinguish tested properties, mathematical reasoning, and outstanding formal proof work. Bend reports template specializations as “unsafe annotations”; the library adds no explicit `@unsafe`. Passing these tests is not a formal proof of the implementation.
+The test runner compares emitted JS and native output against each Bend file's `#|` expectations, verifies rejection of affine filtering, checks elimination of callback records, and instruments generated JS to verify source/mapper counts. It includes 18,750 bounded law checks per backend. [Laws and invariants](docs/foundation/20260919-LAWS.md) distinguish tested properties, mathematical reasoning, and outstanding formal proof work. Bend reports template specializations as “unsafe annotations”; the library adds no explicit `@unsafe`. Passing these tests is not a formal proof of the implementation.
 
 ## Current limits
 
@@ -156,12 +156,12 @@ and native layout/reuse depends on the compiler.
 
 - [CPU threads and Metal GPU performance](bench/PARALLEL.md)
 - [Generated range performance](bench/RANGE.md)
-- [Current design and work plan](docs/current/DESIGN-WORK-PLAN.md)
-- [Implementation repair plan](docs/current/IMPLEMENTATION-REPAIR-PLAN.md)
-- [Adversarial implementation review](docs/review/IMPLEMENTATION-REVIEW.md)
-- [Laws, invariants, and proof status](docs/foundation/LAWS.md)
-- [Implementation status, validation, and performance](docs/foundation/IMPLEMENTATION.md)
-- [Library design](docs/foundation/DESIGN.md)
-- [Confidence review](docs/foundation/CONFIDENCE.md)
-- [Implementation priorities](docs/current/PRIORITIES.md)
+- [Current design and work plan](docs/current/20260920-DESIGN-WORK-PLAN.md)
+- [Implementation repair plan](docs/current/20260920-IMPLEMENTATION-REPAIR-PLAN.md)
+- [Adversarial implementation review](docs/review/20260920-IMPLEMENTATION-REVIEW.md)
+- [Laws, invariants, and proof status](docs/foundation/20260919-LAWS.md)
+- [Implementation status, validation, and performance](docs/foundation/20260919-IMPLEMENTATION.md)
+- [Library design](docs/foundation/20260919-DESIGN.md)
+- [Confidence review](docs/foundation/20260919-CONFIDENCE.md)
+- [Implementation priorities](docs/current/20260919-PRIORITIES.md)
 - [Historical implementation experiment](experiments/static_reducer/README.md)

@@ -8,37 +8,37 @@ status: foundation
 ## Scope and strategy review
 
 The explicit target is **parity with equivalent handwritten fused Bend**.
-[The execution plan](../archive/FUSION-EXECUTION-PLAN.md) gives an ordered agent handoff,
+[The execution plan](../archive/20260919-FUSION-EXECUTION-PLAN.md) gives an ordered agent handoff,
 including the missing direct-Bend short-loop comparison and per-case gates.
 
-[Fusion direction](../archive/FUSION.md) records the September 19 clarification: immediate
+[Fusion direction](../archive/20260919-FUSION.md) records the September 19 clarification: immediate
 `transduce`, closed callbacks, and fusion before ergonomics. It separates static
 composition elimination, ownership/layout work and loop profitability, reviews
 their known loopholes, and defines the next diagnostic experiment.
-[Ergonomics notes](ERGONOMICS.md) preserve the deferred API ideas. The experimental
+[Ergonomics notes](20260919-ERGONOMICS.md) preserve the deferred API ideas. The experimental
 short-loop promotion blocker below remains unresolved.
 
 ## Current milestone: automatic loop specialization
 
-[The bounded loop pass](bench/compiler/AUTO-LOOP.md) now discovers callers, derives
+[The bounded loop pass](../../bench/compiler/AUTO-LOOP.md) now discovers callers, derives
 entry guards and state feedback, proves preservation, and emits scoped helper
 clones automatically in an isolated compiler. Full/early range workloads reach
 near-handwritten local CPU performance. Shared helpers retain their original
 behavior, and literal zero/one countdown callers use generic lowering directly.
-The [short-loop investigation](bench/compiler/SHORT-LOOPS.md) now includes independent
+The [short-loop investigation](../../bench/compiler/SHORT-LOOPS.md) now includes independent
 entry-state/length variation and known-state callers. Every tested profitability
 policy still has regressions, so default enablement remains blocked. Work is paused
 at that documented checkpoint. The public API and production compiler remain unchanged.
 
 ## Earlier milestone: automatic scalar specialization
 
-The [subsequent promotion review](bench/compiler/PROMOTION.md) passes broader
+The [subsequent promotion review](../../bench/compiler/PROMOTION.md) passes broader
 correctness checks but finds a measured outlining tradeoff: frequent valid
 zero/stopped states make the outlined helper slower, while inlining its fallback
 loses the predictable-range speedup. Caller-level profitability remains unresolved;
 keep the pass isolated rather than enabling it universally.
 
-[The typed guarded-scalar pass](bench/compiler/AUTOMATIC.md) now discovers and
+[The typed guarded-scalar pass](../../bench/compiler/AUTOMATIC.md) now discovers and
 lowers the successful transition from the unchanged public pipeline. It analyzes
 typed helper bodies with separate binding scopes, derives preserved fields and
 branch-local Nat bounds, and retains the original helper as a cold fallback.
@@ -50,7 +50,7 @@ validation, reproduction, and remaining promotion gates are in that report.
 
 ## Latest evidence: controlled generated-C ablations
 
-[The ablation study](bench/compiler/ABLATION.md) now demonstrates a near-handwritten
+[The ablation study](../../bench/compiler/ABLATION.md) now demonstrates a near-handwritten
 code shape on mixed and predictable full/early ranges. The winning combination is
 guarded scalar updates, a stop tag derived from the updated count, an original-helper
 cold fallback, and explicit preservation of unchanged fields across that fallback.
@@ -59,11 +59,11 @@ It is still a program-specific experiment, not an automatic optimization. This i
 the current implementation target; the older ranking and prototype results below
 are retained as the investigation history.
 
-The Source API is not the demonstrated performance problem; [historical comparisons](bench/API-REGRESSION.md) show identical old/new timed mixed-list assembly. The opportunity is to lower a known scalar transition into conditional updates without speculating arbitrary callbacks or assuming a relationship between generic Control and numeric fields.
+The Source API is not the demonstrated performance problem; [historical comparisons](../../bench/API-REGRESSION.md) show identical old/new timed mixed-list assembly. The opportunity is to lower a known scalar transition into conditional updates without speculating arbitrary callbacks or assuming a relationship between generic Control and numeric fields.
 
 ## Candidate established by experiment
 
-[scalar_prototype.bend](bench/scalar_prototype.bend) is a benchmark-only, manually specialized map/filter/take/sum reducer. It uses the existing state types, Source API, driver, initializer, and completion. Only the step is replaced. This is evidence for a compiler transformation, not a new recommended public combinator or an implemented compiler pass.
+[scalar_prototype.bend](../../bench/scalar_prototype.bend) is a benchmark-only, manually specialized map/filter/take/sum reducer. It uses the existing state types, Source API, driver, initializer, and completion. Only the step is replaced. This is evidence for a compiler transformation, not a new recommended public combinator or an implemented compiler pass.
 
 For continuing downstream sum state, let `keep` be the evaluated predicate and `n` the take count:
 
@@ -77,11 +77,11 @@ For stopped downstream state, preserve its count and sum, keep its Stop tag, and
 
 This transition is defined for zero counts and stopped inner states, not only reachable positive counts. Since `accepted <= n`, subtraction cannot underflow; multiplication and addition have defined U32 wrapping. These are source-level arguments, not mechanized compiler proofs.
 
-The initial arithmetic-only prototype measured 106 ms mixed full-range versus 94.5 ms handwritten, compared with about 331 ms for the existing generic pipeline. Mixed early stopping measured 116 versus 103 ms. [Initial raw samples](bench/scalar-prototype-results.json) retain fourteen samples per case. However, [simple-predicate measurements](bench/scalar-default-results.json) exposed a regression: cheap full-range took 85 ms, versus the previous roughly 49 ms library baseline. Blanket predication is therefore not the recommendation.
+The initial arithmetic-only prototype measured 106 ms mixed full-range versus 94.5 ms handwritten, compared with about 331 ms for the existing generic pipeline. Mixed early stopping measured 116 versus 103 ms. [Initial raw samples](../../bench/scalar-prototype-results.json) retain fourteen samples per case. However, [simple-predicate measurements](../../bench/scalar-default-results.json) exposed a regression: cheap full-range took 85 ms, versus the previous roughly 49 ms library baseline. Blanket predication is therefore not the recommendation.
 
-The retained prototype first separates zero from positive counts, preserving the original computation in the zero branch. Within the positive branch it selects scalar updates without an acceptance branch. The map and predicate still execute in the original order and the zero-state behavior is preserved. [Refined simple-case samples](bench/scalar-guarded-default-results.json) measured 52 ms full / 26 ms early / 26 ms huge early / 11 ms expensive early; [refined mixed samples](bench/scalar-guarded-mixed-results.json) measured 112 ms full / 121 ms early versus 96 / 103 ms handwritten. Each refined case retains six samples. This trades some of the first prototype's mixed-case gain for much better simple-case behavior. Small regressions relative to the existing implementation remain possible and must be resolved or gated before default deployment. Historical snapshots describe their hashed source versions; `scalar_prototype.bend` contains the refined version.
+The retained prototype first separates zero from positive counts, preserving the original computation in the zero branch. Within the positive branch it selects scalar updates without an acceptance branch. The map and predicate still execute in the original order and the zero-state behavior is preserved. [Refined simple-case samples](../../bench/scalar-guarded-default-results.json) measured 52 ms full / 26 ms early / 26 ms huge early / 11 ms expensive early; [refined mixed samples](../../bench/scalar-guarded-mixed-results.json) measured 112 ms full / 121 ms early versus 96 / 103 ms handwritten. Each refined case retains six samples. This trades some of the first prototype's mixed-case gain for much better simple-case behavior. Small regressions relative to the existing implementation remain possible and must be resolved or gated before default deployment. Historical snapshots describe their hashed source versions; `scalar_prototype.bend` contains the refined version.
 
-A fresh [unchanged-library simple-workload baseline](bench/scalar-baseline-results.json), run sequentially after the refined prototype, measured the same medians: 52 / 26 / 26 / 11 ms. Thus no simple-case regression was observed in that comparison. This is a small CPU matrix, not a universal profitability guarantee or a replacement for the old list/parallel benchmarks.
+A fresh [unchanged-library simple-workload baseline](../../bench/scalar-baseline-results.json), run sequentially after the refined prototype, measured the same medians: 52 / 26 / 26 / 11 ms. Thus no simple-case regression was observed in that comparison. This is a small CPU matrix, not a universal profitability guarantee or a replacement for the old list/parallel benchmarks.
 
 ```sh
 python3 bench/range.py --source bench/scalar_prototype.bend --runtime-threshold --predicate mixed --threshold 2147483647 --cases cheap_full cheap_early
@@ -90,14 +90,14 @@ python3 tests/run.py
 
 ## Priority ranking
 
-An initial [automatic compiler experiment](bench/compiler/README.md) now implements
+An initial [automatic compiler experiment](../../bench/compiler/README.md) now implements
 a bounded selection rule for straight-line scalar Boolean arms. It fires in a
 code-generation test and passes the 16-file suite, but does not improve the hot
 generic filtering pipeline: helper calls and nested guarded arithmetic are still
 outside its accepted region. Scoped helper-body exposure remains required; this
 first pass is not the completed optimization and is not installed in the sibling fork.
 
-The [composition and ordinary-list comparison](bench/COMPOSITION.md) sharpens the acceptance
+The [composition and ordinary-list comparison](../../bench/COMPOSITION.md) sharpens the acceptance
 criteria: pure map composition already matches handwritten code, with identical timed assembly
 for three maps and one `+6` map. Preserve that result. Ordinary eager list pipelines are slower in
 the tested workloads. The latest conditional-selection prototype reduces mixed-range overhead

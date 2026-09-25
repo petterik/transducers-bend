@@ -30,7 +30,7 @@ Unused owned source data may still require cleanup after Stop. The pure-source c
 
 ## Bind it to a reducer
 
-Here is the actual binding adapter from [examples/tree.bend](examples/tree.bend):
+Here is the actual binding adapter from [examples/tree.bend](../../examples/tree.bend):
 
 ```python
 def over_tree(~A: Type, ~R: Type, ~r: T.Reducer<A, R>) -> T.Reduction:
@@ -60,9 +60,9 @@ This is explicit static dispatch, not automatic trait resolution. Runtime select
 
 ## Run the conformance checks
 
-[tests/support/source_contract.bend](tests/support/source_contract.bend) provides a reusable test helper. Supply your fold specialized to its `Trace` state, a fresh source yielding `[1,2,3]`, and a fresh empty source. It checks initial Stop, stopping after one/two elements, encounter order, full exhaustion, and empty input with either control state. A step after a step-generated Stop produces a sentinel failure. See [tests/source_contract.bend](tests/source_contract.bend) for all four source implementations using the same suite.
+[tests/support/source_contract.bend](../../tests/support/source_contract.bend) provides a reusable test helper. Supply your fold specialized to its `Trace` state, a fresh source yielding `[1,2,3]`, and a fresh empty source. It checks initial Stop, stopping after one/two elements, encounter order, full exhaustion, and empty input with either control state. A step after a step-generated Stop produces a sentinel failure. See [tests/source_contract.bend](../../tests/source_contract.bend) for all four source implementations using the same suite.
 
-Also test your representation's particular obligations: affine inputs/state, numeric boundaries, traversal order, and cleanup expectations. [tests/extensions.bend](tests/extensions.bend) exercises the external tree with affine function values. [tests/lifecycle.bend](tests/lifecycle.bend) checks initialization/completion across list, range, string, and tree; JS instrumentation observes 12 starts, 8 steps, and 12 finishes.
+Also test your representation's particular obligations: affine inputs/state, numeric boundaries, traversal order, and cleanup expectations. [tests/extensions.bend](../../tests/extensions.bend) exercises the external tree with affine function values. [tests/lifecycle.bend](../../tests/lifecycle.bend) checks initialization/completion across list, range, string, and tree; JS instrumentation observes 12 starts, 8 steps, and 12 finishes.
 
 Run `python3 tests/run.py` from the repository root. By default, the runner
 builds a temporary candidate from local `origin/main` using
@@ -77,7 +77,7 @@ In custom `Reducer` constructors, explicit forwarding lambdas around
 pattern-matching callbacks let the current pass resolve callable heads; the
 lifecycle fixture demonstrates this form.
 
-The contract is a documented obligation, not a proof imposed by the type of an arbitrary third-party fold. [LAWS.md](LAWS.md) distinguishes executable evidence from outstanding formal proofs.
+The contract is a documented obligation, not a proof imposed by the type of an arbitrary third-party fold. [20260919-LAWS.md](20260919-LAWS.md) distinguishes executable evidence from outstanding formal proofs.
 
 ## Test an extension with stateful and affine transformations
 

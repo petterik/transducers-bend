@@ -23,7 +23,7 @@ literal 100% correctness.
 
 ### 1. High: completion claims substitute probes for the planned implementation
 
-`DESIGN-WORK-PLAN.md:353` says packages 0–6 are complete. Its own package status
+`20260920-DESIGN-WORK-PLAN.md:353` says packages 0–6 are complete. Its own package status
 paragraphs say the implementation of static composition is deferred, the typed
 region and summary API remain next, and representation work is only measurement.
 The final handoff also presents packages 0–6 as completed.

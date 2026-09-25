@@ -1,57 +1,49 @@
 ---
 created_at: 2026-09-20T20:26:35+02:00
+updated_at: 2026-09-25T10:29:53+02:00
 status: current
 ---
 
 # Transducer documentation
 
-Every document carries a `created_at` timestamp taken from the first Git commit
-that introduced it. The folders separate the current decision record from the
-foundation documents and historical exploration.
+Substantive documents use `YYYYMMDD-TITLE.md`, with the date taken from their
+`created_at` field. `README.md` stays undated as the stable index. A document's
+filename records its origin, not its latest revision; check `updated_at` and
+`status` in the front matter for that. The folders separate current work,
+foundation material, reviews, and historical experiments.
 
-The latest [follow-up implementation review](review/FOLLOWUP-IMPLEMENTATION-REVIEW.md)
-found a reproduced wrong-code bug in the isolated facts compiler and an incorrect
-direct keep benchmark reference. Its acceptance assessment supersedes the earlier
-checkpoint summaries.
-
-The [proposed repairs](current/FOLLOWUP-REPAIR-PROPOSAL.md) compare options for
-each finding, prioritize them by impact/effort/value, and specify acceptance
-conditions. This is a proposal for review, not an implementation completion record.
-
-The [bendlang/main integration plan](current/BENDLANG-MAIN-INTEGRATION-PLAN.md)
-records the upstream template-instance regression, the compiler integration
-seam, and the ordered gates for moving the specialization onto current Bend.
-It supersedes earlier assumptions that the existing patch can simply be
-reapplied to the latest compiler.
-
-The [upstream baseline](current/BENDLANG-MAIN-BASELINE.md) reproduces the
-remaining runtime reducer records and records the first template-instance
-resolver probe.
+The next workset is the [affine `Xf` API plan](current/20260925-AFFINE-XF-API-WORKSET.md).
+It aims for `transduce(xf, rf, init, coll)` and `into(dest, xf, coll)` while
+preserving static specialization, affine ownership, lifecycle semantics, and
+custom sources/destinations. The most recent compiler performance evidence is
+the [producer/fold region result](current/20260925-PRODUCER-STEP-FOLD-REGION.md)
+and [fusion ablation](current/20260924-TRANSDUCER-FUSION-ABLATION.md).
 
 ## Current
 
-These documents describe the accepted direction and the work still required:
+Read these first for the current direction and its measured limits:
 
-- [Follow-up repair proposal](current/FOLLOWUP-REPAIR-PROPOSAL.md) — proposed 2026-09-20.
-- [bendlang/main integration plan](current/BENDLANG-MAIN-INTEGRATION-PLAN.md) — proposed 2026-09-23.
-- [bendlang/main baseline](current/BENDLANG-MAIN-BASELINE.md) — created 2026-09-23.
-- [Adversarial design review](current/DESIGN-REVIEW.md) — created 2026-09-20.
-- [Architecture work plan](current/DESIGN-WORK-PLAN.md) — created 2026-09-20.
-- [Implementation repair plan](current/IMPLEMENTATION-REPAIR-PLAN.md) — created 2026-09-20.
-- [Implementation review](review/IMPLEMENTATION-REVIEW.md) — created 2026-09-20.
-- [Priorities](current/PRIORITIES.md) — created 2026-09-19, revised for the current review.
-- [Handoff](current/HANDOFF.md) — created 2026-09-19, revised for the current review.
-- [Final validation](current/FINAL-VALIDATION.md) — created 2026-09-20.
-- [Scoped constructor facts](current/SCOPED-FACTS.md) — created 2026-09-20.
-- [Local representation elimination](current/LOCAL-REPRESENTATION.md) — created 2026-09-20.
-- [Extension/direct parity](current/EXTENSION-PARITY.md) — created 2026-09-20.
-- [Configured API checkpoint](current/CONFIGURED-API.md) — created 2026-09-20.
+- [Affine `Xf` API workset](current/20260925-AFFINE-XF-API-WORKSET.md) — planned 2026-09-25.
+- [Producer/fold region](current/20260925-PRODUCER-STEP-FOLD-REGION.md) — latest map/filter compiler experiment.
+- [Transducer fusion ablation](current/20260924-TRANSDUCER-FUSION-ABLATION.md) — static callback and chunk-cost evidence.
+- [bendlang/main integration plan](current/20260923-BENDLANG-MAIN-INTEGRATION-PLAN.md) — current upstream compiler boundary.
+- [bendlang/main baseline](current/20260923-BENDLANG-MAIN-BASELINE.md) — pinned compiler and validation.
+- [Array/partition experiment](current/20260923-ARRAY-PARTITION-EXPERIMENT-PLAN.md) — completed investigation.
 
-The repair plan and implementation review are the best starting points. The
-current work remains partial: the tree rewrite is refused, while static
-composition, scoped facts, local representation elimination, configured API
-design, and extension performance still require implementation or stronger
-evidence.
+Earlier checkpoints and reviews remain available for their specific findings:
+
+- [Follow-up repair proposal](current/20260920-FOLLOWUP-REPAIR-PROPOSAL.md) — proposed 2026-09-20.
+- [Adversarial design review](current/20260920-DESIGN-REVIEW.md) — created 2026-09-20.
+- [Architecture work plan](current/20260920-DESIGN-WORK-PLAN.md) — created 2026-09-20.
+- [Implementation repair plan](current/20260920-IMPLEMENTATION-REPAIR-PLAN.md) — created 2026-09-20.
+- [Implementation review](review/20260920-IMPLEMENTATION-REVIEW.md) — created 2026-09-20.
+- [Priorities](current/20260919-PRIORITIES.md) — created 2026-09-19, revised for the current review.
+- [Handoff](current/20260919-HANDOFF.md) — created 2026-09-19, revised for the current review.
+- [Final validation](current/20260920-FINAL-VALIDATION.md) — created 2026-09-20.
+- [Scoped constructor facts](current/20260920-SCOPED-FACTS.md) — created 2026-09-20.
+- [Local representation elimination](current/20260920-LOCAL-REPRESENTATION.md) — created 2026-09-20.
+- [Extension/direct parity](current/20260920-EXTENSION-PARITY.md) — created 2026-09-20.
+- [Configured API checkpoint](current/20260920-CONFIGURED-API.md) — created 2026-09-20.
 
 ## Foundation
 
@@ -59,21 +51,21 @@ These documents explain the library contract, laws, implementation, and design
 constraints. They remain relevant background, but their historical status notes
 must be read alongside the current review:
 
-- [Library design](foundation/DESIGN.md) — created 2026-09-19.
-- [Implementation status](foundation/IMPLEMENTATION.md) — created 2026-09-19.
-- [Adding a reducible source](foundation/EXTENDING.md) — created 2026-09-19.
-- [Laws and proof status](foundation/LAWS.md) — created 2026-09-19.
-- [Optimization decision](foundation/OPTIMIZATION.md) — created 2026-09-19.
-- [Confidence review](foundation/CONFIDENCE.md) — created 2026-09-19.
-- [Deferred ergonomics](foundation/ERGONOMICS.md) — created 2026-09-19.
+- [Library design](foundation/20260919-DESIGN.md) — created 2026-09-19.
+- [Implementation status](foundation/20260919-IMPLEMENTATION.md) — created 2026-09-19.
+- [Adding a reducible source](foundation/20260919-EXTENDING.md) — created 2026-09-19.
+- [Laws and proof status](foundation/20260919-LAWS.md) — created 2026-09-19.
+- [Optimization decision](foundation/20260919-OPTIMIZATION.md) — created 2026-09-19.
+- [Confidence review](foundation/20260919-CONFIDENCE.md) — created 2026-09-19.
+- [Deferred ergonomics](foundation/20260919-ERGONOMICS.md) — created 2026-09-19.
 
 ## Historical
 
 These records capture the earlier fusion direction and are evidence for their
 own revisions, not current implementation status:
 
-- [Fusion direction](archive/FUSION.md) — created 2026-09-19.
-- [Fusion execution plan](archive/FUSION-EXECUTION-PLAN.md) — created 2026-09-19.
+- [Fusion direction](archive/20260919-FUSION.md) — created 2026-09-19.
+- [Fusion execution plan](archive/20260919-FUSION-EXECUTION-PLAN.md) — created 2026-09-19.
 
 Benchmark reports remain under `bench/`, and source-level wrong-code reproducers
 remain under `review/`. Those artifacts are linked from the current documents

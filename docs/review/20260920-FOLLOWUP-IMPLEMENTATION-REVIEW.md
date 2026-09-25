@@ -82,7 +82,7 @@ This is disclosed as a diagnostic, but the plan explicitly required equivalent
 group-consuming rows too. Type-changing keep, runtime settings, width 2, partial
 completion, nested partition and both stopping orders are absent from this matrix.
 
-Withdraw the “passes” labels in `EXTENSION-PARITY.md` until the oracle and
+Withdraw the “passes” labels in `20260920-EXTENSION-PARITY.md` until the oracle and
 measurement schedule satisfy workset 5. Retain the numbers as observations.
 
 ### P2: the repaired dispatch detector still cannot establish the promised scope
@@ -119,7 +119,7 @@ these lifecycle obligations. Workset 1 is partial despite the completion record.
 returns Some and every run supplies Unit configuration. It contains no configured
 filter, take, partition, named settings, or derived configuration builder.
 It cannot close the semantic portion of workset 6 as claimed in
-`CONFIGURED-API.md` and the repair plan.
+`20260920-CONFIGURED-API.md` and the repair plan.
 
 The failed generic-comp and settings-record probes are described in prose but
 their sources are not retained. Preserve minimal executable failures and a

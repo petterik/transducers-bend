@@ -53,7 +53,7 @@ term. The focused suite is run with
 
 This verifies compatibility with the refreshed compiler snapshot. A matched
 native comparison of raw upstream and the refreshed candidate is now recorded
-in [`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md). The
+in [`20260924-TRANSDUCER-FUSION-ABLATION.md`](20260924-TRANSDUCER-FUSION-ABLATION.md). The
 static-callback pass improves this partition pipeline by about 8.4–9.4x, but
 the candidate remains 1.4–1.6x slower than the handwritten materializing
 control. Do not treat the old matrix below as a timing result for this
@@ -119,7 +119,7 @@ unique. The refreshed matched ablation has now isolated allocations: the
 current candidate still constructs one group Cons per input in the public
 transducer path, while the handwritten materialized control reuses consumed
 source Cons cells and performs no timed Cons construction. See
-[`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md) for the exact
+[`20260924-TRANSDUCER-FUSION-ABLATION.md`](20260924-TRANSDUCER-FUSION-ABLATION.md) for the exact
 counts and timings. A group that the consumer retains still cannot be
 recycled.
 
@@ -133,7 +133,7 @@ affine uses, and early-stop behavior are all proven. Keep the transformation
 independent of transducer and reducer names; include a custom producer/fold
 positive case and retaining/effectful negative cases. The details, prioritizing
 and acceptance gates are in
-[`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md).
+[`20260924-TRANSDUCER-FUSION-ABLATION.md`](20260924-TRANSDUCER-FUSION-ABLATION.md).
 
 Do not add a runtime reference-count test. The generated C already shows Bend
 reusing consumed source cells in the handwritten materialized path, while the

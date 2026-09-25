@@ -96,7 +96,7 @@ supplementary diagnostics.
 
 ## Extension/direct parity
 
-[`EXTENSION-PARITY.md`](EXTENSION-PARITY.md) and
+[`20260920-EXTENSION-PARITY.md`](20260920-EXTENSION-PARITY.md) and
 [`bench/extension-parity-results.json`](../../bench/extension-parity-results.json)
 record ten sessions of five paired process launches per row. Repetition
 counts are calibrated to a 100 ms floor, the first lane alternates, and a row

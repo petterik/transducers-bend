@@ -32,7 +32,7 @@ Its `bend2/comp.ts` hash is
 static-callback patch was reapplied in an isolated candidate and passed the
 identity self-test, five focused JS/native fixtures, and all 23 library tests
 on both backends. Full hashes and commands are recorded in
-[`BENDLANG-MAIN-BASELINE.md`](BENDLANG-MAIN-BASELINE.md).
+[`20260923-BENDLANG-MAIN-BASELINE.md`](20260923-BENDLANG-MAIN-BASELINE.md).
 
 A matched native ablation now compares raw upstream, the static-callback
 candidate, a handwritten materializing fold, and a direct fold. It uses both
@@ -42,7 +42,7 @@ the materialized control; materialized is 1.6–2.0x slower than direct. The
 candidate constructs one additional List Cons per input, while the handwritten
 materialized path reuses consumed source nodes. Full timings, allocation
 counts, confidence bounds, and the next experiment are recorded in
-[`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md).
+[`20260924-TRANSDUCER-FUSION-ABLATION.md`](20260924-TRANSDUCER-FUSION-ABLATION.md).
 
 A matched retained-chunk run covers the negative case where every emitted
 chunk stays alive through a later checksum traversal. The static-callback
@@ -199,7 +199,7 @@ The current compiler ownership proof is sufficient for that local case, so a
 runtime reference-count branch is not justified by these results.
 
 The next workset is the prioritized prototype in
-[`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md): fuse a known,
+[`20260924-TRANSDUCER-FUSION-ABLATION.md`](20260924-TRANSDUCER-FUSION-ABLATION.md): fuse a known,
 fresh List result into a known, single-use fold only when non-escape,
 callback-order, effect, affine-use, and stop proofs succeed. Use a custom
 producer/fold pair so the optimization cannot pass by recognizing
