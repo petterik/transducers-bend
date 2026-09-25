@@ -33,3 +33,8 @@ def PairSource.source(source: PairSource) ->
   T.Source<U32, PairSource, (K => S => advance => inspect => v => s =>
     source_pair(~K, ~S, ~advance, ~inspect, v, s))>:
   T.Source{source}
+
+def PairSource.adapter() -> T.SourceAdapter<U32, PairSource,
+  (K => S => advance => inspect => v => s =>
+    source_pair(~K, ~S, ~advance, ~inspect, v, s))>:
+  T.SourceAdapter{}

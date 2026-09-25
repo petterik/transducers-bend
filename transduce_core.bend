@@ -357,6 +357,13 @@ type Source<-A: Type, -X: Type,
     @-inspect: (S -> Checked<K, S>) -> X -> S -> S> is Type:
   Source{input: X}
 
+# A source's closed drive without a fragment value. cat accepts this
+# zero-field witness and still receives raw fragments from upstream.
+type SourceAdapter<-A: Type, -X: Type,
+  -Drive: @-K: Data -> @-S: Type -> @-advance: (S -> A -> S) ->
+    @-inspect: (S -> Checked<K, S>) -> X -> S -> S> is Type:
+  SourceAdapter{}
+
 def Source.allow_companion() -> Unit:
   Unit{}
 
@@ -364,6 +371,11 @@ def Array.source(~A: Type, xs: Array<A>) ->
   Source<A, Array<A>, (K => S => advance => inspect => ys => state =>
     source_array(~A, ~K, ~S, ~advance, ~inspect, ys, state))>:
   Source{xs}
+
+def Array.adapter(~A: Type) -> SourceAdapter<A, Array<A>,
+  (K => S => advance => inspect => ys => state =>
+    source_array(~A, ~K, ~S, ~advance, ~inspect, ys, state))>:
+  SourceAdapter{}
 
 def source_list_loop(~A: Type, ~K: Data, ~S: Type,
   ~advance: S -> A -> S, ~inspect: S -> Checked<K, S>,
@@ -385,6 +397,11 @@ def List.source(~A: Type, xs: List<A>) ->
   Source<A, List<A>, (K => S => advance => inspect => ys => state =>
     source_list(~A, ~K, ~S, ~advance, ~inspect, ys, state))>:
   Source{xs}
+
+def List.adapter(~A: Type) -> SourceAdapter<A, List<A>,
+  (K => S => advance => inspect => ys => state =>
+    source_list(~A, ~K, ~S, ~advance, ~inspect, ys, state))>:
+  SourceAdapter{}
 
 type Range is Data:
   Range{begin: U32, end: U32}
@@ -430,6 +447,11 @@ def Range.source(xs: Range) ->
     source_range(~K, ~S, ~advance, ~inspect, ys, state))>:
   Source{xs}
 
+def Range.adapter() -> SourceAdapter<U32, Range,
+  (K => S => advance => inspect => ys => state =>
+    source_range(~K, ~S, ~advance, ~inspect, ys, state))>:
+  SourceAdapter{}
+
 def source_string_loop(~K: Data, ~S: Type,
   ~advance: S -> Char -> S, ~inspect: S -> Checked<K, S>,
   xs: String, checked: Checked<K, S>) -> S:
@@ -450,6 +472,11 @@ def String.source(xs: String) ->
   Source<Char, String, (K => S => advance => inspect => ys => state =>
     source_string(~K, ~S, ~advance, ~inspect, ys, state))>:
   Source{xs}
+
+def String.adapter() -> SourceAdapter<Char, String,
+  (K => S => advance => inspect => ys => state =>
+    source_string(~K, ~S, ~advance, ~inspect, ys, state))>:
+  SourceAdapter{}
 
 def cat_maybe_step(~B: Type, ~R: Type, ~down: Reducer<B, R>,
   item: Maybe<B>, state: State(B, R, down)) ->

@@ -74,10 +74,13 @@ uses the same indexes and consumes `Maybe` results. Both support affine input
 values. `take_nth(n)` emits positions `0, n, 2n, ...`; our zero-interval
 convention emits nothing but still traverses the source. Use
 `take(0)` for immediate stopping. `cat` flattens reducible fragments and
-preserves downstream stopping, including a stop inside a fragment. Its fragment
-driver is supplied explicitly, as with `mapcat`; for example,
-`comp2(map(f), cat(...))` flattens the reducible collections returned by `f`.
-See the [indexed and cat tests](tests/xf_public_indexed_cat.bend).
+preserves downstream stopping, including a stop inside a fragment. A source
+owner supplies a zero-field adapter, so `cat(T.List.adapter(~U32))` or
+`cat(T.Array.adapter(~U32))` can consume raw fragments. For mapping and
+flattening, use `comp2(map(~A, ~List<B>, ~f), cat(T.List.adapter(~B)))`.
+Custom sources can define their own `.adapter` alongside `.source`.
+`mapcat` and `cat_drive` remain available when supplying a closed drive
+directly. See the [indexed and cat tests](tests/xf_public_indexed_cat.bend).
 
 `into(List, ...)` prepends, following Clojure's `conj` order. For encounter
 order, collect into [`Vec`](vec.bend) or [`VecMaybe`](vec_maybe.bend).

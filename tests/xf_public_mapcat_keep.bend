@@ -22,10 +22,9 @@ def even_choice(x: U32) -> Maybe<U32>:
   even_choice_case(U32.is_zero(U32.mod(x, 2)), x)
 
 def cat_total() -> U32:
-  X.transduce(X.mapcat(~U32, ~U32, ~List<U32>,
-    ~(K => S => advance => inspect => input => state =>
-      T.source_list(~U32, ~K, ~S, ~advance, ~inspect, input, state)),
-    ~fragment), X.sum_rf(), 0, three())
+  X.transduce(X.comp2(X.map(~U32, ~List<U32>, ~fragment),
+    X.cat(T.List.adapter(~U32))),
+    X.sum_rf(), 0, three())
 
 def cat_take() -> U32:
   X.transduce(X.comp2(

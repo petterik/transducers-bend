@@ -107,9 +107,7 @@ def every(xs: List<U32>, n: Nat) -> U32:
 
 def flattened_cat(xs: List<U32>, n: Nat) -> U32:
   X.transduce(X.comp3(X.map(~U32, ~List<U32>, ~pair),
-    X.cat(~U32, ~List<U32>,
-      ~(K => S => advance => inspect => input => state =>
-        T.source_list(~U32, ~K, ~S, ~advance, ~inspect, input, state))),
+    X.cat(T.List.adapter(~U32)),
     X.take(~U32, n)), X.sum_rf(), 0, xs)
 
 '''

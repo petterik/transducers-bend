@@ -58,11 +58,20 @@ def mapcat(~A: Type, ~B: Type, ~X: Type,
     (R => down => T.mapcat(~A, ~B, ~X, ~Drive, ~R, ~f, ~down))>:
   Xf{R => down => config => config}
 
-# Flatten reducible input fragments. Like mapcat, the fragment drive is a
-# static witness until the compiler can select companions inside a pipeline.
-def cat(~B: Type, ~X: Type,
+# Lower-level explicit-drive form, useful when no owner adapter is available.
+def cat_drive(~B: Type, ~X: Type,
   ~Drive: @-K: Data -> @-S: Type -> @-advance: (S -> B -> S) ->
     @-inspect: (S -> T.Checked<K, S>) -> X -> S -> S) -> Xf<X, B,
+    (R => down => T.cat_source(~B, ~X, ~Drive, ~R, ~down))>:
+  Xf{R => down => config => config}
+
+# The adapter names a collection's static drive. It has no fragment value and
+# disappears when the stage is configured. Compose map(f) with cat(adapter)
+# to avoid spelling the drive at the call site.
+def cat(~B: Type, ~X: Type,
+  ~Drive: @-K: Data -> @-S: Type -> @-advance: (S -> B -> S) ->
+    @-inspect: (S -> T.Checked<K, S>) -> X -> S -> S,
+  adapter: T.SourceAdapter<B, X, Drive>) -> Xf<X, B,
     (R => down => T.cat_source(~B, ~X, ~Drive, ~R, ~down))>:
   Xf{R => down => config => config}
 

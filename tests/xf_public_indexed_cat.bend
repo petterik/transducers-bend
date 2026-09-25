@@ -46,44 +46,34 @@ def pair_fragments() -> List<Pair.PairSource>:
   [Pair.PairSource{1, 2}, Pair.PairSource{3, 4}]
 
 def list_cat() -> U32:
-  X.transduce(X.cat(~U32, ~List<U32>,
-    ~(K => S => advance => inspect => input => state =>
-      T.source_list(~U32, ~K, ~S, ~advance, ~inspect, input, state))),
+  X.transduce(X.cat(T.List.adapter(~U32)),
     X.sum_rf(), 0, fragments())
 
 def list_cat_take() -> U32:
-  X.transduce(X.comp2(X.cat(~U32, ~List<U32>,
-    ~(K => S => advance => inspect => input => state =>
-      T.source_list(~U32, ~K, ~S, ~advance, ~inspect, input, state))),
+  X.transduce(X.comp2(X.cat(T.List.adapter(~U32)),
     X.take(~U32, 2n)), X.sum_rf(), 0, fragments())
 
 def array_cat() -> U32:
-  X.transduce(X.cat(~U32, ~Array<U32>,
-    ~(K => S => advance => inspect => input => state =>
-      T.source_array(~U32, ~K, ~S, ~advance, ~inspect, input, state))),
+  X.transduce(X.cat(T.Array.adapter(~U32)),
     X.sum_rf(), 0, array_fragments())
 
 def pair_cat() -> U32:
-  X.transduce(X.cat(~U32, ~Pair.PairSource,
-    ~(K => S => advance => inspect => input => state =>
-      Pair.source_pair(~K, ~S, ~advance, ~inspect, input, state))),
+  X.transduce(X.cat(Pair.PairSource.adapter()),
     X.sum_rf(), 0, pair_fragments())
 
 def pair_cat_take() -> U32:
-  X.transduce(X.comp2(X.cat(~U32, ~Pair.PairSource,
-    ~(K => S => advance => inspect => input => state =>
-      Pair.source_pair(~K, ~S, ~advance, ~inspect, input, state))),
+  X.transduce(X.comp2(X.cat(Pair.PairSource.adapter()),
     X.take(~U32, 3n)), X.sum_rf(), 0, pair_fragments())
 
 def affine_cat() -> U32:
-  X.transduce(X.comp2(X.cat(~Token, ~List<Token>,
+  X.transduce(X.comp2(X.cat_drive(~Token, ~List<Token>,
     ~(K => S => advance => inspect => input => state =>
       T.source_list(~Token, ~K, ~S, ~advance, ~inspect, input, state))),
     X.map(~Token, ~U32, ~token_value)), X.sum_rf(), 0,
     token_fragments())
 
 def retained_cat() -> List<U32>:
-  X.into(empty(), X.cat(~U32, ~List<U32>,
+  X.into(empty(), X.cat_drive(~U32, ~List<U32>,
     ~(K => S => advance => inspect => input => state =>
       T.source_list(~U32, ~K, ~S, ~advance, ~inspect, input, state))),
     fragments())
