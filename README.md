@@ -208,6 +208,7 @@ isolated experiment against upstream; it does not change `../bend`.
 
 ```sh
 python3 tests/run.py
+bun experiments/affine_xf/check_no_stop_cache.ts
 python3 experiments/affine_xf/measure_opaque_source.py \
   --bend-main ../bend/bend2/main.ts --output /tmp/opaque-source.json
 ```

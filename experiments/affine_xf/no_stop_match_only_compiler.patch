@@ -1,11 +1,19 @@
+diff --git a/bend2/comp.ts b/bend2/comp.ts
+index 0aeb67dd..27deabea 100644
 --- a/bend2/comp.ts
 +++ b/bend2/comp.ts
-@@ -588,2 +588,4 @@
- const LAYS: Map<string, Lay> = new Map();
-+
-+const REACH: Map<string, Set<Name>> = new Map();
+@@ -587,6 +587,8 @@ const NODES: Map<Name, Lay> = new Map();
  
-@@ -3166,3 +3168,19 @@
+ const LAYS: Map<string, Lay> = new Map();
+ 
++const REACH: Map<string, Set<Name>> = new Map();
++
+ const CYCLES: Map<Name, boolean> = new Map();
+ 
+ const CONSTS: Map<HTerm, boolean> = new Map();
+@@ -3164,7 +3166,23 @@ function emit_match(fl: File, x: Of<"Mat"> | Of<"Efq">,
+         : v.lay.arms![0].fs.slice(0, e).map((f) => val_field(v, f));
+     }]);
    } else {
 -    lv = mat_ctrs(fl, x, adt, adt.k === "IO.OP").map(([k, h]) => {
 +    // A live field of an empty datatype makes its constructor unreachable.
@@ -26,3 +34,21 @@
 +    lv = (complete ? present.filter(([k]) => k !== "") : present)
 +      .map(([k, h]) => {
        if (k === "") {
+         return ["", h, () => [u]];
+       }
+@@ -3361,6 +3379,7 @@ function compile_segs(fl: File): string {
+ }
+ 
+ export function compile_book(book: Bend.Book): string {
++  REACH.clear();
+   const cb = carb_book(book, ["main", ...RUNTIME_ADTS]);
+   const show = show_main(book);
+   const facts = () => cb.own.size + cb.hot.size + cb.stat.size;
+@@ -3647,6 +3666,7 @@ function js_def(fl: File, k: Name, def: Def): void {
+ 
+ export function js_lib(book: Bend.Book, roots: Name[],
+   outs: Name[] | null): string {
++  REACH.clear();
+   const cb = carb_book(book, roots.slice());
+   const fl = file_new(cb, true);
+   fl.tab = 0;
