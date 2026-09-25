@@ -99,6 +99,22 @@ def main():
             assert result.returncode == 0 and result.stdout.strip() == '7', \
                 (lane, result.returncode, result.stdout, result.stderr)
             print('PASS unrelated marked companion', lane)
+        boundary = HERE / 'companion_boundary_main.bend'
+        result = run('bun', compiler, boundary)
+        assert result.returncode == 0 and result.stdout.strip() == '(7, 9, 11)', \
+            ('value', result.returncode, result.stdout, result.stderr)
+        print('PASS imported template companion value mode')
+        result = run('bun', compiler, boundary, '--checkup')
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        result = run('bun', compiler, boundary,
+                     '-o', temp / 'boundary.js', '-o', temp / 'boundary')
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        for lane, command in [('JS', ('bun', temp / 'boundary.js')),
+                              ('native', (temp / 'boundary', '--threads', '1', '--gpu', 'off'))]:
+            result = run(*command)
+            assert result.returncode == 0 and result.stdout.strip() == '(7, 9, 11)', \
+                (lane, result.returncode, result.stdout, result.stderr)
+            print('PASS imported template companion', lane)
         for fixture, diagnostic in NEGATIVE.items():
             result = run('bun', compiler, HERE / fixture,
                          '-o', temp / (fixture + '.js'))
