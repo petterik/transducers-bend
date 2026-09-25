@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T21:22:00+02:00
-updated_at: 2026-09-25T08:20:53+02:00
+updated_at: 2026-09-25T08:52:13+02:00
 status: current
 ---
 
@@ -137,15 +137,17 @@ For `keep`, the correct library composition is `map(f)` followed by
 support affine payloads such as arrays. The Boolean map/filter shape is now
 tested in [`TRANSDUCER-FUSION-ABLATION.md`](TRANSDUCER-FUSION-ABLATION.md): a
 custom reusable map producer followed by `List.filter` and a fold preserves
-order and skips rejected steps, but the current FoldRegion rule refuses to
-fuse it because it only models one output per source item. The exact
+order and skips rejected steps. The typed producer-step/fold region now fuses
+this zero-or-one-output shape. The exact
 `List.map` → `List.filter` spelling also fails the library's quantity types
 (`List<&1, B>` versus `List<&2, A>`). The typed producer-step/fold region,
 including the effect, totality, ownership, and fallback proof gates, is
 specified in [`PRODUCER-STEP-FOLD-REGION.md`](PRODUCER-STEP-FOLD-REGION.md).
-Its analyzer now extracts the custom map plus `List.filter` pipeline as
-`Emit | Skip` without rewriting it; the next experiment is checked lowering
-for that shape.
+The isolated candidate now lowers the analyzed map plus `List.filter` pipeline
+to a checked recursive fold helper. JS/native tests also cover a Nat-to-U32
+map before filtering and folding. Its emitted C contains no dynamic producer
+List-cons sites for the scalar fixture, though per-item closure/task allocation
+sites remain and runtime allocation/performance still need measurement.
 
 Rebuild and rerun the current candidate with:
 

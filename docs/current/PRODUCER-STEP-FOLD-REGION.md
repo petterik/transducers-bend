@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T07:35:41+02:00
-updated_at: 2026-09-25T08:20:53+02:00
+updated_at: 2026-09-25T08:52:13+02:00
 status: current
 ---
 
@@ -171,30 +171,30 @@ that partitioning or arbitrary sources are already covered.
 
 ## Implementation sequence and acceptance
 
-1. Add a typed region builder over the checked specialized definitions. Inline
+1. **Complete.** Add a typed region builder over the checked specialized definitions. Inline
    only checked static helper calls within a strict budget; preserve stable
    identities, branch paths, types, quantities, and call summaries.
-2. Add a conservative totality/effect gate. Reject recursive callback cycles,
+2. **Complete for the initial supported subset.** Add a conservative totality/effect gate. Reject recursive callback cycles,
    foreign/dynamic/parallel/unsafe calls, unknown intrinsics, and potentially
    trapping operations unless their safety is proved from the checked
    arguments. Keep source recursion separate from callback recursion.
-3. First run the analyzer without rewriting. It should explain why the
-   existing map producer is `Emit`, why filter is `Emit | Skip`, and why
-   retention, unknown consumers, nontrivial effects, and over-budget helpers
-   are refused.
-4. Compose the resulting region with only the checked full fold. Synthesize a
-   source-recursive helper and pass it through `Bend.def_check`; install it
-   only after successful checking.
-5. Add positive tests for map → filter → fold with order-sensitive output,
-   step counts, empty input, all rejected, and at least one accepted item.
-   Add negative tests for retained intermediate lists, reordered effects or
-   traps, recursive callbacks, wrong tail identity, multiple emissions,
-   affine values, unknown helpers, and exhausted analysis budget.
-6. Verify both JS and native semantics, inspect generated C for eliminated
-   intermediate-list construction, and measure allocation requests separately
-   from native microsecond timing. Compare the fused result with both the
-   materialized source form and handwritten fused Bend. Include compile time
-   and generated-code size.
+3. **Complete.** Run the analyzer without rewriting and confirm it recovers
+   the map `Emit` and filter `Emit | Skip` stages without operation-name
+   recognition.
+4. **Complete for map → filter → full fold.** Compose the region with the
+   checked fold, synthesize a source-recursive helper, recheck it with
+   `Bend.def_check`, and keep the fallback on any refusal.
+5. **Partial.** Positive tests now cover order-sensitive output, step counts,
+   empty input, all rejected values, retained outputs, and a type-changing
+   Nat-to-U32 map before filter. Negative tests cover
+   recursive callbacks, Nat overflow risk, unsafe/unknown callbacks, and
+   unknown consumers. Still needed are a second independent producer shape,
+   evaluation-order/trap counterexamples, wrong-tail/multiple-output cases,
+   and an explicit lowering-budget refusal fixture.
+6. **Partial.** JS/native semantics pass, and generated C removes dynamic List
+   cons sites for the scalar fixture. Measure actual allocation requests and
+   native microseconds separately; compare against upstream, materialized
+   source, and handwritten fused Bend, including compile time and code size.
 
 The slice is successful only if the emitted C shows the producer list is gone,
 the allocation traffic drops accordingly, the order-sensitive fixtures pass,
@@ -205,28 +205,35 @@ region extractor is not general enough yet.
 
 ## Current evidence and next decision
 
-The existing map/filter fixture passes on the unmodified compiler and the
-FoldRegion candidate on JS and native. It verifies output order, count,
-empty input, and all-rejected behavior. The analyzer extracts its map and
-filter stages as `Emit` and `Emit | Skip`, respectively, with no filter-name
-special case. It reports the typed stage shape
-`1:0:1:0 > 1:1:1:1` (binds, branches, emits, skips), and the candidate still
-records zero fusion: code generation explicitly refuses with
-`producer-step-rewrite-deferred` until lowering is implemented.
+The checked region now composes the tested map → Boolean filter → full fold
+without a library-name rule. It extracts the map stage as `Emit` and the
+filter stage as `Emit | Skip`, then synthesizes a source-recursive helper and
+installs it only after `Bend.def_check` succeeds. The analyzer reports
+`1:0:1:0 > 1:1:1:1` (binds, branches, emits, skips); the map/filter suite
+records 36 successful rewrites and 8 checked helpers. A second fixture checks
+that emitted values can be retained in the fold accumulator.
 
-The analyzer-only candidate passed 31/31 suite cases across JS/native,
-code-generation, and refusal assertions. Adversarial totality checks reject
-recursive callbacks and `Nat.add`/`Nat.mul` without range proofs. Auditing the
-upstream runtime corrected an earlier assumption: `U32.div` and `U32.mod`
-define results for a zero divisor, so they remain accepted by this gate.
-Analysis-only success is not evidence of fused performance or of a sound
-generated rewrite.
+The candidate passed 33/33 suite cases across JS/native semantics,
+code-generation, and refusal assertions. The semantic cases check order,
+count, empty input, all rejected values, retained values, and a
+type-changing Nat-to-U32 stage. Totality tests
+refuse recursive callbacks and `Nat.add`/`Nat.mul` without proofs; a guarded
+`U32.shln` callback fuses, and audited `U32.div`/`U32.mod` zero-divisor results
+remain accepted.
 
-The next workset is to compose the checked `Emit | Skip` region with the full
-fold, synthesize a helper over the original source, and install it only after
-the checker accepts it. Keep the existing fallback as the semantic oracle.
-Then verify evaluation order, single evaluation, and retained-value behavior;
-run JS/native and code-generation gates; and confirm the intermediate list is
-absent before measuring allocation traffic or timing. If the synthesized
-helper cannot preserve checked ownership and quantities, leave the rewrite
-disabled and refine the region representation instead.
+For the scalar map/filter fixture, generated C has two dynamic List-cons
+allocation sites with upstream `bendlang/main` and zero with the fused
+candidate. C source size falls from 93,688 to 92,628 bytes. Closure and task
+allocation sites remain in the fused loop, so these static sites do not yet
+establish a net reduction in runtime allocation traffic or time. The map/filter
+rewrite is a correctness and representation result; performance remains open.
+
+Next, count dynamic allocation requests and native microseconds over a
+nontrivial runtime input, comparing upstream, the fused candidate, and a
+handwritten fused Bend loop. Inspect the per-item closure cost separately. If
+the closure dominates, determine whether a reusable, general compiler rule
+can lower an applied checked match directly as control flow. Then test an
+independently written producer implementation with the same zero-or-one
+relation. Only after those results should the region grow beyond stateless
+`Emit | Skip`; `take`, buffered partitioning, completion, and early stop need
+explicit state and lifecycle nodes.

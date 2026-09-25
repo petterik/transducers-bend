@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-25T08:20:53+02:00
+updated_at: 2026-09-25T08:52:13+02:00
 status: current
 ---
 
@@ -597,32 +597,32 @@ case; benchmarking that unchanged fallback would not measure fusion.
 | Option | Impact | Effort | Value | Priority |
 | --- | --- | --- | --- | --- |
 | Add a checked `List.filter.put`-shaped exception to FoldRegion | Medium, limited to one helper/control-flow form | Medium: branch and ownership proof; future filters need more cases | Low–medium: tests this library shape but encourages one rule per operation | Defer |
-| Design and prototype a typed producer-step/fold region for map, skip, and downstream step | High, potentially reusable across sources and transducers | High: define the normalized checked shape and prove order, effects, totality, ownership, and bailout rules | Highest: tests whether checked behavior composes without operation-name rules | **P1; analyzer extracts map + filter as `Emit | Skip`; lowering next** |
+| Design and prototype a typed producer-step/fold region for map, skip, and downstream step | High, potentially reusable across sources and transducers | High: define the normalized checked shape and prove order, effects, totality, ownership, and bailout rules | Highest: tests whether checked behavior composes without operation-name rules | **P1; map + filter lowers through the checked `Emit | Skip` region; performance and independent-shape tests next** |
 | Add a public `Reducible`/iterator API now | Potentially high and language-wide | Very high: source lifecycle, completion, early stop, affine elements, and compatibility | Uncertain before the lowering is proven | P2, after the region design |
-| Benchmark the current unfused map/filter candidate | Low for the fusion question | Low | Low: it measures the fallback, not the proposed optimization | P3, after a positive rewrite exists |
+| Measure fused map/filter against materialized and handwritten-fused Bend | High: decides whether eliminating Lists outweighs closure/control overhead | Medium: dynamic allocation counts, matched native timings, compile time | High: tests end-to-end value, not just the IR rewrite | **P1; structural codegen passes, runtime allocation and timing next** |
 
 ### Recommended next work
 
-Do not add a one-off filter exception. The analyzer described in
-[`PRODUCER-STEP-FOLD-REGION.md`](PRODUCER-STEP-FOLD-REGION.md) now extracts
-the tested map → Boolean filter region from checked terms and records stable
-value identities and branch paths. Its callback gate admits a conservative
-subset; it is not a proof of termination for every Bend function. This
-candidate still performs no producer-step rewrite.
+The typed region now composes checked `Emit | Skip` stages with a full fold
+and synthesizes a helper over the original source. The tested map/filter path
+passes JS/native order, count, empty, all-rejected, retained-value, and
+type-changing Nat-to-U32 cases;
+each helper is installed only after `Bend.def_check`. The callback gate is a
+deliberate conservative subset, not a proof of termination for every Bend
+function.
+The first generated-C check finds two dynamic producer List-cons sites upstream
+and none in the fused candidate, with about 1 KB less C for this small
+fixture. It also shows continuation closure/task allocation sites in the new
+loop. Next measure actual allocation traffic and native microseconds over a
+dynamic input, against upstream and handwritten fused Bend; include compile
+time and generated-code size. If the closure cost remains material, test
+whether a generic compiler rule can lower a checked applied match as control
+flow. Then add an independently written producer to test that the normal form
+is not coupled to this producer implementation.
 
-Now lower only the tested map → Boolean filter → full fold shape, composing
-the typed region with the checked full fold and synthesizing a helper over the
-original source. Every generated helper must pass `Bend.def_check`; install
-nothing on refusal. First prove evaluation order, single evaluation,
-ownership, and fallback behavior.
-Require the same order-sensitive, step-count, empty, all-rejected, and fallback
-cases, and confirm the allocation reduction before timing it. Compare native
-microsecond timings in balanced or isolated lanes against both materialized and
-handwritten-fused Bend, and record Clang time and generated-code size. Keep
-`take`, early stop, completion changes, and `partition_all` out of that first
-lowering. A partition stage can emit buffered values at a threshold and flush
-on completion, so it needs explicit state and completion semantics beyond this
-region's first `Emit | Skip` exits.
+Keep `take`, early stop, completion changes, and `partition_all` out of this
+lowering. Partition needs explicit state and completion semantics beyond
+`Emit | Skip`.
 
 If this region requires a separate bespoke compiler pattern for every
 transducer, stop and consider a source-level reducible interface with checked

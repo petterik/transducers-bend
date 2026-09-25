@@ -34,6 +34,7 @@ type FoldRegionNode =
   | { tag: "skip" };
 
 type FoldRegionStep = {
+  producer_name: Name;
   input_id: Probe;
   input_list_type: HTerm;
   output_list_type: HTerm;
@@ -92,9 +93,9 @@ function fold_region_total_intrinsic(k: Name, args: HTerm[]): boolean {
   void args;
   const name = eff_name(k);
   if (!FOLD_REGION_PURE_INTRINSICS.has(name)) return false;
-  // Bend's U32 division and modulo define the zero-divisor results, so these
-  // operations are total. Nat add/multiply can exceed the supported Nat range
-  // and reach nat_chk's fail-stop path; without a range proof we refuse them.
+  // Bend's U32 division and modulo define zero-divisor results, and its
+  // variable shifts guard counts >= 32. Nat add/multiply can reach nat_chk's
+  // fail-stop path; refuse those without range proofs.
   if (name === "nat_add" || name === "nat_mul") return false;
   return true;
 }
@@ -107,9 +108,7 @@ function fold_region_total_function(cb: Carb, k: Name,
   active = new Set<Name>(), done = new Set<Name>()): boolean {
   const it = intr_of(cb, k, true);
   if (it !== undefined) {
-    const name = eff_name(k);
-    return FOLD_REGION_PURE_INTRINSICS.has(name)
-      && name !== "nat_add" && name !== "nat_mul";
+    return fold_region_total_intrinsic(k, []);
   }
   if (active.has(k)) return false;
   if (active.size >= 32) return false;
@@ -226,7 +225,8 @@ const FOLD_REGION_PURE_INTRINSICS = new Set([
   "u32_and", "u32_or", "u32_xor", "u32_not", "u32_shl", "u32_shr",
   "u32_min", "u32_max", "u32_cmp", "u32_is_eq", "u32_is_ne",
   "u32_is_lt", "u32_is_le", "u32_is_gt", "u32_is_ge",
-  "u32_to_nat", "u32_from_nat", "nat_add", "nat_sub", "nat_mul",
+  "u32_to_nat", "u32_from_nat", "u32_shln", "u32_shrn",
+  "nat_add", "nat_sub", "nat_mul",
   "nat_div", "nat_mod", "nat_cmp", "nat_is_eq", "nat_is_ne",
   "nat_is_lt", "nat_is_le", "nat_is_gt", "nat_is_ge",
   "nat_to_u32", "nat_from_u32", "f32_add", "f32_sub", "f32_mul",
@@ -502,7 +502,7 @@ function fold_region_build_step(cb: Carb, producer: Def,
     || counts.branches > 16 || term_nodes(cb, result) > 128) {
     return fold_region_analysis_refuse("region-step-output-budget");
   }
-  return { input_id: head, input_list_type, output_list_type,
+  return { producer_name, input_id: head, input_list_type, output_list_type,
     input_quantity: input_info.quantity, input_type: input_info.element_type,
     output_quantity: output_info.quantity,
     output_type: output_info.element_type, body: graph, ...counts };
@@ -651,6 +651,238 @@ function fold_region_rewrap(term: HTerm,
     x.T, x.s) : rewrite(x);
 }
 
+// Substitute the stable identities kept by the analyzed region. Use Bend's
+// HOAS callbacks when rebuilding binders, so replacing a producer input under
+// a match, lambda, or local cannot capture an unrelated value.
+function fold_region_substitute(term: HTerm,
+  values: Map<number, HTerm>): HTerm {
+  const x = term_force(term);
+  switch (x.$) {
+    case "Var": return values.get(x.i) ?? x;
+    case "Ref": case "Lit": case "Qnt": case "Qua": case "Efq": case "Rfl":
+    case "Hol": return x;
+    case "Ann": return Bend.Ann(fold_region_substitute(x.x, values),
+      fold_region_substitute(x.T, values), x.s);
+    case "Sub": {
+      const value = x.v.$ === "PVar" || x.v.$ === "PCtr"
+        ? x.v : fold_region_substitute(x.v as HTerm, values);
+      return Bend.Sub(x.i, value, fold_region_substitute(x.f, values), x.s);
+    }
+    case "Typ": return Bend.Typ(fold_region_substitute(x.g, values), x.s);
+    case "Min": return Bend.Min(fold_region_substitute(x.a, values),
+      fold_region_substitute(x.b, values), x.s);
+    case "All": return Bend.All(x.q, x.k, x.i,
+      fold_region_substitute(x.A, values),
+      (arg: HTerm) => fold_region_substitute(x.B(arg), values), x.s);
+    case "Lam": return Bend.Lam(x.k, x.i,
+      (arg: HTerm) => fold_region_substitute(x.f(arg), values), x.s, x.q);
+    case "App": return Bend.App(fold_region_substitute(x.f, values),
+      fold_region_substitute(x.x, values), x.s);
+    case "ADT": return Bend.ADT(x.k, x.x.map((v) =>
+      fold_region_substitute(v, values)), x.s, x.r);
+    case "Ctr": return Bend.Ctr(x.k, x.x.map((v) =>
+      fold_region_substitute(v, values)), x.s);
+    case "Mat": return Bend.Mat(x.k, fold_region_substitute(x.h, values),
+      fold_region_substitute(x.m, values), x.s);
+    case "Let": return Bend.Let(x.k, x.i, x.v.map((v) =>
+      fold_region_substitute(v, values)),
+      (args: HTerm[]) => fold_region_substitute(x.f(args), values), x.s, x.q);
+    case "Eql": return Bend.Eql(fold_region_substitute(x.a, values),
+      fold_region_substitute(x.b, values),
+      fold_region_substitute(x.T, values), x.s);
+    case "Rwt": return Bend.Rwt(fold_region_substitute(x.e, values),
+      fold_region_substitute(x.p, values),
+      fold_region_substitute(x.f, values), x.s);
+  }
+}
+
+function fold_region_quantity(qty: HTerm): Bend.Quant | null {
+  const value = term_strip(qty);
+  if (value.$ === "Qua") return value.q;
+  if (value.$ === "Qnt") return Bend.None();
+  return null;
+}
+
+type FoldRegionEmit = (value: HTerm) => HTerm;
+type FoldRegionSkip = () => HTerm;
+
+function fold_region_lower_node(node: FoldRegionNode,
+  values: Map<number, HTerm>, emit: FoldRegionEmit,
+  skip: FoldRegionSkip, match_result_type: HTerm): HTerm {
+  switch (node.tag) {
+    case "skip": return skip();
+    case "emit": {
+      const value = values.get(node.id.i);
+      if (value === undefined) {
+        throw new Error("fold region emitted an unbound value");
+      }
+      return emit(value);
+    }
+    case "bind": {
+      const quant = fold_region_quantity(
+        fold_region_substitute(node.quantity, values));
+      if (quant === null) {
+        throw new Error("fold region has an unknown binder quantity");
+      }
+      const expression = fold_region_substitute(node.expr, values);
+      const type = fold_region_substitute(node.type, values);
+      return Bend.Let([node.id.k], [0], [Bend.Ann(expression, type)],
+        (args: HTerm[]) => {
+          if (args.length !== 1) {
+            throw new Error("fold region Let opened with wrong arity");
+          }
+          const next = new Map(values);
+          next.set(node.id.i, args[0]);
+          return fold_region_lower_node(node.next, next, emit, skip,
+            match_result_type);
+        }, undefined, [quant]);
+    }
+    case "branch": {
+      const yes = fold_region_lower_node(node.yes, new Map(values), emit,
+        skip, match_result_type);
+      const no = fold_region_lower_node(node.no, new Map(values), emit,
+        skip, match_result_type);
+      const condition = Bend.Ann(
+        fold_region_substitute(node.condition, values),
+        fold_region_substitute(node.condition_type, values));
+      const match = Bend.Mat("True", yes,
+        Bend.Mat("False", no, Bend.Efq()));
+      const match_type = Bend.All(Bend.Lone(), "fold_region_condition", 0,
+        fold_region_substitute(node.condition_type, values),
+        () => match_result_type);
+      return Bend.App(Bend.Ann(match, match_type), condition);
+    }
+  }
+}
+
+function fold_region_lower_cost(cb: Carb, steps: FoldRegionStep[],
+  index: number, cap: number): number {
+  const add = (...parts: number[]): number =>
+    Math.min(cap + 1, parts.reduce((sum, part) => sum + part, 0));
+  const next = (): number => index + 1 >= steps.length
+    ? 8 : fold_region_lower_cost(cb, steps, index + 1, cap);
+  const measure = (node: FoldRegionNode): number => {
+    switch (node.tag) {
+      case "skip": return 8;
+      case "emit": return next();
+      case "bind": return add(8, term_nodes(cb, node.expr),
+        term_nodes(cb, node.type), measure(node.next));
+      case "branch": return add(12, term_nodes(cb, node.condition),
+        term_nodes(cb, node.condition_type), measure(node.yes),
+        measure(node.no));
+    }
+  };
+  return steps[index] === undefined ? 0 : measure(steps[index].body);
+}
+
+function fold_region_lower_pipeline(cb: Carb, pipeline: FoldRegionPipeline,
+  helper_name: Name, source_head: HTerm, tail: HTerm, state: HTerm,
+  result_type: HTerm | null): HTerm | null {
+  if (fold_region_lower_cost(cb, pipeline.steps, 0, 2048) > 2048) {
+    return null;
+  }
+  const recurse = (next_state: HTerm): HTerm =>
+    fold_region_rebuild_call(Bend.Ref(helper_name), [tail, next_state],
+      result_type);
+  const lower_stage = (index: number, input: HTerm): HTerm | null => {
+    if (index >= pipeline.steps.length) {
+      const next_state = fold_region_rebuild_call(
+        Bend.Ref(pipeline.consumer_step), [state, input],
+        pipeline.accumulator_type);
+      return recurse(next_state);
+    }
+    const stage = pipeline.steps[index];
+    const values = new Map<number, HTerm>([[stage.input_id.i, input]]);
+    return fold_region_lower_node(stage.body, values,
+      (output) => lower_stage(index + 1, output)
+        ?? (() => { throw new Error("fold region exceeded lowering budget"); })(),
+      () => recurse(state), pipeline.accumulator_type);
+  };
+  return lower_stage(0, source_head);
+}
+
+function fold_region_rewrite_region_cons_arm(cb: Carb, arm: HTerm,
+  consumer_name: Name, helper_name: Name,
+  pipeline: FoldRegionPipeline): HTerm | null {
+  let failed = false;
+  const rewritten = fold_region_rewrap(arm, (head_term) => {
+    if (head_term.$ !== "Lam") { failed = true; return head_term; }
+    return Bend.Lam(head_term.k, head_term.i, (head) =>
+      fold_region_rewrap(head_term.f(head), (tail_term) => {
+        if (tail_term.$ !== "Lam") { failed = true; return tail_term; }
+        return Bend.Lam(tail_term.k, tail_term.i, (tail) =>
+          fold_region_rewrap(tail_term.f(tail), (state_term) => {
+            if (state_term.$ !== "Lam") { failed = true; return state_term; }
+            return Bend.Lam(state_term.k, state_term.i, (state) => {
+              const old_call = state_term.f(state);
+              const rec = term_spine(cb, old_call);
+              if (rec.call?.k !== consumer_name || rec.call.bang
+                || rec.args.length !== 2
+                || !fold_region_var(rec.args[0], probe_of(tail))) {
+                failed = true;
+                return old_call;
+              }
+              const old_step = term_spine(cb, rec.args[1]);
+              if (old_step.t.$ !== "Ref" || old_step.args.length !== 2
+                || !fold_region_var(old_step.args[0], probe_of(state))
+                || !fold_region_var(old_step.args[1], probe_of(head))) {
+                failed = true;
+                return old_call;
+              }
+              return fold_region_lower_pipeline(cb, pipeline, helper_name, head,
+                tail, state, ty_ann(old_call)) ?? (failed = true, old_call);
+            }, state_term.s, state_term.q);
+          }), tail_term.s, tail_term.q);
+      }), head_term.s, head_term.q);
+  });
+  return failed ? null : rewritten;
+}
+
+function fold_region_rewrite_region_match(cb: Carb, body: HTerm,
+  consumer_name: Name, helper_name: Name,
+  pipeline: FoldRegionPipeline): HTerm | null {
+  const x = term_force(body);
+  if (x.$ === "Ann") {
+    const inner = fold_region_rewrite_region_match(cb, x.x, consumer_name,
+      helper_name, pipeline);
+    return inner === null ? null : Bend.Ann(inner, x.T, x.s);
+  }
+  if (x.$ !== "Mat") return null;
+  const { arms, end } = mat_arms(x);
+  const nil = fold_region_arm(arms, "Nil");
+  const con = fold_region_arm(arms, "Con");
+  if (nil === null || con === null || term_strip(end).$ !== "Efq") return null;
+  const state = probe("fold_region_region_nil_state");
+  const nil_result = fold_region_apply_lams(nil, [state]);
+  if (nil_result === null || !fold_region_var(nil_result, state)) return null;
+  const head = probe("fold_region_region_head");
+  const tail = probe("fold_region_region_tail");
+  const acc = probe("fold_region_region_acc");
+  const recur = fold_region_apply_lams(con, [head, tail, acc]);
+  if (recur === null) return null;
+  const call = term_spine(cb, recur);
+  if (call.call?.k !== consumer_name || call.call.bang
+    || call.args.length !== 2 || !fold_region_var(call.args[0], tail)) return null;
+  const step = term_spine(cb, call.args[1]);
+  if (step.t.$ !== "Ref" || step.args.length !== 2
+    || !fold_region_var(step.args[0], acc)
+    || !fold_region_var(step.args[1], head)) return null;
+
+  const new_con = fold_region_rewrite_region_cons_arm(cb, con,
+    consumer_name, helper_name, pipeline);
+  if (new_con === null) return null;
+  const replace = (term: HTerm): HTerm => {
+    const node = term_force(term);
+    if (node.$ === "Ann") {
+      return Bend.Ann(replace(node.x), node.T, node.s);
+    }
+    if (node.$ !== "Mat") return node;
+    const branch = node.k === "Con" ? new_con : node.h;
+    return Bend.Mat(node.k, branch, replace(node.m), node.s);
+  };
+  return replace(body);
+}
+
 function fold_region_rewrite_cons_arm(cb: Carb, arm: HTerm,
   consumer_name: Name, helper_name: Name,
   map_value: (head: HTerm) => HTerm): HTerm {
@@ -795,7 +1027,8 @@ function fold_region_check_helper(cb: Carb, helper_name: Name,
       h: Bend.term_higher(checked) };
     FOLD_REGION_STATS.rechecked++;
     return true;
-  } catch (_error) {
+  } catch (error) {
+    if (process.env.BEND_FOLD_REGION_DEBUG) console.error(error);
     delete cb.book.tlds[helper_name];
     return false;
   }
@@ -921,24 +1154,25 @@ function fold_region_try_call(cb: Carb, term: HTerm): HTerm | null {
       ? ty_ann(outer.args[0])! : producer_type.ret)) {
     return fold_region_refuse("list-type-shape");
   }
-  const helper_type = fold_region_helper_type(consumer.T,
-    producer_type.doms[0][2]);
-  if (helper_type === null) {
-    return fold_region_refuse("dependent-fold-type");
-  }
   const pipeline = fold_region_analyze_pipeline(cb, consumer,
     consumer_call.k, producer, producer_call.k, source);
   if (pipeline === null) {
     return fold_region_refuse("producer-step-analysis");
   }
-  fold_region_record_pipeline(pipeline);
-  const map_shape = fold_region_map_shape(cb, producer, producer_call.k);
-  if (map_shape === null) {
-    const has_skip = pipeline.steps.some((step) => step.skips > 0);
-    return fold_region_refuse(has_skip
-      ? "producer-step-rewrite-deferred" : "producer-body-shape");
+  const helper_type = fold_region_helper_type(consumer.T,
+    pipeline.source_type);
+  if (helper_type === null) {
+    return fold_region_refuse("dependent-fold-type");
   }
-  const helper_key = consumer_call.k + "|" + producer_call.k;
+  fold_region_record_pipeline(pipeline);
+  const has_skip = pipeline.steps.some((step) => step.skips > 0);
+  const map_shape = has_skip ? null
+    : fold_region_map_shape(cb, producer, producer_call.k);
+  if (!has_skip && map_shape === null) {
+    return fold_region_refuse("producer-body-shape");
+  }
+  const helper_key = consumer_call.k + "|" + pipeline.steps
+    .map((step) => step.producer_name).join("|");
   let helpers = FOLD_REGION_HELPERS.get(cb);
   if (helpers === undefined) {
     helpers = new Map();
@@ -950,16 +1184,21 @@ function fold_region_try_call(cb: Carb, term: HTerm): HTerm | null {
     while (cb.book.tlds[helper_name] !== undefined) {
       helper_name = "fold_region_" + FOLD_REGION_NEXT++;
     }
-    const map_value = (head: HTerm): HTerm =>
-      fold_region_map_value(cb, map_shape.arm, head)
-      ?? die("invalid mapped value in checked fold region");
-    const same_element_type = fold_region_same(producer_type.doms[0][2],
-      producer_type.ret);
+    const same_element_type = fold_region_same(pipeline.source_type,
+      consumer_type.doms[0][2]);
     const consumer_body = same_element_type ? consumer.h
       : fold_region_strip_annotations(consumer.h);
-    const helper_body = fold_region_rewrite_match(cb, consumer_body,
-      consumer_call.k, helper_name, map_value);
+    const helper_body = has_skip
+      ? fold_region_rewrite_region_match(cb, consumer_body,
+        consumer_call.k, helper_name, pipeline)
+      : fold_region_rewrite_match(cb, consumer_body,
+        consumer_call.k, helper_name, (head: HTerm) =>
+          fold_region_map_value(cb, map_shape!.arm, head)
+            ?? die("invalid mapped value in checked fold region"));
     if (helper_body === null) return fold_region_refuse("consumer-body-shape");
+    if (term_nodes(cb, helper_body) > 2048) {
+      return fold_region_refuse("generated-helper-node-budget");
+    }
     if (!fold_region_check_helper(cb, helper_name, consumer, helper_type,
       helper_body)) {
       return fold_region_refuse("generated-helper-typecheck");
@@ -968,7 +1207,7 @@ function fold_region_try_call(cb: Carb, term: HTerm): HTerm | null {
     FOLD_REGION_STATS.helpers++;
   }
   const result = fold_region_rebuild_call(Bend.Ref(helper_name),
-    [source, init], ty_ann(term));
+    [pipeline.source, init], ty_ann(term));
   FOLD_REGION_STATS.fused++;
   return result;
 }
