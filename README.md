@@ -236,8 +236,11 @@ pipelines can run inside caller-defined parallel batches; see [CPU/GPU
 measurements](bench/PARALLEL.md) and the [array mapcat benchmark](bench/wordscan/README.md).
 No allocation-free guarantee is made: JS still constructs state/control objects,
 and native layout/reuse depends on the compiler.
-On this machine, a public total Array fold matches handwritten native code,
-while an independent branching source has measured about 9–15% overhead.
+On this machine, a public total Array fold matches handwritten native code.
+An independent branching fold also matches direct code in one layout, while
+mirroring call order can shift about 12% between the public and prototype
+paths. See the [Branch layout reassessment](docs/current/20260925-BRANCH-LAYOUT-REASSESSMENT.md);
+there is no established transducer-specific Branch penalty.
 CLI value mode, generated JS, and native code all handle explicit `Source`
 witnesses and raw collections on the tested compiler branch. The
 [integration report](docs/current/20260925-NO-STOP-PUBLIC-INTEGRATION.md)
