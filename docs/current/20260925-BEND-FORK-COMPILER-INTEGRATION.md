@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T14:37:00+02:00
-updated_at: 2026-09-25T14:53:00+02:00
+updated_at: 2026-09-25T17:22:00+02:00
 status: feature-branch
 ---
 
@@ -8,7 +8,9 @@ status: feature-branch
 
 `petterik/bend:main` was fast-forwarded to `bendlang/bend:main` at
 `3276efac`. The compiler implementation lives on
-`codex/transducer-companions`, currently `2eae5f28`, branched from that commit.
+`codex/transducer-companions`, branched from that commit. The later
+[mapcat and compiler hardening report](20260925-MAPCAT-COMPILER-HARDENING.md)
+records the current validation and compiler changes.
 No transducer compiler changes were placed on the fork's `main`.
 
 The branch integrates three generic rules from the isolated candidate:

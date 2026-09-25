@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T20:26:35+02:00
-updated_at: 2026-09-25T10:29:53+02:00
+updated_at: 2026-09-25T17:22:00+02:00
 status: current
 ---
 
@@ -12,18 +12,19 @@ filename records its origin, not its latest revision; check `updated_at` and
 `status` in the front matter for that. The folders separate current work,
 foundation material, reviews, and historical experiments.
 
-The next workset is the [affine `Xf` API plan](current/20260925-AFFINE-XF-API-WORKSET.md).
-It aims for `transduce(xf, rf, init, coll)` and `into(dest, xf, coll)` while
-preserving static specialization, affine ownership, lifecycle semantics, and
-custom sources/destinations. The most recent compiler performance evidence is
-the [producer/fold region result](current/20260925-PRODUCER-STEP-FOLD-REGION.md)
-and [fusion ablation](current/20260924-TRANSDUCER-FUSION-ABLATION.md).
+The latest result is the [general mapcat and compiler hardening report](current/20260925-MAPCAT-COMPILER-HARDENING.md).
+It records the public reducible-fragment API, compiler regression repair,
+runtime allocation split, and remaining compile-time cost. The
+[Vec public contract](current/20260925-VEC-PUBLIC-CONTRACT.md) records the
+ordered Data collection paths.
 
 ## Current
 
 Read these first for the current direction and its measured limits:
 
-- [Affine `Xf` API workset](current/20260925-AFFINE-XF-API-WORKSET.md) — planned 2026-09-25.
+- [General mapcat and compiler hardening](current/20260925-MAPCAT-COMPILER-HARDENING.md) — validated on the fork branch.
+- [Vec public contract](current/20260925-VEC-PUBLIC-CONTRACT.md) — supported ordered Data destinations and sources.
+- [Affine `Xf` API workset](current/20260925-AFFINE-XF-API-WORKSET.md) — historical plan, now implemented.
 - [Producer/fold region](current/20260925-PRODUCER-STEP-FOLD-REGION.md) — latest map/filter compiler experiment.
 - [Transducer fusion ablation](current/20260924-TRANSDUCER-FUSION-ABLATION.md) — static callback and chunk-cost evidence.
 - [bendlang/main integration plan](current/20260923-BENDLANG-MAIN-INTEGRATION-PLAN.md) — current upstream compiler boundary.

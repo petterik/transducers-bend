@@ -10,8 +10,8 @@ flat Array representation. `vec_maybe.bend` provides a filler-free
 `VecMaybe<T: Data>` with optional slots. `xf.bend` exposes four-argument
 `transduce` and three-argument `into`; both Vec types implement destination
 and source companions.
-The supported compiler is the fork branch `codex/transducer-companions` at
-`2eae5f28`, based on `bendlang/main`. Stock `bendlang/main` does not yet
+The supported compiler is the fork branch `codex/transducer-companions`,
+based on `bendlang/main`. Stock `bendlang/main` does not yet
 insert companion adapters, so these public entry points require that branch.
 The older `transduce.bend` API remains available.
 

@@ -36,8 +36,16 @@ def take(~A: Type, n: Nat) -> Xf<A, A,
   (R => down => T.take(~A, ~R, ~down))>:
   Xf{R => down => config => (n, config)}
 
-def mapcat(~A: Type, ~B: Type, ~f: A -> List<B>) -> Xf<A, B,
-  (R => down => T.mapcat(~A, ~B, ~R, ~f, ~down))>:
+# f returns a raw fragment whose closed source drive is supplied once in the
+# stage type. It may be a List, Array, or custom collection; no per-fragment
+# Source wrapper is needed. A mapper that builds a List still allocates that
+# List; a small structural fragment can avoid per-input allocation.
+def mapcat(~A: Type, ~B: Type, ~X: Type,
+  ~Drive: @-Result: Type -> @-recipe: T.Reducer<B, Result> ->
+    X -> T.Control<T.State(B, Result, recipe)> ->
+      T.Control<T.State(B, Result, recipe)>,
+  ~f: A -> X) -> Xf<A, B,
+    (R => down => T.mapcat(~A, ~B, ~X, ~Drive, ~R, ~f, ~down))>:
   Xf{R => down => config => config}
 
 def keep(~A: Type, ~B: Type, ~f: A -> Maybe<B>) -> Xf<A, B,

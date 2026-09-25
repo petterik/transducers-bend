@@ -2,13 +2,13 @@
 
 This benchmark is a map-reduce-shaped workload for the public source and
 reducer APIs. Each balanced `Array<Quad>` supplies four U32 lanes per record.
-The pipeline expands those lanes with `mapcat`, applies a wrapping U32
+The pipeline expands those lanes with `map` followed by List `cat`, applies a wrapping U32
 normalization, filters normalized lanes whose low two bits are zero, and sums
 the result.
 
 The variants have distinct meanings:
 
-- **Transduced** uses `over_array`, `mapcat`, `filter`, `map`, and `sum`.
+- **Transduced** uses `over_array`, `map`, List `cat`, `filter`, and `sum`.
 - **Core Bend** uses `Array.to_list`, list flattening, `Base.List.map`, a
   list-kind-compatible filter adapter, and `List.foldl`.
 - **Direct Bend** is a user-authored structural array traversal that performs

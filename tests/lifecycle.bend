@@ -62,9 +62,12 @@ def main() -> List<U32>:
    T.transduce(~T.over_array(~U32, ~U32, ~consumer()), 0n, array_values()),
    T.transduce(~T.over_array(~U32, ~U32, ~consumer()), 9n, array_values()),
    T.transduce(~T.over_array(~U32, ~U32,
-     ~T.mapcat(~U32, ~U32, ~U32, ~expand_one, ~consumer())), 2n, array_values()),
+     ~T.map(~U32, ~List<U32>, ~U32, ~expand_one,
+       ~T.cat(~U32, ~U32, ~consumer()))), 2n, array_values()),
    T.transduce(~T.over_array(~U32, ~U32,
-     ~T.mapcat(~U32, ~U32, ~U32, ~expand_one, ~consumer())), 0n, array_values()),
+     ~T.map(~U32, ~List<U32>, ~U32, ~expand_one,
+       ~T.cat(~U32, ~U32, ~consumer()))), 0n, array_values()),
    T.transduce(~T.over_array(~U32, ~U32,
-     ~T.mapcat(~U32, ~U32, ~U32, ~expand_one, ~consumer())), 9n, array_values())]
+     ~T.map(~U32, ~List<U32>, ~U32, ~expand_one,
+       ~T.cat(~U32, ~U32, ~consumer()))), 9n, array_values())]
 #|[1003, 1000, 1000, 1003, 1000, 1000, 1003, 1000, 1000, 1003, 1000, 1000, 1003, 1000, 1010, 1001, 1000, 1010]

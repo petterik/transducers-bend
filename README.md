@@ -8,8 +8,8 @@ The value API in [`xf.bend`](xf.bend) offers Clojure-ordered
 `transduce(xf, rf, initial, source)` and `into(destination, xf, source)`.
 Stages own their runtime settings, compose with `comp2` through `comp5`,
 and run through the source's companion adapter. This API requires the
-`codex/transducer-companions` compiler branch in `../bend` (currently
-`2eae5f28`), based on `bendlang/main`; stock `bendlang/main` does not yet
+`codex/transducer-companions` compiler branch in `../bend`, based on
+`bendlang/main`; stock `bendlang/main` does not yet
 provide companion insertion. The older reducer API below remains available.
 Run `python3 tests/run.py` from this repository to check the supported
 sibling compiler on native and JS; pass `--bend-main PATH` for another
@@ -73,6 +73,17 @@ when encounter order matters. The native benchmark with 200,000 retained
 same is true for distinct `String` values. Results and limits are in the
 [Vec public contract](docs/current/20260925-VEC-PUBLIC-CONTRACT.md).
 
+`Xf.mapcat` accepts a callback returning a raw List, Array, or custom
+fragment. Its concrete type and closed source drive are supplied in the
+stage declaration, so `mapcat` feeds the raw result into that drive without
+making a `Source` wrapper. List literals and List-producing callbacks work
+without a compiler conversion. A List fragment is
+still allocated for each input; a small custom source can emit its values
+directly. The [public mapcat test](tests/mapcat_public.bend) shows
+both forms, mid-fragment stopping, affine elements, and collection into List
+and Vec. The [mapcat measurements](docs/current/20260925-MAPCAT-COMPILER-HARDENING.md)
+record the performance difference.
+
 ## Example
 
 The equivalent of `(transduce (map inc) + 0 (range 10))` is:
@@ -99,7 +110,8 @@ Source selection is explicit and static, because Bend has no traits or automatic
 T.transduce(~T.over_list(~U32, ~U32, ~T.sum()), 0, [1, 2, 3])  # 6
 T.transduce(~T.over_string(~Nat, ~T.count(~Char)), Unit{}, "abc")  # 3n
 T.transduce(~T.over_array(~U32, ~U32,
-  ~T.mapcat(~U32, ~U32, ~U32, ~(x => [x]), ~T.sum())),
+  ~T.map(~U32, ~List<U32>, ~U32, ~(x => [x]),
+    ~T.cat(~U32, ~U32, ~T.sum()))),
   0, [1 : U32*4n])  # 4
 ```
 
@@ -154,7 +166,8 @@ These examples execute in [tests/range.bend](tests/range.bend). `into_list` is a
 | `map(~A, ~B, ~R, ~f, ~down)` | Transform A to B | Downstream configuration |
 | `cat(~B, ~R, ~down)` | Flatten each list-valued input into downstream B values | Downstream configuration |
 | `cat_maybe(~B, ~R, ~down)` | Consume an optional B and emit zero or one downstream B values | Downstream configuration |
-| `mapcat(~A, ~B, ~R, ~f, ~down)` | Map each A to a list of B values and flatten it | Downstream configuration |
+| `mapcat(~A, ~B, ~X, ~Drive, ~R, ~f, ~down)` | Map each A to a raw fragment and drive its B values downstream | Downstream configuration |
+| `cat_source(~B, ~X, ~Drive, ~R, ~down)` | Flatten source-valued input into downstream B values | Downstream configuration |
 | `keep(~A, ~B, ~R, ~f, ~down)` | Compose `map(f)` with consuming `cat_maybe` | Downstream configuration |
 | `map_with(~A, ~B, ~R, ~C, ~f, ~down)` | Transform using runtime Data configuration C | `(local, downstream)` |
 | `filter(~A, ~R, ~C, ~predicate, ~down)` | Retain Data elements satisfying `predicate(config, element)` | `(local, downstream)` |
@@ -200,16 +213,24 @@ T.transduce(~Tree.over_tree(~U32, ~U32, ~T.sum()),
 
 ## Compiler and verification
 
-The library targets **only** `bendlang/bend:main`. `bench/compiler/prepare_static.py` snapshots the local `bendlang/main` ref and reapplies the bounded static-callback pass in a temporary compiler. It never changes the sibling `../bend` checkout. The specialization was first developed in commit `b1f9c936`.
+The library targets the `codex/transducer-companions` branch of the
+`petterik/bend` fork, based on `bendlang/bend:main`. That branch supplies
+checked template inference, owner companions, and bounded static callback
+specialization. `bench/compiler/prepare_static.py` remains a historical,
+isolated experiment against upstream; it does not change `../bend`.
 
 ```sh
 python3 tests/run.py
-python3 bench/compiler/prepare_static.py --output-dir /tmp/transduce-main
-python3 bench/run.py --bend-main /tmp/transduce-main/main.ts
-python3 bench/range.py --bend-main /tmp/transduce-main/main.ts
+python3 experiments/affine_xf/probe_companion.py --bend-main ../bend/bend2/main.ts
+python3 experiments/affine_xf/measure_public_mapcat.py \
+  --bend-main ../bend/bend2/main.ts --output /tmp/public-mapcat.json
 ```
 
-`tests/run.py` prepares its compiler from the local `bendlang/main` ref by default. Refresh it with `git -C ../bend fetch bendlang main` when needed. The regular run keeps code-shape gates enabled and passes all 23 JS/native fixtures, including the reducer-record checks for `keep_partition`; `--semantic-only` skips only the code-shape gates. These scripts require Python 3, Bun, and a native compiler. They build in temporary directories and do not install dependencies.
+`tests/run.py` uses the supported sibling compiler branch by default. The
+regular run keeps code-shape gates enabled and currently passes 38 JS/native
+fixtures; `--semantic-only` skips only those code-shape gates. These scripts
+require Python 3, Bun, and a native compiler. They build in temporary
+directories and do not install dependencies.
 
 The test runner compares emitted JS and native output against each Bend file's `#|` expectations, verifies rejection of affine filtering, checks elimination of callback records, and instruments generated JS to verify source/mapper counts. It includes 18,750 bounded law checks per backend. [Laws and invariants](docs/foundation/20260919-LAWS.md) distinguish tested properties, mathematical reasoning, and outstanding formal proof work. Bend reports template specializations as “unsafe annotations”; the library adds no explicit `@unsafe`. Passing these tests is not a formal proof of the implementation.
 
@@ -218,8 +239,9 @@ The test runner compares emitted JS and native output against each Bend file's `
 `partition_all` is the first public buffered transformation: it owns a group
 buffer, flushes one partial group during completion, and honors downstream
 stopping. Arbitrary buffered transformations, parallel collection drivers, and
-IO drivers are not implemented. `cat` and `mapcat` are streaming list-fragment
-reducers; fragment construction remains a real cost. Existing sequential
+IO drivers are not implemented. `cat` still consumes List fragments, while
+`mapcat` drives any fragment type with a supplied fold; fragment construction remains a real
+cost when the callback builds a collection. Existing sequential
 pipelines can run inside caller-defined parallel batches; see [CPU/GPU
 measurements](bench/PARALLEL.md) and the [array mapcat benchmark](bench/wordscan/README.md).
 No allocation-free guarantee is made: JS still constructs state/control objects,

@@ -1,5 +1,6 @@
 import Base
 import ../xf.bend as Xf
+import ../transduce.bend as T
 
 def inc(x: U32) -> U32:
   (x + 1 : U32)
@@ -49,7 +50,9 @@ def kept() -> U32:
     Xf.sum_rf(), 0, four())
 
 def flattened() -> U32:
-  Xf.transduce(Xf.mapcat(~U32, ~U32, ~(x => duplicate(x))),
+  Xf.transduce(Xf.mapcat(~U32, ~U32, ~List<U32>,
+    ~(R => r => input => c => T.reduce_list_static(~U32, ~R, ~r, input, c)),
+    ~(x => duplicate(x))),
     Xf.sum_rf(), 0, three())
 
 def main() -> U32 & U32 & U32:

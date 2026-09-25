@@ -35,18 +35,22 @@ def main() -> IO(Unit):
     IO.print(U32.show(T.transduce(~T.over_array(~Quad, ~U32,
       ~T.map(~Quad, ~U32, ~U32, ~sum_values, ~T.sum())), 0, values())))
     IO.print(U32.show(T.transduce(~T.over_array(~Quad, ~U32,
-      ~T.mapcat(~Quad, ~U32, ~U32, ~pair, ~T.sum())), 0, values())))
+      ~T.map(~Quad, ~List<U32>, ~U32, ~pair,
+        ~T.cat(~U32, ~U32, ~T.sum()))), 0, values())))
     IO.print(U32.show(T.transduce(~T.over_array(~Quad, ~U32,
       ~T.map(~Quad, ~List<U32>, ~U32, ~pair,
         ~T.cat(~U32, ~U32, ~T.sum()))), 0, values())))
     IO.print(U32.show(T.transduce(~T.over_array(~Quad, ~U32,
-      ~T.mapcat(~Quad, ~U32, ~U32, ~pair,
-        ~T.take(~U32, ~U32, ~T.sum()))), (3n, 0), values())))
+      ~T.map(~Quad, ~List<U32>, ~U32, ~pair,
+        ~T.cat(~U32, ~U32,
+          ~T.take(~U32, ~U32, ~T.sum())))), (3n, 0), values())))
     IO.print(U32.show(T.transduce(~T.over_array(~Quad, ~U32,
-      ~T.mapcat(~Quad, ~U32, ~U32, ~maybe_pair, ~T.sum())), 0, with_empty())))
+      ~T.map(~Quad, ~List<U32>, ~U32, ~maybe_pair,
+        ~T.cat(~U32, ~U32, ~T.sum()))), 0, with_empty())))
     IO.print(List.show(~&1, ~U32, ~U32.show,
       T.transduce(~T.over_array(~Quad, ~List<U32>,
-        ~T.mapcat(~Quad, ~U32, ~List<U32>, ~pair, ~T.into_list(~U32))),
+        ~T.map(~Quad, ~List<U32>, ~List<U32>, ~pair,
+          ~T.cat(~U32, ~List<U32>, ~T.into_list(~U32)))),
         Unit{}, values())))
 #|72
 #|72

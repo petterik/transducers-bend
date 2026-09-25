@@ -4,7 +4,9 @@ import ./rank2_rf_values.bend as V
 import ./static_recipe_bench.bend as B
 import ./companion_semantics_matrix.bend as M
 import ./reducible_cat_probe.bend as Cat
+import ./rank2_auto_sources.bend as PairSources
 import ../../transduce.bend as T
+import ../../xf.bend as Xf
 import ../../bench/array_partition/bench_clock.bend as Clock
 
 type Counted is Type:
@@ -62,12 +64,25 @@ def mapcat_direct(xs: List<U32>, acc: U32) -> U32:
 
 def mapcat_static(xs: List<U32>) -> U32:
   T.transduce(~T.over_list(~U32, ~U32,
-    ~T.mapcat(~U32, ~U32, ~U32,
-      ~(x => M.pair(x)), ~T.sum())), 0, xs)
+    ~T.map(~U32, ~List<U32>, ~U32,
+      ~(x => M.pair(x)), ~T.cat(~U32, ~U32, ~T.sum()))), 0, xs)
 
 def mapcat_generic(xs: List<U32>) -> U32:
   Auto.transduce(V.mapcat(~U32, ~U32, ~(x => M.pair(x))),
     V.sum_rf(), 0, xs)
+
+def raw_pair(+x: U32) -> PairSources.SamplePair:
+  PairSources.SamplePair{x, (x + 10 : U32)}
+
+def mapcat_public_list(xs: List<U32>) -> U32:
+  Xf.transduce(Xf.mapcat(~U32, ~U32, ~List<U32>,
+    ~(R => r => ys => c => T.reduce_list_static(~U32, ~R, ~r, ys, c)),
+    ~(x => M.pair(x))), Xf.sum_rf(), 0, xs)
+
+def mapcat_public_pair(xs: List<U32>) -> U32:
+  Xf.transduce(Xf.mapcat(~U32, ~U32, ~PairSources.SamplePair,
+    ~(R => r => pair => c => PairSources.fold_pair(~R, ~r, pair, c)),
+    ~(x => raw_pair(x))), Xf.sum_rf(), 0, xs)
 
 def first_pairs(xs: List<U32>, remaining: Nat, acc: U32) -> U32:
   match xs remaining:
@@ -143,6 +158,8 @@ def once_list(mode: Nat, xs: List<U32>, n: Nat) -> U32:
     case 10n: take_pair_direct(xs, n)
     case 11n: take_after_generic(xs, n)
     case 15n: Cat.via_source(xs)
+    case 16n: mapcat_public_list(xs)
+    case 17n: mapcat_public_pair(xs)
     case _: take_before_generic(xs, n)
 
 def once_array(mode: Nat, xs: Array<U32>) -> U32:

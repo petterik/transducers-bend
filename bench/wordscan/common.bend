@@ -77,9 +77,10 @@ def staged(xs: Array<Quad>) -> U32:
 
 def transduced(xs: Array<Quad>) -> U32:
   T.transduce(~T.over_array(~Quad, ~U32,
-    ~T.mapcat(~Quad, ~U32, ~U32, ~pair,
-      ~T.map(~U32, ~U32, ~U32, ~normalize,
-        ~T.filter(~U32, ~U32, ~U32, ~keep_with, ~T.sum())))), (0, 0), xs)
+    ~T.map(~Quad, ~List<U32>, ~U32, ~pair,
+      ~T.cat(~U32, ~U32,
+        ~T.map(~U32, ~U32, ~U32, ~normalize,
+          ~T.filter(~U32, ~U32, ~U32, ~keep_with, ~T.sum()))))), (0, 0), xs)
 
 def feed_keep(k: Bool, +acc: U32, +x: U32) -> U32:
   match k:

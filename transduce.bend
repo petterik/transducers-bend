@@ -73,14 +73,6 @@ def cat(~B: Type, ~R: Type, ~down: Reducer<B, R>) -> Reducer<List<B>, R>:
     s => xs => reduce_list_static(~B, ~R, ~down, xs, Continue{s}),
     s => finish(B, R, down, s)}
 
-# One-to-many mapping is ordinary map followed by list flattening. Keeping the
-# two pieces separate makes cat useful on its own and gives both operations the
-# same lifecycle and stopping semantics. Each callback's List fragment is
-# materialized; a direct scalar fold can be faster when it need not retain it.
-def mapcat(~A: Type, ~B: Type, ~R: Type, ~f: A -> List<B>,
-  ~down: Reducer<B, R>) -> Reducer<A, R>:
-  map(~A, ~List<B>, ~R, ~f, ~cat(~B, ~R, ~down))
-
 # Flatten one optional input into the downstream reducer. Matching the option
 # consumes it exactly once, so this works for affine payloads as well as Data.
 def cat_maybe_step(~B: Type, ~R: Type, ~down: Reducer<B, R>,
@@ -402,6 +394,40 @@ def String.source(xs: String) ->
     reduce_string(~State(Char, R, r),
       ~(s => x => step(Char, R, r, s, x)), ys, c))>:
   Source{xs}
+
+# Flatten a raw fragment without starting or finishing the downstream reducer
+# for each input. The concrete source drive is fixed at this stage's type;
+# its fold must honor an incoming Stop and preserve encounter order.
+def cat_source_step(~B: Type, ~X: Type,
+  ~Drive: @-Result: Type -> @-recipe: Reducer<B, Result> ->
+    X -> Control<State(B, Result, recipe)> ->
+      Control<State(B, Result, recipe)>,
+  ~R: Type, ~down: Reducer<B, R>,
+  input: X, state: State(B, R, down)) ->
+  Control<State(B, R, down)>:
+  Drive(R, down, input, Continue{state})
+
+def cat_source(~B: Type, ~X: Type,
+  ~Drive: @-Result: Type -> @-recipe: Reducer<B, Result> ->
+    X -> Control<State(B, Result, recipe)> ->
+      Control<State(B, Result, recipe)>,
+  ~R: Type, ~down: Reducer<B, R>) -> Reducer<X, R>:
+  Reducer{Config(B, R, down), State(B, R, down),
+    c => start(B, R, down, c),
+    s => input => cat_source_step(~B, ~X, ~Drive, ~R, ~down, input, s),
+    s => finish(B, R, down, s)}
+
+# The source fold is shared by all fragment types. Since the Drive is already
+# known, the callback may return the raw collection directly. A callback that
+# constructs a List still pays for the List's storage.
+def mapcat(~A: Type, ~B: Type, ~X: Type,
+  ~Drive: @-Result: Type -> @-recipe: Reducer<B, Result> ->
+    X -> Control<State(B, Result, recipe)> ->
+      Control<State(B, Result, recipe)>,
+  ~R: Type, ~f: A -> X,
+  ~down: Reducer<B, R>) -> Reducer<A, R>:
+  map(~A, ~X, ~R, ~f,
+    ~cat_source(~B, ~X, ~Drive, ~R, ~down))
 
 # Static binding of a source-owned stopping fold to a reducer. This is open:
 # third-party adapters construct it with reducible; no source registry exists.

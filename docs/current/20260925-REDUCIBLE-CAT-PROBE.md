@@ -41,10 +41,11 @@ Other reducible shapes, affine elements, retained fragments, and expensive
 source drives may behave differently. A reusable `cat` can accept any source
 whose concrete type and drive are known at the stage's type, but this probe
 does not yet establish a convenient public signature for that abstraction.
-The next API decision is whether List-based `mapcat` should remain a
+The API decision at the time was whether List-based `mapcat` should remain a
 convenience function while a source-based variant becomes the efficient
-general path. This result does not imply that `partition_all` can avoid its
-observable chunks.
+general path. The later [mapcat and compiler hardening report](20260925-MAPCAT-COMPILER-HARDENING.md)
+records the unified raw-fragment API. This result does not imply that
+`partition_all` can avoid its observable chunks.
 
 Reproduce the semantics with `python3
 experiments/affine_xf/probe_companion.py --bend-main

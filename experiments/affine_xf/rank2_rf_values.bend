@@ -33,7 +33,7 @@ def take(~A: Type, n: Nat) -> S.Xf<A, A,
   S.Xf{R => down => config => (n, config)}
 
 def mapcat(~A: Type, ~B: Type, ~f: A -> List<B>) -> S.Xf<A, B,
-  (R => down => T.mapcat(~A, ~B, ~R, ~f, ~down))>:
+  (R => down => T.map(~A, ~List<B>, ~R, ~f, ~T.cat(~B, ~R, ~down)))>:
   S.Xf{R => down => config => config}
 
 def keep(~A: Type, ~B: Type, ~f: A -> Maybe<B>) -> S.Xf<A, B,
