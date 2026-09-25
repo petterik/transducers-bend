@@ -56,5 +56,32 @@ the same owned List. The direct version has a separate prefix-skip loop and a
 steady-state loop; source construction occurs before the microsecond timer.
 The [runner](../../bench/new_transducer_fusion.py) can mirror dispatch order
 and remove `drop` in both variants to test code-layout and stage costs. Its
-measurements should be read as local compiled-program results, not a universal
-speed claim.
+measurements use 36 interleaved native runs per size, one thread, GPU off,
+Clang `-O3`, and compiler fork `1b4f641b`.
+
+| Layout | List length | Direct median µs | Transducer median µs | Paired median transducer/direct |
+| --- | ---: | ---: | ---: | ---: |
+| Direct first | 65,536 | 66 | 78 | 1.09× |
+| Direct first | 262,144 | 268 | 279 | 1.08× |
+| Transducer first | 65,536 | 80 | 80.5 | 0.99× |
+| Transducer first | 262,144 | 234 | 288 | 1.18× |
+
+The direct path made nine timed native `heap_alloc` calls, and the public path
+made fifteen, at both sizes. Thus this mixed pipeline fuses without a
+per-element intermediate allocation, but **direct-speed parity is not
+established for every compiled layout**. Mirroring only the call order changes
+the relative time. Removing `drop` also changes both generated programs, and
+the handwritten direct path gets much slower in this sample; that ablation
+does not isolate a `drop` cost. It does show twelve constant
+timed allocation calls in the no-drop public path, again with no per-element
+allocation. The four [normal](../../bench/new-transducer-fusion-20260925.json),
+[mirrored](../../bench/new-transducer-fusion-mirror-20260925.json),
+[no-drop](../../bench/new-transducer-fusion-no-drop-20260925.json), and
+[no-drop mirrored](../../bench/new-transducer-fusion-no-drop-mirror-20260925.json)
+raw records contain every sample and compiler/fixture hash.
+
+These results support the general fusion mechanism for these stages but leave
+an 8–18% paired native timing gap in several full-pipeline runs. It could be
+stage-state work, code layout, or both. A compiler rewrite or a source-specific
+fast path would need better attribution and a broader regression matrix; this
+workset adds neither.

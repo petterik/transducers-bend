@@ -105,6 +105,11 @@ extra call per item. Timing varies by compiled layout and machine state, so
 these are local results, not a universal speed guarantee. See the
 [public List comparison](docs/current/20260925-PUBLIC-LIST-MAP-FOLD.md) for
 the fixture, raw samples, other sizes, and limitations.
+The new `drop → map_indexed → take_nth → sum` pipeline also avoids
+per-element intermediate allocations, but its measured native timing ranges
+from parity to a noticeable gap against a tuned direct fold across compiled
+layouts. See the [new-stage benchmark](docs/current/20260925-TRAVERSAL-INDEXED-TRANSDUCERS.md)
+before making a stronger performance claim for that composition.
 
 ## Legacy reducer API
 
