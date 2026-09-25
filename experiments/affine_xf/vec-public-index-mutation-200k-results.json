@@ -1,0 +1,284 @@
+{
+  "created_at": "2026-09-25T14:23:43.614186+00:00",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_comp_sha256": "668fb691056ef953a6b68113920c910b1edfbbbb40529b50d92f219caae72b02",
+  "fixture_sha256": "2493881de1b73ca28de0548923b662f66ca94e5f77e664a220dd74bea56169d7",
+  "items": 200000,
+  "sessions": 24,
+  "seed": 20260925,
+  "expected": 2820030816,
+  "samples_us": {
+    "array": [
+      31,
+      30,
+      30,
+      32,
+      30,
+      31,
+      31,
+      31,
+      32,
+      32,
+      30,
+      30,
+      30,
+      30,
+      29,
+      30,
+      32,
+      30,
+      30,
+      30,
+      30,
+      29,
+      30,
+      32
+    ],
+    "vec_checked": [
+      87,
+      81,
+      81,
+      81,
+      82,
+      82,
+      81,
+      82,
+      87,
+      82,
+      81,
+      82,
+      82,
+      81,
+      81,
+      81,
+      83,
+      81,
+      82,
+      81,
+      82,
+      81,
+      81,
+      82
+    ],
+    "vec_legacy": [
+      60,
+      61,
+      65,
+      60,
+      62,
+      62,
+      60,
+      63,
+      60,
+      60,
+      68,
+      61,
+      60,
+      60,
+      61,
+      61,
+      60,
+      61,
+      60,
+      64,
+      60,
+      64,
+      63,
+      61
+    ],
+    "vec_unchecked": [
+      32,
+      32,
+      30,
+      30,
+      30,
+      30,
+      32,
+      30,
+      30,
+      31,
+      30,
+      30,
+      32,
+      30,
+      31,
+      30,
+      31,
+      30,
+      32,
+      30,
+      31,
+      32,
+      30,
+      34
+    ],
+    "array_mut": [
+      60,
+      61,
+      60,
+      61,
+      65,
+      62,
+      61,
+      60,
+      68,
+      61,
+      60,
+      61,
+      60,
+      60,
+      60,
+      61,
+      60,
+      60,
+      61,
+      61,
+      60,
+      60,
+      62,
+      61
+    ],
+    "vec_unchecked_mut": [
+      57,
+      61,
+      61,
+      65,
+      55,
+      61,
+      60,
+      61,
+      60,
+      60,
+      55,
+      60,
+      64,
+      60,
+      61,
+      55,
+      63,
+      63,
+      65,
+      62,
+      60,
+      60,
+      62,
+      61
+    ],
+    "vec_checked_mut": [
+      85,
+      85,
+      84,
+      84,
+      87,
+      85,
+      84,
+      85,
+      85,
+      85,
+      85,
+      84,
+      85,
+      85,
+      84,
+      85,
+      85,
+      84,
+      85,
+      85,
+      85,
+      85,
+      84,
+      84
+    ]
+  },
+  "median_us": {
+    "array": 30.0,
+    "vec_checked": 81.5,
+    "vec_legacy": 61.0,
+    "vec_unchecked": 30.0,
+    "array_mut": 61.0,
+    "vec_unchecked_mut": 61.0,
+    "vec_checked_mut": 85.0
+  },
+  "paired_ratio": {
+    "vec_checked_over_array": {
+      "median": 2.7,
+      "bootstrap_95": [
+        2.6725806451612906,
+        2.7333333333333334
+      ]
+    },
+    "vec_legacy_over_array": {
+      "median": 2.0161290322580645,
+      "bootstrap_95": [
+        1.967741935483871,
+        2.05
+      ]
+    },
+    "vec_checked_over_legacy": {
+      "median": 1.3360655737704916,
+      "bootstrap_95": [
+        1.3225806451612903,
+        1.35
+      ]
+    },
+    "vec_unchecked_over_array": {
+      "median": 1.0,
+      "bootstrap_95": [
+        1.0,
+        1.032258064516129
+      ]
+    },
+    "vec_checked_over_unchecked": {
+      "median": 2.7,
+      "bootstrap_95": [
+        2.6451612903225805,
+        2.7
+      ]
+    },
+    "vec_unchecked_mut_over_array_mut": {
+      "median": 1.0,
+      "bootstrap_95": [
+        0.9836065573770492,
+        1.0166666666666666
+      ]
+    },
+    "vec_checked_mut_over_array_mut": {
+      "median": 1.3934426229508197,
+      "bootstrap_95": [
+        1.3770491803278688,
+        1.4166666666666667
+      ]
+    }
+  },
+  "heap_alloc_calls": {
+    "array": {
+      "total": 200080,
+      "timed": 9
+    },
+    "vec_checked": {
+      "total": 200082,
+      "timed": 9
+    },
+    "vec_legacy": {
+      "total": 200084,
+      "timed": 9
+    },
+    "vec_unchecked": {
+      "total": 200082,
+      "timed": 9
+    },
+    "array_mut": {
+      "total": 200082,
+      "timed": 9
+    },
+    "vec_unchecked_mut": {
+      "total": 200082,
+      "timed": 9
+    },
+    "vec_checked_mut": {
+      "total": 200082,
+      "timed": 9
+    }
+  }
+}

@@ -90,6 +90,19 @@ def get(~A: Data, vec: Vec<A>, +index: U32) ->
       get_sized(~A, length, capacity, depth, filler,
         Array.size(A, slots), index)
 
+# Fast path when the caller already proved index < vec.length. As with
+# Array.get, an out-of-range index wraps within physical Array capacity.
+def get_unchecked_after(~A: Data, length: U32, capacity: U32,
+  depth: Nat, filler: A, result: Array<A> & A) -> Vec<A> & A:
+  (slots, value) = result
+  (Vec{length, capacity, depth, filler, slots}, value)
+
+def get_unchecked(~A: Data, vec: Vec<A>, index: U32) -> Vec<A> & A:
+  match vec:
+    case Vec{length, capacity, depth, filler, slots}:
+      get_unchecked_after(~A, length, capacity, depth, filler,
+        Array.get(A, slots, index))
+
 type UpdateResult<-A: Data> is Type:
   Updated{vec: Vec<A>, old: A}
   Invalid{vec: Vec<A>, value: A}
@@ -122,6 +135,19 @@ def set(~A: Data, vec: Vec<A>, +index: U32, value: A) ->
     case Vec{+length, capacity, depth, filler, slots}:
       set_sized(~A, length, capacity, depth, filler,
         Array.size(A, slots), index, value)
+
+# Caller must prove index < vec.length. Returns the displaced value.
+def set_unchecked_after(~A: Data, length: U32, capacity: U32,
+  depth: Nat, filler: A, result: Array<A> & A) -> Vec<A> & A:
+  (slots, old) = result
+  (Vec{length, capacity, depth, filler, slots}, old)
+
+def set_unchecked(~A: Data, vec: Vec<A>, index: U32, value: A) ->
+  Vec<A> & A:
+  match vec:
+    case Vec{length, capacity, depth, filler, slots}:
+      set_unchecked_after(~A, length, capacity, depth, filler,
+        Array.swap(A, slots, index, value))
 
 def step(~A: Data, vec: Vec<A>, value: A) -> T.Control<Vec<A>>:
   T.Continue{push(~A, vec, value)}

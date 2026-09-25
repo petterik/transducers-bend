@@ -61,8 +61,15 @@ def from_custom() -> U32:
     Custom.example())
   Xf.transduce(Xf.map(~U32, ~U32, ~identity), Xf.sum_rf(), 0, vec)
 
-def main() -> List<U32> & Maybe<List<U32>> & U32 & U32 & U32 & U32 & U32:
+def custom_stop() -> U32 & U32:
+  (Xf.transduce(Xf.take(~U32, 0n), Xf.sum_rf(), 0,
+     Custom.example()),
+   Xf.transduce(Xf.take(~U32, 1n), Xf.sum_rf(), 0,
+     Custom.example()))
+
+def main() -> List<U32> & Maybe<List<U32>> & U32 & U32 & U32 & U32 &
+  U32 & (U32 & U32):
   (collect([1, 2, 3, 4, 5]), collect_reserved([1, 2, 3]),
    take2([1, 2, 3, 4, 5]), from_range(), from_array(),
-   from_string(), from_custom())
-#|([6, 5, 4, 3, 2], Some{[4, 3, 2]}, 5, 15, 8, 294, 9)
+   from_string(), from_custom(), custom_stop())
+#|([6, 5, 4, 3, 2], Some{[4, 3, 2]}, 5, 15, 8, 294, 9, 0, 3)

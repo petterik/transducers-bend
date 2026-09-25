@@ -41,6 +41,39 @@ def get_value(result: Vec.Vec<U32> & Maybe<&2, U32>) -> Maybe<&2, U32>:
   (vec, value) = result
   value
 
+def after_set(result: Vec.UpdateResult<U32>) -> U32 & Maybe<&2, U32>:
+  match result:
+    case Vec.Updated{vec, old}:
+      (old, get_value(Vec.get(~U32, vec, 1)))
+    case Vec.Invalid{vec, value}:
+      (value, get_value(Vec.get(~U32, vec, 1)))
+
+def indexed_fin(result: U32 & Maybe<&2, U32>) ->
+  U32 & Maybe<&2, U32> & Maybe<&2, U32>:
+  (old, found) = result
+  (old, found, get_value(Vec.get(~U32, Vec.empty(~U32, 0), 7)))
+
+def indexed() -> U32 & Maybe<&2, U32> & Maybe<&2, U32>:
+  vec = Vec.push(~U32, Vec.push(~U32, Vec.empty(~U32, 0), 1), 2)
+  indexed_fin(after_set(Vec.set(~U32, vec, 1, 20)))
+
+def unchecked_get(result: Vec.Vec<U32> & U32, old: U32) -> U32 & U32:
+  (vec, value) = result
+  (old, value)
+
+def unchecked_set(result: Vec.Vec<U32> & U32) -> U32 & U32:
+  (vec, old) = result
+  unchecked_get(Vec.get_unchecked(~U32, vec, 1), old)
+
+def unchecked() -> U32 & U32:
+  vec = Vec.push(~U32, Vec.push(~U32, Vec.empty(~U32, 0), 1), 2)
+  unchecked_set(Vec.set_unchecked(~U32, vec, 1, 20))
+
+def take_zero() -> U32:
+  vec = Xf.into(Vec.empty(~U32, 0),
+    Xf.map(~U32, ~U32, ~(x => x)), nums())
+  Xf.transduce(Xf.take(~U32, 0n), Xf.sum_rf(), 0, vec)
+
 def set_was_invalid(result: Vec.UpdateResult<U32>) -> Bool:
   match result:
     case Vec.Updated{vec, old}:
@@ -67,6 +100,8 @@ def is_none(choice: Maybe<Vec.Vec<U32>>) -> Bool:
 def over_limit() -> Bool:
   is_none(Vec.with_capacity(~U32, 8388609, 0))
 
-def main() -> U32 & U32 & (Maybe<&2, U32> & Bool & U32) & Bool:
-  (composite(), string_sum(), forged(), over_limit())
-#|(36, 6, (None{}, True{}, 7), True{})
+def main() -> U32 & U32 & (U32 & Maybe<&2, U32> & Maybe<&2, U32>) &
+  (U32 & U32) & U32 & (Maybe<&2, U32> & Bool & U32) & Bool:
+  (composite(), string_sum(), indexed(), unchecked(),
+   take_zero(), forged(), over_limit())
+#|(36, 6, (2, Some{20}, None{}), (2, 20), 0, (None{}, True{}, 7), True{})
