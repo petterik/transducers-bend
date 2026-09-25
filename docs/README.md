@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T20:26:35+02:00
-updated_at: 2026-09-25T18:02:00+02:00
+updated_at: 2026-09-25T21:56:00+02:00
 status: current
 ---
 
@@ -12,19 +12,21 @@ filename records its origin, not its latest revision; check `updated_at` and
 `status` in the front matter for that. The folders separate current work,
 foundation material, reviews, and historical experiments.
 
-The latest result is the [opaque source protocol](current/20260925-OPAQUE-SOURCE-PROTOCOL.md).
-It records the source-owned fold contract, nested stopping semantics, and the
-remaining Array no-stop cost. The [local compiler gate and Array ablation](current/20260925-LOCAL-GATE-ARRAY-ABLATION.md)
-records the local upstream gate, companion interpreter repair, and source
-of the Array traversal gap. The [general mapcat report](current/20260925-MAPCAT-COMPILER-HARDENING.md)
-records the raw-fragment API and its allocation split. The
-[Vec public contract](current/20260925-VEC-PUBLIC-CONTRACT.md) records the
-ordered Data collection paths.
+Start with the [public API and release comparison](current/20260925-PUBLIC-LIST-MAP-FOLD.md),
+which tests the current API against a direct Bend fold and `Base.List.map`
+followed by `List.foldl`. The [no-stop integration report](current/20260925-NO-STOP-PUBLIC-INTEGRATION.md)
+records the compiler and source contract, while the
+[Branch performance reassessment](current/20260925-BRANCH-LAYOUT-REASSESSMENT.md)
+explains why a single compiled program's timing gap cannot be treated as a
+stable transducer cost. Earlier documents are dated checkpoints.
 
 ## Current
 
-Read these first for the current direction and its measured limits:
+Read these first for the current contract and measured limits:
 
+- [Public API and List.map/fold comparison](current/20260925-PUBLIC-LIST-MAP-FOLD.md) — release benchmark and clean-clone gate.
+- [No-stop public integration](current/20260925-NO-STOP-PUBLIC-INTEGRATION.md) — current public API and correctness boundary.
+- [Branch performance reassessment](current/20260925-BRANCH-LAYOUT-REASSESSMENT.md) — native code-layout sensitivity.
 - [Opaque source protocol](current/20260925-OPAQUE-SOURCE-PROTOCOL.md) — current source type and nested stop semantics.
 - [Local compiler gate and Array ablation](current/20260925-LOCAL-GATE-ARRAY-ABLATION.md) — current correctness and Array cost boundary.
 - [General mapcat and compiler hardening](current/20260925-MAPCAT-COMPILER-HARDENING.md) — raw-fragment API and allocation split.
@@ -72,6 +74,7 @@ own revisions, not current implementation status:
 
 - [Fusion direction](archive/20260919-FUSION.md) — created 2026-09-19.
 - [Fusion execution plan](archive/20260919-FUSION-EXECUTION-PLAN.md) — created 2026-09-19.
+- [Legacy reducer API guide](archive/20260925-LEGACY-REDUCER-API.md) — former README section for the original explicit API.
 
 Benchmark reports remain under `bench/`, and source-level wrong-code reproducers
 remain under `review/`. Those artifacts are linked from the current documents

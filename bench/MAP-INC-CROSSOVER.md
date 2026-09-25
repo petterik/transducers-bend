@@ -1,11 +1,16 @@
 # `map inc` crossover
 
+This is a historical comparison of the explicit `transduce.bend` reducer API.
+For the current public `xf.bend` API versus a fused Bend fold and
+`Base.List.map` plus `List.foldl`, see the
+[public List comparison](../docs/current/20260925-PUBLIC-LIST-MAP-FOLD.md).
+
 ## Benchmark terminology
 
 The variants in these reports are all Bend source compiled to native C by the
 same sibling compiler:
 
-- **Transducer** is the public `transduce.bend` composition.
+- **Transducer** is the older `transduce.bend` composition.
 - **Direct Bend, recursive** is the benchmark's user-authored `direct_map` or
   `direct_sum` function. Its legacy JSON variant name is `handwritten`.
 - **Direct Bend, accumulator** is the user-authored accumulator-and-reverse
