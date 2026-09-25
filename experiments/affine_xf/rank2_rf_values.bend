@@ -36,6 +36,50 @@ def compose(~A: Type, ~B: Type, ~C: Type,
       S.Xf{R => down => config =>
         configureF(R, Inner(R, down), configureG(R, down, config))}
 
+# Fixed arities preserve each stage's distinct input, output, and closed
+# provider type. They elaborate to the same binary composition, in source
+# order, without constructing a runtime collection of stages.
+def comp2(~A: Type, ~B: Type, ~C: Type,
+  ~P: @-R: Type -> @-down: T.Reducer<B, R> -> T.Reducer<A, R>,
+  ~Q: @-R: Type -> @-down: T.Reducer<C, R> -> T.Reducer<B, R>,
+  a: S.Xf<A, B, P>, b: S.Xf<B, C, Q>) ->
+  S.Xf<A, C, (R => down => P(R, Q(R, down)))>:
+  compose(~A, ~B, ~C, ~P, ~Q, a, b)
+
+def comp3(~A: Type, ~B: Type, ~C: Type, ~D: Type,
+  ~P: @-R: Type -> @-down: T.Reducer<B, R> -> T.Reducer<A, R>,
+  ~Q: @-R: Type -> @-down: T.Reducer<C, R> -> T.Reducer<B, R>,
+  ~S: @-R: Type -> @-down: T.Reducer<D, R> -> T.Reducer<C, R>,
+  a: S.Xf<A, B, P>, b: S.Xf<B, C, Q>, c: S.Xf<C, D, S>) ->
+  S.Xf<A, D, (R => down => P(R, Q(R, S(R, down))))>:
+  comp2(~A, ~B, ~D, ~P, ~(R => down => Q(R, S(R, down))),
+    a, comp2(~B, ~C, ~D, ~Q, ~S, b, c))
+
+def comp4(~A: Type, ~B: Type, ~C: Type, ~D: Type, ~E: Type,
+  ~P: @-R: Type -> @-down: T.Reducer<B, R> -> T.Reducer<A, R>,
+  ~Q: @-R: Type -> @-down: T.Reducer<C, R> -> T.Reducer<B, R>,
+  ~S: @-R: Type -> @-down: T.Reducer<D, R> -> T.Reducer<C, R>,
+  ~U: @-R: Type -> @-down: T.Reducer<E, R> -> T.Reducer<D, R>,
+  a: S.Xf<A, B, P>, b: S.Xf<B, C, Q>,
+  c: S.Xf<C, D, S>, d: S.Xf<D, E, U>) ->
+  S.Xf<A, E, (R => down => P(R, Q(R, S(R, U(R, down)))))>:
+  comp2(~A, ~B, ~E, ~P,
+    ~(R => down => Q(R, S(R, U(R, down)))),
+    a, comp3(~B, ~C, ~D, ~E, ~Q, ~S, ~U, b, c, d))
+
+def comp5(~A: Type, ~B: Type, ~C: Type, ~D: Type, ~E: Type, ~F: Type,
+  ~P: @-R: Type -> @-down: T.Reducer<B, R> -> T.Reducer<A, R>,
+  ~Q: @-R: Type -> @-down: T.Reducer<C, R> -> T.Reducer<B, R>,
+  ~S: @-R: Type -> @-down: T.Reducer<D, R> -> T.Reducer<C, R>,
+  ~U: @-R: Type -> @-down: T.Reducer<E, R> -> T.Reducer<D, R>,
+  ~W: @-R: Type -> @-down: T.Reducer<F, R> -> T.Reducer<E, R>,
+  a: S.Xf<A, B, P>, b: S.Xf<B, C, Q>,
+  c: S.Xf<C, D, S>, d: S.Xf<D, E, U>, e: S.Xf<E, F, W>) ->
+  S.Xf<A, F, (R => down => P(R, Q(R, S(R, U(R, W(R, down))))))>:
+  comp2(~A, ~B, ~F, ~P,
+    ~(R => down => Q(R, S(R, U(R, W(R, down))))),
+    a, comp4(~B, ~C, ~D, ~E, ~F, ~Q, ~S, ~U, ~W, b, c, d, e))
+
 # Prepending is the List destination's insertion semantics. Unlike
 # T.into_list it accepts an existing List and does not reverse at completion.
 def list_prepend(~A: Type) -> T.Reducer<A, List<A>>:

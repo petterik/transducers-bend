@@ -51,7 +51,7 @@ def bag_rf() -> V.Rf<U32, Bag, bag_reducer(), Bag>:
 def bag_destination(bag: Bag) -> V.Destination<U32, Bag, bag_reducer()>:
   V.Destination{bag, bag_rf()}
 
-def main() -> U32 & U32 & Bag & Bag & Nat:
+def main() -> U32 & U32 & Bag & Bag & Nat & Bag:
   range_sum = V.transduce_from(
     V.compose(V.shifted(1), V.taking_u32(2n)), V.sum_rf(), 0,
     Sources.range_source(T.range_between(1, 4)))
@@ -64,5 +64,9 @@ def main() -> U32 & U32 & Bag & Bag & Nat:
     V.taking_u32(0n), pair_source(SamplePair{1, 2}))
   pair_count = V.transduce_from(S.mapped(), V.count_nat_rf(), Unit{},
     pair_source(SamplePair{1, 2}))
-  (range_sum, pair_sum, range_bag, pair_bag, pair_count)
-#|(5, 5, Bag{[1, 9], 1}, Bag{[9], 1}, 2n)
+  composed_stop = V.into_from(bag_destination(Bag{[9], 0}),
+    V.comp5(V.shifted(1), V.taking_u32(0n), V.shifted(2),
+      V.shifted(3), V.shifted(4)),
+    Sources.range_source(T.range_between(1, 4)))
+  (range_sum, pair_sum, range_bag, pair_bag, pair_count, composed_stop)
+#|(5, 5, Bag{[1, 9], 1}, Bag{[9], 1}, 2n, Bag{[9], 1})

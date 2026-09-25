@@ -41,13 +41,15 @@ function static_template_instance(book: Book, generic: Bend.Name,
   if (args.length > STATIC_TEMPLATE_SCAN_LIMIT) return null;
   const raw_keys = args.map((a) => Bend.term_key(Bend.term_lower(a)));
   const exact_key = raw_keys.join("\n");
-  if (exact_key.length > 32768) return null;
   const checked = (name: Bend.Name | undefined): Bend.Name | null => {
     const inst = name === undefined ? undefined : book.tlds[name];
     return inst?.$ === "Def" && inst.x === 0
       && inst.e !== undefined && inst.v !== null ? name as Bend.Name : null;
   };
-  const exact = checked(table[exact_key]);
+  // Checker annotations can make this spelling exceed the key limit even
+  // when the original checked instance has a short normalized spelling.
+  // Skip the oversized exact lookup but still try the bounded fallback.
+  const exact = exact_key.length <= 32768 ? checked(table[exact_key]) : null;
   if (exact !== null) return exact;
   const normalized = args.map((arg) => static_template_key(Bend.term_lower(arg)));
   if (normalized.some((key) => key === null)) return null;

@@ -19,7 +19,9 @@ POSITIVE = {'auto_unrelated_type.bend': '7',
             'rank2_auto_rf.bend': '7',
             'rank2_auto_api.bend': '([3, 2, 9], 5, [2n, 1n], [9])',
             'rank2_auto_sources.bend':
-                '(5, 5, Bag{[1, 9], 1}, Bag{[9], 1}, 2n)'}
+                '(5, 5, Bag{[1, 9], 1}, Bag{[9], 1}, 2n, Bag{[9], 1})',
+            'rank2_comp_arities.bend':
+                '(5, [3n, 2n], 19, 29, 23)'}
 NEGATIVE = {
     'auto_ambiguous_rejected.bend':
         '~?AUTO solved by a unique structural type match',
@@ -33,6 +35,10 @@ NEGATIVE = {
         'rf (consumed more than once)',
     'auto_into_mismatch_rejected.bend':
         'expected : U32',
+    'comp_reuse_rejected.bend':
+        'xf (consumed more than once)',
+    'comp_type_mismatch_rejected.bend':
+        '~?AUTO solved by a unique structural type match',
 }
 
 
