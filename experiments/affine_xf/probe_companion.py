@@ -62,6 +62,16 @@ def main():
             assert result.returncode == 0 and result.stdout.strip() == '(3, 3, 8)', \
                 (lane, result.returncode, result.stdout, result.stderr)
             print('PASS core Range/Array sources', lane)
+        literals = HERE / 'companion_literals.bend'
+        result = run('bun', compiler, literals,
+                     '-o', temp / 'literals.js', '-o', temp / 'literals')
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        for lane, command in [('JS', ('bun', temp / 'literals.js')),
+                              ('native', (temp / 'literals', '--threads', '1', '--gpu', 'off'))]:
+            result = run(*command)
+            assert result.returncode == 0 and result.stdout.strip() == '([2, 1], 0, 3)', \
+                (lane, result.returncode, result.stdout, result.stderr)
+            print('PASS contextual constructors', lane)
         unrelated = HERE / 'companion_unrelated.bend'
         result = run('bun', compiler, unrelated,
                      '-o', temp / 'unrelated.js', '-o', temp / 'unrelated')

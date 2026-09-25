@@ -40,17 +40,31 @@ def main():
       }
     }
 ''', 1)
-    patched = patched.replace(CHECK, CHECK + '''  // Inferable live expressions may be converted. The original term is
-  // wrapped once; this type inspection does not duplicate runtime evaluation.
+    patched = patched.replace(CHECK, CHECK + '''  // Reuse the already checked inference result on ordinary inferable forms.
+  // Inferring an application twice can instantiate templates twice.
+  if (qt.$ === "Lone" && tm.$ === "Ctr") {
+    const expected = term_strip(term_wnf(book, ty));
+    if (expected.$ === "ADT" && book.tlds[expected.k + ".allow_companion"] !== undefined) {
+      const converted = companion_constructor(book, tm, expected,
+        expected.x[0] ?? Typ(Qua(Lone())));
+      if (converted !== null) {
+        return term_check(book, lhs, converted, qt, ty, ctx, d);
+      }
+    }
+  }
   if (qt.$ === "Lone" && (tm.$ === "Var" || tm.$ === "App"
     || tm.$ === "Ann" || tm.$ === "Ref")) {
     const expected = term_strip(term_wnf(book, ty));
-    if (expected.$ === "ADT") {
-      const actual = term_infer(book, lhs, tm, qt, ctx, d).ty;
-      const method = companion_method(book, actual, expected);
+    if (expected.$ === "ADT" && book.tlds[expected.k + ".allow_companion"] !== undefined) {
+      const inferred = term_infer(book, lhs, tm, qt, ctx, d);
+      const method = companion_method(book, inferred.ty, expected);
       if (method !== null) {
         return term_check(book, lhs, companion_call(book, method, tm), qt, ty, ctx, d);
       }
+      if (term_compare("LE", book, inferred.ty, ty, d)) {
+        return { tm: inferred.tm, us: inferred.us };
+      }
+      throw Err(book, ctx, ty, inferred.ty, tm.s, lhs.def);
     }
   }
 ''', 1)

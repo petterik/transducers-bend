@@ -20,6 +20,7 @@ function infer_template_autos(book: Book, lhs: LHS, tm: Extract<HTerm, { $: "Ref
     T = h.B(a);
   }
   const found = new Map<number, HTerm>();
+  const deferred: { want: HTerm; arg: HTerm }[] = [];
   let fuel = 512;
   const unify = (want: HTerm, got: HTerm): boolean => {
     if (--fuel < 0) return false;
@@ -50,6 +51,7 @@ function infer_template_autos(book: Book, lhs: LHS, tm: Extract<HTerm, { $: "Ref
     if (arg.$ === "Lam" || arg.$ === "Let" || arg.$ === "Ctr"
       || arg.$ === "Mat" || arg.$ === "Efq" || arg.$ === "Rfl"
       || arg.$ === "Rwt" || arg.$ === "Hol" || arg.$ === "Lit") {
+      if (arg.$ === "Ctr") deferred.push({ want: h.A, arg });
       T = h.B(sp[j]);
       continue;
     }
@@ -59,6 +61,20 @@ function infer_template_autos(book: Book, lhs: LHS, tm: Extract<HTerm, { $: "Ref
       throw Err(book, ctx, "~?AUTO solved by a unique structural type match", actual, tm.s, lhs.def);
     }
     T = h.B(sp[j]);
+  }
+  for (const { want, arg } of deferred) {
+    const e = term_strip(term_wnf(book, want));
+    if (e.$ !== "ADT" || e.x.length === 0) continue;
+    const first = term_strip(term_wnf(book, e.x[0]));
+    const element = first.$ === "Hol" && first.k.startsWith("__AUTO_")
+      ? found.get(Number(first.k.slice(7))) : e.x[0];
+    if (element === undefined) continue;
+    const converted = companion_constructor(book, arg, e, element);
+    if (converted === null) continue;
+    const converted_type = term_infer(book, lhs, converted, Lone(), ctx, d).ty;
+    if (!unify(want, converted_type)) {
+      throw Err(book, ctx, "a companion returning the expected type", converted_type, tm.s, lhs.def);
+    }
   }
   if (autos.some((i) => !found.has(i))) {
     throw Err(book, ctx, "~?AUTO solved by a unique structural type match", last, tm.s, lhs.def);

@@ -20,7 +20,10 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 BEND_REPO = ROOT.parent / 'bend'
 BEND_MAIN_REF = 'refs/remotes/bendlang/main'
-EXPECTED_COMP_SHA = '34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850'
+REVIEWED_COMP_SHAS = {
+    '34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850',
+    '83d443975cf013b431c0adf8267f6e84b52af9c8938f9c152ae8e1745b4ce33a',
+}
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output-dir', type=Path)
@@ -44,7 +47,7 @@ with tarfile.open(fileobj=io.BytesIO(archive), mode='r:') as bundle:
 SOURCE = Path(source_tmp.name) / 'bend2'
 original = (SOURCE / 'comp.ts').read_text()
 source_comp_sha = hashlib.sha256(original.encode()).hexdigest()
-assert source_comp_sha == EXPECTED_COMP_SHA, (
+assert source_comp_sha in REVIEWED_COMP_SHAS, (
     f'Bend comp.ts changed at {base_commit} ({source_comp_sha}); '
     'review and update the isolated patches before continuing')
 
@@ -60,6 +63,8 @@ source_tmp.cleanup()
 # Reapply the specialization pass from this repository on the selected Bend
 # ref. This keeps callback optimization out of the sibling checkout.
 STATIC_CALLBACK_PASS = (HERE / 'static_callback_pass.ts.inc').read_text()
+if 'function op_name(' in original and 'function eff_name(' not in original:
+    STATIC_CALLBACK_PASS = STATIC_CALLBACK_PASS.replace('eff_name(', 'op_name(')
 def_body_anchors = [
     'function def_body(cb: Carb, k: Bend.Name): TLD | undefined {',
     'function def_body(cb: Carb, k: Name): TLD | undefined {',
