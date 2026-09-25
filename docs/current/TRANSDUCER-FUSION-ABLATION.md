@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-24T23:47:21+02:00
+updated_at: 2026-09-25T07:35:41+02:00
 status: current
 ---
 
@@ -597,28 +597,30 @@ case; benchmarking that unchanged fallback would not measure fusion.
 | Option | Impact | Effort | Value | Priority |
 | --- | --- | --- | --- | --- |
 | Add a checked `List.filter.put`-shaped exception to FoldRegion | Medium, limited to one helper/control-flow form | Medium: branch and ownership proof; future filters need more cases | Low–medium: tests this library shape but encourages one rule per operation | Defer |
-| Design a typed producer-step/fold region for map, skip, and downstream step | High, potentially reusable across sources and transducers | High: define the normalized checked shape and prove order, ownership, and bailout rules | High: best evidence for whether the compiler can grow this generally | **P1** |
+| Design and prototype a typed producer-step/fold region for map, skip, and downstream step | High, potentially reusable across sources and transducers | High: define the normalized checked shape and prove order, effects, totality, ownership, and bailout rules | Highest: tests whether checked behavior composes without operation-name rules | **P1; design recorded in [the region proposal](PRODUCER-STEP-FOLD-REGION.md)** |
 | Add a public `Reducible`/iterator API now | Potentially high and language-wide | Very high: source lifecycle, completion, early stop, affine elements, and compatibility | Uncertain before the lowering is proven | P2, after the region design |
 | Benchmark the current unfused map/filter candidate | Low for the fusion question | Low | Low: it measures the fallback, not the proposed optimization | P3, after a positive rewrite exists |
 
 ### Recommended next work
 
-Do not add a one-off filter exception. First specify a small typed region in
-which a source step can transform an input and either skip the downstream step
-or call it with the transformed value. Composition should be represented in
-source order, and the compiler should prove each callback closed, checked, and
-safe to move. Retained results, unknown calls, unsafe callbacks, and shapes
-outside the region must keep their original code. Every synthesized helper
-must still pass `Bend.def_check`.
+Do not add a one-off filter exception. The typed-region proposal is now
+recorded in [`PRODUCER-STEP-FOLD-REGION.md`](PRODUCER-STEP-FOLD-REGION.md).
+Before emitting code, build the `Emit | Skip` region from checked terms,
+preserve stable value identities and branch paths, and test the effect,
+totality, ownership, and fallback gates adversarially. The current callback
+gate is not a proof of termination or non-trapping behavior. Every synthesized
+helper must still pass `Bend.def_check`.
 
-Then lower only the tested map → Boolean filter → full fold shape. Require the
-same order-sensitive, step-count, empty, all-rejected, and fallback cases, and
-confirm the allocation reduction before timing it. Compare native microsecond
-timings in balanced or isolated lanes against both materialized and
+After the analyzer explains both positive and refused shapes without naming a
+library helper, lower only the tested map → Boolean filter → full fold shape.
+Require the same order-sensitive, step-count, empty, all-rejected, and fallback
+cases, and confirm the allocation reduction before timing it. Compare native
+microsecond timings in balanced or isolated lanes against both materialized and
 handwritten-fused Bend, and record Clang time and generated-code size. Keep
 `take`, early stop, completion changes, and `partition_all` out of that first
-lowering. A partition stage can emit multiple values and has flush/completion
-behavior, so it needs a richer region rule than the zero-or-one filter case.
+lowering. A partition stage can emit buffered values at a threshold and flush
+on completion, so it needs explicit state and completion semantics beyond this
+region's first `Emit | Skip` exits.
 
 If this region requires a separate bespoke compiler pattern for every
 transducer, stop and consider a source-level reducible interface with checked
