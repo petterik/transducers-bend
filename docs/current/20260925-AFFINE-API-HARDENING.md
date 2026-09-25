@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T13:41:00+02:00
-updated_at: 2026-09-25T13:42:00+02:00
+updated_at: 2026-09-25T13:44:00+02:00
 status: experimental
 ---
 
@@ -37,7 +37,7 @@ and [`48 clean sessions`](../../experiments/affine_xf/auto-api-generic-2m-clean-
 
 | Run | Generic stage median | Current static median | Paired generic/static median | 95% bootstrap interval | Timed heap calls, generic/static |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| 24 sessions | 2259 µs | 2274 µs | 1.067 | not stored | 14 / 9 |
+| 24 sessions | 2259 µs | 2274 µs | 1.067 | 0.942–1.231 | 14 / 9 |
 | 48 clean sessions | 2293.5 µs | 2140.5 µs | 1.041 | 0.985–1.138 | 14 / 9 |
 
 The generic stages have the same fixed five additional timed allocation

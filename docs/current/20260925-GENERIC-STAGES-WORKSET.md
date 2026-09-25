@@ -1,6 +1,10 @@
-# Generic affine transducer stages
+---
+created_at: 2026-09-25T13:36:00+02:00
+updated_at: 2026-09-25T13:36:00+02:00
+status: experimental
+---
 
-Created: 2026-09-25 13:36 CEST
+# Generic affine transducer stages
 
 The experimental value API now supplies generic `map`, `map_with`, `take`,
 `mapcat`, `keep`, `filter`, and `remove` constructors. Each returns an affine
