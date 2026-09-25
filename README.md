@@ -30,7 +30,7 @@ def main() -> U32:
 The compiler selects source and destination companions. This requires the
 `codex/transducer-no-stop` branch of the sibling [`bend`](../bend) checkout,
 which includes the companion rules based on `bendlang/main` and a general
-uninhabited-match-arm optimization. The tested fork commit is `01722ccd`.
+uninhabited-match-arm optimization. The tested fork commit is `1b4f641b`.
 Run `python3 tests/run.py` and `python3 tests/public_differential.py` for
 JS/native semantics, code-generation checks, and independent result oracles.
 The associated reducer permit in
@@ -217,7 +217,7 @@ python3 experiments/affine_xf/measure_opaque_source.py \
 ```
 
 `tests/run.py` uses the supported sibling compiler branch by default. The
-regular run keeps code-shape gates enabled and currently passes 46 JS/native
+regular run keeps code-shape gates enabled and currently passes 47 JS/native
 fixtures; `--semantic-only` skips only those code-shape gates. These scripts
 require Python 3, Bun, and a native compiler. They build in temporary
 directories and do not install dependencies.
@@ -238,9 +238,8 @@ No allocation-free guarantee is made: JS still constructs state/control objects,
 and native layout/reuse depends on the compiler.
 On this machine, a public total Array fold matches handwritten native code,
 while an independent branching source has measured about 9–15% overhead.
-CLI value-mode evaluation of some explicit `Source` witnesses leaves an
-unresolved `?AUTO`; passing the raw collection uses its companion and
-value-normalizes, and generated JS/native code handles both forms. The
+CLI value mode, generated JS, and native code all handle explicit `Source`
+witnesses and raw collections on the tested compiler branch. The
 [integration report](docs/current/20260925-NO-STOP-PUBLIC-INTEGRATION.md)
 records the measurements and reproduction steps.
 

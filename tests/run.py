@@ -32,6 +32,12 @@ with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
             assert actual == want, (file.name, actual, want)
         else:
             assert build.returncode == 0, (file.name, build.stdout + build.stderr)
+            if file.stem in {'explicit_source_value', 'xf_public_sources'}:
+                value_run = subprocess.run(compiler + [str(file)], env=env,
+                                           capture_output=True, text=True,
+                                           timeout=30)
+                assert value_run.returncode == 0 and value_run.stdout.strip() == want, \
+                    (file.name, 'value mode', value_run.stdout, value_run.stderr, want)
             source = Path(str(out) + '.js').read_text()
             if not args.semantic_only and file.stem in {'pipeline', 'range', 'sources', 'extensions', 'lifecycle', 'array', 'keep_partition', 'api_surface'}:
                 assert '{$: "Reducer"' not in source, (file.name, 'callback records remain')
