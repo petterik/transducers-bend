@@ -17,7 +17,8 @@ from measure_explicit_types import allocation_counts, interval
 
 HERE = Path(__file__).resolve().parent
 FIXTURE = HERE / 'vec_string_bench.bend'
-MODES = {'array': 0, 'maybe_vec': 1, 'fill_vec': 2}
+MODES = {'array': 0, 'maybe_vec': 1, 'fill_vec': 2,
+         'public_vec': 3}
 ENV = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 
@@ -66,6 +67,8 @@ def main():
             'fill_vec_over_array': ('fill_vec', 'array'),
             'maybe_vec_over_array': ('maybe_vec', 'array'),
             'maybe_vec_over_fill_vec': ('maybe_vec', 'fill_vec'),
+            'public_vec_over_array': ('public_vec', 'array'),
+            'public_vec_over_fill_vec': ('public_vec', 'fill_vec'),
         }
         ratios = {name: [s[n] / s[d] for s in sessions]
                   for name, (n, d) in comparisons.items()}

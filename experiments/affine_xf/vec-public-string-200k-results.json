@@ -1,0 +1,129 @@
+{
+  "created_at": "2026-09-25T14:13:43.887371+00:00",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_comp_sha256": "668fb691056ef953a6b68113920c910b1edfbbbb40529b50d92f219caae72b02",
+  "fixture_sha256": "0c36a470038ec62d28b768dd5a14c584c1a3b3d9e40983ffb70e9cd08da00f52",
+  "items": 200000,
+  "sessions": 12,
+  "seed": 20260925,
+  "expected": 1088890,
+  "samples_us": {
+    "array": [
+      829,
+      733,
+      744,
+      721,
+      727,
+      711,
+      727,
+      725,
+      712,
+      724,
+      791,
+      703
+    ],
+    "maybe_vec": [
+      967,
+      919,
+      921,
+      955,
+      901,
+      915,
+      917,
+      893,
+      929,
+      894,
+      891,
+      882
+    ],
+    "fill_vec": [
+      717,
+      786,
+      749,
+      722,
+      711,
+      706,
+      723,
+      798,
+      723,
+      712,
+      710,
+      711
+    ],
+    "public_vec": [
+      713,
+      715,
+      742,
+      722,
+      711,
+      733,
+      719,
+      713,
+      711,
+      713,
+      718,
+      727
+    ]
+  },
+  "median_us": {
+    "array": 726.0,
+    "maybe_vec": 916.0,
+    "fill_vec": 719.5,
+    "public_vec": 716.5
+  },
+  "paired_ratio": {
+    "fill_vec_over_array": {
+      "median": 0.9979424496391418,
+      "bootstrap_95": [
+        0.9807085806348652,
+        1.0134146195278662
+      ]
+    },
+    "maybe_vec_over_array": {
+      "median": 1.2465457288638766,
+      "bootstrap_95": [
+        1.2332653838826442,
+        1.274133918362846
+      ]
+    },
+    "maybe_vec_over_fill_vec": {
+      "median": 1.2614236160495582,
+      "bootstrap_95": [
+        1.2350729242365348,
+        1.2904789612058662
+      ]
+    },
+    "public_vec_over_array": {
+      "median": 0.9869012516433995,
+      "bootstrap_95": [
+        0.9767175651305802,
+        0.9999912340849944
+      ]
+    },
+    "public_vec_over_fill_vec": {
+      "median": 0.9972337482710927,
+      "bootstrap_95": [
+        0.9870283476170163,
+        1.0063360500079126
+      ]
+    }
+  },
+  "heap_alloc_calls": {
+    "array": {
+      "total": 2577856,
+      "timed": 10
+    },
+    "maybe_vec": {
+      "total": 2377862,
+      "timed": 13
+    },
+    "fill_vec": {
+      "total": 2577863,
+      "timed": 13
+    },
+    "public_vec": {
+      "total": 2577862,
+      "timed": 14
+    }
+  }
+}

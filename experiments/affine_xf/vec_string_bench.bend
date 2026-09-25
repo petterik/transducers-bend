@@ -1,6 +1,8 @@
 import Base
 import ./vec_data_probe.bend as MaybeVec
 import ./vec_data_fill_probe.bend as FillVec
+import ../../vec.bend as PublicVec
+import ../../xf.bend as Xf
 import ./rank2_companion_api.bend as Auto
 import ./rank2_rf_values.bend as V
 import ./static_recipe_bench.bend as B
@@ -59,6 +61,28 @@ def maybe_sum(vec: MaybeVec.VecData<String>) -> U32:
 def fill_sum(vec: FillVec.VecFill<String>) -> U32:
   Auto.transduce(V.map(~String, ~U32, ~string_size), V.sum_rf(), 0, vec)
 
+def public_sum(vec: PublicVec.Vec<String>) -> U32:
+  Xf.transduce(Xf.map(~String, ~U32, ~string_size),
+    Xf.sum_rf(), 0, vec)
+
+def public_build_at(xs: List<String>,
+  choice: Maybe<PublicVec.Vec<String>>) -> Maybe<PublicVec.Vec<String>>:
+  match choice:
+    case None{}:
+      None{}
+    case Some{vec}:
+      Some{Xf.into(vec, Xf.map(~String, ~String, ~(s => s)), xs)}
+
+def public_build(xs: List<String>) -> Maybe<PublicVec.Vec<String>>:
+  public_build_at(xs, PublicVec.with_capacity(~String, 200000, "x"))
+
+def public_sum_maybe(choice: Maybe<PublicVec.Vec<String>>) -> U32:
+  match choice:
+    case None{}:
+      0
+    case Some{vec}:
+      public_sum(vec)
+
 def array_lane(xs: List<String>, size: U32) -> IO(Nat & U32):
   do IO<Nat & U32>:
     before : Nat <- Clock.now_us()
@@ -85,14 +109,24 @@ def fill_lane(xs: List<String>) -> IO(Nat & U32):
     after : Nat <- Clock.now_us()
     return (Nat.sub(after, before), fill_sum(vec))
 
+def public_lane(xs: List<String>) -> IO(Nat & U32):
+  do IO<Nat & U32>:
+    before : Nat <- Clock.now_us()
+    result : Maybe<PublicVec.Vec<String>> <-
+      IO.pure(Maybe<PublicVec.Vec<String>>, public_build(xs))
+    after : Nat <- Clock.now_us()
+    return (Nat.sub(after, before), public_sum_maybe(result))
+
 def measure_for(mode: Nat, xs: List<String>, size: U32) -> IO(Nat & U32):
   match mode:
     case 0n:
       array_lane(xs, size)
     case 1n:
       maybe_lane(xs)
-    case _:
+    case 2n:
       fill_lane(xs)
+    case _:
+      public_lane(xs)
 
 def measure(mode: Nat, +size: Nat) -> IO(Nat & U32):
   measure_for(mode, strings(B.numbers(size, []), []), U32.from_nat(size))
