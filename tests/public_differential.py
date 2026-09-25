@@ -75,6 +75,45 @@ def take_before(xs: List<U32>, width: Nat, n: Nat) -> List<List<U32>>:
 
 '''
 
+TRAVERSAL = '''
+def small(x: U32) -> Bool:
+  U32.is_lt(x, 10)
+
+def indexed(index: Nat, x: U32) -> U32:
+  U32.add(x, U32.from_nat(index))
+
+def keep_indexed_even(index: Nat, x: U32) -> Maybe<U32>:
+  choose(Nat.is_eq(Nat.mod(index, 2n), 0n), x)
+
+def dropped(xs: List<U32>, n: Nat) -> U32:
+  X.transduce(X.drop(~U32, n), X.sum_rf(), 0, xs)
+
+def taken_while(xs: List<U32>) -> U32:
+  X.transduce(X.take_while(~U32, ~small), X.sum_rf(), 0, xs)
+
+def dropped_while(xs: List<U32>) -> U32:
+  X.transduce(X.drop_while(~U32, ~small), X.sum_rf(), 0, xs)
+
+def indexed_after_drop(xs: List<U32>, n: Nat) -> U32:
+  X.transduce(X.comp2(X.drop(~U32, n),
+    X.map_indexed(~U32, ~U32, ~indexed)), X.sum_rf(), 0, xs)
+
+def kept_indexed(xs: List<U32>) -> U32:
+  X.transduce(X.keep_indexed(~U32, ~U32, ~keep_indexed_even),
+    X.sum_rf(), 0, xs)
+
+def every(xs: List<U32>, n: Nat) -> U32:
+  X.transduce(X.take_nth(~U32, n), X.sum_rf(), 0, xs)
+
+def flattened_cat(xs: List<U32>, n: Nat) -> U32:
+  X.transduce(X.comp3(X.map(~U32, ~List<U32>, ~pair),
+    X.cat(~U32, ~List<U32>,
+      ~(K => S => advance => inspect => input => state =>
+        T.source_list(~U32, ~K, ~S, ~advance, ~inspect, input, state))),
+    X.take(~U32, n)), X.sum_rf(), 0, xs)
+
+'''
+
 
 def show(value):
     if isinstance(value, list):
@@ -105,6 +144,20 @@ def oracle_partition(xs, width, n):
             list(reversed(chunks(xs[:n], width)))]
 
 
+def oracle_traversal(xs, width, n):
+    prefix = 0
+    while prefix < len(xs) and xs[prefix] < 10:
+        prefix += 1
+    tail = xs[n:]
+    flat = [y for x in xs for y in (x, (x + 10) & U32)]
+    return [sum(tail) & U32, sum(xs[:prefix]) & U32,
+            sum(xs[prefix:]) & U32,
+            sum((x + i) & U32 for i, x in enumerate(tail)) & U32,
+            sum(xs[::2]) & U32,
+            0 if width == 0 else sum(xs[::width]) & U32,
+            sum(flat[:n]) & U32]
+
+
 def cases():
     rng = random.Random(SEED)
     lengths = list(range(9))
@@ -127,6 +180,14 @@ def source(case_rows, body, kind):
             expressions.extend((f'groups(xs{i}(), {width}n)',
                                 f'take_after(xs{i}(), {width}n, {n}n)',
                                 f'take_before(xs{i}(), {width}n, {n}n)'))
+        elif kind.startswith('traversal'):
+            expressions.extend((f'dropped(xs{i}(), {n}n)',
+                                f'taken_while(xs{i}())',
+                                f'dropped_while(xs{i}())',
+                                f'indexed_after_drop(xs{i}(), {n}n)',
+                                f'kept_indexed(xs{i}())',
+                                f'every(xs{i}(), {width}n)',
+                                f'flattened_cat(xs{i}(), {n}n)'))
         else:
             expressions.extend((f'after(xs{i}(), {n}n)',
                                 f'before(xs{i}(), {n}n)',
@@ -151,8 +212,8 @@ def check(temp, rows, kind, body, oracle):
     fixture = temp / f'{kind}.bend'
     fixture.write_text(source(rows, body, kind))
     want = show([item for xs, n, width in rows for item in
-                 (oracle(xs, width, n) if kind == 'partition'
-                  else oracle(xs, n))])
+                 (oracle(xs, n) if kind == 'scalar'
+                  else oracle(xs, width, n))])
     out = temp / kind
     run(['bun', BEND, fixture, '-o', str(out) + '.js', '-o', out])
     for lane, command in [('native', [out, '--threads', '1', '--gpu', 'off']),
@@ -170,6 +231,9 @@ def main():
             shutil.copyfile(ROOT / module, temp / module)
         check(temp, rows, 'scalar', SCALAR, oracle_scalar)
         check(temp, rows, 'partition', PARTITION, oracle_partition)
+        for offset in range(0, len(rows), 16):
+            check(temp, rows[offset:offset + 16],
+                  f'traversal_{offset // 16}', TRAVERSAL, oracle_traversal)
 
 
 if __name__ == '__main__':

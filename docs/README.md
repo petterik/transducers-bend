@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T20:26:35+02:00
-updated_at: 2026-09-25T21:56:00+02:00
+updated_at: 2026-09-25T22:14:00+02:00
 status: current
 ---
 
@@ -12,7 +12,8 @@ filename records its origin, not its latest revision; check `updated_at` and
 `status` in the front matter for that. The folders separate current work,
 foundation material, reviews, and historical experiments.
 
-Start with the [public API and release comparison](current/20260925-PUBLIC-LIST-MAP-FOLD.md),
+Start with the [new traversal and indexed stages](current/20260925-TRAVERSAL-INDEXED-TRANSDUCERS.md)
+and the [public API release comparison](current/20260925-PUBLIC-LIST-MAP-FOLD.md),
 which tests the current API against a direct Bend fold and `Base.List.map`
 followed by `List.foldl`. The [no-stop integration report](current/20260925-NO-STOP-PUBLIC-INTEGRATION.md)
 records the compiler and source contract, while the
@@ -24,6 +25,7 @@ stable transducer cost. Earlier documents are dated checkpoints.
 
 Read these first for the current contract and measured limits:
 
+- [Traversal and indexed transducers](current/20260925-TRAVERSAL-INDEXED-TRANSDUCERS.md) — drop/while, indexed, take-nth, and cat contracts.
 - [Public API and List.map/fold comparison](current/20260925-PUBLIC-LIST-MAP-FOLD.md) — release benchmark and clean-clone gate.
 - [No-stop public integration](current/20260925-NO-STOP-PUBLIC-INTEGRATION.md) — current public API and correctness boundary.
 - [Branch performance reassessment](current/20260925-BRANCH-LAYOUT-REASSESSMENT.md) — native code-layout sensitivity.

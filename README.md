@@ -3,7 +3,8 @@
 A Bend library for composing pure data transformations without intermediate
 stage collections. It provides an owned reducer protocol, extensible
 source-owned reduction, map/filter/keep/take/drop and their predicate-based
-variants, partitioning, mapcat, and sum/count/ordered-list consumers. Built-in
+variants, indexed mapping and selection, partitioning, mapcat/cat, and
+sum/count/ordered-list consumers. Built-in
 sources are lists, balanced arrays, finite ranges, and strings; other modules
 can add sources without changing this library.
 
@@ -54,9 +55,10 @@ compiler commit passed the three commands above on this machine.
 The associated reducer permit in
 [`transduce_core.bend`](transduce_core.bend) is `Empty` for a total pipeline
 and `Unit` for a pipeline that can stop. Sources remain generic and return an
-opaque accumulator; they cannot fabricate a downstream stop. `take` and
-`partition_all` can stop, while `map`, `filter`, `keep`, and `mapcat` inherit
-the downstream permit. `mapcat` drives the reducible fragment returned by its
+opaque accumulator; they cannot fabricate a downstream stop. `take`,
+`take_while`, and `partition_all` can stop, while `map`, `filter`, `keep`,
+`drop`, the indexed stages, `take_nth`, `cat`, and `mapcat` inherit the
+downstream permit. `mapcat` drives the reducible fragment returned by its
 mapping function and preserves a stop from the middle of that fragment.
 
 `drop(n)` discards the first `n` owned items, including affine items.
@@ -66,6 +68,16 @@ every remaining item. Like `filter`, both predicate stages currently require
 `Data` elements because the predicate inspects an item that may then be passed
 downstream. The [traversal tests](tests/xf_public_traversal.bend) cover their
 composition with `take` and the built-in and custom sources.
+
+`map_indexed(f)` supplies a zero-based `Nat` index to `f`; `keep_indexed(f)`
+uses the same indexes and consumes `Maybe` results. Both support affine input
+values. `take_nth(n)` emits positions `0, n, 2n, ...`; our zero-interval
+convention emits nothing but still traverses the source. Use
+`take(0)` for immediate stopping. `cat` flattens reducible fragments and
+preserves downstream stopping, including a stop inside a fragment. Its fragment
+driver is supplied explicitly, as with `mapcat`; for example,
+`comp2(map(f), cat(...))` flattens the reducible collections returned by `f`.
+See the [indexed and cat tests](tests/xf_public_indexed_cat.bend).
 
 `into(List, ...)` prepends, following Clojure's `conj` order. For encounter
 order, collect into [`Vec`](vec.bend) or [`VecMaybe`](vec_maybe.bend).
@@ -118,7 +130,7 @@ python3 experiments/affine_xf/measure_opaque_source.py \
 ```
 
 `tests/run.py` uses the supported sibling compiler branch by default. The
-regular run keeps code-shape gates enabled and currently passes 47 JS/native
+regular run keeps code-shape gates enabled and currently passes 50 JS/native
 fixtures; `--semantic-only` skips only those code-shape gates. These scripts
 require Python 3, Bun, and a native compiler. They build in temporary
 directories and do not install dependencies.

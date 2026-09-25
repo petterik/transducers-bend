@@ -22,6 +22,10 @@ def map(~A: Type, ~B: Type, ~f: A -> B) -> Xf<A, B,
   (R => down => T.map(~A, ~B, ~R, ~f, ~down))>:
   Xf{R => down => config => config}
 
+def map_indexed(~A: Type, ~B: Type, ~f: Nat -> A -> B) -> Xf<A, B,
+  (R => down => T.map_indexed(~A, ~B, ~R, ~f, ~down))>:
+  Xf{R => down => config => config}
+
 def map_with(~A: Type, ~B: Type, ~C: Data,
   ~f: C -> A -> B, setting: C) -> Xf<A, B,
   (R => down => T.map_with(~A, ~B, ~R, ~C, ~f, ~down))>:
@@ -40,6 +44,11 @@ def keep(~A: Type, ~B: Type, ~f: A -> Maybe<B>) -> Xf<A, B,
   (R => down => T.keep(~A, ~B, ~R, ~f, ~down))>:
   Xf{R => down => config => config}
 
+def keep_indexed(~A: Type, ~B: Type,
+  ~f: Nat -> A -> Maybe<B>) -> Xf<A, B,
+  (R => down => T.keep_indexed(~A, ~B, ~R, ~f, ~down))>:
+  Xf{R => down => config => config}
+
 # Drives each returned reducible fragment directly. If f first constructs a
 # List or Array, that fragment's allocation still occurs.
 def mapcat(~A: Type, ~B: Type, ~X: Type,
@@ -49,12 +58,26 @@ def mapcat(~A: Type, ~B: Type, ~X: Type,
     (R => down => T.mapcat(~A, ~B, ~X, ~Drive, ~R, ~f, ~down))>:
   Xf{R => down => config => config}
 
+# Flatten reducible input fragments. Like mapcat, the fragment drive is a
+# static witness until the compiler can select companions inside a pipeline.
+def cat(~B: Type, ~X: Type,
+  ~Drive: @-K: Data -> @-S: Type -> @-advance: (S -> B -> S) ->
+    @-inspect: (S -> T.Checked<K, S>) -> X -> S -> S) -> Xf<X, B,
+    (R => down => T.cat_source(~B, ~X, ~Drive, ~R, ~down))>:
+  Xf{R => down => config => config}
+
 def take(~A: Type, n: Nat) -> Xf<A, A,
   (R => down => T.take(~A, ~R, ~down))>:
   Xf{R => down => config => (n, config)}
 
 def drop(~A: Type, n: Nat) -> Xf<A, A,
   (R => down => T.drop(~A, ~R, ~down))>:
+  Xf{R => down => config => (n, config)}
+
+# Emits positions 0, n, 2n, ... . Zero emits nothing and still traverses;
+# take(0) instead when the source should stop before producing any item.
+def take_nth(~A: Type, n: Nat) -> Xf<A, A,
+  (R => down => T.take_nth(~A, ~R, ~down))>:
   Xf{R => down => config => (n, config)}
 
 def take_while(~A: Data, ~predicate: A -> Bool) -> Xf<A, A,

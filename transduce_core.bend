@@ -56,6 +56,38 @@ def map(~A: Type, ~B: Type, ~R: Type, ~f: A -> B,
     state => x => step(B, R, down, state, f(x)),
     state => finish(B, R, down, state)}
 
+type Indexed<-S: Type> is Type:
+  Indexed{next: Nat, inner: S}
+
+def indexed_control(~K: Data, ~S: Type, next: Nat,
+  control: Control<K, S>) -> Control<K, Indexed<S>>:
+  match control:
+    case Continue{state}: Continue{Indexed{next, state}}
+    case Stop{permit, state}: Stop{permit, Indexed{next, state}}
+
+def map_indexed_step(~A: Type, ~B: Type, ~R: Type,
+  ~f: Nat -> A -> B, ~down: Reducer<B, R>,
+  indexed: Indexed<State(B, R, down)>, x: A) ->
+  Control<Permit(B, R, down), Indexed<State(B, R, down)>>:
+  match indexed:
+    case Indexed{+next, state}:
+      indexed_control(~Permit(B, R, down), ~State(B, R, down),
+        1n+next, step(B, R, down, state, f(next, x)))
+
+def map_indexed_finish(~B: Type, ~R: Type, ~down: Reducer<B, R>,
+  indexed: Indexed<State(B, R, down)>) -> R:
+  match indexed:
+    case Indexed{next, state}: finish(B, R, down, state)
+
+def map_indexed(~A: Type, ~B: Type, ~R: Type,
+  ~f: Nat -> A -> B, ~down: Reducer<B, R>) -> Reducer<A, R>:
+  Reducer{Permit(B, R, down), Config(B, R, down),
+    Indexed<State(B, R, down)>,
+    config => indexed_control(~Permit(B, R, down),
+      ~State(B, R, down), 0n, start(B, R, down, config)),
+    state => x => map_indexed_step(~A, ~B, ~R, ~f, ~down, state, x),
+    state => map_indexed_finish(~B, ~R, ~down, state)}
+
 def filter_choose(~A: Data, ~R: Type, ~down: Reducer<A, R>,
   keep: Bool, state: State(A, R, down), x: A) ->
   Control<Permit(A, R, down), State(A, R, down)>:
@@ -164,6 +196,49 @@ def drop(~A: Type, ~R: Type, ~down: Reducer<A, R>) -> Reducer<A, R>:
     config => drop_start(~A, ~R, ~down, config),
     state => x => drop_step(~A, ~R, ~down, state, x),
     state => drop_finish(~A, ~R, ~down, state)}
+
+type EveryNth<-S: Type> is Type:
+  EveryNth{spacing: Nat, left: Nat, inner: S}
+
+def every_nth_control(~K: Data, ~S: Type, spacing: Nat, left: Nat,
+  control: Control<K, S>) -> Control<K, EveryNth<S>>:
+  match control:
+    case Continue{state}: Continue{EveryNth{spacing, left, state}}
+    case Stop{permit, state}: Stop{permit, EveryNth{spacing, left, state}}
+
+def take_nth_start(~A: Type, ~R: Type, ~down: Reducer<A, R>,
+  config: Nat & Config(A, R, down)) ->
+  Control<Permit(A, R, down), EveryNth<State(A, R, down)>>:
+  (spacing, inner) = config
+  every_nth_control(~Permit(A, R, down), ~State(A, R, down),
+    spacing, 0n, start(A, R, down, inner))
+
+def take_nth_step(~A: Type, ~R: Type, ~down: Reducer<A, R>,
+  every: EveryNth<State(A, R, down)>, x: A) ->
+  Control<Permit(A, R, down), EveryNth<State(A, R, down)>>:
+  match every:
+    case EveryNth{0n, left, state}:
+      Continue{EveryNth{0n, left, state}}
+    case EveryNth{1n++p, 0n, state}:
+      every_nth_control(~Permit(A, R, down), ~State(A, R, down),
+        1n+p, p, step(A, R, down, state, x))
+    case EveryNth{1n+p, 1n+q, state}:
+      Continue{EveryNth{1n+p, q, state}}
+
+def take_nth_finish(~A: Type, ~R: Type, ~down: Reducer<A, R>,
+  every: EveryNth<State(A, R, down)>) -> R:
+  match every:
+    case EveryNth{spacing, left, state}: finish(A, R, down, state)
+
+# At zero spacing, no values are emitted. The source still drives its items,
+# preserving a total downstream permit; use take(0) to stop before traversal.
+def take_nth(~A: Type, ~R: Type,
+  ~down: Reducer<A, R>) -> Reducer<A, R>:
+  Reducer{Permit(A, R, down), Nat & Config(A, R, down),
+    EveryNth<State(A, R, down)>,
+    config => take_nth_start(~A, ~R, ~down, config),
+    state => x => take_nth_step(~A, ~R, ~down, state, x),
+    state => take_nth_finish(~A, ~R, ~down, state)}
 
 type DroppingWhile<-S: Type> is Type:
   DroppingWhile{active: Bool, inner: S}
@@ -394,6 +469,12 @@ def cat_maybe(~B: Type, ~R: Type,
 def keep(~A: Type, ~B: Type, ~R: Type, ~f: A -> Maybe<B>,
   ~down: Reducer<B, R>) -> Reducer<A, R>:
   map(~A, ~Maybe<B>, ~R, ~f, ~cat_maybe(~B, ~R, ~down))
+
+def keep_indexed(~A: Type, ~B: Type, ~R: Type,
+  ~f: Nat -> A -> Maybe<B>,
+  ~down: Reducer<B, R>) -> Reducer<A, R>:
+  map_indexed(~A, ~Maybe<B>, ~R, ~f,
+    ~cat_maybe(~B, ~R, ~down))
 
 # The inner source moves the same stop permit through its opaque accumulator.
 # The outer source sees a downstream stop even in the middle of a fragment.
