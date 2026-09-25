@@ -3,6 +3,7 @@ import ./rank2_companion_api.bend as Auto
 import ./rank2_rf_values.bend as V
 import ./static_recipe_bench.bend as B
 import ./companion_semantics_matrix.bend as M
+import ./reducible_cat_probe.bend as Cat
 import ../../transduce.bend as T
 import ../../bench/array_partition/bench_clock.bend as Clock
 
@@ -141,6 +142,7 @@ def once_list(mode: Nat, xs: List<U32>, n: Nat) -> U32:
     case 9n: retain_generic(xs)
     case 10n: take_pair_direct(xs, n)
     case 11n: take_after_generic(xs, n)
+    case 15n: Cat.via_source(xs)
     case _: take_before_generic(xs, n)
 
 def once_array(mode: Nat, xs: Array<U32>) -> U32:

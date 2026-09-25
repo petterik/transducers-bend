@@ -73,6 +73,22 @@ def main():
                 '(6, 14, 26, [4, 2], [3, 2, 1], 7, 3)', \
                 (lane, result.returncode, result.stdout, result.stderr)
             print('PASS source/stage semantics matrix', lane)
+        reducible = HERE / 'reducible_cat_probe.bend'
+        result = run('bun', compiler, reducible,
+                     '-o', temp / 'reducible.js', '-o', temp / 'reducible')
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        reducible_js = (temp / 'reducible.js').read_text()
+        assert '{$: "Reducer"' not in reducible_js
+        assert '{$: "Source"' not in reducible_js
+        expected_reducible = ('(42, 42, 14, 14, [12, 2, 11, 1], '
+                              '[12, 2, 11, 1], '
+                              'rank2_auto_sources.Bag{[2, 11, 1, 9], 1})')
+        for lane, command in [('JS', ('bun', temp / 'reducible.js')),
+                              ('native', (temp / 'reducible', '--threads', '1', '--gpu', 'off'))]:
+            result = run(*command)
+            assert result.returncode == 0 and result.stdout.strip() == expected_reducible, \
+                (lane, result.returncode, result.stdout, result.stderr)
+            print('PASS reducible cat semantics', lane)
         unrelated = HERE / 'companion_unrelated.bend'
         result = run('bun', compiler, unrelated,
                      '-o', temp / 'unrelated.js', '-o', temp / 'unrelated')

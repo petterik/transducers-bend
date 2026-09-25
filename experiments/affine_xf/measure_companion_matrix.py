@@ -25,6 +25,7 @@ MODES = {
     'take_pair_direct': 10, 'take_after_generic': 11,
     'take_before_generic': 12,
     'custom_direct': 13, 'custom_generic': 14,
+    'source_cat': 15,
 }
 ENV = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
@@ -74,6 +75,7 @@ def main():
             for mode in names:
                 lane = ('array' if mode.startswith('array') else
                         'mapcat' if mode.startswith('mapcat') else
+                        'mapcat' if mode == 'source_cat' else
                         'take' if mode.startswith('take') else
                         'custom' if mode.startswith('custom') else 'keep')
                 size = args.array_depth if lane == 'array' else args.items
@@ -96,6 +98,9 @@ def main():
             'take_before_over_direct': ('take_before_generic', 'take_pair_direct'),
             'take_after_over_before': ('take_after_generic', 'take_before_generic'),
             'custom_generic_over_direct': ('custom_generic', 'custom_direct'),
+            'source_cat_over_direct': ('source_cat', 'mapcat_direct'),
+            'source_cat_over_list_cat': ('source_cat', 'mapcat_generic'),
+            'source_cat_over_static_list_cat': ('source_cat', 'mapcat_static'),
         }
         ratios = {name: [s[num] / s[den] for s in paired]
                   for name, (num, den) in comparisons.items()}
@@ -103,7 +108,7 @@ def main():
             'keep': {mode: MODES[mode] for mode in MODES
                      if mode.startswith(('keep', 'retain'))},
             'mapcat': {mode: MODES[mode] for mode in MODES
-                       if mode.startswith('mapcat')},
+                       if mode.startswith('mapcat') or mode == 'source_cat'},
             'array': {mode: MODES[mode] for mode in MODES
                       if mode.startswith('array')},
             'take': {mode: MODES[mode] for mode in MODES
