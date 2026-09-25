@@ -60,6 +60,18 @@ can work efficiently, though it covers one string shape and no peak-memory
 measurement. Full samples and hashes are in
 `experiments/affine_xf/vec-string-200k-results.json`.
 
+The filler-free source was then changed to consume each initialized slot with
+`Array.swap(..., None{})` instead of duplicating it with `Array.get`. Native
+and JS still agree on growth, order, and `take(0)`/`take(2)`; both also pass
+the String test. In a separate 12-session measurement, the String
+`VecData`/`VecFill` construction ratio changed from 1.247 to 1.220. The
+timing intervals overlap, so this is not evidence of a meaningful speedup.
+The whole-program runtime allocation count dropped by 200,000 for the
+String `VecData` lane, consistent with avoiding one retained copy per item.
+The timed allocation count stayed at 13. The before/after runs were not
+interleaved, so absolute times should not be compared. New samples are in
+`vec-swap-200k-results.json` and `vec-string-swap-200k-results.json`.
+
 ## Required before a public Vec
 
 1. Replace `reserve(depth, filler)` with a requested **element count**, rounded

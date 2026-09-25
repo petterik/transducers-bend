@@ -82,7 +82,7 @@ def fold_step(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
   T.Control<(Array<Maybe<&2, A>> & T.State(A, R, r))>:
   (slots, state) = pair
   after_get(~A, ~R, ~r, state,
-    Array.get(Maybe<&2, A>, slots, index))
+    Array.swap(Maybe<&2, A>, slots, index, None{}))
 
 def start(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
   slots: Array<Maybe<&2, A>>,

@@ -1,0 +1,96 @@
+{
+  "created_at": "2026-09-25T13:55:42.596683+00:00",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_comp_sha256": "668fb691056ef953a6b68113920c910b1edfbbbb40529b50d92f219caae72b02",
+  "fixture_sha256": "eb7b48557b0ca99022ced67c1758bcaa658e8ff0129dd58fe5ed39c1f6c34673",
+  "items": 200000,
+  "sessions": 12,
+  "seed": 20260925,
+  "expected": 1088890,
+  "samples_us": {
+    "array": [
+      902,
+      847,
+      914,
+      795,
+      876,
+      866,
+      844,
+      773,
+      890,
+      815,
+      851,
+      863
+    ],
+    "maybe_vec": [
+      1081,
+      952,
+      1031,
+      1017,
+      1015,
+      1008,
+      1036,
+      1043,
+      1075,
+      1107,
+      929,
+      1068
+    ],
+    "fill_vec": [
+      894,
+      794,
+      829,
+      874,
+      746,
+      833,
+      808,
+      843,
+      874,
+      775,
+      919,
+      930
+    ]
+  },
+  "median_us": {
+    "array": 857.0,
+    "maybe_vec": 1033.5,
+    "fill_vec": 838.0
+  },
+  "paired_ratio": {
+    "fill_vec_over_array": {
+      "median": 0.9719581181721463,
+      "bootstrap_95": [
+        0.9441732277761279,
+        1.07877107295214
+      ]
+    },
+    "maybe_vec_over_array": {
+      "median": 1.2031565310545853,
+      "bootstrap_95": [
+        1.143342275910994,
+        1.2583943680447758
+      ]
+    },
+    "maybe_vec_over_fill_vec": {
+      "median": 1.2200305751591254,
+      "bootstrap_95": [
+        1.1813040019828347,
+        1.2629226432896608
+      ]
+    }
+  },
+  "heap_alloc_calls": {
+    "array": {
+      "total": 2577856,
+      "timed": 10
+    },
+    "maybe_vec": {
+      "total": 2377866,
+      "timed": 13
+    },
+    "fill_vec": {
+      "total": 2577863,
+      "timed": 13
+    }
+  }
+}

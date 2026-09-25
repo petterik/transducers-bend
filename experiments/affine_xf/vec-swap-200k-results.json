@@ -1,0 +1,422 @@
+{
+  "created_at": "2026-09-25T13:55:34.741086+00:00",
+  "compiler": "/Users/petter/Github/petterik/bend/bend2/main.ts",
+  "compiler_comp_sha256": "668fb691056ef953a6b68113920c910b1edfbbbb40529b50d92f219caae72b02",
+  "fixture_sha256": "9c635a0d6250781f6527f230661e3f9122c4d33b5603618876c81664f1050254",
+  "items": 200000,
+  "sessions": 12,
+  "seed": 20260925,
+  "expected": 2820230816,
+  "samples_us": {
+    "list_direct": [
+      261,
+      330,
+      290,
+      282,
+      313,
+      308,
+      245,
+      526,
+      273,
+      508,
+      277,
+      248
+    ],
+    "list_into": [
+      411,
+      638,
+      642,
+      594,
+      450,
+      443,
+      429,
+      400,
+      489,
+      536,
+      607,
+      508
+    ],
+    "vec_direct": [
+      5575,
+      5464,
+      5227,
+      5367,
+      5589,
+      5438,
+      5424,
+      5577,
+      5674,
+      5698,
+      5388,
+      5636
+    ],
+    "vec_into": [
+      5752,
+      5888,
+      5848,
+      5796,
+      5869,
+      5757,
+      5811,
+      5612,
+      5797,
+      5789,
+      5811,
+      5391
+    ],
+    "array_direct": [
+      274,
+      277,
+      325,
+      344,
+      286,
+      480,
+      282,
+      280,
+      292,
+      307,
+      475,
+      310
+    ],
+    "vec_data_direct": [
+      2072,
+      2112,
+      2107,
+      1965,
+      2254,
+      2042,
+      2168,
+      2117,
+      1908,
+      2183,
+      2044,
+      2098
+    ],
+    "vec_data_into": [
+      1985,
+      2292,
+      1962,
+      2100,
+      2618,
+      2105,
+      1965,
+      2216,
+      2194,
+      1997,
+      2145,
+      2143
+    ],
+    "vec_fill_direct": [
+      527,
+      541,
+      554,
+      520,
+      574,
+      583,
+      489,
+      578,
+      580,
+      522,
+      541,
+      545
+    ],
+    "vec_fill_into": [
+      679,
+      545,
+      600,
+      594,
+      592,
+      599,
+      560,
+      555,
+      605,
+      617,
+      612,
+      613
+    ],
+    "vec_fill_reserved": [
+      368,
+      320,
+      299,
+      358,
+      356,
+      305,
+      314,
+      553,
+      388,
+      489,
+      298,
+      488
+    ],
+    "vec_data_reserved": [
+      1604,
+      1583,
+      1573,
+      1567,
+      1506,
+      1473,
+      1519,
+      1559,
+      1608,
+      1412,
+      1483,
+      1596
+    ],
+    "array_retained": [
+      246,
+      458,
+      346,
+      457,
+      272,
+      280,
+      315,
+      305,
+      269,
+      409,
+      364,
+      473
+    ],
+    "vec_data_retained": [
+      739,
+      730,
+      738,
+      678,
+      746,
+      733,
+      754,
+      698,
+      753,
+      688,
+      771,
+      721
+    ],
+    "vec_fill_retained": [
+      283,
+      302,
+      323,
+      444,
+      244,
+      252,
+      244,
+      424,
+      441,
+      270,
+      283,
+      290
+    ],
+    "list_retained": [
+      413,
+      239,
+      264,
+      252,
+      431,
+      267,
+      239,
+      251,
+      244,
+      264,
+      259,
+      479
+    ]
+  },
+  "median_us": {
+    "list_direct": 286.0,
+    "list_into": 498.5,
+    "vec_direct": 5519.5,
+    "vec_into": 5796.5,
+    "array_direct": 299.5,
+    "vec_data_direct": 2102.5,
+    "vec_data_into": 2124.0,
+    "vec_fill_direct": 543.0,
+    "vec_fill_into": 599.5,
+    "vec_fill_reserved": 357.0,
+    "vec_data_reserved": 1563.0,
+    "array_retained": 330.5,
+    "vec_data_retained": 735.5,
+    "vec_fill_retained": 286.5,
+    "list_retained": 261.5
+  },
+  "paired_ratio": {
+    "vec_into_over_vec_direct": {
+      "median": 1.0543798400564972,
+      "bootstrap_95": [
+        1.0188241723313982,
+        1.078053311898574
+      ]
+    },
+    "vec_into_over_list_into": {
+      "median": 11.327589430149864,
+      "bootstrap_95": [
+        9.66544356247816,
+        13.293838383838384
+      ]
+    },
+    "vec_into_over_array_direct": {
+      "median": 19.35470862522868,
+      "bootstrap_95": [
+        17.119579894973743,
+        20.56368099985121
+      ]
+    },
+    "vec_data_into_over_vec_data_direct": {
+      "median": 1.0388081974334904,
+      "bootstrap_95": [
+        0.9445966790235893,
+        1.0769647814018044
+      ]
+    },
+    "vec_data_into_over_array_direct": {
+      "median": 6.940494166094715,
+      "bootstrap_95": [
+        6.070787119856887,
+        7.71399217221135
+      ]
+    },
+    "vec_data_into_over_vec_into": {
+      "median": 0.36738467205957615,
+      "bootstrap_95": [
+        0.3450309727263183,
+        0.39206722202423383
+      ]
+    },
+    "vec_fill_into_over_vec_fill_direct": {
+      "median": 1.103901566588282,
+      "bootstrap_95": [
+        1.029401569438385,
+        1.143750983168161
+      ]
+    },
+    "vec_fill_into_over_array_direct": {
+      "median": 1.9797811059907835,
+      "bootstrap_95": [
+        1.786449016100179,
+        2.039851028450377
+      ]
+    },
+    "vec_fill_into_over_vec_data_into": {
+      "median": 0.28477392371247423,
+      "bootstrap_95": [
+        0.26310165729310986,
+        0.2959289971901975
+      ]
+    },
+    "vec_fill_reserved_over_array_direct": {
+      "median": 1.1999949508974779,
+      "bootstrap_95": [
+        0.9803488372093023,
+        1.458629620908877
+      ]
+    },
+    "vec_fill_into_over_reserved": {
+      "median": 1.6830231741573034,
+      "bootstrap_95": [
+        1.4105185208610038,
+        1.904521560940841
+      ]
+    },
+    "vec_data_reserved_over_array_direct": {
+      "median": 5.20706068125423,
+      "bootstrap_95": [
+        4.577290546170745,
+        5.537353228962818
+      ]
+    },
+    "vec_data_reserved_over_vec_fill_reserved": {
+      "median": 4.367895312120476,
+      "bootstrap_95": [
+        3.707410850092953,
+        4.892227308917198
+      ]
+    },
+    "list_into_over_list_direct": {
+      "median": 1.7711145996860282,
+      "bootstrap_95": [
+        1.438005684411435,
+        2.077385037748799
+      ]
+    },
+    "vec_data_retained_over_array_retained": {
+      "median": 2.210736283521274,
+      "bootstrap_95": [
+        1.638019026062075,
+        2.6802521008403364
+      ]
+    },
+    "vec_fill_retained_over_array_retained": {
+      "median": 0.8985294117647059,
+      "bootstrap_95": [
+        0.7173749369348392,
+        1.0609800572841614
+      ]
+    },
+    "vec_data_retained_over_vec_fill_retained": {
+      "median": 2.517177522349936,
+      "bootstrap_95": [
+        1.996156357279754,
+        2.816555892085927
+      ]
+    }
+  },
+  "heap_alloc_calls": {
+    "list_direct": {
+      "total": 200083,
+      "timed": 9
+    },
+    "list_into": {
+      "total": 400087,
+      "timed": 200011
+    },
+    "vec_direct": {
+      "total": 724380,
+      "timed": 524298
+    },
+    "vec_into": {
+      "total": 724382,
+      "timed": 524302
+    },
+    "array_direct": {
+      "total": 200086,
+      "timed": 10
+    },
+    "vec_data_direct": {
+      "total": 200128,
+      "timed": 48
+    },
+    "vec_data_into": {
+      "total": 200132,
+      "timed": 52
+    },
+    "vec_fill_direct": {
+      "total": 200124,
+      "timed": 48
+    },
+    "vec_fill_into": {
+      "total": 200128,
+      "timed": 52
+    },
+    "vec_fill_reserved": {
+      "total": 200092,
+      "timed": 16
+    },
+    "vec_data_reserved": {
+      "total": 200098,
+      "timed": 16
+    },
+    "array_retained": {
+      "total": 200088,
+      "timed": 10
+    },
+    "vec_data_retained": {
+      "total": 200095,
+      "timed": 15
+    },
+    "vec_fill_retained": {
+      "total": 200095,
+      "timed": 15
+    },
+    "list_retained": {
+      "total": 400089,
+      "timed": 200011
+    }
+  }
+}
