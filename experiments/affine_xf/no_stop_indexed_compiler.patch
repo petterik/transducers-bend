@@ -1,0 +1,44 @@
+--- a/bend2/comp.ts
++++ b/bend2/comp.ts
+@@ -959,4 +959,12 @@
+     LAYS.set(key, BOX);
+-    return lay_pack(tld.c.map((c) =>
+-      [c.k, lay_wide(ctr_doms(book, c, t.x).map((A) => lay_of(book, A)))]));
++    return lay_pack(tld.c.flatMap((c) => {
++      const doms = ctr_doms(book, c, t.x);
++      // Experiment: a live field of a zero-constructor datatype is impossible.
++      if (doms.some((A) => {
++        const t = ty_adt(book, A);
++        const d = t === null ? null : book.tlds[t.k];
++        return d?.$ === "ADT" && d.c.length === 0;
++      })) return [];
++      return [[c.k, lay_wide(doms.map((A) => lay_of(book, A)))]];
++    }));
+   });
+@@ -2199,2 +2207,15 @@
+   }
++  // A specialized one-arm value can cross into a generic multi-arm ABI.
++  // Reinsert the generic tag; the absent constructors have no live values.
++  if (v.lay.arms?.length === 1 && lay.arms && lay.arms.length > 1) {
++    const from = v.lay.arms[0];
++    const to = lay_arm(lay, from.k);
++    const ws = lay.ks.map(() => "0");
++    ws[0] = String(lay.arms.indexOf(to));
++    to.fs.forEach((f, j) => val_to(fl,
++      val_field(v, from.fs[j]), f.lay).ws.forEach((w, n) => {
++      ws[f.at + n] = w;
++    }));
++    return val_new(ws, lay, v.stat);
++  }
+   return val_arms(fl, lay, v.ws[0], (t, i) => `${t} == ${i}`, (arm) => {
+@@ -3166,3 +3187,9 @@
+   } else {
+-    lv = mat_ctrs(fl, x, adt, adt.k === "IO.OP").map(([k, h]) => {
++    const present = mat_ctrs(fl, x, adt, adt.k === "IO.OP")
++      .filter(([k]) => k === "" || lay_box(lay)
++        || lay.arms?.some((arm) => arm.k === k));
++    const complete = !lay_box(lay) && lay.arms?.every((arm) =>
++      present.some(([k]) => k === arm.k));
++    lv = (complete ? present.filter(([k]) => k !== "") : present)
++      .map(([k, h]) => {
+       if (k === "") {
