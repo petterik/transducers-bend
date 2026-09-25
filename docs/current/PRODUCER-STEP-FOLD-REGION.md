@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T07:35:41+02:00
-updated_at: 2026-09-25T08:52:13+02:00
+updated_at: 2026-09-25T09:19:50+02:00
 status: current
 ---
 
@@ -191,10 +191,13 @@ that partitioning or arbitrary sources are already covered.
    unknown consumers. Still needed are a second independent producer shape,
    evaluation-order/trap counterexamples, wrong-tail/multiple-output cases,
    and an explicit lowering-budget refusal fixture.
-6. **Partial.** JS/native semantics pass, and generated C removes dynamic List
-   cons sites for the scalar fixture. Measure actual allocation requests and
-   native microseconds separately; compare against upstream, materialized
-   source, and handwritten fused Bend, including compile time and code size.
+6. **Measured; compiler work remains.** JS/native semantics pass. A 300,000-item
+   native benchmark now compares upstream, static-callback-only, FoldRegion,
+   and handwritten code. Separate instrumented builds count dynamic
+   allocations, and paired timing binaries use the microsecond clock. The
+   FoldRegion path removes timed List construction but keeps one heap request
+   per source item; generated C identifies that request as a closure capturing
+   the tail, accumulator, and mapped value. See the results below.
 
 The slice is successful only if the emitted C shows the producer list is gone,
 the allocation traffic drops accordingly, the order-sensitive fixtures pass,
@@ -221,19 +224,71 @@ refuse recursive callbacks and `Nat.add`/`Nat.mul` without proofs; a guarded
 `U32.shln` callback fuses, and audited `U32.div`/`U32.mod` zero-divisor results
 remain accepted.
 
-For the scalar map/filter fixture, generated C has two dynamic List-cons
-allocation sites with upstream `bendlang/main` and zero with the fused
-candidate. C source size falls from 93,688 to 92,628 bytes. Closure and task
-allocation sites remain in the fused loop, so these static sites do not yet
-establish a net reduction in runtime allocation traffic or time. The map/filter
-rewrite is a correctness and representation result; performance remains open.
+For a stronger measurement, the same 300,000-item workload runs through three
+compiler builds: raw upstream, static-callback specialization alone, and the
+FoldRegion candidate. It compares materialized `mapped_values → List.filter →
+List.foldl`, the public transducer `map → filter → reducing` pipeline, and a
+handwritten fused loop. The input is runtime-sized and constructed before the
+timer. Sixteen sessions randomize the nine compiler/lane runs; instrumented C
+builds are separate from timing builds. The raw report includes samples,
+compiler hashes, code sizes, and bootstrap intervals:
+[`fold-region-map-filter-results.json`](../../bench/compiler/fold-region-map-filter-results.json).
 
-Next, count dynamic allocation requests and native microseconds over a
-nontrivial runtime input, comparing upstream, the fused candidate, and a
-handwritten fused Bend loop. Inspect the per-item closure cost separately. If
-the closure dominates, determine whether a reusable, general compiler rule
-can lower an applied checked match directly as control flow. Then test an
-independently written producer implementation with the same zero-or-one
-relation. Only after those results should the region grow beyond stateless
-`Emit | Skip`; `take`, buffered partitioning, completion, and early stop need
-explicit state and lifecycle nodes.
+| Compiler | Materialized µs | Public transducer µs | Handwritten µs | Materialized / handwritten |
+| --- | ---: | ---: | ---: | ---: |
+| Raw `bendlang/main` | 2,016 | 8,278 | 345.5 | 5.77x |
+| Static-callback only | 1,999 | 344.5 | 346 | 5.77x |
+| FoldRegion candidate | 1,179 | 332.5 | 341 | 3.50x |
+
+The FoldRegion/materialized ratio against static-callback-only is 0.598
+([0.572, 0.619]), a 40% timing reduction. The FoldRegion candidate remains
+3.50x slower than handwritten code (paired ratio 95% interval [3.44, 3.65]).
+On this workload, the candidate transducer and handwritten timings are
+statistically consistent: transducer/handwritten is 1.003 [0.962, 1.028].
+The static-only compiler already shows parity, at 1.003 [0.957, 1.031];
+FoldRegion does not materially change that lane. The large transducer
+improvement therefore comes from checked static-callback specialization,
+while the new FoldRegion pass improves the separately materialized pipeline.
+
+Allocation counters explain the remaining difference. During one timed
+materialized traversal, raw and static-only each make 450,009 heap allocation
+requests, including 450,000 dynamic List Cons cells. FoldRegion makes 300,009
+requests and constructs zero timed List Cons cells. The handwritten loop makes
+nine fixed requests and constructs no timed List Cons cells. Generated C confirms
+that the one-per-input allocation in the fused helper is a closure: it stores
+the source tail, accumulator, and mapped value, then calls `CLO_APPLY` to run
+the extracted Boolean branch. Thus the List is gone, but the synthesized
+branch is not yet direct control flow.
+
+The generated C is 153,618 bytes upstream, 117,025 with static callbacks, and
+114,525 with FoldRegion; JS is 26,381, 22,723, and 22,325 bytes. One build took
+0.119/0.118/0.134 seconds for Bend compilation and 0.288/0.220/0.215 seconds
+for Clang `-O3`, respectively. These are single compile observations; the raw
+report records them as size/build context, not stable performance estimates.
+
+The next compiler experiment should optimize a checked, immediately-applied
+match (`App(Mat, value)`) into the same control flow as a directly matched
+function parameter. This rule must be general to checked match closures, not
+recognize `filter` or FoldRegion helper names. It should evaluate the condition
+once, keep values live only on the paths that use them, preserve affine
+ownership, and fall back on any unproved case. Re-measure the same fixture and
+require the per-item closure allocation to disappear before testing an
+independently written producer shape. Keep the region limited to stateless
+`Emit | Skip`; `take`, buffered partitioning, completion, and early stop still
+need explicit state and lifecycle nodes.
+
+## Reproduction
+
+Prepare the static-callback control and the full FoldRegion candidate from the
+pinned upstream checkout, then rerun the matched benchmark:
+
+```sh
+python3 bench/compiler/prepare_static.py --output-dir /tmp/transduce-static-control
+python3 bench/compiler/prepare_fold_region.py --output-dir /tmp/transduce-fold-region
+python3 bench/compiler/measure_fold_region_map_filter.py \
+  --upstream-main ../bend/bend2/main.ts \
+  --static-main /tmp/transduce-static-control/main.ts \
+  --fold-region-main /tmp/transduce-fold-region/main.ts \
+  --items 300000 --sessions 16 \
+  --output bench/compiler/fold-region-map-filter-results.json
+```

@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T21:22:00+02:00
-updated_at: 2026-09-25T08:52:13+02:00
+updated_at: 2026-09-25T09:17:39+02:00
 status: current
 ---
 
@@ -146,8 +146,13 @@ specified in [`PRODUCER-STEP-FOLD-REGION.md`](PRODUCER-STEP-FOLD-REGION.md).
 The isolated candidate now lowers the analyzed map plus `List.filter` pipeline
 to a checked recursive fold helper. JS/native tests also cover a Nat-to-U32
 map before filtering and folding. Its emitted C contains no dynamic producer
-List-cons sites for the scalar fixture, though per-item closure/task allocation
-sites remain and runtime allocation/performance still need measurement.
+List-cons sites for the scalar fixture. Runtime allocation and timing are now
+measured in the dedicated
+[`producer-step/fold-region checkpoint`](PRODUCER-STEP-FOLD-REGION.md): the
+fused path removes timed List nodes, but still allocates one branch closure per
+input item and remains about 3.5x slower than the handwritten loop. The new
+measurement also separates the FoldRegion contribution from static-callback
+specialization.
 
 Rebuild and rerun the current candidate with:
 

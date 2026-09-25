@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-24T13:58:08+02:00
-updated_at: 2026-09-25T08:52:13+02:00
+updated_at: 2026-09-25T09:17:39+02:00
 status: current
 ---
 
@@ -90,6 +90,14 @@ These results support three separate conclusions:
    pipeline is 1.4–1.6x slower than the handwritten materialized control. The
    timings do not by themselves identify which remaining reducer-state,
    callback, or loop costs account for that difference.
+
+That gap is specific to the `partition_all` workload above. A separate
+map/filter/full-fold benchmark finds the static-callback pipeline at parity
+with handwritten code; FoldRegion does not materially change that transducer
+lane. It also removes the materialized pipeline's List nodes, while exposing
+a remaining per-input branch closure. The separate result and next compiler
+experiment are documented in
+[`PRODUCER-STEP-FOLD-REGION.md`](PRODUCER-STEP-FOLD-REGION.md).
 
 ## Allocation and generated-code evidence
 

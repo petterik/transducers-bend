@@ -1,0 +1,1022 @@
+{
+  "measured_at": "2026-09-25T07:16:50.950604+00:00",
+  "scope": "map plus even-filter plus ordered hash fold over a runtime-built List<U32>",
+  "base_commit": "2f50df1ed36fcc3ebe6c75a2046e94001a44645d",
+  "fixture": "bench/compiler/fold_region_map_filter_bench.bend",
+  "fixture_sha256": "c881ef53749b19caeaf9fd2c5f77ba8e844ca49e7fc0cd7fd6151a0d9c434fe4",
+  "benchmark_runner_sha256": "0e1c4fafe3a5dbadfed6f544a561a2f82ff618b9cc8ec64229081bc281f5511b",
+  "upstream": {
+    "compiler_main_sha256": "0984154bb5f8bfb0718e4ad60d58f5098af0f01812dc8ef75b6e793e800552f8",
+    "compiler_comp_sha256": "34783e2779f23b0f7be586f70130292ea367fbe74d3d12b327d434633dc93850",
+    "bend_compile_seconds": 0.11877445899881423,
+    "clang_O3_seconds": 0.2884212500648573,
+    "c_bytes": 153618,
+    "js_bytes": 26381,
+    "c_sha256": "c427666fc76e8a058d9330c0f7653c4d7406ac0aba0c48a8a6ec8937453f13c4",
+    "js_sha256": "7f1c09f93ecda92e6ca5dfb88b2a3c9cff10ac97bc56d051dac4d1612913711f",
+    "dynamic_list_cons_sites": 3
+  },
+  "static_callback": {
+    "compiler_main_sha256": "0984154bb5f8bfb0718e4ad60d58f5098af0f01812dc8ef75b6e793e800552f8",
+    "compiler_comp_sha256": "cfd14f244c5a6d2d0b4069d03e53f3682bd09fb535fd15d2d8757b5f21546579",
+    "bend_compile_seconds": 0.11808024998754263,
+    "clang_O3_seconds": 0.22005741600878537,
+    "c_bytes": 117025,
+    "js_bytes": 22723,
+    "c_sha256": "a9751e5085697c8ad3bf49a3e2d7c3736903665ad496d206e06fa21c7e0720f8",
+    "js_sha256": "e80bdff718834e78546010e3db628c5bac60245cdb955431d6af57c72522fc0c",
+    "dynamic_list_cons_sites": 3
+  },
+  "fold_region_candidate": {
+    "compiler_main_sha256": "0984154bb5f8bfb0718e4ad60d58f5098af0f01812dc8ef75b6e793e800552f8",
+    "compiler_comp_sha256": "5b1eef5558ee77283e0cbad691c0acd773702612f1067d9eabb70c79497f9d5c",
+    "bend_compile_seconds": 0.1336830829968676,
+    "clang_O3_seconds": 0.21514387498609722,
+    "c_bytes": 114525,
+    "js_bytes": 22325,
+    "c_sha256": "bee3daf42ab809252f062eb017bee5045f447251034670eefc431c77876a9297",
+    "js_sha256": "bb55b65f24c87dc644f8dc700f92e908a2b0cfcc048ffa9db57614833c28a9ff",
+    "dynamic_list_cons_sites": 1,
+    "fold_region": {
+      "attempts": 168,
+      "fused": 20,
+      "let_alias_fused": 0,
+      "helpers": 2,
+      "rechecked": 2,
+      "refusals": {
+        "nontrivial-init": 54,
+        "producer-call-shape": 94
+      },
+      "region": {
+        "extracted": 20,
+        "stages": 40,
+        "binds": 40,
+        "branches": 20,
+        "emits": 40,
+        "skips": 20,
+        "refusals": {},
+        "shapes": {
+          "1:0:1:0>1:1:1:1": 20
+        }
+      }
+    }
+  },
+  "items_per_sample": 300000,
+  "sessions": 16,
+  "session_order": "all compiler/lane runs randomized within each session; matched by session index",
+  "timing_unit": "microseconds from the native monotonic clock; input construction occurs before the timed interval",
+  "time_per_item_unit": "nanoseconds per source element, derived from median microseconds / input length",
+  "correctness": {
+    "upstream_materialized": {
+      "js_checksum": 653925637,
+      "native_checksum": 653925637,
+      "js_elapsed_us": 1460,
+      "native_elapsed_us": 87
+    },
+    "upstream_transducer": {
+      "js_checksum": 653925637,
+      "native_checksum": 653925637,
+      "js_elapsed_us": 5553,
+      "native_elapsed_us": 162
+    },
+    "upstream_handwritten": {
+      "js_checksum": 653925637,
+      "native_checksum": 653925637,
+      "js_elapsed_us": 867,
+      "native_elapsed_us": 7
+    },
+    "static_callback_materialized": {
+      "js_checksum": 653925637,
+      "native_checksum": 653925637,
+      "js_elapsed_us": 1303,
+      "native_elapsed_us": 71
+    },
+    "static_callback_transducer": {
+      "js_checksum": 653925637,
+      "native_checksum": 653925637,
+      "js_elapsed_us": 1882,
+      "native_elapsed_us": 8
+    },
+    "static_callback_handwritten": {
+      "js_checksum": 653925637,
+      "native_checksum": 653925637,
+      "js_elapsed_us": 872,
+      "native_elapsed_us": 8
+    },
+    "fold_region_materialized": {
+      "js_checksum": 653925637,
+      "native_checksum": 653925637,
+      "js_elapsed_us": 1081,
+      "native_elapsed_us": 41
+    },
+    "fold_region_transducer": {
+      "js_checksum": 653925637,
+      "native_checksum": 653925637,
+      "js_elapsed_us": 1993,
+      "native_elapsed_us": 8
+    },
+    "fold_region_handwritten": {
+      "js_checksum": 653925637,
+      "native_checksum": 653925637,
+      "js_elapsed_us": 836,
+      "native_elapsed_us": 6
+    }
+  },
+  "allocation_note": "heap allocation/free and dynamic List constructor counts use separate instrumented -O3 C binaries; allocation results are not timing results",
+  "allocations": {
+    "upstream": {
+      "materialized": {
+        "lane": "materialized",
+        "instrumented_elapsed_us_not_for_timing": 5081,
+        "heap_alloc_calls_total": 750055,
+        "heap_free_calls_total": 750055,
+        "timed_heap_alloc_calls": 450009,
+        "timed_heap_free_calls": 750009,
+        "dynamic_list_cons_total": 750000,
+        "timed_dynamic_list_cons": 450000,
+        "clock_calls": 2,
+        "instrumented_dynamic_list_cons_sites": 3
+      },
+      "transducer": {
+        "lane": "transducer",
+        "instrumented_elapsed_us_not_for_timing": 18902,
+        "heap_alloc_calls_total": 2400066,
+        "heap_free_calls_total": 2400066,
+        "timed_heap_alloc_calls": 2100018,
+        "timed_heap_free_calls": 2400018,
+        "dynamic_list_cons_total": 300000,
+        "timed_dynamic_list_cons": 0,
+        "clock_calls": 2,
+        "instrumented_dynamic_list_cons_sites": 3
+      },
+      "handwritten": {
+        "lane": "handwritten",
+        "instrumented_elapsed_us_not_for_timing": 1364,
+        "heap_alloc_calls_total": 300055,
+        "heap_free_calls_total": 300055,
+        "timed_heap_alloc_calls": 9,
+        "timed_heap_free_calls": 300009,
+        "dynamic_list_cons_total": 300000,
+        "timed_dynamic_list_cons": 0,
+        "clock_calls": 2,
+        "instrumented_dynamic_list_cons_sites": 3
+      }
+    },
+    "static_callback": {
+      "materialized": {
+        "lane": "materialized",
+        "instrumented_elapsed_us_not_for_timing": 4990,
+        "heap_alloc_calls_total": 750055,
+        "heap_free_calls_total": 750055,
+        "timed_heap_alloc_calls": 450009,
+        "timed_heap_free_calls": 750009,
+        "dynamic_list_cons_total": 750000,
+        "timed_dynamic_list_cons": 450000,
+        "clock_calls": 2,
+        "instrumented_dynamic_list_cons_sites": 3
+      },
+      "transducer": {
+        "lane": "transducer",
+        "instrumented_elapsed_us_not_for_timing": 1387,
+        "heap_alloc_calls_total": 300055,
+        "heap_free_calls_total": 300055,
+        "timed_heap_alloc_calls": 9,
+        "timed_heap_free_calls": 300009,
+        "dynamic_list_cons_total": 300000,
+        "timed_dynamic_list_cons": 0,
+        "clock_calls": 2,
+        "instrumented_dynamic_list_cons_sites": 3
+      },
+      "handwritten": {
+        "lane": "handwritten",
+        "instrumented_elapsed_us_not_for_timing": 1295,
+        "heap_alloc_calls_total": 300055,
+        "heap_free_calls_total": 300055,
+        "timed_heap_alloc_calls": 9,
+        "timed_heap_free_calls": 300009,
+        "dynamic_list_cons_total": 300000,
+        "timed_dynamic_list_cons": 0,
+        "clock_calls": 2,
+        "instrumented_dynamic_list_cons_sites": 3
+      }
+    },
+    "fold_region": {
+      "materialized": {
+        "lane": "materialized",
+        "instrumented_elapsed_us_not_for_timing": 3916,
+        "heap_alloc_calls_total": 600055,
+        "heap_free_calls_total": 600055,
+        "timed_heap_alloc_calls": 300009,
+        "timed_heap_free_calls": 600009,
+        "dynamic_list_cons_total": 300000,
+        "timed_dynamic_list_cons": 0,
+        "clock_calls": 2,
+        "instrumented_dynamic_list_cons_sites": 1
+      },
+      "transducer": {
+        "lane": "transducer",
+        "instrumented_elapsed_us_not_for_timing": 1365,
+        "heap_alloc_calls_total": 300055,
+        "heap_free_calls_total": 300055,
+        "timed_heap_alloc_calls": 9,
+        "timed_heap_free_calls": 300009,
+        "dynamic_list_cons_total": 300000,
+        "timed_dynamic_list_cons": 0,
+        "clock_calls": 2,
+        "instrumented_dynamic_list_cons_sites": 1
+      },
+      "handwritten": {
+        "lane": "handwritten",
+        "instrumented_elapsed_us_not_for_timing": 1363,
+        "heap_alloc_calls_total": 300055,
+        "heap_free_calls_total": 300055,
+        "timed_heap_alloc_calls": 9,
+        "timed_heap_free_calls": 300009,
+        "dynamic_list_cons_total": 300000,
+        "timed_dynamic_list_cons": 0,
+        "clock_calls": 2,
+        "instrumented_dynamic_list_cons_sites": 1
+      }
+    }
+  },
+  "timings": {
+    "upstream": {
+      "samples_us": {
+        "materialized": [
+          2725,
+          2159,
+          2063,
+          2046,
+          2040,
+          1984,
+          1968,
+          1849,
+          2013,
+          2158,
+          2140,
+          1993,
+          1952,
+          1842,
+          2019,
+          1826
+        ],
+        "transducer": [
+          13681,
+          9004,
+          8289,
+          8267,
+          8252,
+          8293,
+          8159,
+          8470,
+          8385,
+          8389,
+          8087,
+          8237,
+          8084,
+          8256,
+          8142,
+          8290
+        ],
+        "handwritten": [
+          421,
+          373,
+          322,
+          339,
+          329,
+          360,
+          349,
+          369,
+          378,
+          323,
+          356,
+          346,
+          343,
+          340,
+          330,
+          345
+        ]
+      },
+      "median_elapsed_us": {
+        "materialized": 2016.0,
+        "transducer": 8278.0,
+        "handwritten": 345.5
+      },
+      "median_nanoseconds_per_source_item": {
+        "materialized": 6.72,
+        "transducer": 27.593333333333334,
+        "handwritten": 1.1516666666666666
+      },
+      "paired_ratios_over_handwritten": {
+        "materialized": {
+          "median": 5.7741596801438115,
+          "bootstrap_95_interval": [
+            5.511111111111111,
+            6.118181818181818
+          ],
+          "session_ratios": [
+            6.472684085510688,
+            5.7882037533512065,
+            6.406832298136646,
+            6.035398230088496,
+            6.2006079027355625,
+            5.511111111111111,
+            5.638968481375358,
+            5.010840108401084,
+            5.325396825396825,
+            6.681114551083591,
+            6.01123595505618,
+            5.7601156069364166,
+            5.690962099125365,
+            5.41764705882353,
+            6.118181818181818,
+            5.292753623188406
+          ]
+        },
+        "transducer": {
+          "median": 24.08419784745697,
+          "bootstrap_95_interval": [
+            23.378223495702006,
+            24.682209905238693
+          ],
+          "session_ratios": [
+            32.496437054631826,
+            24.13941018766756,
+            25.742236024844722,
+            24.386430678466077,
+            25.082066869300913,
+            23.03611111111111,
+            23.378223495702006,
+            22.953929539295395,
+            22.182539682539684,
+            25.972136222910216,
+            22.71629213483146,
+            23.80635838150289,
+            23.568513119533527,
+            24.28235294117647,
+            24.672727272727272,
+            24.028985507246375
+          ]
+        }
+      }
+    },
+    "static_callback": {
+      "samples_us": {
+        "materialized": [
+          2942,
+          2437,
+          1889,
+          1984,
+          1999,
+          2011,
+          1926,
+          1988,
+          2002,
+          2150,
+          1954,
+          2013,
+          1920,
+          1949,
+          2006,
+          1999
+        ],
+        "transducer": [
+          511,
+          367,
+          328,
+          379,
+          329,
+          341,
+          335,
+          363,
+          353,
+          355,
+          329,
+          348,
+          332,
+          330,
+          335,
+          350
+        ],
+        "handwritten": [
+          429,
+          418,
+          344,
+          353,
+          349,
+          336,
+          344,
+          331,
+          333,
+          345,
+          349,
+          347,
+          345,
+          327,
+          350,
+          349
+        ]
+      },
+      "median_elapsed_us": {
+        "materialized": 1999.0,
+        "transducer": 344.5,
+        "handwritten": 346.0
+      },
+      "median_nanoseconds_per_source_item": {
+        "materialized": 6.663333333333333,
+        "transducer": 1.1483333333333334,
+        "handwritten": 1.1533333333333333
+      },
+      "paired_ratios_over_handwritten": {
+        "materialized": {
+          "median": 5.7662906545903665,
+          "bootstrap_95_interval": [
+            5.620396600566572,
+            5.9851190476190474
+          ],
+          "session_ratios": [
+            6.857808857808858,
+            5.830143540669856,
+            5.491279069767442,
+            5.620396600566572,
+            5.7277936962750715,
+            5.9851190476190474,
+            5.598837209302325,
+            6.006042296072508,
+            6.012012012012012,
+            6.231884057971015,
+            5.598853868194842,
+            5.801152737752162,
+            5.565217391304348,
+            5.960244648318043,
+            5.731428571428571,
+            5.7277936962750715
+          ]
+        },
+        "transducer": {
+          "median": 1.0028735869466487,
+          "bootstrap_95_interval": [
+            0.9571428571428572,
+            1.0314709522202317
+          ],
+          "session_ratios": [
+            1.191142191142191,
+            0.8779904306220095,
+            0.9534883720930233,
+            1.0736543909348442,
+            0.9426934097421203,
+            1.0148809523809523,
+            0.9738372093023255,
+            1.096676737160121,
+            1.06006006006006,
+            1.0289855072463767,
+            0.9426934097421203,
+            1.0028818443804035,
+            0.9623188405797102,
+            1.0091743119266054,
+            0.9571428571428572,
+            1.002865329512894
+          ]
+        }
+      }
+    },
+    "fold_region": {
+      "samples_us": {
+        "materialized": [
+          1535,
+          1148,
+          1162,
+          1134,
+          1163,
+          1193,
+          1193,
+          1321,
+          1129,
+          1350,
+          1150,
+          1214,
+          1165,
+          1318,
+          1266,
+          1129
+        ],
+        "transducer": [
+          449,
+          353,
+          343,
+          333,
+          328,
+          328,
+          332,
+          332,
+          362,
+          326,
+          328,
+          348,
+          383,
+          326,
+          330,
+          344
+        ],
+        "handwritten": [
+          448,
+          370,
+          376,
+          324,
+          324,
+          329,
+          345,
+          321,
+          344,
+          350,
+          328,
+          347,
+          338,
+          347,
+          329,
+          328
+        ]
+      },
+      "median_elapsed_us": {
+        "materialized": 1179.0,
+        "transducer": 332.5,
+        "handwritten": 341.0
+      },
+      "median_nanoseconds_per_source_item": {
+        "materialized": 3.93,
+        "transducer": 1.1083333333333334,
+        "handwritten": 1.1366666666666667
+      },
+      "paired_ratios_over_handwritten": {
+        "materialized": {
+          "median": 3.499279538904899,
+          "bootstrap_95_interval": [
+            3.442073170731707,
+            3.6521842271736835
+          ],
+          "session_ratios": [
+            3.4263392857142856,
+            3.1027027027027025,
+            3.0904255319148937,
+            3.5,
+            3.5895061728395063,
+            3.6261398176291793,
+            3.457971014492754,
+            4.1152647975077885,
+            3.2819767441860463,
+            3.857142857142857,
+            3.5060975609756095,
+            3.4985590778097984,
+            3.4467455621301775,
+            3.798270893371758,
+            3.8480243161094223,
+            3.442073170731707
+          ]
+        },
+        "transducer": {
+          "median": 1.0025569936187733,
+          "bootstrap_95_interval": [
+            0.9623188405797102,
+            1.0277777777777777
+          ],
+          "session_ratios": [
+            1.0022321428571428,
+            0.9540540540540541,
+            0.9122340425531915,
+            1.0277777777777777,
+            1.0123456790123457,
+            0.9969604863221885,
+            0.9623188405797102,
+            1.0342679127725856,
+            1.052325581395349,
+            0.9314285714285714,
+            1.0,
+            1.0028818443804035,
+            1.1331360946745561,
+            0.9394812680115274,
+            1.0030395136778116,
+            1.048780487804878
+          ]
+        }
+      }
+    }
+  },
+  "compiler_comparisons": {
+    "static_callback_over_upstream": {
+      "materialized": {
+        "median": 0.9954141914442132,
+        "paired_bootstrap_95_interval": [
+          0.9799019607843137,
+          1.0580890336590663
+        ],
+        "session_ratios": [
+          1.0796330275229358,
+          1.128763316350162,
+          0.9156568104701891,
+          0.9696969696969697,
+          0.9799019607843137,
+          1.013608870967742,
+          0.9786585365853658,
+          1.0751757706868577,
+          0.994535519125683,
+          0.9962928637627433,
+          0.9130841121495327,
+          1.010035122930256,
+          0.9836065573770492,
+          1.0580890336590663,
+          0.9935611688954928,
+          1.0947426067907995
+        ]
+      },
+      "transducer": {
+        "median": 0.04109389693518908,
+        "paired_bootstrap_95_interval": [
+          0.0405198540326571,
+          0.04221954161640531
+        ],
+        "session_ratios": [
+          0.037351070828155836,
+          0.04075966237227899,
+          0.03957051514054771,
+          0.04584492560783839,
+          0.0398691226369365,
+          0.041119016037622094,
+          0.04105895330310087,
+          0.04285714285714286,
+          0.042098986285032794,
+          0.042317320300393375,
+          0.040682576975392605,
+          0.04224839140463761,
+          0.04106877783275606,
+          0.03997093023255814,
+          0.04114468189633996,
+          0.04221954161640531
+        ]
+      },
+      "handwritten": {
+        "median": 1.008712553344319,
+        "paired_bootstrap_95_interval": [
+          0.9803370786516854,
+          1.0606060606060606
+        ],
+        "session_ratios": [
+          1.0190023752969122,
+          1.1206434316353888,
+          1.0683229813664596,
+          1.0412979351032448,
+          1.060790273556231,
+          0.9333333333333333,
+          0.9856733524355301,
+          0.8970189701897019,
+          0.8809523809523809,
+          1.068111455108359,
+          0.9803370786516854,
+          1.0028901734104045,
+          1.0058309037900874,
+          0.961764705882353,
+          1.0606060606060606,
+          1.0115942028985507
+        ]
+      }
+    },
+    "fold_region_over_static_callback": {
+      "materialized": {
+        "median": 0.598158587777161,
+        "paired_bootstrap_95_interval": [
+          0.5715725806451613,
+          0.6194184839044652
+        ],
+        "session_ratios": [
+          0.5217539089055064,
+          0.4710709889208043,
+          0.6151402858655374,
+          0.5715725806451613,
+          0.5817908954477239,
+          0.5932371954251616,
+          0.6194184839044652,
+          0.6644869215291751,
+          0.563936063936064,
+          0.627906976744186,
+          0.5885363357215967,
+          0.6030799801291604,
+          0.6067708333333334,
+          0.6762442278091328,
+          0.6311066799601196,
+          0.5647823911955978
+        ]
+      },
+      "transducer": {
+        "median": 0.9864767073722298,
+        "paired_bootstrap_95_interval": [
+          0.9516922430103005,
+          0.9969604863221885
+        ],
+        "session_ratios": [
+          0.8786692759295499,
+          0.9618528610354223,
+          1.045731707317073,
+          0.8786279683377308,
+          0.9969604863221885,
+          0.9618768328445748,
+          0.991044776119403,
+          0.9146005509641874,
+          1.0254957507082152,
+          0.9183098591549296,
+          0.9969604863221885,
+          1.0,
+          1.1536144578313252,
+          0.9878787878787879,
+          0.9850746268656716,
+          0.9828571428571429
+        ]
+      },
+      "handwritten": {
+        "median": 0.9794384057971015,
+        "paired_bootstrap_95_interval": [
+          0.9398280802292264,
+          1.0144927536231885
+        ],
+        "session_ratios": [
+          1.0442890442890442,
+          0.8851674641148325,
+          1.0930232558139534,
+          0.9178470254957507,
+          0.9283667621776505,
+          0.9791666666666666,
+          1.002906976744186,
+          0.9697885196374623,
+          1.033033033033033,
+          1.0144927536231885,
+          0.9398280802292264,
+          1.0,
+          0.9797101449275363,
+          1.0611620795107033,
+          0.94,
+          0.9398280802292264
+        ]
+      }
+    },
+    "fold_region_over_upstream": {
+      "materialized": {
+        "median": 0.5990671271813854,
+        "paired_bootstrap_95_interval": [
+          0.5632573921473583,
+          0.6182913472070098
+        ],
+        "session_ratios": [
+          0.563302752293578,
+          0.5317276516905975,
+          0.5632573921473583,
+          0.5542521994134897,
+          0.5700980392156862,
+          0.6013104838709677,
+          0.6061991869918699,
+          0.7144402379664684,
+          0.5608544461003477,
+          0.6255792400370713,
+          0.5373831775700935,
+          0.6091319618665328,
+          0.5968237704918032,
+          0.7155266015200868,
+          0.6270430906389302,
+          0.6182913472070098
+        ]
+      },
+      "transducer": {
+        "median": 0.04040560800597665,
+        "paired_bootstrap_95_interval": [
+          0.03948643410852713,
+          0.041380142357341054
+        ],
+        "session_ratios": [
+          0.03281923835976902,
+          0.0392047978676144,
+          0.041380142357341054,
+          0.04028063384540946,
+          0.03974793989335919,
+          0.039551428915953216,
+          0.040691261183968624,
+          0.03919716646989374,
+          0.04317233154442457,
+          0.03886041244486828,
+          0.04055892172622728,
+          0.04224839140463761,
+          0.04737753587333003,
+          0.03948643410852713,
+          0.040530582166543844,
+          0.04149577804583836
+        ]
+      },
+      "handwritten": {
+        "median": 0.9869807112366027,
+        "paired_bootstrap_95_interval": [
+          0.9507246376811594,
+          1.0045634586212708
+        ],
+        "session_ratios": [
+          1.0641330166270784,
+          0.9919571045576407,
+          1.1677018633540373,
+          0.9557522123893806,
+          0.9848024316109423,
+          0.9138888888888889,
+          0.9885386819484241,
+          0.8699186991869918,
+          0.91005291005291,
+          1.08359133126935,
+          0.9213483146067416,
+          1.0028901734104045,
+          0.9854227405247813,
+          1.0205882352941176,
+          0.996969696969697,
+          0.9507246376811594
+        ]
+      }
+    }
+  },
+  "paired_sessions": [
+    {
+      "upstream_transducer": 13681,
+      "fold_region_handwritten": 448,
+      "fold_region_transducer": 449,
+      "static_callback_materialized": 2942,
+      "upstream_materialized": 2725,
+      "static_callback_transducer": 511,
+      "fold_region_materialized": 1535,
+      "upstream_handwritten": 421,
+      "static_callback_handwritten": 429
+    },
+    {
+      "static_callback_handwritten": 418,
+      "static_callback_materialized": 2437,
+      "upstream_transducer": 9004,
+      "fold_region_handwritten": 370,
+      "upstream_handwritten": 373,
+      "static_callback_transducer": 367,
+      "upstream_materialized": 2159,
+      "fold_region_materialized": 1148,
+      "fold_region_transducer": 353
+    },
+    {
+      "fold_region_handwritten": 376,
+      "upstream_materialized": 2063,
+      "upstream_handwritten": 322,
+      "fold_region_transducer": 343,
+      "upstream_transducer": 8289,
+      "fold_region_materialized": 1162,
+      "static_callback_transducer": 328,
+      "static_callback_materialized": 1889,
+      "static_callback_handwritten": 344
+    },
+    {
+      "static_callback_handwritten": 353,
+      "upstream_materialized": 2046,
+      "fold_region_handwritten": 324,
+      "fold_region_transducer": 333,
+      "fold_region_materialized": 1134,
+      "upstream_handwritten": 339,
+      "static_callback_transducer": 379,
+      "static_callback_materialized": 1984,
+      "upstream_transducer": 8267
+    },
+    {
+      "upstream_transducer": 8252,
+      "upstream_handwritten": 329,
+      "upstream_materialized": 2040,
+      "static_callback_transducer": 329,
+      "fold_region_materialized": 1163,
+      "fold_region_transducer": 328,
+      "static_callback_handwritten": 349,
+      "fold_region_handwritten": 324,
+      "static_callback_materialized": 1999
+    },
+    {
+      "upstream_materialized": 1984,
+      "fold_region_materialized": 1193,
+      "fold_region_transducer": 328,
+      "static_callback_handwritten": 336,
+      "upstream_handwritten": 360,
+      "fold_region_handwritten": 329,
+      "static_callback_materialized": 2011,
+      "static_callback_transducer": 341,
+      "upstream_transducer": 8293
+    },
+    {
+      "static_callback_transducer": 335,
+      "upstream_materialized": 1968,
+      "fold_region_handwritten": 345,
+      "upstream_handwritten": 349,
+      "fold_region_transducer": 332,
+      "static_callback_materialized": 1926,
+      "upstream_transducer": 8159,
+      "static_callback_handwritten": 344,
+      "fold_region_materialized": 1193
+    },
+    {
+      "upstream_handwritten": 369,
+      "static_callback_handwritten": 331,
+      "static_callback_materialized": 1988,
+      "fold_region_handwritten": 321,
+      "fold_region_transducer": 332,
+      "static_callback_transducer": 363,
+      "fold_region_materialized": 1321,
+      "upstream_transducer": 8470,
+      "upstream_materialized": 1849
+    },
+    {
+      "fold_region_handwritten": 344,
+      "fold_region_materialized": 1129,
+      "upstream_transducer": 8385,
+      "upstream_materialized": 2013,
+      "upstream_handwritten": 378,
+      "fold_region_transducer": 362,
+      "static_callback_handwritten": 333,
+      "static_callback_materialized": 2002,
+      "static_callback_transducer": 353
+    },
+    {
+      "upstream_materialized": 2158,
+      "static_callback_handwritten": 345,
+      "upstream_handwritten": 323,
+      "static_callback_transducer": 355,
+      "fold_region_materialized": 1350,
+      "upstream_transducer": 8389,
+      "fold_region_handwritten": 350,
+      "static_callback_materialized": 2150,
+      "fold_region_transducer": 326
+    },
+    {
+      "upstream_materialized": 2140,
+      "fold_region_materialized": 1150,
+      "static_callback_materialized": 1954,
+      "fold_region_handwritten": 328,
+      "upstream_transducer": 8087,
+      "static_callback_transducer": 329,
+      "static_callback_handwritten": 349,
+      "upstream_handwritten": 356,
+      "fold_region_transducer": 328
+    },
+    {
+      "upstream_transducer": 8237,
+      "static_callback_handwritten": 347,
+      "fold_region_materialized": 1214,
+      "fold_region_handwritten": 347,
+      "static_callback_materialized": 2013,
+      "static_callback_transducer": 348,
+      "fold_region_transducer": 348,
+      "upstream_handwritten": 346,
+      "upstream_materialized": 1993
+    },
+    {
+      "fold_region_handwritten": 338,
+      "upstream_materialized": 1952,
+      "upstream_handwritten": 343,
+      "static_callback_transducer": 332,
+      "upstream_transducer": 8084,
+      "fold_region_transducer": 383,
+      "static_callback_handwritten": 345,
+      "fold_region_materialized": 1165,
+      "static_callback_materialized": 1920
+    },
+    {
+      "fold_region_handwritten": 347,
+      "upstream_handwritten": 340,
+      "static_callback_transducer": 330,
+      "upstream_materialized": 1842,
+      "fold_region_transducer": 326,
+      "static_callback_handwritten": 327,
+      "static_callback_materialized": 1949,
+      "upstream_transducer": 8256,
+      "fold_region_materialized": 1318
+    },
+    {
+      "static_callback_handwritten": 350,
+      "fold_region_materialized": 1266,
+      "fold_region_handwritten": 329,
+      "upstream_handwritten": 330,
+      "static_callback_transducer": 335,
+      "fold_region_transducer": 330,
+      "static_callback_materialized": 2006,
+      "upstream_transducer": 8142,
+      "upstream_materialized": 2019
+    },
+    {
+      "fold_region_materialized": 1129,
+      "upstream_handwritten": 345,
+      "static_callback_transducer": 350,
+      "upstream_materialized": 1826,
+      "fold_region_transducer": 344,
+      "upstream_transducer": 8290,
+      "static_callback_handwritten": 349,
+      "fold_region_handwritten": 328,
+      "static_callback_materialized": 1999
+    }
+  ],
+  "environment": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.14.4",
+    "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)"
+  }
+}

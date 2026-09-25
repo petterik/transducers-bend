@@ -1,5 +1,6 @@
 ---
 created_at: 2026-09-19T11:25:47+02:00
+updated_at: 2026-09-25T09:17:39+02:00
 status: current
 ---
 
@@ -25,8 +26,8 @@ over a numerical impact/effort ratio.
 | 0 | Make the Array counterexample a permanent gate; stop applying unproved tree rewrites | Critical: removes known wrong-code behavior | Low–medium for conservative refusal; high for a complete tree proof | Highest, mandatory | First; retain the lost performance as an open item |
 | 1 | Specify extension contracts and exercise keep, partition-all, and a custom source | High: tests whether the architecture serves new operations | Medium: ownership, buffering, completion, configuration | Very high: challenges the design before compiler investment | Implemented as a public semantic probe; extend with more operations later |
 | 2 | Make static callback composition systematic with existing templates | High: benefits every pipeline and other Bend abstractions | Medium–high: strictness, type metadata, sharing, specialization budgets | Very high: removes compiler-driven library workarounds | Probe complete; keep delayed recipe until a general replacement passes built-ins and extensions |
-| 3 | Establish typed regions and explicit, scoped optimization facts | Critical: prevents the class of error found in the review | High: binding identity, preconditions, joins, recursion, failure semantics | Very high: foundation for sound extension | Map/filter `Emit | Skip` lowering is checked and passes semantic/codegen gates; measure allocation and latency next |
-| 4 | Eliminate local wrapper and state-transfer overhead | High: generalizes fusion beyond the current scalar pattern | Medium–high: escape, ownership, layouts, unknown calls | High: broad benefit without a transducer vocabulary | Initial representation probe complete; choose a paired rewrite target next |
+| 3 | Establish typed regions and explicit, scoped optimization facts | Critical: prevents the class of error found in the review | High: binding identity, preconditions, joins, recursion, failure semantics | Very high: foundation for sound extension | Map/filter `Emit | Skip` lowering passes semantic/codegen gates and removes timed List nodes; one generated branch closure per source item remains, so test generic applied-match lowering next |
+| 4 | Eliminate local wrapper and state-transfer overhead | High: generalizes fusion beyond the current scalar pattern | Medium–high: escape, ownership, layouts, unknown calls | High: broad benefit without a transducer vocabulary | The paired map/filter benchmark isolates a checked `App(Mat, value)` closure as the remaining FoldRegion cost; prototype a general rule with fallback and ownership tests |
 | 5 | Recover profitable loop/tree optimization using proved facts | High: restores and broadens direct-Bend parity | High: induction, tree state flow, continuation entries, backend costs | High after 0–4; poor value as more ad hoc recognition now | List-loop gate passes; tree proof and short-loop profitability remain open |
 | 6 | Simplify public composition and configuration | High usability; little demonstrated direct speed impact | Medium: type packaging and public API commitments | High after the representation works | Prototype during 1–2; stabilize after 4 |
 | 7 | Complete performance/backend gates and prepare upstreamable changes | Critical before promotion | Medium–high: evidence, infrastructure, integration | Mandatory at release boundary | Candidate/reference report complete; GPU and full upstream gates remain blockers |
