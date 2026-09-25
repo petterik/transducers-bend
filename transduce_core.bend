@@ -127,6 +127,126 @@ def take(~A: Type, ~R: Type, ~down: Reducer<A, R>) -> Reducer<A, R>:
     state => x => take_step(~A, ~R, ~down, state, x),
     state => take_finish(~A, ~R, ~down, state)}
 
+type Dropping<-S: Type> is Type:
+  Dropping{left: Nat, inner: S}
+
+def drop_control(~K: Data, ~S: Type, left: Nat,
+  control: Control<K, S>) -> Control<K, Dropping<S>>:
+  match control:
+    case Continue{state}: Continue{Dropping{left, state}}
+    case Stop{permit, state}: Stop{permit, Dropping{left, state}}
+
+def drop_start(~A: Type, ~R: Type, ~down: Reducer<A, R>,
+  config: Nat & Config(A, R, down)) ->
+  Control<Permit(A, R, down), Dropping<State(A, R, down)>>:
+  (left, inner) = config
+  drop_control(~Permit(A, R, down), ~State(A, R, down), left,
+    start(A, R, down, inner))
+
+def drop_step(~A: Type, ~R: Type, ~down: Reducer<A, R>,
+  dropping: Dropping<State(A, R, down)>, x: A) ->
+  Control<Permit(A, R, down), Dropping<State(A, R, down)>>:
+  match dropping:
+    case Dropping{0n, state}:
+      drop_control(~Permit(A, R, down), ~State(A, R, down), 0n,
+        step(A, R, down, state, x))
+    case Dropping{1n+p, state}:
+      Continue{Dropping{p, state}}
+
+def drop_finish(~A: Type, ~R: Type, ~down: Reducer<A, R>,
+  dropping: Dropping<State(A, R, down)>) -> R:
+  match dropping:
+    case Dropping{left, state}: finish(A, R, down, state)
+
+def drop(~A: Type, ~R: Type, ~down: Reducer<A, R>) -> Reducer<A, R>:
+  Reducer{Permit(A, R, down), Nat & Config(A, R, down),
+    Dropping<State(A, R, down)>,
+    config => drop_start(~A, ~R, ~down, config),
+    state => x => drop_step(~A, ~R, ~down, state, x),
+    state => drop_finish(~A, ~R, ~down, state)}
+
+type DroppingWhile<-S: Type> is Type:
+  DroppingWhile{active: Bool, inner: S}
+
+def drop_while_control(~K: Data, ~S: Type, active: Bool,
+  control: Control<K, S>) -> Control<K, DroppingWhile<S>>:
+  match control:
+    case Continue{state}: Continue{DroppingWhile{active, state}}
+    case Stop{permit, state}: Stop{permit, DroppingWhile{active, state}}
+
+def drop_while_choose(~A: Data, ~R: Type,
+  ~down: Reducer<A, R>, keep_dropping: Bool,
+  state: State(A, R, down), x: A) ->
+  Control<Permit(A, R, down), DroppingWhile<State(A, R, down)>>:
+  match keep_dropping:
+    case True{}: Continue{DroppingWhile{True{}, state}}
+    case False{}:
+      drop_while_control(~Permit(A, R, down), ~State(A, R, down), False{},
+        step(A, R, down, state, x))
+
+def drop_while_step(~A: Data, ~R: Type, ~predicate: A -> Bool,
+  ~down: Reducer<A, R>, dropping: DroppingWhile<State(A, R, down)>,
+  +x: A) -> Control<Permit(A, R, down), DroppingWhile<State(A, R, down)>>:
+  match dropping:
+    case DroppingWhile{True{}, state}:
+      drop_while_choose(~A, ~R, ~down, predicate(x), state, x)
+    case DroppingWhile{False{}, state}:
+      drop_while_control(~Permit(A, R, down), ~State(A, R, down), False{},
+        step(A, R, down, state, x))
+
+def drop_while_finish(~A: Data, ~R: Type, ~down: Reducer<A, R>,
+  dropping: DroppingWhile<State(A, R, down)>) -> R:
+  match dropping:
+    case DroppingWhile{active, state}: finish(A, R, down, state)
+
+def drop_while(~A: Data, ~R: Type, ~predicate: A -> Bool,
+  ~down: Reducer<A, R>) -> Reducer<A, R>:
+  Reducer{Permit(A, R, down), Config(A, R, down),
+    DroppingWhile<State(A, R, down)>,
+    config => drop_while_control(~Permit(A, R, down),
+      ~State(A, R, down), True{}, start(A, R, down, config)),
+    state => x => drop_while_step(~A, ~R, ~predicate, ~down, state, x),
+    state => drop_while_finish(~A, ~R, ~down, state)}
+
+type TakingWhile<-S: Type> is Type:
+  TakingWhile{inner: S}
+
+def take_while_control(~K: Data, ~S: Type,
+  control: Control<K, S>) -> Control<Unit, TakingWhile<S>>:
+  match control:
+    case Continue{state}: Continue{TakingWhile{state}}
+    case Stop{permit, state}: Stop{Unit{}, TakingWhile{state}}
+
+def take_while_choose(~A: Data, ~R: Type, ~down: Reducer<A, R>,
+  keep: Bool, state: State(A, R, down), x: A) ->
+  Control<Unit, TakingWhile<State(A, R, down)>>:
+  match keep:
+    case True{}:
+      take_while_control(~Permit(A, R, down), ~State(A, R, down),
+        step(A, R, down, state, x))
+    case False{}: Stop{Unit{}, TakingWhile{state}}
+
+def take_while_step(~A: Data, ~R: Type, ~predicate: A -> Bool,
+  ~down: Reducer<A, R>, taking: TakingWhile<State(A, R, down)>,
+  +x: A) -> Control<Unit, TakingWhile<State(A, R, down)>>:
+  match taking:
+    case TakingWhile{state}:
+      take_while_choose(~A, ~R, ~down, predicate(x), state, x)
+
+def take_while_finish(~A: Data, ~R: Type, ~down: Reducer<A, R>,
+  taking: TakingWhile<State(A, R, down)>) -> R:
+  match taking:
+    case TakingWhile{state}: finish(A, R, down, state)
+
+def take_while(~A: Data, ~R: Type, ~predicate: A -> Bool,
+  ~down: Reducer<A, R>) -> Reducer<A, R>:
+  Reducer{Unit, Config(A, R, down),
+    TakingWhile<State(A, R, down)>,
+    config => take_while_control(~Permit(A, R, down),
+      ~State(A, R, down), start(A, R, down, config)),
+    state => x => take_while_step(~A, ~R, ~predicate, ~down, state, x),
+    state => take_while_finish(~A, ~R, ~down, state)}
+
 def inspect_control(~K: Data, ~S: Type,
   control: Control<K, S>) -> Checked<K, Control<K, S>>:
   match control:

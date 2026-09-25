@@ -1,6 +1,11 @@
 # transduce-bend
 
-A Bend library for composing pure data transformations without intermediate stage collections. It provides an owned reducer protocol, extensible source-owned reduction, map/filter/keep/take/partition-all/mapcat, and sum/count/ordered-list consumers. Built-in sources are lists, balanced arrays, finite ranges, and strings; other modules can add sources without changing this library.
+A Bend library for composing pure data transformations without intermediate
+stage collections. It provides an owned reducer protocol, extensible
+source-owned reduction, map/filter/keep/take/drop and their predicate-based
+variants, partitioning, mapcat, and sum/count/ordered-list consumers. Built-in
+sources are lists, balanced arrays, finite ranges, and strings; other modules
+can add sources without changing this library.
 
 ## Public transducer API
 
@@ -53,6 +58,14 @@ opaque accumulator; they cannot fabricate a downstream stop. `take` and
 `partition_all` can stop, while `map`, `filter`, `keep`, and `mapcat` inherit
 the downstream permit. `mapcat` drives the reducible fragment returned by its
 mapping function and preserves a stop from the middle of that fragment.
+
+`drop(n)` discards the first `n` owned items, including affine items.
+`take_while(predicate)` stops the source at the first false result;
+`drop_while(predicate)` discards only the initial matching run, then passes
+every remaining item. Like `filter`, both predicate stages currently require
+`Data` elements because the predicate inspects an item that may then be passed
+downstream. The [traversal tests](tests/xf_public_traversal.bend) cover their
+composition with `take` and the built-in and custom sources.
 
 `into(List, ...)` prepends, following Clojure's `conj` order. For encounter
 order, collect into [`Vec`](vec.bend) or [`VecMaybe`](vec_maybe.bend).

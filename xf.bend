@@ -53,6 +53,18 @@ def take(~A: Type, n: Nat) -> Xf<A, A,
   (R => down => T.take(~A, ~R, ~down))>:
   Xf{R => down => config => (n, config)}
 
+def drop(~A: Type, n: Nat) -> Xf<A, A,
+  (R => down => T.drop(~A, ~R, ~down))>:
+  Xf{R => down => config => (n, config)}
+
+def take_while(~A: Data, ~predicate: A -> Bool) -> Xf<A, A,
+  (R => down => T.take_while(~A, ~R, ~predicate, ~down))>:
+  Xf{R => down => config => config}
+
+def drop_while(~A: Data, ~predicate: A -> Bool) -> Xf<A, A,
+  (R => down => T.drop_while(~A, ~R, ~predicate, ~down))>:
+  Xf{R => down => config => config}
+
 # Produces ordered List chunks. Buffer and chunk construction cost remains,
 # including when a downstream consumer immediately reduces each chunk.
 def partition_all(~A: Type, width: Nat) -> Xf<A, List<A>,
