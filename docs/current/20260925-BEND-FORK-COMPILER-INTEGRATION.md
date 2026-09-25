@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T14:37:00+02:00
-updated_at: 2026-09-25T14:51:00+02:00
+updated_at: 2026-09-25T14:53:00+02:00
 status: feature-branch
 ---
 
@@ -50,3 +50,6 @@ The source protocol remains a library design in `transduce.bend`, and the
 fork compiler branch remains experimental pending wider Bend regression and
 performance testing. In particular, the general companion convention should
 be reviewed before claiming it is suitable for the upstream language.
+The imported-Bag JS display hang observed on the older base was also checked
+on `3276efac`; JS and native now print the same value without a transducer
+compiler fix.

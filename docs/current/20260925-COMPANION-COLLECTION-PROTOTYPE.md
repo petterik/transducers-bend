@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T14:12:00+02:00
-updated_at: 2026-09-25T14:12:00+02:00
+updated_at: 2026-09-25T14:53:00+02:00
 status: experimental
 ---
 
@@ -93,3 +93,6 @@ computes an imported `Bag` value, but JS hangs when printing that nominal
 result; native prints it correctly. It reproduces on the compiler without
 companion conversion. The conversion probe returns a scalar summary of its
 Bag so JS/native execution can be checked separately from that printer bug.
+The bug no longer reproduces on bendlang/main `3276efac`: JS and native both
+print `rank2_auto_sources.Bag{[9], 1}` in the same probe. It was independent
+of the companion implementation.
