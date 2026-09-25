@@ -1,6 +1,66 @@
 # transduce-bend
 
-An experimental Bend library for composing pure data transformations without intermediate stage collections. It provides an owned reducer protocol, extensible source-owned reduction, map/filter/keep/take/partition-all/mapcat, and sum/count/ordered-list consumers. Built-in sources are lists, balanced arrays, finite ranges, and strings; other modules can add sources without changing this library.
+A Bend library for composing pure data transformations without intermediate stage collections. It provides an owned reducer protocol, extensible source-owned reduction, map/filter/keep/take/partition-all/mapcat, and sum/count/ordered-list consumers. Built-in sources are lists, balanced arrays, finite ranges, and strings; other modules can add sources without changing this library.
+
+## Value API and Vec collection
+
+The value API in [`xf.bend`](xf.bend) offers Clojure-ordered
+`transduce(xf, rf, initial, source)` and `into(destination, xf, source)`.
+Stages own their runtime settings, compose with `comp2` through `comp5`,
+and run through the source's companion adapter. This API requires the
+`codex/transducer-companions` compiler branch in `../bend` (currently
+`2eae5f28`), based on `bendlang/main`; stock `bendlang/main` does not yet
+provide companion insertion. The older reducer API below remains available.
+Run `python3 tests/run.py` from this repository to check the supported
+sibling compiler on native and JS; pass `--bend-main PATH` for another
+checkout of that compiler branch.
+
+[`vec.bend`](vec.bend) provides an ordered, growable `Vec<T: Data>` destination
+and source backed by Bend Array. For example:
+
+```python
+import Base
+import ./xf.bend as Xf
+import ./vec.bend as Vec
+
+def inc(x: U32) -> U32:
+  (x + 1 : U32)
+
+def source() -> List<U32>:
+  [1, 2, 3]
+
+def main() -> Vec.Vec<U32>:
+  Xf.into(Vec.empty(~U32, 0), Xf.map(~U32, ~U32, ~inc),
+    source())
+```
+
+`Vec.empty(~T, filler)` owns a filler value for unused capacity. The filler
+must be a valid `T`, but never appears among the collected elements. When
+the expected output size is known, `Vec.with_capacity(~T, count, filler)`
+returns `Some{vec}` with capacity rounded up to a power of two, or `None{}`
+for a request above 2²³ elements. The conservative limit accommodates
+nontrivial shared fillers. Dynamic growth follows Bend Array's runtime
+allocation limits and exits with a Bend runtime error if a required Array
+cannot be allocated. `Vec.get` and `Vec.set` reject indices outside both the
+logical length and physical Array. `Vec` values must be created through its
+constructors and operations; Bend currently exposes datatype constructors
+across modules, so fabricated records with inconsistent fields are outside
+the collection contract. Arbitrary affine `T: Type` is not supported by this
+fast Vec.
+
+For a loop that already establishes `index < vec.length`,
+`Vec.get_unchecked` and `Vec.set_unchecked` skip bounds checks. They have the
+same index-wrapping behavior as Bend's `Array.get` and `Array.swap` when given
+an invalid index, so use the checked operations when that precondition is
+uncertain. In a paired 200,000-operation native benchmark, unchecked Vec
+reads and writes matched direct Array timing; checked reads and writes cost
+more but made no timed heap requests.
+
+Collecting into a List prepends, following Clojure's `conj` ordering; use Vec
+when encounter order matters. The native benchmark with 200,000 retained
+`U32` values places Vec construction near direct preallocated Array; the
+same is true for distinct `String` values. Results and limits are in the
+[Vec public contract](docs/current/20260925-VEC-PUBLIC-CONTRACT.md).
 
 ## Example
 

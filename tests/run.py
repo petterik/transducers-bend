@@ -10,21 +10,16 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--bend-main', type=Path,
-                    help='compiler to test; by default prepare bendlang/main with the local static pass')
+                    default=ROOT.parent / 'bend' / 'bend2' / 'main.ts',
+                    help='compiler to test; defaults to the supported sibling Bend checkout')
 parser.add_argument('--semantic-only', action='store_true',
                     help='run every JS/native result check while skipping code-shape and callback-count gates')
 args = parser.parse_args()
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1', 'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 passed = 0
 with tempfile.TemporaryDirectory(prefix='transduce-tests-') as d:
-    if args.bend_main is None:
-        prepared = Path(d) / 'compiler'
-        subprocess.run(['python3', str(ROOT / 'bench/compiler/prepare_static.py'),
-                        '--output-dir', prepared], env=env, check=True,
-                       timeout=60)
-        bend_main = prepared / 'main.ts'
-    else:
-        bend_main = args.bend_main.resolve()
+    bend_main = args.bend_main.resolve()
+    assert bend_main.is_file(), f'compiler not found: {bend_main}'
     compiler = ['bun', str(bend_main)]
     for file in sorted((ROOT / 'tests').glob('*.bend')):
         want = '\n'.join(line[2:] for line in file.read_text().splitlines() if line.startswith('#|'))

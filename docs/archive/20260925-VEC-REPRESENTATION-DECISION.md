@@ -1,9 +1,13 @@
 ---
 created_at: 2026-09-25T15:49:34+02:00
-status: experimental-decision
+status: superseded-by-public-vec
 ---
 
 # Vec representation decision and release boundary
+
+This was the feasibility decision before the public API. See
+`docs/current/20260925-VEC-PUBLIC-CONTRACT.md` for the shipped contract and
+final validation.
 
 ## Goal
 
