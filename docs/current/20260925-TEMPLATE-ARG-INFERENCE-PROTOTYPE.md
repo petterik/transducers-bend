@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T12:38:00+02:00
-updated_at: 2026-09-25T12:38:00+02:00
+updated_at: 2026-09-25T12:44:00+02:00
 status: experimental
 ---
 
@@ -54,10 +54,11 @@ using sum and count consumers.
 ## Confidence gates
 
 [`probe_auto_inference.py`](../../experiments/affine_xf/probe_auto_inference.py)
-passes six positive fixtures on JS and native and checks emitted code shape.
+passes seven positive fixtures on JS and native and checks emitted code shape.
 It also confirms expected rejection for ambiguous inference, an open provider,
-an incompatible consumer input type, and attempted reuse of affine `xf` or
-`rf` values. Partial and fully omitted template argument lists both work.
+an incompatible consumer input type, an incompatible `into` destination,
+and attempted reuse of affine `xf` or `rf` values. Partial and fully omitted
+template argument lists both work.
 The unrelated generic-type fixture guards against a transducer-specific
 implementation. The repository's full 33-case JS/native/code-shape suite also
 passes against this candidate.
@@ -69,9 +70,13 @@ type. The test suite and reuse rejections support this ownership claim; a
 production implementation would need an explicit compiler review of checker
 side effects and instance caching before upstreaming.
 
-The rule intentionally refuses non-synthesizing runtime expressions,
+The rule defers a runtime argument whose type cannot synthesize, such as a
+leading `[9]` in `into([9], xf, coll)`. Once later arguments solve the holes,
+the ordinary call check validates that earlier argument at its expected
+type. This permits Clojure-order `into` without guessing a list element type.
+An incompatible destination element is still rejected. The rule refuses
 non-structural equations, mismatched generic constructors, open inferred
-terms, and cases where later arguments cannot uniquely determine every hole.
+terms, and cases where no later argument uniquely determines every hole.
 These are safe incompleteness, not a fallback to runtime dispatch. It does
 not attempt higher-order unification or infer arbitrary user code from a
 result type. There is no measured timing for this exact call spelling yet;
@@ -80,10 +85,13 @@ and code shape alone is not a timing claim.
 
 ## Remaining work and decision
 
-First use the same generic inference rule to remove explicit type/provider
-arguments from composition, then give `into` a destination insertion reducer
-that delegates to this `transduce` core. Exercise List, Range, and an
-independent source adapter, plus a custom destination. Check stop and
+The same rule now removes explicit type/provider arguments from composition.
+The List `into(dest, xf, coll)` prototype delegates to `transduce` with a
+prepending reducer: a nonempty destination preserves its tail, a type-changing
+stage works, and `take(0)` leaves it untouched. These cases pass on JS and
+native in [`rank2_auto_api.bend`](../../experiments/affine_xf/rank2_auto_api.bend).
+Next exercise Range and an independent source adapter, plus a custom
+destination. Check stop and
 completion semantics and compare timing, allocations, compile time, and code
 size against the explicit-template path. Implicit lookup for raw custom
 collection types is a separate language-design question; this prototype

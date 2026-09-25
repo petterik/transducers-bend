@@ -43,7 +43,16 @@ function infer_template_autos(book: Book, lhs: LHS, tm: Extract<HTerm, { $: "Ref
   let last: HTerm = tm;
   for (let j = def.x; j < sp.length && found.size < autos.length; j++) {
     const h = tele_head(book, T, ctx, lhs.def, tm.s);
-    const actual = term_infer(book, lhs, sp[j], Lone(), ctx, d).ty;
+    let actual: HTerm;
+    try {
+      actual = term_infer(book, lhs, sp[j], Lone(), ctx, d).ty;
+    } catch (e) {
+      if ((e as Err)?.$ !== "Err") throw e;
+      // An unannotated literal may need its expected type. Defer its
+      // ordinary check until the other arguments determine the holes.
+      T = h.B(sp[j]);
+      continue;
+    }
     last = actual;
     if (!unify(h.A, actual)) {
       throw Err(book, ctx, "~?AUTO solved by a unique structural type match", actual, tm.s, lhs.def);

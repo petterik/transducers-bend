@@ -16,7 +16,8 @@ POSITIVE = {'auto_unrelated_type.bend': '7',
             'rank2_auto_partial.bend': '2n',
             'rank2_auto_partial_custom.bend': '[5, 0]',
             'rank2_auto_all.bend': '2n',
-            'rank2_auto_rf.bend': '7'}
+            'rank2_auto_rf.bend': '7',
+            'rank2_auto_api.bend': '([3, 2, 9], 5, [2n, 1n], [9])'}
 NEGATIVE = {
     'auto_ambiguous_rejected.bend':
         '~?AUTO solved by a unique structural type match',
@@ -28,6 +29,8 @@ NEGATIVE = {
         '~?AUTO solved by a unique structural type match',
     'auto_rf_reuse_rejected.bend':
         'rf (consumed more than once)',
+    'auto_into_mismatch_rejected.bend':
+        'expected : U32',
 }
 
 

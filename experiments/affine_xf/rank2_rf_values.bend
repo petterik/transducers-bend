@@ -24,6 +24,26 @@ def taking_u32(n: Nat) -> S.Xf<U32, U32,
   (R => down => T.take(~U32, ~R, ~down))>:
   S.Xf{R => down => config => (n, config)}
 
+# Inferred static indices make composition look like an ordinary value call.
+def compose(~A: Type, ~B: Type, ~C: Type,
+  ~Outer: @-R: Type -> @-down: T.Reducer<B, R> -> T.Reducer<A, R>,
+  ~Inner: @-R: Type -> @-down: T.Reducer<C, R> -> T.Reducer<B, R>,
+  xf: S.Xf<A, B, Outer>, xg: S.Xf<B, C, Inner>) ->
+  S.Xf<A, C, (R => down => Outer(R, Inner(R, down)))>:
+  match xf xg:
+    case S.Xf{configureF} S.Xf{configureG}:
+      S.Xf{R => down => config =>
+        configureF(R, Inner(R, down), configureG(R, down, config))}
+
+# Prepending is the List destination's insertion semantics. Unlike
+# T.into_list it accepts an existing List and does not reverse at completion.
+def list_prepend(~A: Type) -> T.Reducer<A, List<A>>:
+  T.Reducer{List<A>, List<A>, xs => T.Continue{xs},
+    xs => x => T.Continue{x <> xs}, xs => xs}
+
+def list_prepend_rf(~A: Type) -> Rf<A, List<A>, list_prepend(~A), List<A>>:
+  Rf{xs => xs}
+
 def transduce(~A: Type, ~B: Type,
   ~P: @-Result: Type -> @-consumer: T.Reducer<B, Result> ->
     T.Reducer<A, Result>,
@@ -34,6 +54,13 @@ def transduce(~A: Type, ~B: Type,
     case S.Xf{configure} Rf{prepare}:
       config = configure(R, Q, prepare(initial))
       T.transduce(~T.over_list(~A, ~R, ~P(R, Q)), config, xs)
+
+def into(~A: Type, ~B: Type,
+  ~P: @-Result: Type -> @-consumer: T.Reducer<B, Result> ->
+    T.Reducer<A, Result>,
+  dest: List<B>, xf: S.Xf<A, B, P>, xs: List<A>) -> List<B>:
+  transduce(~A, ~B, ~P, ~List<B>, ~list_prepend(~B), ~List<B>,
+    xf, list_prepend_rf(~B), dest, xs)
 
 def main() -> U32:
   xf_sum = S.compose(U32, U32, U32,
