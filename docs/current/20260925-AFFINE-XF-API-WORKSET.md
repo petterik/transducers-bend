@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T10:26:47+02:00
-updated_at: 2026-09-25T10:59:00+02:00
+updated_at: 2026-09-25T11:09:11+02:00
 status: active
 ---
 
@@ -245,7 +245,7 @@ python3 experiments/affine_xf/probe_type_index.py \
   --expect-static-erasure
 ```
 
-**Current decision:** keep the measured template-based library path intact.
+**Decision at this checkpoint:** keep the measured template-based library path intact.
 Neither local-alias substitution nor the type-indexed plans prove the
 ordinary-value API or consumer-independent rank-2 composition. The next
 experiment should make reducer configuration and state types explicit in the static recipe's
@@ -255,3 +255,71 @@ whole-program specialization, prefer a small language elaboration rule that
 separates static code from owned settings rather than adding transducer-name
 cases to the compiler. Semantic and performance gates from this workset still
 apply before adopting any new API.
+
+## Fourth feasibility checkpoint — 2026-09-25
+
+[`explicit_reducer_types.bend`](../../experiments/affine_xf/explicit_reducer_types.bend)
+makes a reducer's configuration `C` and state `S` explicit type parameters.
+Its owned `Xf<A, B, f>` carries a runtime `take` limit, while the map function
+`f` is an erased type index. The `Xf` is constructed before choosing the
+downstream reducer. The same driver works with sum, List prepend into a
+nonempty destination (`[3, 2, 9]`), and a type-changing `U32 -> Nat` map.
+Zero limit, empty input, and initial downstream stop also agree on JS/native
+on upstream and the isolated compiler. Reusing one owned `Xf` is rejected.
+
+The exact callback projection matters. When `step2` took a reducer *and an
+item* and returned the resulting control, emitted JS constructed an `R2`
+record in the per-item path. Changing it to return the reducer's step
+*function*, then applying that function, lets the existing static-callback
+pass erase every `R2` record. Upstream still emits two `R2` constructor sites;
+the static candidate emits zero across all six positive examples. It emits one `Xf`
+constructor at run setup, not in the item loop. Run the shape and correctness
+gate with:
+
+```sh
+python3 experiments/affine_xf/probe_explicit_types.py \
+  --bend-main /tmp/transduce-affine-xf-static/main.ts \
+  --expect-static-erasure
+```
+
+The paired native benchmark
+[`explicit_reducer_bench.bend`](../../experiments/affine_xf/explicit_reducer_bench.bend)
+compares the explicit `Xf`, the current `T.take`/`T.map`, and a direct
+map/take/sum loop, using the same prebuilt List and a runtime limit equal to
+its length. The timer wraps only the fold. Separate instrumented builds count
+heap allocations inside that region. Results against the plain static-callback
+candidate are retained at
+[`200k`](../../experiments/affine_xf/explicit-types-static-200k-results.json)
+and [`2m`](../../experiments/affine_xf/explicit-types-static-2m-results.json):
+
+| Inputs | Direct median | Current median | Explicit median | Explicit/current paired median [bootstrap 95%] | Timed heap calls, each |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 200,000 | 199.5µs | 250.0µs | 239.0µs | 0.989 [0.955, 1.004] | 9 |
+| 2,000,000 | 3,846µs | 2,605.5µs | 2,898µs | 1.050 [1.006, 1.082] | 9 |
+
+The explicit representation introduces no per-item heap requests in this
+workload and is close to the current transducer, but the 2m run does not meet
+a strict upper-95% within 1.05 comparison against it. At 200k both
+transducer paths trail the direct loop by about 20%; at 2m both lead it.
+These are workload-specific measurements, not proof of a general crossover.
+The benchmark uses randomized paired mode order, 256 sessions at 200k and 128
+at 2m, microsecond timing, and an independent arithmetic checksum.
+For example, reproduce the larger run with:
+
+```sh
+python3 experiments/affine_xf/measure_explicit_types.py \
+  --bend-main /tmp/transduce-affine-xf-static/main.ts \
+  --items 2000000 --sessions 128 \
+  --output /tmp/explicit-types-recheck.json
+```
+
+This experiment proves that explicit reducer types can clear the opaque
+`Config` type-checking boundary and preserve the current fusion mechanism.
+It does **not** provide a composable first-class `Xf` API: `run` still asks the
+caller to repeat `~f` and name the downstream reducer and its type witnesses.
+The next work is to design how stage composition carries those witnesses and
+how the compiler infers closed static code from the consumed value's type at
+the public `transduce(xf, rf, init, coll)` call. If that inference cannot be
+specified generally and boundedly, retain the explicit static recipe/config
+split as the honest API boundary rather than introducing a special compiler
+path for transducer names.
