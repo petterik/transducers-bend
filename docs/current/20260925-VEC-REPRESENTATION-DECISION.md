@@ -34,19 +34,31 @@ evidence, not a stable cross-machine performance guarantee. Full timings,
 allocation counts, and hashes are in
 `experiments/affine_xf/vec-reserved-retained-200k-results.json`.
 
-The public fast path should use `Array<T>` slots with a caller-provided filler
-for `T: Data`. This is a *scoped* contract: the filler must be a valid `T`, is
+The fast path should use `Array<T>` slots with a caller-provided filler for
+`T: Data`. This is a *scoped* contract: the filler must be a valid `T`, is
 owned by Vec, and is never returned as an initialized element. A filler-free
-`Data` Vec is feasible but materially slower. It is worth retaining as a
-prototype until there is evidence users need it as a separate API. Neither
-form solves arbitrary affine `T: Type` yet. The existing affine Vec builds
+`Data` Vec is feasible, but its cost depends on the element type. It should
+remain available for evaluation because not every output has a natural filler.
+Neither form solves arbitrary affine `T: Type` yet. The existing affine Vec builds
 individual `None` leaves and is about 20 times slower than direct Array in
 the 200,000-element build-and-sum measurement.
 
 Both `Data` representations work with a composite `Quad` type and with
-`String` values in a small native test. That proves basic type correctness,
-not cost for large or deeply shared values. A pointer-bearing benchmark and
-memory measurement are still needed before claiming broad performance.
+`String` values in a small native test. A second retained-output benchmark
+collected 200,000 distinct decimal strings with preallocated capacity:
+
+| Construction path | Median µs | Paired ratio to direct Array |
+| --- | ---: | ---: |
+| Direct preallocated Array | 727.0 | 1.00 |
+| `VecFill<String>` | 735.5 | 1.019 |
+| `VecData<String>` | 924.5 | 1.271 |
+
+The string source was made before the clock read; the result was consumed
+after it. All lanes returned the same total character count. Timed allocation
+requests were 10, 13, and 13. This is evidence that pointer-bearing values
+can work efficiently, though it covers one string shape and no peak-memory
+measurement. Full samples and hashes are in
+`experiments/affine_xf/vec-string-200k-results.json`.
 
 ## Required before a public Vec
 
@@ -64,7 +76,7 @@ memory measurement are still needed before claiming broad performance.
    around capacity doubling and the native Array allocation limit.
 4. Measure construction, traversal, and peak memory separately for a range
    of lengths and nontrivial values. Compare against equivalent direct Array
-   code. The retained-output timing here is a starting point.
+   code. The retained-output U32 and String timings are starting points.
 5. Only then move the implementation from `experiments/` into the public
    library. The `into` companion already works with the experimental type;
    no new compiler rule has been needed for Vec.
