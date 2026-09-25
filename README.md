@@ -94,12 +94,36 @@ from being forwarded. See the [adjacent-stage tests](tests/xf_public_dedupe_inte
 order, collect into [`Vec`](vec.bend) or [`VecMaybe`](vec_maybe.bend).
 `Vec<T: Data>` is backed by Bend Array and uses a caller-provided filler for
 unused capacity; `VecMaybe<T: Data>` stores optional slots when no filler is
-available. Both are sources and destinations; `Vec.adapter(~A)` also lets
+available. `Data` includes reusable user-defined records, not only numbers.
+Both are sources and destinations; `Vec.adapter(~A)` also lets
 `cat` consume raw Vec fragments. `Vec.with_capacity` and
 `VecMaybe.with_capacity` return `None` above the conservative 2²³-element
 initial-reservation limit; dynamic growth follows Bend Array's runtime limits.
 The constructors of both Vec types are currently visible across modules, so
 callers should use their functions rather than fabricate inconsistent records.
+
+```python
+import Base
+import ./xf.bend as Xf
+import ./vec.bend as Vec
+
+def inc(x: U32) -> U32:
+  U32.inc(x)
+
+def numbers() -> List<U32>:
+  [1, 2, 3]
+
+def main() -> U32:
+  values = Xf.into(Vec.empty(~U32, 0),
+    Xf.map(~U32, ~U32, ~inc), numbers())
+  Xf.transduce(Xf.map(~U32, ~U32, ~inc), Xf.sum_rf(), 0, values)
+# 12
+```
+
+`into` recognizes Vec as a destination and `transduce` recognizes it as a
+source; neither needs an explicit adapter. Only `cat` needs
+`Vec.adapter(~A)` to identify the type of fragments it will flatten. The
+filler occupies unused slots and does not appear in the logical contents.
 
 `partition_by(~A, ~K, ~key, ~equal)` groups consecutive equal keys into
 ordered Lists. It requires `Data` inputs and keys because it computes a key
@@ -117,6 +141,13 @@ not remove it. `mapcat` over a List-producing callback similarly allocates the
 fragment; a custom source can emit values directly. See the
 [public mapcat test](tests/mapcat_public.bend) and the
 [no-stop integration report](docs/current/20260925-NO-STOP-PUBLIC-INTEGRATION.md).
+Vec is the preferred ordered destination for `Data` values, but it is not the
+default internal buffer of `partition_all`. On the measured upstream-main
+compiler, an Array-backed chunk buffer was slower than List at every tested
+full-fold width from 3 through 64, and for retained chunks at widths 1, 2, 3,
+and 8. See the [Array partition experiment](docs/current/20260923-ARRAY-PARTITION-EXPERIMENT-PLAN.md).
+`partition_all` also accepts affine `Type` elements; the fast Vec API currently
+requires `Data` elements because its flat `Array.new` uses a reusable filler.
 
 For an owned List map-and-sum, the public transducer ran at approximately
 handwritten fused-fold speed in local native measurements. At 65,536 items,

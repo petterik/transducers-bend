@@ -216,7 +216,9 @@ def Vec.source(~A: Data, vec: Vec<A>) -> T.Source<A, Vec<A>,
     source_vec(~A, ~K, ~S, ~advance, ~inspect, v, s))>:
   T.Source{vec}
 
-def Vec.adapter(~A: Data) -> T.SourceAdapter<A, Vec<A>,
+# Supply this when cat consumes raw Vec fragments. A Vec passed directly to
+# transduce or into needs no adapter: the source companion is selected there.
+def adapter(~A: Data) -> T.SourceAdapter<A, Vec<A>,
   (K => S => advance => inspect => v => s =>
     source_vec(~A, ~K, ~S, ~advance, ~inspect, v, s))>:
   T.SourceAdapter{}
