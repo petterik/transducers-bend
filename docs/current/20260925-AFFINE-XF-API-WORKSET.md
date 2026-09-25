@@ -1,7 +1,7 @@
 ---
 created_at: 2026-09-25T10:26:47+02:00
-updated_at: 2026-09-25T12:16:00+02:00
-status: active
+updated_at: 2026-09-25T12:54:00+02:00
+status: prototype-complete
 ---
 
 # Affine transducer API workset
@@ -518,3 +518,25 @@ provider and the downstream reducer from ordinary value arguments at the
 call site, plus independent source/destination protocol lookup. The earlier
 tagged-plan and ordinary code-index failures remain valid observations, but
 they do not require inventing a new static-stage syntax first.
+
+## Tenth checkpoint — 2026-09-25: prototype outcome
+
+The [template-inference prototype](20260925-TEMPLATE-ARG-INFERENCE-PROTOTYPE.md)
+now covers the executable API slice. A generic, name-independent checker
+rule infers closed template arguments from the checked types of affine `Xf`
+and `Rf` values. `compose(xf, xg)`, List
+`transduce(xf, rf, init, coll)`, and List `into(dest, xf, coll)` work with the
+intended call shapes. `into` delegates to one generic transduce core. Range
+and an independently defined source use that core through explicit source
+witnesses; an independent Bag destination uses an explicit destination
+witness. Stopping, type change, completion, affine reuse rejection, JS/native
+agreement, and flat allocation slope pass the prototype gates.
+
+The original timing acceptance gate remains open. At 200k, the inferred API
+was close to the existing static recipe, but two 2m sessions disagreed enough
+that the ≤1.05 upper confidence bound is not established. Emitted hot loops
+have the same visible List/step/stop structure and no dynamic callback
+handoff; optimized machine-code equivalence is unproved. Raw custom sources
+and destinations still need coherent implicit instance selection for the
+exact public spelling. Keep the implementation isolated and treat it as a
+feasibility result, not a ready-to-merge language change.
