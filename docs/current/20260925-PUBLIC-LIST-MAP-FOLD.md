@@ -19,9 +19,9 @@ and Clang `-O3` produced these medians:
 
 | List length | Direct fused µs | Public transduce µs | List.map + foldl µs | Public/direct paired median |
 | ---: | ---: | ---: | ---: | ---: |
-| 4,096 | 4 | 4 | 16 | 1.00× |
-| 65,536 | 65.5 | 69.5 | 235.5 | 1.02× |
-| 262,144 | 440.5 | 447.5 | 1107.5 | 1.00× |
+| 4,096 | 4 | 4 | 16.5 | 1.08× |
+| 65,536 | 68 | 66 | 252 | 1.01× |
+| 262,144 | 366 | 405 | 1171 | 0.95× |
 
 The generated C's timed `heap_alloc` call counts were nine for both direct and
 public transduce at every size. `List.map + foldl` made one additional call per
@@ -32,8 +32,8 @@ for this simple map/fold pipeline. The timing is consistent with direct speed in
 paired runs; it is not a promise of parity for every source or pipeline.
 
 Timing noise is material: at length 262,144, individual direct runs ranged
-174–556 µs and public runs 191–544 µs. The median of the per-session ratios
-was 1.00× even though separate medians differ. Do not infer a stable 1–6%
+197–578 µs and public runs 187–549 µs. The median of the per-session ratios
+was 0.95× even though separate medians differ. Do not infer a stable 11%
 public cost from these numbers. The independent Array no-stop comparison and
 the Branch layout ablation give the broader fused-path evidence; see the
 [integration report](20260925-NO-STOP-PUBLIC-INTEGRATION.md) and

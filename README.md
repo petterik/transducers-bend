@@ -73,8 +73,8 @@ fragment; a custom source can emit values directly. See the
 
 For an owned List map-and-sum, the public transducer ran at approximately
 handwritten fused-fold speed in local native measurements. At 65,536 items,
-the medians were 65.5 µs for a direct Bend fold, 69.5 µs for `transduce`, and
-235.5 µs for `List.map` followed by `List.foldl`. The direct and public paths
+the medians were 68 µs for a direct Bend fold, 66 µs for `transduce`, and
+252 µs for `List.map` followed by `List.foldl`. The direct and public paths
 made the same number of timed native allocation calls; `List.map` made one
 extra call per item. Timing varies by compiled layout and machine state, so
 these are local results, not a universal speed guarantee. See the

@@ -40,6 +40,8 @@ def keep(~A: Type, ~B: Type, ~f: A -> Maybe<B>) -> Xf<A, B,
   (R => down => T.keep(~A, ~B, ~R, ~f, ~down))>:
   Xf{R => down => config => config}
 
+# Drives each returned reducible fragment directly. If f first constructs a
+# List or Array, that fragment's allocation still occurs.
 def mapcat(~A: Type, ~B: Type, ~X: Type,
   ~Drive: @-K: Data -> @-S: Type -> @-advance: (S -> B -> S) ->
     @-inspect: (S -> T.Checked<K, S>) -> X -> S -> S,
@@ -51,6 +53,8 @@ def take(~A: Type, n: Nat) -> Xf<A, A,
   (R => down => T.take(~A, ~R, ~down))>:
   Xf{R => down => config => (n, config)}
 
+# Produces ordered List chunks. Buffer and chunk construction cost remains,
+# including when a downstream consumer immediately reduces each chunk.
 def partition_all(~A: Type, width: Nat) -> Xf<A, List<A>,
   (R => down => T.partition_all(~A, ~R, ~down))>:
   Xf{R => down => config => (width, config)}
