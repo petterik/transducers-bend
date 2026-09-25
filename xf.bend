@@ -1,6 +1,9 @@
 import Base
 import ./transduce_core.bend as T
 
+# Public stages, consumers, and entry points are indexed in
+# docs/current/20260925-PUBLIC-API.md. This module also contains support
+# helpers; Bend does not currently hide those names from importers.
 # Stages own runtime settings; their reducing code is a closed type-level
 # recipe. The recipe carries its stop permit inside the resulting reducer.
 type Xf<-A: Type, -B: Type,
@@ -187,6 +190,7 @@ def comp5(~A: Type, ~B: Type, ~C: Type, ~D: Type, ~E: Type, ~F: Type,
     ~(R => down => Q(R, S(R, U(R, W(R, down))))),
     a, comp4(~B, ~C, ~D, ~E, ~F, ~Q, ~S, ~U, ~W, b, c, d, e))
 
+# Implementation support for the List destination and public entry points.
 def list_prepend(~A: Type) -> T.Reducer<A, List<A>>:
   T.Reducer{Empty, List<A>, List<A>,
     xs => T.Continue{xs},

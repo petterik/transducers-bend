@@ -8,6 +8,10 @@ adjacent deduplication and interposition, and sum/count/ordered-list consumers.
 Built-in sources are lists, balanced arrays, finite ranges, strings, and Vec;
 other modules can add sources without changing this library.
 
+**Start with the [single-file public API guide](docs/current/20260925-PUBLIC-API.md).**
+It lists every supported stage, source, destination, adapter, and extension
+point, and distinguishes them from implementation helpers.
+
 ## Public transducer API
 
 [`xf.bend`](xf.bend) exposes Clojure-ordered

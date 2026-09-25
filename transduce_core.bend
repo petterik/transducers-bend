@@ -1,5 +1,8 @@
 import Base
 
+# Source/adapter and reducer extension protocols are specified in
+# docs/current/20260925-PUBLIC-API.md. Most other definitions in this file
+# implement stages or built-in sources and are not application-level API.
 # Type-indexed reducer and source protocol. A source only receives and returns
 # an opaque accumulator; the reducer owns the stopping permit.
 type Control<-K: Data, -S: Type> is Type:
