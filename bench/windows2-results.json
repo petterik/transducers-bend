@@ -1,0 +1,166 @@
+{
+  "compiler_commit": "1b4f641b9fea9b48fee37fc10b0a07977bba6e7d",
+  "library_base_commit": "73e23718f7df7b196dc47f3b4e7350190282b400",
+  "library_worktree_dirty": true,
+  "fixture_sha256": "32403dd2896d556c638a93c03fcc6379e7886dd062ba0872b0d572a7d9b2ada1",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "clock": "native monotonic microseconds; input built before timer",
+  "allocation_metric": "generated C heap_alloc calls inside timer",
+  "sessions": 16,
+  "results": {
+    "65536": {
+      "timings_us": {
+        "direct": [
+          206,
+          213,
+          268,
+          218,
+          268,
+          247,
+          182,
+          275,
+          242,
+          237,
+          266,
+          272,
+          259,
+          239,
+          273,
+          274
+        ],
+        "windows2_list": [
+          1791,
+          1839,
+          1809,
+          1792,
+          1844,
+          1849,
+          1851,
+          1835,
+          1818,
+          1805,
+          1793,
+          1821,
+          1940,
+          1829,
+          1782,
+          1793
+        ],
+        "window2_tuple": [
+          260,
+          250,
+          185,
+          259,
+          230,
+          230,
+          251,
+          224,
+          215,
+          233,
+          254,
+          214,
+          253,
+          229,
+          238,
+          251
+        ]
+      },
+      "medians_us": {
+        "direct": 253.0,
+        "windows2_list": 1819.5,
+        "window2_tuple": 235.5
+      },
+      "allocations": {
+        "direct": {
+          "total_heap_alloc_calls": 131147,
+          "timed_heap_alloc_calls": 9
+        },
+        "windows2_list": {
+          "total_heap_alloc_calls": 589902,
+          "timed_heap_alloc_calls": 458758
+        },
+        "window2_tuple": {
+          "total_heap_alloc_calls": 131152,
+          "timed_heap_alloc_calls": 10
+        }
+      }
+    },
+    "262144": {
+      "timings_us": {
+        "direct": [
+          975,
+          1046,
+          910,
+          1034,
+          1105,
+          1034,
+          1106,
+          1040,
+          1075,
+          1034,
+          1060,
+          1028,
+          926,
+          851,
+          1019,
+          971
+        ],
+        "windows2_list": [
+          7181,
+          7207,
+          7192,
+          7271,
+          7174,
+          7305,
+          7224,
+          7220,
+          7223,
+          7251,
+          7208,
+          7183,
+          7184,
+          7183,
+          7210,
+          7203
+        ],
+        "window2_tuple": [
+          996,
+          944,
+          1002,
+          865,
+          998,
+          963,
+          951,
+          1083,
+          941,
+          995,
+          997,
+          1000,
+          1059,
+          1080,
+          1005,
+          977
+        ]
+      },
+      "medians_us": {
+        "direct": 1034.0,
+        "windows2_list": 7207.5,
+        "window2_tuple": 996.5
+      },
+      "allocations": {
+        "direct": {
+          "total_heap_alloc_calls": 524373,
+          "timed_heap_alloc_calls": 9
+        },
+        "windows2_list": {
+          "total_heap_alloc_calls": 2359380,
+          "timed_heap_alloc_calls": 1835014
+        },
+        "window2_tuple": {
+          "total_heap_alloc_calls": 524378,
+          "timed_heap_alloc_calls": 10
+        }
+      }
+    }
+  }
+}

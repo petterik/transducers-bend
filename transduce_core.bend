@@ -792,6 +792,252 @@ def partition_all(~A: Type, ~R: Type,
     state => x => partition_step(~A, ~R, ~down, state, x),
     state => partition_finish(~A, ~R, ~down, state)}
 
+type GroupingBy<-A: Data, -K: Data, -S: Type> is Type:
+  GroupingBy{previous: Maybe<K>, items: List<A>, inner: S}
+
+def group_by_control(~A: Data, ~K: Data, ~P: Data, ~S: Type,
+  previous: Maybe<K>, items: List<A>, control: Control<P, S>) ->
+  Control<P, GroupingBy<A, K, S>>:
+  match control:
+    case Continue{state}: Continue{GroupingBy{previous, items, state}}
+    case Stop{permit, state}:
+      Stop{permit, GroupingBy{None{}, [], state}}
+
+def group_by_choose(~A: Data, ~K: Data, ~R: Type,
+  ~down: Reducer<List<A>, R>, same: Bool, key: K, x: A,
+  items: List<A>, state: State(List<A>, R, down)) ->
+  Control<Permit(List<A>, R, down),
+    GroupingBy<A, K, State(List<A>, R, down)>>:
+  match same:
+    case True{}: Continue{GroupingBy{Some{key}, x <> items, state}}
+    case False{}:
+      group_by_control(~A, ~K, ~Permit(List<A>, R, down),
+        ~State(List<A>, R, down), Some{key}, [x],
+        step(List<A>, R, down, state, List.reverse(&1, A, items)))
+
+def group_by_step_key(~A: Data, ~K: Data, ~R: Type,
+  ~equal: K -> K -> Bool,
+  ~down: Reducer<List<A>, R>,
+  grouping: GroupingBy<A, K, State(List<A>, R, down)>,
+  +current: K, x: A) ->
+  Control<Permit(List<A>, R, down),
+    GroupingBy<A, K, State(List<A>, R, down)>>:
+  match grouping:
+    case GroupingBy{None{}, items, state}:
+      Continue{GroupingBy{Some{current}, x <> items, state}}
+    case GroupingBy{Some{previous}, items, state}:
+      group_by_choose(~A, ~K, ~R, ~down,
+        equal(previous, current), current, x, items, state)
+
+def group_by_step(~A: Data, ~K: Data, ~R: Type,
+  ~key: A -> K, ~equal: K -> K -> Bool,
+  ~down: Reducer<List<A>, R>,
+  grouping: GroupingBy<A, K, State(List<A>, R, down)>, +x: A) ->
+  Control<Permit(List<A>, R, down),
+    GroupingBy<A, K, State(List<A>, R, down)>>:
+  group_by_step_key(~A, ~K, ~R, ~equal, ~down,
+    grouping, key(x), x)
+
+def group_by_finish(~A: Data, ~K: Data, ~R: Type,
+  ~down: Reducer<List<A>, R>,
+  grouping: GroupingBy<A, K, State(List<A>, R, down)>) -> R:
+  match grouping:
+    case GroupingBy{previous, [], state}:
+      finish(List<A>, R, down, state)
+    case GroupingBy{previous, items, state}:
+      finish_control(~List<A>, ~R, ~down,
+        step(List<A>, R, down, state, List.reverse(&1, A, items)))
+
+# Group consecutive equal keys. The key callback needs a reusable input
+# because that same input is also retained in an ordered output group.
+def partition_by(~A: Data, ~K: Data, ~R: Type,
+  ~key: A -> K, ~equal: K -> K -> Bool,
+  ~down: Reducer<List<A>, R>) -> Reducer<A, R>:
+  Reducer{Permit(List<A>, R, down), Config(List<A>, R, down),
+    GroupingBy<A, K, State(List<A>, R, down)>,
+    config => group_by_control(~A, ~K, ~Permit(List<A>, R, down),
+      ~State(List<A>, R, down), None{}, [],
+      start(List<A>, R, down, config)),
+    state => x => group_by_step(~A, ~K, ~R, ~key, ~equal,
+      ~down, state, x),
+    state => group_by_finish(~A, ~K, ~R, ~down, state)}
+
+type Windowing<-A: Data, -S: Type> is Type:
+  Windowing{left: Nat, items: +List<A>, inner: S}
+
+def windows_control(~A: Data, ~K: Data, ~S: Type,
+  left: Nat, items: +List<A>, control: Control<K, S>) ->
+  Control<Unit, Windowing<A, S>>:
+  match control:
+    case Continue{state}:
+      Continue{Windowing{left, items, state}}
+    case Stop{permit, state}:
+      Stop{Unit{}, Windowing{left, [], state}}
+
+def windows_start_width(~A: Data, ~K: Data, ~S: Type,
+  +width: Nat, control: Control<K, S>) ->
+  Control<Unit, Windowing<A, S>>:
+  match width:
+    case 0n:
+      match control:
+        case Continue{state}: Stop{Unit{}, Windowing{0n, [], state}}
+        case Stop{permit, state}:
+          Stop{Unit{}, Windowing{0n, [], state}}
+    case 1n+p:
+      windows_control(~A, ~K, ~S, 1n+p, [], control)
+
+def windows_start(~A: Data, ~R: Type,
+  ~down: Reducer<List<A>, R>,
+  config: Nat & Config(List<A>, R, down)) ->
+  Control<Unit, Windowing<A, State(List<A>, R, down)>>:
+  (width, initial) = config
+  windows_start_width(~A, ~Permit(List<A>, R, down),
+    ~State(List<A>, R, down), width,
+    start(List<A>, R, down, initial))
+
+def windows_after_step(~A: Data, ~R: Type,
+  ~down: Reducer<List<A>, R>,
+  window: +List<A>, control: Control<Permit(List<A>, R, down),
+    State(List<A>, R, down)>) ->
+  Control<Unit, Windowing<A, State(List<A>, R, down)>>:
+  match control:
+    case Continue{state}:
+      Continue{Windowing{0n, List.tail(&2, A, window), state}}
+    case Stop{permit, state}:
+      Stop{Unit{}, Windowing{0n, [], state}}
+
+def windows_copy(~A: Data, xs: +List<A>) -> List<A>:
+  match xs:
+    case Nil{}: Nil{}
+    case h <> t: h <> windows_copy(~A, t)
+
+def windows_emit(~A: Data, ~R: Type,
+  ~down: Reducer<List<A>, R>,
+  +window: +List<A>, state: State(List<A>, R, down)) ->
+  Control<Unit, Windowing<A, State(List<A>, R, down)>>:
+  windows_after_step(~A, ~R, ~down, window,
+    step(List<A>, R, down, state, windows_copy(~A, window)))
+
+def windows_step(~A: Data, ~R: Type,
+  ~down: Reducer<List<A>, R>,
+  windowing: Windowing<A, State(List<A>, R, down)>, x: A) ->
+  Control<Unit, Windowing<A, State(List<A>, R, down)>>:
+  match windowing:
+    case Windowing{0n, items, state}:
+      windows_emit(~A, ~R, ~down,
+        List.append(&2, A, items, [x]), state)
+    case Windowing{1n, items, state}:
+      windows_emit(~A, ~R, ~down,
+        List.reverse(&2, A, x <> items), state)
+    case Windowing{1n+p, items, state}:
+      Continue{Windowing{p, x <> items, state}}
+
+def windows_finish(~A: Data, ~R: Type,
+  ~down: Reducer<List<A>, R>,
+  windowing: Windowing<A, State(List<A>, R, down)>) -> R:
+  match windowing:
+    case Windowing{left, items, state}:
+      finish(List<A>, R, down, state)
+
+# Full sliding windows only. Width zero stops before the first source item.
+# Overlap shares Data values between the emitted window and retained tail.
+def windows(~A: Data, ~R: Type,
+  ~down: Reducer<List<A>, R>) -> Reducer<A, R>:
+  Reducer{Unit, Nat & Config(List<A>, R, down),
+    Windowing<A, State(List<A>, R, down)>,
+    config => windows_start(~A, ~R, ~down, config),
+    state => x => windows_step(~A, ~R, ~down, state, x),
+    state => windows_finish(~A, ~R, ~down, state)}
+
+type Window2<-A: Data, -S: Type> is Type:
+  Window2{previous: Maybe<A>, inner: S}
+
+def window2_control(~A: Data, ~K: Data, ~S: Type,
+  previous: Maybe<A>, control: Control<K, S>) ->
+  Control<K, Window2<A, S>>:
+  match control:
+    case Continue{state}: Continue{Window2{previous, state}}
+    case Stop{permit, state}: Stop{permit, Window2{previous, state}}
+
+def window2_step(~A: Data, ~R: Type,
+  ~down: Reducer<(A & A), R>,
+  windowing: Window2<A, State((A & A), R, down)>, +x: A) ->
+  Control<Permit((A & A), R, down), Window2<A, State((A & A), R, down)>>:
+  match windowing:
+    case Window2{None{}, state}:
+      Continue{Window2{Some{x}, state}}
+    case Window2{Some{previous}, state}:
+      window2_control(~A, ~Permit((A & A), R, down),
+        ~State((A & A), R, down), Some{x},
+        step((A & A), R, down, state, (previous, x)))
+
+def window2_finish(~A: Data, ~R: Type,
+  ~down: Reducer<(A & A), R>,
+  windowing: Window2<A, State((A & A), R, down)>) -> R:
+  match windowing:
+    case Window2{previous, state}: finish((A & A), R, down, state)
+
+# Full adjacent pairs. The current Data value also becomes the next pair's
+# previous value; unlike List windows, no group List is built.
+def window2(~A: Data, ~R: Type,
+  ~down: Reducer<(A & A), R>) -> Reducer<A, R>:
+  Reducer{Permit((A & A), R, down), Config((A & A), R, down),
+    Window2<A, State((A & A), R, down)>,
+    config => window2_control(~A, ~Permit((A & A), R, down),
+      ~State((A & A), R, down), None{},
+      start((A & A), R, down, config)),
+    state => x => window2_step(~A, ~R, ~down, state, x),
+    state => window2_finish(~A, ~R, ~down, state)}
+
+type Window3Prefix<-A: Data> is Type:
+  Window3Zero{}
+  Window3One{first: A}
+  Window3Two{first: A, second: A}
+
+type Window3<-A: Data, -S: Type> is Type:
+  Window3{prefix: Window3Prefix<A>, inner: S}
+
+def window3_control(~A: Data, ~K: Data, ~S: Type,
+  prefix: Window3Prefix<A>, control: Control<K, S>) ->
+  Control<K, Window3<A, S>>:
+  match control:
+    case Continue{state}: Continue{Window3{prefix, state}}
+    case Stop{permit, state}: Stop{permit, Window3{prefix, state}}
+
+def window3_step(~A: Data, ~R: Type,
+  ~down: Reducer<(A & A & A), R>,
+  windowing: Window3<A, State((A & A & A), R, down)>, +x: A) ->
+  Control<Permit((A & A & A), R, down),
+    Window3<A, State((A & A & A), R, down)>>:
+  match windowing:
+    case Window3{Window3Zero{}, state}:
+      Continue{Window3{Window3One{x}, state}}
+    case Window3{Window3One{first}, state}:
+      Continue{Window3{Window3Two{first, x}, state}}
+    case Window3{Window3Two{first, +second}, state}:
+      window3_control(~A, ~Permit((A & A & A), R, down),
+        ~State((A & A & A), R, down), Window3Two{second, x},
+        step((A & A & A), R, down, state, (first, second, x)))
+
+def window3_finish(~A: Data, ~R: Type,
+  ~down: Reducer<(A & A & A), R>,
+  windowing: Window3<A, State((A & A & A), R, down)>) -> R:
+  match windowing:
+    case Window3{prefix, state}:
+      finish((A & A & A), R, down, state)
+
+# Full adjacent triples without List construction.
+def window3(~A: Data, ~R: Type,
+  ~down: Reducer<(A & A & A), R>) -> Reducer<A, R>:
+  Reducer{Permit((A & A & A), R, down),
+    Config((A & A & A), R, down),
+    Window3<A, State((A & A & A), R, down)>,
+    config => window3_control(~A, ~Permit((A & A & A), R, down),
+      ~State((A & A & A), R, down), Window3Zero{},
+      start((A & A & A), R, down, config)),
+    state => x => window3_step(~A, ~R, ~down, state, x),
+    state => window3_finish(~A, ~R, ~down, state)}
+
 def identity(~A: Type, ~R: Type,
   ~down: Reducer<A, R>) -> Reducer<A, R>:
   down

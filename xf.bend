@@ -113,6 +113,29 @@ def partition_all(~A: Type, width: Nat) -> Xf<A, List<A>,
   (R => down => T.partition_all(~A, ~R, ~down))>:
   Xf{R => down => config => (width, config)}
 
+# Adjacent equal keys form ordered List groups. A must be Data because the
+# key callback inspects each input before that input is placed in its group.
+def partition_by(~A: Data, ~K: Data,
+  ~key: A -> K, ~equal: K -> K -> Bool) -> Xf<A, List<A>,
+  (R => down => T.partition_by(~A, ~K, ~R, ~key, ~equal, ~down))>:
+  Xf{R => down => config => config}
+
+# Full overlapping windows. Unlike partition_all, no partial tail is emitted.
+# Reusing elements across adjacent windows requires Data input.
+def windows(~A: Data, width: Nat) -> Xf<A, List<A>,
+  (R => down => T.windows(~A, ~R, ~down))>:
+  Xf{R => down => config => (width, config)}
+
+# The common width-two case emits a tuple instead of allocating a List.
+def window2(~A: Data) -> Xf<A, (A & A),
+  (R => down => T.window2(~A, ~R, ~down))>:
+  Xf{R => down => config => config}
+
+# Full width-three windows as tuples.
+def window3(~A: Data) -> Xf<A, (A & A & A),
+  (R => down => T.window3(~A, ~R, ~down))>:
+  Xf{R => down => config => config}
+
 def compose(~A: Type, ~B: Type, ~C: Type,
   ~Outer: @-R: Type -> @-down: T.Reducer<B, R> -> T.Reducer<A, R>,
   ~Inner: @-R: Type -> @-down: T.Reducer<C, R> -> T.Reducer<B, R>,

@@ -133,6 +133,39 @@ def dedupe_then_interpose(xs: List<U32>, separator: U32) -> U32:
 
 '''
 
+GROUPING = '''
+def parity(x: U32) -> U32:
+  U32.mod(x, 2)
+
+def pair_to_list(pair: U32 & U32) -> List<U32>:
+  (a, b) = pair
+  [a, b]
+
+def triple_to_list(triple: U32 & U32 & U32) -> List<U32>:
+  (a, b, c) = triple
+  [a, b, c]
+
+def grouped(xs: List<U32>) -> List<List<U32>>:
+  X.into(empty_groups(),
+    X.partition_by(~U32, ~U32, ~parity, ~U32.is_eq), xs)
+
+def windowed(xs: List<U32>, width: Nat) -> List<List<U32>>:
+  X.into(empty_groups(), X.windows(~U32, width), xs)
+
+def pair_windowed(xs: List<U32>) -> List<List<U32>>:
+  X.into(empty_groups(), X.comp2(X.window2(~U32),
+    X.map(~(U32 & U32), ~List<U32>, ~pair_to_list)), xs)
+
+def triple_windowed(xs: List<U32>) -> List<List<U32>>:
+  X.into(empty_groups(), X.comp2(X.window3(~U32),
+    X.map(~(U32 & U32 & U32), ~List<U32>, ~triple_to_list)), xs)
+
+def windowed_take(xs: List<U32>, width: Nat, n: Nat) -> List<List<U32>>:
+  X.into(empty_groups(), X.comp2(X.windows(~U32, width),
+    X.take(~List<U32>, n)), xs)
+
+'''
+
 
 def show(value):
     if isinstance(value, list):
@@ -189,6 +222,22 @@ def oracle_adjacent(xs, separator, n):
             sum(interpose(deduped)) & U32]
 
 
+def oracle_grouping(xs, width, n):
+    groups = []
+    for x in xs:
+        if groups and groups[-1][-1] % 2 == x % 2:
+            groups[-1].append(x)
+        else:
+            groups.append([x])
+    windows = ([xs[i:i + width] for i in range(len(xs) - width + 1)]
+               if width else [])
+    pairs = [[xs[i], xs[i + 1]] for i in range(len(xs) - 1)]
+    triples = [xs[i:i + 3] for i in range(len(xs) - 2)]
+    return [list(reversed(groups)), list(reversed(windows)),
+            list(reversed(pairs)), list(reversed(triples)),
+            list(reversed(windows[:n]))]
+
+
 def cases():
     rng = random.Random(SEED)
     lengths = list(range(9))
@@ -225,12 +274,18 @@ def source(case_rows, body, kind):
                                 f'interpose_then_take(xs{i}(), {width}, {n}n)',
                                 f'take_then_interpose(xs{i}(), {width}, {n}n)',
                                 f'dedupe_then_interpose(xs{i}(), {width})'))
+        elif kind.startswith('grouping'):
+            expressions.extend((f'grouped(xs{i}())',
+                                f'windowed(xs{i}(), {width}n)',
+                                f'pair_windowed(xs{i}())',
+                                f'triple_windowed(xs{i}())',
+                                f'windowed_take(xs{i}(), {width}n, {n}n)'))
         else:
             expressions.extend((f'after(xs{i}(), {n}n)',
                                 f'before(xs{i}(), {n}n)',
                                 f'flattened(xs{i}(), {n}n)',
                                 f'kept(xs{i}(), {n}n)'))
-    result_type = 'List<List<List<U32>>>' if kind == 'partition' \
+    result_type = 'List<List<List<U32>>>' if kind == 'partition' or kind.startswith('grouping') \
         else 'List<U32>'
     return PRELUDE + body + '\n' + '\n'.join(definitions) + \
         f'\ndef main() -> {result_type}:\n  [\n    ' + \
@@ -277,6 +332,9 @@ def main():
         for offset in range(0, len(adjacent_rows), 16):
             check(temp, adjacent_rows[offset:offset + 16],
                   f'adjacent_{offset // 16}', ADJACENT, oracle_adjacent)
+        for offset in range(0, len(adjacent_rows), 12):
+            check(temp, adjacent_rows[offset:offset + 12],
+                  f'grouping_{offset // 12}', GROUPING, oracle_grouping)
 
 
 if __name__ == '__main__':

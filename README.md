@@ -3,10 +3,10 @@
 A Bend library for composing pure data transformations without intermediate
 stage collections. It provides an owned reducer protocol, extensible
 source-owned reduction, map/filter/keep/take/drop and their predicate-based
-variants, indexed mapping and selection, partitioning, mapcat/cat,
+variants, indexed mapping and selection, partitioning and windows, mapcat/cat,
 adjacent deduplication and interposition, and sum/count/ordered-list consumers.
-Built-in sources are lists, balanced arrays, finite ranges, and strings; other modules
-can add sources without changing this library.
+Built-in sources are lists, balanced arrays, finite ranges, strings, and Vec;
+other modules can add sources without changing this library.
 
 ## Public transducer API
 
@@ -94,11 +94,22 @@ from being forwarded. See the [adjacent-stage tests](tests/xf_public_dedupe_inte
 order, collect into [`Vec`](vec.bend) or [`VecMaybe`](vec_maybe.bend).
 `Vec<T: Data>` is backed by Bend Array and uses a caller-provided filler for
 unused capacity; `VecMaybe<T: Data>` stores optional slots when no filler is
-available. Both are sources and destinations. `Vec.with_capacity` and
+available. Both are sources and destinations; `Vec.adapter(~A)` also lets
+`cat` consume raw Vec fragments. `Vec.with_capacity` and
 `VecMaybe.with_capacity` return `None` above the conservative 2²³-element
 initial-reservation limit; dynamic growth follows Bend Array's runtime limits.
 The constructors of both Vec types are currently visible across modules, so
 callers should use their functions rather than fabricate inconsistent records.
+
+`partition_by(~A, ~K, ~key, ~equal)` groups consecutive equal keys into
+ordered Lists. It requires `Data` inputs and keys because it computes a key
+while retaining the input for its group. `windows(~A, width)` produces only
+full, overlapping List windows; `windows(2)` on `[1, 2, 3]` emits `[1, 2]`
+and `[2, 3]`. The zero-width convention stops before reading the source.
+`window2(~A)` and `window3(~A)` emit adjacent tuples instead, avoiding List
+window construction. All window stages require `Data` elements for overlap.
+See the [window comparison](docs/current/20260925-GROUPING-WINDOWS-VEC-ADAPTER.md)
+for measured native costs.
 
 `partition_all` produces ordered List chunks and allocates those chunks. A
 consumer that retains chunks must pay that cost, and even a consuming fold may
