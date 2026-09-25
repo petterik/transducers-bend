@@ -397,6 +397,12 @@ def Array.source(~A: Type, xs: Array<A>) ->
       ~(s => x => step(A, R, r, s, x)), ys, c))>:
   Source{xs}
 
+def String.source(xs: String) ->
+  Source<Char, String, (R => r => ys => c =>
+    reduce_string(~State(Char, R, r),
+      ~(s => x => step(Char, R, r, s, x)), ys, c))>:
+  Source{xs}
+
 # Static binding of a source-owned stopping fold to a reducer. This is open:
 # third-party adapters construct it with reducible; no source registry exists.
 # Type metadata is delayed so specialization need not evaluate type expressions
