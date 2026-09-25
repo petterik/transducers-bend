@@ -1,5 +1,7 @@
 import Base
 import ./vec_probe.bend as VecProbe
+import ./vec_data_probe.bend as Fast
+import ./vec_data_fill_probe.bend as Fill
 import ./rank2_companion_api.bend as Auto
 import ./rank2_rf_values.bend as V
 import ./static_recipe_bench.bend as B
@@ -13,6 +15,20 @@ def vec_direct(xs: List<U32>, vec: VecProbe.Vec<U32>) ->
       vec
     case +x <> tail:
       vec_direct(tail, VecProbe.push(~U32, vec, (x + 1 : U32)))
+
+def fast_direct(xs: List<U32>, vec: Fast.VecData<U32>) -> Fast.VecData<U32>:
+  match xs:
+    case Nil{}:
+      vec
+    case +x <> tail:
+      fast_direct(tail, Fast.push(~U32, vec, (x + 1 : U32)))
+
+def fill_direct(xs: List<U32>, vec: Fill.VecFill<U32>) -> Fill.VecFill<U32>:
+  match xs:
+    case Nil{}:
+      vec
+    case +x <> tail:
+      fill_direct(tail, Fill.push(~U32, vec, (x + 1 : U32)))
 
 def list_direct(xs: List<U32>, acc: List<U32>) -> List<U32>:
   match xs:
@@ -29,6 +45,12 @@ def sum_list(xs: List<U32>, acc: U32) -> U32:
       sum_list(tail, (acc + x : U32))
 
 def vec_sum(vec: VecProbe.Vec<U32>) -> U32:
+  Auto.transduce(V.shifted(0), V.sum_rf(), 0, vec)
+
+def fast_sum(vec: Fast.VecData<U32>) -> U32:
+  Auto.transduce(V.shifted(0), V.sum_rf(), 0, vec)
+
+def fill_sum(vec: Fill.VecFill<U32>) -> U32:
   Auto.transduce(V.shifted(0), V.sum_rf(), 0, vec)
 
 def array_fill(xs: List<U32>, +index: U32, array: Array<U32>) -> Array<U32>:
@@ -77,6 +99,17 @@ def run_lane(mode: Nat, xs: List<U32>, size: U32) -> U32:
       vec_sum(vec_direct(xs, VecProbe.empty(~U32)))
     case 4n:
       array_direct(xs, size)
+    case 5n:
+      fast_sum(fast_direct(xs, Fast.empty(~U32)))
+    case 6n:
+      fast_sum(Auto.into(Fast.empty(~U32), V.shifted(1), xs))
+    case 7n:
+      fill_sum(fill_direct(xs, Fill.empty(~U32, 0)))
+    case 8n:
+      fill_sum(Auto.into(Fill.empty(~U32, 0), V.shifted(1), xs))
+    case 9n:
+      fill_sum(Auto.into(Fill.reserve(~U32, 18n, 0),
+        V.shifted(1), xs))
     case _:
       vec = VecProbe.empty(~U32)
       vec_sum(Auto.into(vec, V.shifted(1), xs))

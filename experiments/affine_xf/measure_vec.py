@@ -18,7 +18,10 @@ from measure_explicit_types import allocation_counts, interval
 HERE = Path(__file__).resolve().parent
 FIXTURE = HERE / 'vec_bench.bend'
 MODES = {'list_direct': 0, 'list_into': 1,
-         'vec_direct': 2, 'vec_into': 3, 'array_direct': 4}
+         'vec_direct': 2, 'vec_into': 3, 'array_direct': 4,
+         'vec_data_direct': 5, 'vec_data_into': 6,
+         'vec_fill_direct': 7, 'vec_fill_into': 8,
+         'vec_fill_reserved': 9}
 ENV = {**os.environ, 'BEND_NO_TELEMETRY': '1',
        'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 
@@ -67,6 +70,21 @@ def main():
             'vec_into_over_vec_direct': ('vec_into', 'vec_direct'),
             'vec_into_over_list_into': ('vec_into', 'list_into'),
             'vec_into_over_array_direct': ('vec_into', 'array_direct'),
+            'vec_data_into_over_vec_data_direct':
+                ('vec_data_into', 'vec_data_direct'),
+            'vec_data_into_over_array_direct':
+                ('vec_data_into', 'array_direct'),
+            'vec_data_into_over_vec_into': ('vec_data_into', 'vec_into'),
+            'vec_fill_into_over_vec_fill_direct':
+                ('vec_fill_into', 'vec_fill_direct'),
+            'vec_fill_into_over_array_direct':
+                ('vec_fill_into', 'array_direct'),
+            'vec_fill_into_over_vec_data_into':
+                ('vec_fill_into', 'vec_data_into'),
+            'vec_fill_reserved_over_array_direct':
+                ('vec_fill_reserved', 'array_direct'),
+            'vec_fill_into_over_reserved':
+                ('vec_fill_into', 'vec_fill_reserved'),
             'list_into_over_list_direct': ('list_into', 'list_direct'),
         }
         ratios = {name: [s[n] / s[d] for s in sessions]

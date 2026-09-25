@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T14:51:00+02:00
-updated_at: 2026-09-25T14:51:00+02:00
+updated_at: 2026-09-25T15:33:58+02:00
 status: measured
 ---
 
@@ -59,20 +59,11 @@ Exploratory runs used earlier fixture revisions; only the comparable final
 matrix is retained. No claim here extends to partitioning, whose chunk
 materialization has a different contract.
 
-## Next ordered destination: Vec
+## Ordered destination follow-up: Vec
 
-Prototype a `Vec<T>` with an owned `Array<Maybe<T>>`, logical length, and
-capacity. It starts empty, appends in insertion order, and doubles capacity
-when full. It should provide indexed `get`/`swap`/`set` with explicit ownership
-and serve as both `Destination` and `Source`; `into(Vec.empty(), xf, coll)`
-would then have ordered output without requiring a bare-literal compiler rule.
-Benchmark push, indexed mutation, traversal, and transducer collection
-against List and handwritten loops, including growth boundaries and retained
-outputs.
-
-The first feasibility check is construction of empty slots for an affine
-element type. `Array.new` requires `Data`; a generic `Vec<T>` may have to build
-the empty half of its tree structurally on growth. Also define what `get`
-returns for an affine element: likely a moved value plus the updated Vec, or a
-swap with a replacement. Capacity and logical length stay distinct, so an
-arbitrary-length Vec need not pretend to be a plain power-of-two Array.
+The [Vec feasibility report](20260925-VEC-FEASIBILITY.md) now records the
+prototype and measurements. A generic `Data` Vec can use flat `Array.new`
+blocks and act as both source and destination; with reserved capacity it is
+near the direct Array baseline. The fully affine `Type` Vec still incurs
+large construction costs for its empty slots. These findings supersede the
+earlier Vec feasibility plan in this section.
