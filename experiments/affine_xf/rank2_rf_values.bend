@@ -127,6 +127,13 @@ def list_prepend_rf(~A: Type) -> Rf<A, List<A>, list_prepend(~A), List<A>>:
 type Destination<-B: Type, -D: Type, -Q: T.Reducer<B, D>> is Type:
   Destination{value: D, consumer: Rf<B, D, Q, D>}
 
+def Destination.allow_companion() -> Unit:
+  Unit{}
+
+def List.destination(~A: Type, xs: List<A>) ->
+  Destination<A, List<A>, list_prepend(~A)>:
+  Destination{xs, list_prepend_rf(~A)}
+
 def transduce_from(~A: Type, ~B: Type,
   ~P: @-Result: Type -> @-consumer: T.Reducer<B, Result> ->
     T.Reducer<A, Result>,
