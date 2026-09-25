@@ -16,14 +16,48 @@ def sum_rf() -> Rf<U32, U32, T.sum(), U32>:
 def count_nat_rf() -> Rf<Nat, Nat, T.count(~Nat), Unit>:
   Rf{initial => initial}
 
+# A stage owns its runtime settings; its reducer recipe is checked, closed
+# code in the result type. The leading type parameters remain explicit because
+# today's omitted-template inference uses ordinary value arguments only.
+def map(~A: Type, ~B: Type, ~f: A -> B) -> S.Xf<A, B,
+  (R => down => T.map(~A, ~B, ~R, ~f, ~down))>:
+  S.Xf{R => down => config => config}
+
+def map_with(~A: Type, ~B: Type, ~C: Data, ~f: C -> A -> B,
+  setting: C) -> S.Xf<A, B,
+  (R => down => T.map_with(~A, ~B, ~R, ~C, ~f, ~down))>:
+  S.Xf{R => down => config => (setting, config)}
+
+def take(~A: Type, n: Nat) -> S.Xf<A, A,
+  (R => down => T.take(~A, ~R, ~down))>:
+  S.Xf{R => down => config => (n, config)}
+
+def mapcat(~A: Type, ~B: Type, ~f: A -> List<B>) -> S.Xf<A, B,
+  (R => down => T.mapcat(~A, ~B, ~R, ~f, ~down))>:
+  S.Xf{R => down => config => config}
+
+def keep(~A: Type, ~B: Type, ~f: A -> Maybe<B>) -> S.Xf<A, B,
+  (R => down => T.keep(~A, ~B, ~R, ~f, ~down))>:
+  S.Xf{R => down => config => config}
+
+def filter(~A: Data, ~predicate: A -> Bool) -> S.Xf<A, A,
+  (R => down => T.filter(~A, ~R, ~Unit,
+    ~(unused => x => predicate(x)), ~down))>:
+  S.Xf{R => down => config => (Unit{}, config)}
+
+def remove(~A: Data, ~predicate: A -> Bool) -> S.Xf<A, A,
+  (R => down => T.filter(~A, ~R, ~Unit,
+    ~(unused => x => Bool.not(predicate(x))), ~down))>:
+  S.Xf{R => down => config => (Unit{}, config)}
+
 def shifted(offset: U32) -> S.Xf<U32, U32,
   (R => down => T.map_with(~U32, ~U32, ~R, ~U32,
     ~Shift.add, ~down))>:
-  S.Xf{R => down => config => (offset, config)}
+  map_with(~U32, ~U32, ~U32, ~Shift.add, offset)
 
 def taking_u32(n: Nat) -> S.Xf<U32, U32,
   (R => down => T.take(~U32, ~R, ~down))>:
-  S.Xf{R => down => config => (n, config)}
+  take(~U32, n)
 
 # Inferred static indices make composition look like an ordinary value call.
 def compose(~A: Type, ~B: Type, ~C: Type,
