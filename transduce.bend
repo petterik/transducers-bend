@@ -75,7 +75,8 @@ def cat(~B: Type, ~R: Type, ~down: Reducer<B, R>) -> Reducer<List<B>, R>:
 
 # One-to-many mapping is ordinary map followed by list flattening. Keeping the
 # two pieces separate makes cat useful on its own and gives both operations the
-# same lifecycle and stopping semantics.
+# same lifecycle and stopping semantics. Each callback's List fragment is
+# materialized; a direct scalar fold can be faster when it need not retain it.
 def mapcat(~A: Type, ~B: Type, ~R: Type, ~f: A -> List<B>,
   ~down: Reducer<B, R>) -> Reducer<A, R>:
   map(~A, ~List<B>, ~R, ~f, ~cat(~B, ~R, ~down))

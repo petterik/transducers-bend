@@ -62,16 +62,17 @@ def main():
             assert result.returncode == 0 and result.stdout.strip() == '(3, 3, 8)', \
                 (lane, result.returncode, result.stdout, result.stderr)
             print('PASS core Range/Array sources', lane)
-        literals = HERE / 'companion_literals.bend'
-        result = run('bun', compiler, literals,
-                     '-o', temp / 'literals.js', '-o', temp / 'literals')
+        matrix = HERE / 'companion_semantics_matrix.bend'
+        result = run('bun', compiler, matrix,
+                     '-o', temp / 'matrix.js', '-o', temp / 'matrix')
         assert result.returncode == 0, (result.stdout, result.stderr)
-        for lane, command in [('JS', ('bun', temp / 'literals.js')),
-                              ('native', (temp / 'literals', '--threads', '1', '--gpu', 'off'))]:
+        for lane, command in [('JS', ('bun', temp / 'matrix.js')),
+                              ('native', (temp / 'matrix', '--threads', '1', '--gpu', 'off'))]:
             result = run(*command)
-            assert result.returncode == 0 and result.stdout.strip() == '([2, 1], 0, 3)', \
+            assert result.returncode == 0 and result.stdout.strip() == \
+                '(6, 14, 26, [4, 2], [3, 2, 1], 7, 3)', \
                 (lane, result.returncode, result.stdout, result.stderr)
-            print('PASS contextual constructors', lane)
+            print('PASS source/stage semantics matrix', lane)
         unrelated = HERE / 'companion_unrelated.bend'
         result = run('bun', compiler, unrelated,
                      '-o', temp / 'unrelated.js', '-o', temp / 'unrelated')

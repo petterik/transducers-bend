@@ -15,41 +15,22 @@ function companion_marked(book: Book, expected: HTerm): boolean {
 
 function companion_method(book: Book, actual: HTerm, expected: HTerm): Name | null {
   const a = term_strip(term_wnf(book, actual));
-  return a.$ === "ADT" ? companion_method_owner(book, a.k, expected) : null;
-}
-
-function companion_method_owner(book: Book, owner: Name, expected: HTerm): Name | null {
   const e = term_strip(term_wnf(book, expected));
-  if (e.$ !== "ADT" || owner === e.k || !companion_marked(book, e)) return null;
+  if (a.$ !== "ADT" || e.$ !== "ADT" || a.k === e.k
+    || !companion_marked(book, e)) return null;
   const simple = e.k.slice(e.k.lastIndexOf(".") + 1);
   if (simple.length === 0) return null;
   const suffix = simple[0].toLowerCase() + simple.slice(1);
-  const own = owner + "." + suffix;
+  const own = a.k + "." + suffix;
   const own_def = book.tlds[own];
   if (own_def?.$ === "Def" && own_def.v !== null) return own;
   // Base cannot import the protocol library. For a Base-owned nominal type,
   // let that protocol's own module define its one canonical adapter instead.
-  if (book.tlds[owner]?.b !== true) return null;
+  if (book.tlds[a.k]?.b !== true) return null;
   const target_module = e.k.slice(0, e.k.lastIndexOf("."));
-  const extension = target_module + "." + owner + "." + suffix;
+  const extension = target_module + "." + a.k + "." + suffix;
   const extension_def = book.tlds[extension];
   return extension_def?.$ === "Def" && extension_def.v !== null ? extension : null;
-}
-
-// A constructor has a known nominal owner even when its element type cannot
-// be inferred. One method template may be instantiated from the target's
-// element index; the ordinary checker then validates every constructor field.
-// This is bounded by the one owner method and does no instance search.
-function companion_constructor(book: Book, tm: HTerm, expected: HTerm,
-  element: HTerm): HTerm | null {
-  if (tm.$ !== "Ctr" || book_ctr(book, tm.k) === null) return null;
-  const method = companion_method_owner(book, book_fam(book, tm.k), expected);
-  if (method === null) return null;
-  const def = book.tlds[method] as Def;
-  if (def.x > 1 || def.n !== def.x + 1) return null;
-  let out: HTerm = Ref(method, tm.s);
-  if (def.x === 1) out = App(out, element, tm.s);
-  return App(out, tm, tm.s);
 }
 
 function companion_call(book: Book, method: Name, arg: HTerm): HTerm {

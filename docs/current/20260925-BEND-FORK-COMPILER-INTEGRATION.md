@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T14:37:00+02:00
-updated_at: 2026-09-25T14:37:00+02:00
+updated_at: 2026-09-25T14:51:00+02:00
 status: feature-branch
 ---
 
@@ -8,7 +8,7 @@ status: feature-branch
 
 `petterik/bend:main` was fast-forwarded to `bendlang/bend:main` at
 `3276efac`. The compiler implementation lives on
-`codex/transducer-companions`, commit `647be979`, branched from that commit.
+`codex/transducer-companions`, currently `2eae5f28`, branched from that commit.
 No transducer compiler changes were placed on the fork's `main`.
 
 The branch integrates three generic rules from the isolated candidate:
@@ -22,13 +22,13 @@ The branch integrates three generic rules from the isolated candidate:
   protocol-owned extension for a Base type. The method's result goes through
   the ordinary checker; no global registry or arbitrary imported method wins.
 
-Bare constructors are resolved after inferable arguments, allowing
-`into([], xf, xs)` and direct custom constructor sources. The constructor's
-declaring type selects one method; the target's first index supplies at most
-one template argument; every field and the result are checked normally.
+Bare constructors are intentionally outside the compiler rule. The initial
+feature-branch commit experimented with contextual constructors; commit
+`2eae5f28` removed that rule at the user's request. Callers bind
+them to a typed value or pass them through a helper with a typed parameter.
 `tests/check/companion_owned.bend` is a fork-local generic regression test.
 The full transducer companion probe exercises raw List, Range, Array, custom
-source and destination, literal forms, type changes, completion, ownership,
+source and destination, type changes, completion, ownership,
 and six expected refusals. The 33-test library suite passes on the branch.
 
 The direct branch is the authoritative compiler implementation. The local

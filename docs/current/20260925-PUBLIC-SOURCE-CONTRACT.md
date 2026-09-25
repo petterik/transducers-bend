@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-25T14:24:00+02:00
-updated_at: 2026-09-25T14:37:00+02:00
+updated_at: 2026-09-25T14:51:00+02:00
 status: experimental
 ---
 
@@ -38,11 +38,8 @@ That choice requires its own contract and measurements; `Array.source` needs
 none of it and is available now. The current List destination intentionally
 reverses insertion order.
 
-The compiler candidate now accepts `into([], xf, xs)`, a bare `[]` source,
-and a bare custom constructor source. It first infers the stage and other
-inferable arguments, then uses a constructor's unique declaring type to select
-that owner's companion. The checked target element type instantiates at most
-one template parameter on the method; the ordinary checker validates the
-literal's fields and the method's result. This deliberately rejects more
-complex methods instead of guessing an element type or scanning imported
-adapters. `companion_literals.bend` checks all three forms on JS and native.
+Bare literals such as `into([], xf, xs)` are deliberately outside this
+compiler rule. A typed destination value, or a helper with a typed List
+parameter, gives the checker the element type without adding contextual
+constructor inference to Bend. This keeps the compiler change easier to
+explain and review.

@@ -3,5 +3,5 @@ Term now_us_run(Env e, Term* f, IoWork* w) {
 }
 
 static void __attribute__((constructor)) now_us_use(void) {
-  io_eff(CID_NOW_US, now_us_run, 0);
+  io_eff(CID(now_us), now_us_run, 0);
 }

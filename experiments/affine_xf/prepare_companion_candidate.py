@@ -42,16 +42,6 @@ def main():
 ''', 1)
     patched = patched.replace(CHECK, CHECK + '''  // Reuse the already checked inference result on ordinary inferable forms.
   // Inferring an application twice can instantiate templates twice.
-  if (qt.$ === "Lone" && tm.$ === "Ctr") {
-    const expected = term_strip(term_wnf(book, ty));
-    if (expected.$ === "ADT" && book.tlds[expected.k + ".allow_companion"] !== undefined) {
-      const converted = companion_constructor(book, tm, expected,
-        expected.x[0] ?? Typ(Qua(Lone())));
-      if (converted !== null) {
-        return term_check(book, lhs, converted, qt, ty, ctx, d);
-      }
-    }
-  }
   if (qt.$ === "Lone" && (tm.$ === "Var" || tm.$ === "App"
     || tm.$ === "Ann" || tm.$ === "Ref")) {
     const expected = term_strip(term_wnf(book, ty));
