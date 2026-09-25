@@ -50,8 +50,9 @@ contains the direct, stopping, total, composed, and public paths.
 For a pipeline beginning with `Continue(s)`, the reducer's start, step, and
 every nested source drive must preserve `Continue`; completion must still run
 once with the same state. Proving only that the *leaf reducer*
-returns `Continue` is insufficient: a custom source may itself return `Stop`,
-and a stage such as `take` may stop before or after a step. The rule must keep
+returns `Continue` is insufficient under the current types: an adapter can
+invent `Stop`, while a stage such as `take` can stop before or after a step.
+The rule must keep
 evaluation order and consume owned values exactly once. It must preserve the
 original stopping path for initial `Stop`, `take(0)`, dynamic or unknown
 callbacks, sources without a totality guarantee, and failed analysis.
@@ -73,8 +74,9 @@ properties of the stage and source, not names to match in compiler code.
 **Recommendation:** prototype the typed path next, as an optional capability
 of the existing source protocol, while retaining the stopping fold as the
 universal fallback. A source still implements one protocol; common sources
-can provide a second, total drive within it. Totality should be represented
-in reducer/source types and propagate through stage composition, so adding a
+can provide a second, total drive and an agreement proof within it. Totality
+should be represented in reducer/source types and propagate through stage
+composition, so adding a
 new total stage needs one implementation, not a compiler pattern. `T.transduce`
 can keep its current call shape because its static `Reduction` can select the
 drive. Measure API verbosity, code size, compile time, and agreement of the
@@ -98,5 +100,48 @@ the recursive fold and its continuation frames with the state field in place
 of the tagged value, then rewrap `Continue` at the public boundary. The
 original fold remains callable for every other path. This transformation must
 inspect checked code without evaluating runtime callbacks during analysis.
+
+## Proof boundary clarified
+
+Normal source exhaustion returns `Continue`, not `Stop`. A well-behaved source
+only propagates an incoming `Stop` or one returned by the downstream step.
+This matters for nested sources: when `take` stops inside one `mapcat`
+fragment, that `Stop` must reach the outer source so it does not enter the
+next fragment. The current `Source` type permits an adapter to invent or
+discard `Stop`, however; it does not itself encode this behavioral contract.
+
+For a typed fast path, two claims are distinct:
+
+1. A `TotalReducer` step has type `S -> A -> S`, so it cannot return `Stop`.
+   Composition preserves this property only for stages whose start and step
+   are total. A possible initial `Stop` must be handled before entering the
+   fast fold.
+2. The total source drive agrees with the existing stopping drive when every
+   callback returns `Continue`. For every owned input `x`, state `s`, and
+   closed total step `f`, the desired law is
+   `drive_stop(x, Continue(s), (s,a) => Continue(f(s,a))) ==
+   Continue(drive_total(x,s,f))`. This entails no spontaneous `Stop` on that
+   path and the same final state and encounter order for arbitrary `f`.
+
+The first claim follows from the step type. The second does not: two
+independent source implementations could traverse in different orders or
+drop elements while both satisfy their function types. We checked a Bend
+inductive [List proof](../../experiments/affine_xf/no_stop_list_law_probe.bend)
+over an opaque template step; it verifies the law for that small source.
+This does not establish that the same proof is convenient for affine
+branching sources or Bend Array. A direct branching proof needs to carry the
+left subtree's computed state into the right subtree without reusing the
+affine left value. A result-plus-proof witness is a plausible approach, but
+remains untested.
+
+The safest incremental protocol is therefore **certified totality**: use a
+total drive only when both the reducer's total type and a checked source
+agreement proof are available; otherwise keep the stopping drive. A single
+canonical source traversal representation that generates both drives would
+also establish agreement by construction, but its performance on Array and
+branching structures is unmeasured. A compiler clone of the same checked
+source body could avoid per-source proofs, at the substantially higher
+compiler complexity described above. Merely declaring an optional fast drive
+and testing it is a useful engineering contract, not a proof of equivalence.
 
 This investigation changes no production compiler or transducer-library code.
