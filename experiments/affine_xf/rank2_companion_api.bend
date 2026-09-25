@@ -16,7 +16,7 @@ def transduce(~A: Type, ~B: Type,
     X -> T.Control<T.State(A, Result, recipe)> ->
       T.Control<T.State(A, Result, recipe)>,
   xf: S.Xf<A, B, P>, rf: V.Rf<B, R, Q, Init>,
-  initial: Init, source: Sources.Source<A, X, Drive>) -> R:
+  initial: Init, source: T.Source<A, X, Drive>) -> R:
   V.transduce_from(~A, ~B, ~P, ~R, ~Q, ~Init, ~X, ~Drive,
     xf, rf, initial, source)
 
@@ -28,6 +28,6 @@ def into(~A: Type, ~B: Type,
     X -> T.Control<T.State(A, Result, recipe)> ->
       T.Control<T.State(A, Result, recipe)>,
   dest: V.Destination<B, D, Q>, xf: S.Xf<A, B, P>,
-  source: Sources.Source<A, X, Drive>) -> D:
+  source: T.Source<A, X, Drive>) -> D:
   V.into_from(~A, ~B, ~P, ~D, ~Q, ~X, ~Drive,
     dest, xf, source)

@@ -7,9 +7,9 @@ import ../../transduce.bend as T
 
 # This same-spelled method belongs to the importing module, not Orphan's
 # defining module. The owner-only resolver must ignore it.
-def Orphan.source(xs: O.Orphan) -> Sources.Source<U32, O.Orphan,
+def Orphan.source(xs: O.Orphan) -> T.Source<U32, O.Orphan,
   (R => r => value => c => c)>:
-  Sources.Source{xs}
+  T.Source{xs}
 
 def run(xs: O.Orphan) -> U32:
   Auto.transduce(V.take(~U32, 1n), V.sum_rf(), 0, xs)

@@ -143,9 +143,9 @@ def transduce_from(~A: Type, ~B: Type,
     X -> T.Control<T.State(A, Result, recipe)> ->
       T.Control<T.State(A, Result, recipe)>,
   xf: S.Xf<A, B, P>, rf: Rf<B, R, Q, Init>,
-  initial: Init, source: Sources.Source<A, X, Drive>) -> R:
+  initial: Init, source: T.Source<A, X, Drive>) -> R:
   match xf rf source:
-    case S.Xf{configure} Rf{prepare} Sources.Source{input}:
+    case S.Xf{configure} Rf{prepare} T.Source{input}:
       config = configure(R, Q, prepare(initial))
       T.finish_control(~A, ~R, ~P(R, Q),
         Drive(R, P(R, Q), input,
@@ -170,7 +170,7 @@ def into_from(~A: Type, ~B: Type,
     X -> T.Control<T.State(A, Result, recipe)> ->
       T.Control<T.State(A, Result, recipe)>,
   dest: Destination<B, D, Q>, xf: S.Xf<A, B, P>,
-  source: Sources.Source<A, X, Drive>) -> D:
+  source: T.Source<A, X, Drive>) -> D:
   match dest:
     case Destination{value, consumer}:
       transduce_from(~A, ~B, ~P, ~D, ~Q, ~D, ~X, ~Drive,

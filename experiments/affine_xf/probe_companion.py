@@ -52,6 +52,16 @@ def main():
             print('PASS raw companion', lane)
         assert '{$: "Reducer"' not in js.read_text()
         print('PASS closed reducer code shape')
+        core = HERE / 'companion_core_sources.bend'
+        result = run('bun', compiler, core,
+                     '-o', temp / 'core.js', '-o', temp / 'core')
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        for lane, command in [('JS', ('bun', temp / 'core.js')),
+                              ('native', (temp / 'core', '--threads', '1', '--gpu', 'off'))]:
+            result = run(*command)
+            assert result.returncode == 0 and result.stdout.strip() == '(3, 3, 8)', \
+                (lane, result.returncode, result.stdout, result.stderr)
+            print('PASS core Range/Array sources', lane)
         unrelated = HERE / 'companion_unrelated.bend'
         result = run('bun', compiler, unrelated,
                      '-o', temp / 'unrelated.js', '-o', temp / 'unrelated')

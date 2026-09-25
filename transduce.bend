@@ -367,6 +367,35 @@ def reduce_array(~A: Type, ~S: Type, ~advance: S -> A -> Control<S>,
       reduce_array(~A, ~S, ~advance, right,
         reduce_array(~A, ~S, ~advance, left, Continue{s}))
 
+# A source owns its input while its erased Drive index supplies a closed fold
+# for every downstream reducer. Keep this contract beside Range and the folds
+# so those types can provide companions without an import cycle.
+type Source<-A: Type, -X: Type,
+  -Drive: @-R: Type -> @-r: Reducer<A, R> ->
+    X -> Control<State(A, R, r)> ->
+      Control<State(A, R, r)>> is Type:
+  Source{input: X}
+
+def Source.allow_companion() -> Unit:
+  Unit{}
+
+def List.source(~A: Type, xs: List<A>) ->
+  Source<A, List<A>, (R => r => ys => c =>
+    reduce_list_static(~A, ~R, ~r, ys, c))>:
+  Source{xs}
+
+def Range.source(xs: Range) ->
+  Source<U32, Range, (R => r => ys => c =>
+    reduce_range(~State(U32, R, r),
+      ~(s => x => step(U32, R, r, s, x)), ys, c))>:
+  Source{xs}
+
+def Array.source(~A: Type, xs: Array<A>) ->
+  Source<A, Array<A>, (R => r => ys => c =>
+    reduce_array(~A, ~State(A, R, r),
+      ~(s => x => step(A, R, r, s, x)), ys, c))>:
+  Source{xs}
+
 # Static binding of a source-owned stopping fold to a reducer. This is open:
 # third-party adapters construct it with reducible; no source registry exists.
 # Type metadata is delayed so specialization need not evaluate type expressions

@@ -23,9 +23,9 @@ def fold_pair(~R: Type, ~r: T.Reducer<U32, R>, pair: SamplePair,
     case SamplePair{a, b} T.Continue{s}:
       second(~R, ~r, b, T.step(U32, R, r, s, a))
 
-def SamplePair.source(input: SamplePair) -> Sources.Source<U32, SamplePair,
+def SamplePair.source(input: SamplePair) -> T.Source<U32, SamplePair,
   (R => r => pair => c => fold_pair(~R, ~r, pair, c))>:
-  Sources.Source{input}
+  T.Source{input}
 
 type Bag is Type:
   Bag{items: List<U32>, finishes: U32}
