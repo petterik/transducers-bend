@@ -76,12 +76,19 @@ def get_if(~A: Data, length: U32, capacity: U32, depth: Nat,
     case False{}:
       (Vec{length, capacity, depth, filler, slots}, None{})
 
+def get_sized(~A: Data, +length: U32, capacity: U32, depth: Nat,
+  filler: A, result: Array<A> & U32, +index: U32) ->
+  Vec<A> & Maybe<&2, A>:
+  (slots, actual) = result
+  get_if(~A, length, capacity, depth, filler, slots, index,
+    Bool.and(U32.is_lt(index, length), U32.is_lt(index, actual)))
+
 def get(~A: Data, vec: Vec<A>, +index: U32) ->
   Vec<A> & Maybe<&2, A>:
   match vec:
     case Vec{+length, capacity, depth, filler, slots}:
-      get_if(~A, length, capacity, depth, filler, slots, index,
-        U32.is_lt(index, length))
+      get_sized(~A, length, capacity, depth, filler,
+        Array.size(A, slots), index)
 
 type UpdateResult<-A: Data> is Type:
   Updated{vec: Vec<A>, old: A}
@@ -102,12 +109,19 @@ def set_if(~A: Data, length: U32, capacity: U32, depth: Nat,
     case False{}:
       Invalid{Vec{length, capacity, depth, filler, slots}, value}
 
+def set_sized(~A: Data, +length: U32, capacity: U32, depth: Nat,
+  filler: A, result: Array<A> & U32, +index: U32, value: A) ->
+  UpdateResult<A>:
+  (slots, actual) = result
+  set_if(~A, length, capacity, depth, filler, slots, index, value,
+    Bool.and(U32.is_lt(index, length), U32.is_lt(index, actual)))
+
 def set(~A: Data, vec: Vec<A>, +index: U32, value: A) ->
   UpdateResult<A>:
   match vec:
     case Vec{+length, capacity, depth, filler, slots}:
-      set_if(~A, length, capacity, depth, filler, slots, index,
-        value, U32.is_lt(index, length))
+      set_sized(~A, length, capacity, depth, filler,
+        Array.size(A, slots), index, value)
 
 def step(~A: Data, vec: Vec<A>, value: A) -> T.Control<Vec<A>>:
   T.Continue{push(~A, vec, value)}
@@ -162,15 +176,23 @@ def finish(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
     case T.Continue{(slots, state)}:
       T.Continue{state}
 
+def drive_sized(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
+  length: U32, result: Array<A> & U32,
+  control: T.Control<T.State(A, R, r)>) ->
+  T.Control<T.State(A, R, r)>:
+  (slots, actual) = result
+  finish(~A, ~R, ~r, T.reduce_range(
+    ~(Array<A> & T.State(A, R, r)),
+    ~(pair => index => fold_step(~A, ~R, ~r, pair, index)),
+    T.range_between(0, U32.min(length, actual)),
+    start(~A, ~R, ~r, slots, control)))
+
 def drive(~A: Data, ~R: Type, ~r: T.Reducer<A, R>,
   vec: Vec<A>, control: T.Control<T.State(A, R, r)>) ->
   T.Control<T.State(A, R, r)>:
   match vec:
     case Vec{length, capacity, depth, filler, slots}:
-      finish(~A, ~R, ~r, T.reduce_range(
-        ~(Array<A> & T.State(A, R, r)),
-        ~(pair => index => fold_step(~A, ~R, ~r, pair, index)),
-        T.range_between(0, length), start(~A, ~R, ~r, slots, control)))
+      drive_sized(~A, ~R, ~r, length, Array.size(A, slots), control)
 
 def Vec.source(~A: Data, vec: Vec<A>) -> T.Source<A, Vec<A>,
   (R => r => v => c => drive(~A, ~R, ~r, v, c))>:

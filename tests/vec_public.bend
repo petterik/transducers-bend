@@ -2,6 +2,7 @@ import Base
 import ../xf.bend as Xf
 import ../vec.bend as Vec
 import ../transduce.bend as T
+import ./support/vec_pair_source.bend as Custom
 
 def empty_u32() -> List<U32>:
   []
@@ -55,8 +56,13 @@ def from_string() -> U32:
     abc())
   Xf.transduce(Xf.map(~U32, ~U32, ~identity), Xf.sum_rf(), 0, vec)
 
-def main() -> List<U32> & Maybe<List<U32>> & U32 & U32 & U32 & U32:
+def from_custom() -> U32:
+  vec = Xf.into(Vec.empty(~U32, 0), Xf.map(~U32, ~U32, ~inc),
+    Custom.example())
+  Xf.transduce(Xf.map(~U32, ~U32, ~identity), Xf.sum_rf(), 0, vec)
+
+def main() -> List<U32> & Maybe<List<U32>> & U32 & U32 & U32 & U32 & U32:
   (collect([1, 2, 3, 4, 5]), collect_reserved([1, 2, 3]),
    take2([1, 2, 3, 4, 5]), from_range(), from_array(),
-   from_string())
-#|([6, 5, 4, 3, 2], Some{[4, 3, 2]}, 5, 15, 8, 294)
+   from_string(), from_custom())
+#|([6, 5, 4, 3, 2], Some{[4, 3, 2]}, 5, 15, 8, 294, 9)
