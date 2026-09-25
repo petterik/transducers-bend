@@ -1,5 +1,6 @@
 ---
 created_at: 2026-09-25T07:35:41+02:00
+updated_at: 2026-09-25T08:20:53+02:00
 status: current
 ---
 
@@ -206,10 +207,26 @@ region extractor is not general enough yet.
 
 The existing map/filter fixture passes on the unmodified compiler and the
 FoldRegion candidate on JS and native. It verifies output order, count,
-empty input, and all-rejected behavior. The candidate currently records zero
-fusion and refuses with `producer-body-shape`, as it should for an unsupported
-shape. No performance claim follows from this negative result.
+empty input, and all-rejected behavior. The analyzer extracts its map and
+filter stages as `Emit` and `Emit | Skip`, respectively, with no filter-name
+special case. It reports the typed stage shape
+`1:0:1:0 > 1:1:1:1` (binds, branches, emits, skips), and the candidate still
+records zero fusion: code generation explicitly refuses with
+`producer-step-rewrite-deferred` until lowering is implemented.
 
-The next workset is an analyzer-only prototype and adversarial tests for its
-proof boundary. Rewriting and benchmarking follow only after the analyzer
-extracts the intended `Emit | Skip` relation without a name-based special case.
+The analyzer-only candidate passed 31/31 suite cases across JS/native,
+code-generation, and refusal assertions. Adversarial totality checks reject
+recursive callbacks and `Nat.add`/`Nat.mul` without range proofs. Auditing the
+upstream runtime corrected an earlier assumption: `U32.div` and `U32.mod`
+define results for a zero divisor, so they remain accepted by this gate.
+Analysis-only success is not evidence of fused performance or of a sound
+generated rewrite.
+
+The next workset is to compose the checked `Emit | Skip` region with the full
+fold, synthesize a helper over the original source, and install it only after
+the checker accepts it. Keep the existing fallback as the semantic oracle.
+Then verify evaluation order, single evaluation, and retained-value behavior;
+run JS/native and code-generation gates; and confirm the intermediate list is
+absent before measuring allocation traffic or timing. If the synthesized
+helper cannot preserve checked ownership and quantities, leave the rewrite
+disabled and refine the region representation instead.

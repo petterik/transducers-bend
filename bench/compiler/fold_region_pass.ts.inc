@@ -9,8 +9,55 @@ const FOLD_REGION_STATS: {
   helpers: number;
   rechecked: number;
   refusals: Record<string, number>;
+  region: {
+    extracted: number;
+    stages: number;
+    binds: number;
+    branches: number;
+    emits: number;
+    skips: number;
+    refusals: Record<string, number>;
+    shapes: Record<string, number>;
+  };
 } = { attempts: 0, fused: 0, let_alias_fused: 0, helpers: 0, rechecked: 0,
-  refusals: {} };
+  refusals: {}, region: { extracted: 0, stages: 0, binds: 0, branches: 0,
+    emits: 0, skips: 0, refusals: {}, shapes: {} } };
+
+type FoldRegionNode =
+  | { tag: "bind"; safety: "pure-total"; id: Probe;
+      quantity: HTerm; type: HTerm;
+      expr: HTerm; next: FoldRegionNode }
+  | { tag: "branch"; safety: "pure-total"; condition: HTerm;
+      condition_type: HTerm;
+      yes: FoldRegionNode; no: FoldRegionNode }
+  | { tag: "emit"; id: Probe }
+  | { tag: "skip" };
+
+type FoldRegionStep = {
+  input_id: Probe;
+  input_list_type: HTerm;
+  output_list_type: HTerm;
+  input_quantity: HTerm;
+  input_type: HTerm;
+  output_quantity: HTerm;
+  output_type: HTerm;
+  body: FoldRegionNode;
+  binds: number;
+  branches: number;
+  emits: number;
+  skips: number;
+};
+
+type FoldRegionPipeline = {
+  source: HTerm;
+  source_type: HTerm;
+  source_quantity: HTerm;
+  source_element_type: HTerm;
+  steps: FoldRegionStep[];
+  consumer_step: Name;
+  consumer_step_safety: "pure-total";
+  accumulator_type: HTerm;
+};
 if (process.env.BEND_FOLD_REGION_REPORT) {
   process.on("exit", () => fs.writeFileSync(
     process.env.BEND_FOLD_REGION_REPORT!,
@@ -31,6 +78,129 @@ function fold_region_same(a: HTerm, b: HTerm): boolean {
 function fold_region_var(t: HTerm, p: Probe): boolean {
   const x = term_strip(t);
   return x.$ === "Var" && probe_of(x) === p;
+}
+
+function fold_region_list_info(book: Bend.Book, list_type: HTerm):
+  { quantity: HTerm; element_type: HTerm } | null {
+  const list = ty_adt(book, list_type);
+  if (list?.k !== "List" || list.x.length < 2) return null;
+  return { quantity: list.x[list.x.length - 2],
+    element_type: list.x[list.x.length - 1] };
+}
+
+function fold_region_total_intrinsic(k: Name, args: HTerm[]): boolean {
+  void args;
+  const name = eff_name(k);
+  if (!FOLD_REGION_PURE_INTRINSICS.has(name)) return false;
+  // Bend's U32 division and modulo define the zero-divisor results, so these
+  // operations are total. Nat add/multiply can exceed the supported Nat range
+  // and reach nat_chk's fail-stop path; without a range proof we refuse them.
+  if (name === "nat_add" || name === "nat_mul") return false;
+  return true;
+}
+
+// The old gate rejects many effects but accepts recursive callbacks. A
+// fold-step rewrite changes when those calls run relative to the producer, so
+// the region requires a conservative totality check in addition to the
+// existing effect whitelist.
+function fold_region_total_function(cb: Carb, k: Name,
+  active = new Set<Name>(), done = new Set<Name>()): boolean {
+  const it = intr_of(cb, k, true);
+  if (it !== undefined) {
+    const name = eff_name(k);
+    return FOLD_REGION_PURE_INTRINSICS.has(name)
+      && name !== "nat_add" && name !== "nat_mul";
+  }
+  if (active.has(k)) return false;
+  if (active.size >= 32) return false;
+  if (done.has(k)) return true;
+  // Checked Base definitions carry b=true as a library marker. For bounded
+  // structural helper expansion that marker is not itself an unsafe effect;
+  // the body below still has to pass the same conservative call/effect scan.
+  const raw = cb.book.tlds[k];
+  if (raw?.$ !== "Def" || raw.v === null || raw.u
+    || raw.i !== undefined) return false;
+  const def = def_body(cb, k);
+  if (def?.$ !== "Def" || def.h === undefined || term_nodes(cb, def.h) > 128) {
+    return false;
+  }
+  const next_active = new Set(active).add(k);
+  let total = true;
+  term_any(cb, def.h, (node) => {
+    if (node.$ === "Sub" || (node.$ === "Let" && node.k.length > 1)) {
+      total = false;
+      return true;
+    }
+    if (node.$ === "App") {
+      const call = term_spine(cb, node);
+      if (call.t.$ === "Ref" && intr_of(cb, call.t.k, true) !== undefined
+        && call.args.length > 0) {
+        if (!fold_region_total_intrinsic(call.t.k, call.args)) {
+          total = false;
+          return true;
+        }
+      } else if (call.call !== null && call.args.length > 0) {
+        if (call.t.$ !== "Ref" || call.call.bang) {
+          total = false;
+          return true;
+        }
+        if (!fold_region_total_function(cb, call.call.k, next_active, done)) {
+          total = false;
+          return true;
+        }
+      }
+    }
+    if (node.$ === "Ref" && intr_of(cb, node.k, true) === undefined) {
+      if (node.b || !fold_region_total_function(cb, node.k,
+        next_active, done)) {
+        total = false;
+        return true;
+      }
+    }
+    return false;
+  });
+  if (total) done.add(k);
+  return total;
+}
+
+function fold_region_total_expr(cb: Carb, term: HTerm): boolean {
+  let total = true;
+  term_any(cb, term, (node) => {
+    if (node.$ === "App") {
+      const call = term_spine(cb, node);
+      if (call.t.$ === "Ref" && intr_of(cb, call.t.k, true) !== undefined
+        && call.args.length > 0) {
+        if (!fold_region_total_intrinsic(call.t.k, call.args)) {
+          const refusals = FOLD_REGION_STATS.region.refusals;
+          const key = `region-total-intrinsic:${eff_name(call.t.k)}:args${call.args.length}:${call.args.map((arg) => term_const(arg) ? "const" : "dynamic").join(",")}`;
+          refusals[key] = (refusals[key] ?? 0) + 1;
+          total = false;
+          return true;
+        }
+      } else if (call.call !== null && call.args.length > 0
+        && (!fold_region_safe_function(cb, call.call.k)
+          || !fold_region_total_function(cb, call.call.k))) {
+        const refusals = FOLD_REGION_STATS.region.refusals;
+        const key = "region-total-callback:" + call.call.k;
+        refusals[key] = (refusals[key] ?? 0) + 1;
+        total = false;
+        return true;
+      }
+    }
+    if (node.$ === "Ref") {
+      const intr = intr_of(cb, node.k, true) !== undefined;
+      if (!intr && (!fold_region_safe_function(cb, node.k)
+        || !fold_region_total_function(cb, node.k))) {
+        const refusals = FOLD_REGION_STATS.region.refusals;
+        const key = "region-total-reference:" + node.k;
+        refusals[key] = (refusals[key] ?? 0) + 1;
+        total = false;
+        return true;
+      }
+    }
+    return false;
+  });
+  return total;
 }
 
 function fold_region_apply_lams(t: HTerm, xs: HTerm[]): HTerm | null {
@@ -68,6 +238,7 @@ function fold_region_safe_function(cb: Carb, k: Name,
   seen = new Set<Name>()): boolean {
   const it = intr_of(cb, k, true);
   if (it !== undefined) return FOLD_REGION_PURE_INTRINSICS.has(eff_name(k));
+  if (seen.size >= 32) return false;
   if (seen.has(k)) return true;
   const raw = cb.book.tlds[k];
   if (raw?.$ !== "Def" || raw.v === null || raw.u || raw.i !== undefined
@@ -151,6 +322,326 @@ function fold_region_map_shape(cb: Carb, producer: Def,
     || rest.args.length !== 1
     || !fold_region_var(rest.args[0], tail)) return null;
   return { arm: con, callback: mapped.t.k };
+}
+
+function fold_region_recursive_tail(cb: Carb, term: HTerm,
+  producer_name: Name, tail: Probe): boolean {
+  const call = term_spine(cb, term);
+  return call.call?.k === producer_name && !call.call.bang
+    && call.args.length === 1 && fold_region_var(call.args[0], tail);
+}
+
+function fold_region_has_recursive_call(cb: Carb, term: HTerm,
+  producer_name: Name): boolean {
+  let found = false;
+  term_any(cb, term, (node) => {
+    if (node.$ !== "App") return false;
+    const call = term_spine(cb, node);
+    found = call.call?.k === producer_name;
+    return found;
+  });
+  return found;
+}
+
+function fold_region_emit_node(expr: HTerm, output_quantity: HTerm,
+  output_type: HTerm): FoldRegionNode {
+  const id = probe("fold_region_emitted_value");
+  return { tag: "bind", safety: "pure-total", id, quantity: output_quantity,
+    type: output_type, expr,
+    next: { tag: "emit", id } };
+}
+
+function fold_region_analysis_refuse(reason: string): null {
+  const refusals = FOLD_REGION_STATS.region.refusals;
+  refusals[reason] = (refusals[reason] ?? 0) + 1;
+  return null;
+}
+
+function fold_region_applied_match(cb: Carb, term: HTerm):
+  { match: HTerm; condition: HTerm } | null {
+  const spine = term_spine(cb, term);
+  const match = term_force(spine.t);
+  return match.$ === "Mat" && spine.all.length === 1
+    ? { match, condition: spine.all[0] } : null;
+}
+
+function fold_region_parse_step_result(cb: Carb, term: HTerm,
+  producer_name: Name, tail: Probe, output_quantity: HTerm,
+  output_type: HTerm,
+  fuel: { depth: number; nodes: number }): FoldRegionNode | null {
+  if (--fuel.nodes < 0) return fold_region_analysis_refuse("region-node-budget");
+  const value = term_strip(term);
+  if (fold_region_recursive_tail(cb, value, producer_name, tail)) {
+    return { tag: "skip" };
+  }
+  if (value.$ === "Ctr" && value.k === "Con") {
+    const fields = ctr_flds(cb.book, value.k, value.x);
+    if (fields.length !== 2
+      || !fold_region_recursive_tail(cb, fields[1], producer_name, tail)
+      || fold_region_has_recursive_call(cb, fields[0], producer_name)
+      || !fold_region_total_expr(cb, fields[0])) {
+      return fold_region_analysis_refuse("region-emit-shape-or-totality");
+    }
+    return fold_region_emit_node(fields[0], output_quantity, output_type);
+  }
+  const applied_match = fold_region_applied_match(cb, value);
+  if (applied_match !== null) {
+    const { match, condition } = applied_match;
+    const { arms, end } = mat_arms(match);
+    const no = fold_region_arm(arms, "False");
+    const yes = fold_region_arm(arms, "True");
+    const condition_type = ty_adt(cb.book, ty_ann(condition));
+    if (arms.length !== 2 || no === null || yes === null
+      || term_strip(end).$ !== "Efq") {
+      return fold_region_analysis_refuse("region-branch-shape");
+    }
+    if (condition_type?.k !== "Bool") {
+      return fold_region_analysis_refuse("region-condition-type");
+    }
+    if (fold_region_has_recursive_call(cb, condition, producer_name)) {
+      return fold_region_analysis_refuse("region-condition-recursive");
+    }
+    if (!fold_region_total_expr(cb, condition)) {
+      return fold_region_analysis_refuse("region-condition-not-total");
+    }
+    const no_region = fold_region_parse_step_result(cb, no,
+      producer_name, tail, output_quantity, output_type, fuel);
+    const yes_region = fold_region_parse_step_result(cb, yes,
+      producer_name, tail, output_quantity, output_type, fuel);
+    return no_region === null || yes_region === null
+      ? fold_region_analysis_refuse("region-branch-exit-shape")
+      : { tag: "branch", safety: "pure-total", condition,
+        condition_type: ty_ann(condition)!, yes: yes_region, no: no_region };
+  }
+
+  // A small, checked, non-recursive helper may hide a branch that selects
+  // between the recursive tail and a constructor. Expose its weak-head form
+  // generically; never inline the producer's own recursive call here.
+  if (fuel.depth >= 8) return fold_region_analysis_refuse("region-inline-depth");
+  const spine = term_spine(cb, value);
+  if (spine.call === null) return fold_region_analysis_refuse("region-helper-not-static-call");
+  if (spine.call.k === producer_name) return fold_region_analysis_refuse("region-unexpected-recursive-call");
+  if (spine.args.length === 0) return fold_region_analysis_refuse("region-helper-unsaturated");
+  if (!fold_region_total_function(cb, spine.call.k)) {
+    return fold_region_analysis_refuse("region-helper-not-total-static-call:" + spine.call.k);
+  }
+  const helper = def_body(cb, spine.call.k);
+  if (helper?.$ !== "Def" || helper.h === undefined
+    || term_nodes(cb, helper.h) > 128 || helper.v === null
+    || spine.all.length !== helper.n) {
+    return fold_region_analysis_refuse("region-helper-size");
+  }
+  // WNF deliberately preserves a stuck match call as its original reference.
+  // Apply the checked helper body to its full typed argument spine instead;
+  // this exposes a Mat applied to an unknown Bool without guessing its arm.
+  const expanded = spine.all.reduce<HTerm>((body, arg) =>
+    Bend.term_apply(body, arg), helper.v);
+  if (term_nodes(cb, expanded) > 128) {
+    return fold_region_analysis_refuse("region-inline-node-budget");
+  }
+  return fold_region_parse_step_result(cb, expanded, producer_name, tail,
+    output_quantity, output_type,
+    { depth: fuel.depth + 1, nodes: fuel.nodes });
+}
+
+function fold_region_measure(node: FoldRegionNode): {
+  binds: number; branches: number; emits: number; skips: number;
+} {
+  switch (node.tag) {
+    case "skip": return { binds: 0, branches: 0, emits: 0, skips: 1 };
+    case "emit": return { binds: 0, branches: 0, emits: 1, skips: 0 };
+    case "bind": {
+      const next = fold_region_measure(node.next);
+      return { ...next, binds: next.binds + 1 };
+    }
+    case "branch": {
+      const yes = fold_region_measure(node.yes);
+      const no = fold_region_measure(node.no);
+      return {
+        binds: yes.binds + no.binds,
+        branches: yes.branches + no.branches + 1,
+        emits: yes.emits + no.emits,
+        skips: yes.skips + no.skips,
+      };
+    }
+  }
+}
+
+function fold_region_build_step(cb: Carb, producer: Def,
+  producer_name: Name): FoldRegionStep | null {
+  if (producer.h === undefined) return fold_region_analysis_refuse("region-missing-body");
+  const type = tele_unbind(cb.book, producer.T);
+  if (type.doms.length !== 1) return fold_region_analysis_refuse("region-producer-arity");
+  const input_list_type = type.doms[0][2];
+  const output_list_type = type.ret;
+  const input_info = fold_region_list_info(cb.book, input_list_type);
+  const output_info = fold_region_list_info(cb.book, output_list_type);
+  if (input_info === null || output_info === null) {
+    return fold_region_analysis_refuse("region-producer-not-list-shaped");
+  }
+
+  const body = term_strip(producer.h);
+  if (body.$ !== "Mat") return fold_region_analysis_refuse("region-producer-not-match");
+  const { arms, end } = mat_arms(body);
+  const nil = fold_region_arm(arms, "Nil");
+  const con = fold_region_arm(arms, "Con");
+  if (nil === null || con === null || term_strip(end).$ !== "Efq"
+    || !fold_region_is_empty(nil)) {
+    return fold_region_analysis_refuse("region-producer-empty-or-cons-arm");
+  }
+  const head = probe("fold_region_step_input");
+  const tail = probe("fold_region_step_tail");
+  const result = fold_region_apply_lams(con, [head, tail]);
+  if (result === null) return fold_region_analysis_refuse("region-producer-arm-lambda");
+  const graph = fold_region_parse_step_result(cb, result, producer_name,
+    tail, output_info.quantity, output_info.element_type,
+    { depth: 0, nodes: 64 });
+  if (graph === null) return fold_region_analysis_refuse("region-step-result");
+  const counts = fold_region_measure(graph);
+  if (counts.emits === 0 || counts.emits > 16 || counts.skips > 16
+    || counts.branches > 16 || term_nodes(cb, result) > 128) {
+    return fold_region_analysis_refuse("region-step-output-budget");
+  }
+  return { input_id: head, input_list_type, output_list_type,
+    input_quantity: input_info.quantity, input_type: input_info.element_type,
+    output_quantity: output_info.quantity,
+    output_type: output_info.element_type, body: graph, ...counts };
+}
+
+function fold_region_full_fold_step(cb: Carb, consumer: Def,
+  consumer_name: Name): Name | null {
+  if (consumer.h === undefined) return null;
+  const body = term_strip(consumer.h);
+  if (body.$ !== "Mat") return null;
+  const { arms, end } = mat_arms(body);
+  const nil = fold_region_arm(arms, "Nil");
+  const con = fold_region_arm(arms, "Con");
+  if (nil === null || con === null || term_strip(end).$ !== "Efq") return null;
+  const state0 = probe("fold_region_region_nil_state");
+  const nil_result = fold_region_apply_lams(nil, [state0]);
+  if (nil_result === null || !fold_region_var(nil_result, state0)) return null;
+  const head = probe("fold_region_region_fold_head");
+  const tail = probe("fold_region_region_fold_tail");
+  const state = probe("fold_region_region_fold_state");
+  const recur = fold_region_apply_lams(con, [head, tail, state]);
+  if (recur === null) return null;
+  const call = term_spine(cb, recur);
+  if (call.call?.k !== consumer_name || call.call.bang
+    || call.args.length !== 2 || !fold_region_var(call.args[0], tail)) return null;
+  const step = term_spine(cb, call.args[1]);
+  if (step.t.$ !== "Ref" || step.args.length !== 2
+    || !fold_region_var(step.args[0], state)
+    || !fold_region_var(step.args[1], head)
+    || !fold_region_safe_function(cb, step.t.k)
+    || !fold_region_total_function(cb, step.t.k)) return null;
+  return step.t.k;
+}
+
+function fold_region_analyze_pipeline(cb: Carb, consumer: Def,
+  consumer_name: Name, producer: Def, producer_name: Name,
+  source: HTerm): FoldRegionPipeline | null {
+  const consumer_step = fold_region_full_fold_step(cb, consumer, consumer_name);
+  if (consumer_step === null) {
+    FOLD_REGION_STATS.region.refusals["consumer-not-total-full-fold"] =
+      (FOLD_REGION_STATS.region.refusals["consumer-not-total-full-fold"] ?? 0) + 1;
+    return null;
+  }
+  const seen = new Set<Name>();
+  const steps: FoldRegionStep[] = [];
+  let current = producer;
+  let current_name = producer_name;
+  let current_source = source;
+  let source_type: HTerm | null = null;
+  let expected_input: HTerm | null = null;
+  for (let depth = 0; depth < 8; depth++) {
+    if (seen.has(current_name)) {
+      FOLD_REGION_STATS.region.refusals["producer-call-cycle"] =
+        (FOLD_REGION_STATS.region.refusals["producer-call-cycle"] ?? 0) + 1;
+      return null;
+    }
+    seen.add(current_name);
+    const step = fold_region_build_step(cb, current, current_name);
+    if (step === null) {
+      FOLD_REGION_STATS.region.refusals["producer-step-shape"] =
+        (FOLD_REGION_STATS.region.refusals["producer-step-shape"] ?? 0) + 1;
+      return null;
+    }
+    const current_type = tele_unbind(cb.book, current.T);
+    const input_list_type = current_type.doms[0][2];
+    if (expected_input !== null
+      && !fold_region_same(current_type.ret, expected_input)) {
+      FOLD_REGION_STATS.region.refusals["producer-stage-type-edge"] =
+        (FOLD_REGION_STATS.region.refusals["producer-stage-type-edge"] ?? 0) + 1;
+      return null;
+    }
+    source_type = input_list_type;
+    expected_input = input_list_type;
+    steps.unshift(step);
+
+    const inner = term_spine(cb, current_source);
+    if (inner.call === null || inner.call.bang || inner.args.length !== 1) {
+      break;
+    }
+    const inner_def = def_body(cb, inner.call.k);
+    if (inner_def?.$ !== "Def" || inner_def.h === undefined
+      || inner_def.n !== 1) break;
+    const inner_type = tele_unbind(cb.book, inner_def.T);
+    if (inner_type.doms.length !== 1
+      || ty_adt(cb.book, inner_type.doms[0][2])?.k !== "List"
+      || ty_adt(cb.book, inner_type.ret)?.k !== "List"
+      || !fold_region_same(inner_type.ret, input_list_type)) break;
+    current = inner_def;
+    current_name = inner.call.k;
+    current_source = inner.args[0];
+  }
+  if (source_type === null || expected_input === null || steps.length === 0) {
+    return null;
+  }
+  const source_info = fold_region_list_info(cb.book, source_type);
+  if (source_info === null) return null;
+  for (let i = 1; i < steps.length; i++) {
+    if (!fold_region_same(steps[i - 1].output_type, steps[i].input_type)) {
+      FOLD_REGION_STATS.region.refusals["producer-stage-element-type"] =
+        (FOLD_REGION_STATS.region.refusals["producer-stage-element-type"] ?? 0) + 1;
+      return null;
+    }
+    if (!fold_region_same(steps[i - 1].output_quantity,
+      steps[i].input_quantity)) {
+      FOLD_REGION_STATS.region.refusals["producer-stage-quantity-edge"] =
+        (FOLD_REGION_STATS.region.refusals["producer-stage-quantity-edge"] ?? 0) + 1;
+      return null;
+    }
+  }
+  const consumer_type = tele_unbind(cb.book, consumer.T);
+  const accumulator_type = consumer_type.doms[1]?.[2];
+  const consumer_input = fold_region_list_info(cb.book,
+    consumer_type.doms[0]?.[2] ?? null);
+  if (accumulator_type === undefined || consumer_input === null
+    || !fold_region_same(steps[steps.length - 1].output_type,
+      consumer_input.element_type)
+    || !fold_region_same(steps[steps.length - 1].output_quantity,
+      consumer_input.quantity)) {
+    FOLD_REGION_STATS.region.refusals["fold-element-type"] =
+      (FOLD_REGION_STATS.region.refusals["fold-element-type"] ?? 0) + 1;
+    return null;
+  }
+  return { source: current_source, source_type: source_type,
+    source_quantity: source_info.quantity,
+    source_element_type: source_info.element_type, steps, consumer_step,
+    consumer_step_safety: "pure-total", accumulator_type };
+}
+
+function fold_region_record_pipeline(pipeline: FoldRegionPipeline): void {
+  const stats = FOLD_REGION_STATS.region;
+  stats.extracted++;
+  stats.stages += pipeline.steps.length;
+  stats.binds += pipeline.steps.reduce((n, step) => n + step.binds, 0);
+  stats.branches += pipeline.steps.reduce((n, step) => n + step.branches, 0);
+  stats.emits += pipeline.steps.reduce((n, step) => n + step.emits, 0);
+  stats.skips += pipeline.steps.reduce((n, step) => n + step.skips, 0);
+  const shape = pipeline.steps.map((step) =>
+    `${step.binds}:${step.branches}:${step.emits}:${step.skips}`).join(">");
+  stats.shapes[shape] = (stats.shapes[shape] ?? 0) + 1;
 }
 
 function fold_region_rewrap(term: HTerm,
@@ -435,8 +926,18 @@ function fold_region_try_call(cb: Carb, term: HTerm): HTerm | null {
   if (helper_type === null) {
     return fold_region_refuse("dependent-fold-type");
   }
+  const pipeline = fold_region_analyze_pipeline(cb, consumer,
+    consumer_call.k, producer, producer_call.k, source);
+  if (pipeline === null) {
+    return fold_region_refuse("producer-step-analysis");
+  }
+  fold_region_record_pipeline(pipeline);
   const map_shape = fold_region_map_shape(cb, producer, producer_call.k);
-  if (map_shape === null) return fold_region_refuse("producer-body-shape");
+  if (map_shape === null) {
+    const has_skip = pipeline.steps.some((step) => step.skips > 0);
+    return fold_region_refuse(has_skip
+      ? "producer-step-rewrite-deferred" : "producer-body-shape");
+  }
   const helper_key = consumer_call.k + "|" + producer_call.k;
   let helpers = FOLD_REGION_HELPERS.get(cb);
   if (helpers === undefined) {

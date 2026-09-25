@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-20T21:22:00+02:00
-updated_at: 2026-09-25T07:35:41+02:00
+updated_at: 2026-09-25T08:20:53+02:00
 status: current
 ---
 
@@ -140,9 +140,12 @@ custom reusable map producer followed by `List.filter` and a fold preserves
 order and skips rejected steps, but the current FoldRegion rule refuses to
 fuse it because it only models one output per source item. The exact
 `List.map` → `List.filter` spelling also fails the library's quantity types
-(`List<&1, B>` versus `List<&2, A>`). The proposed typed producer-step/fold
-region, including the effect, totality, ownership, and fallback proof gates,
-is specified in [`PRODUCER-STEP-FOLD-REGION.md`](PRODUCER-STEP-FOLD-REGION.md).
+(`List<&1, B>` versus `List<&2, A>`). The typed producer-step/fold region,
+including the effect, totality, ownership, and fallback proof gates, is
+specified in [`PRODUCER-STEP-FOLD-REGION.md`](PRODUCER-STEP-FOLD-REGION.md).
+Its analyzer now extracts the custom map plus `List.filter` pipeline as
+`Emit | Skip` without rewriting it; the next experiment is checked lowering
+for that shape.
 
 Rebuild and rerun the current candidate with:
 
