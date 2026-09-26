@@ -67,6 +67,16 @@ def sample_go(config: Render, +id: U32) -> U32:
 def sample(config: Render, id: U32) -> U32:
   sample_go(config, id)
 
+# A control with the same source and stage topology but very little arithmetic.
+def light_sample_go(+id: U32) -> U32:
+  +a = U32.mul(id, 2654435761)
+  +b = U32.xor(a, U32.shrn(a, 16n))
+  +c = U32.mul(b, 2246822507)
+  U32.and(U32.xor(c, U32.shrn(c, 13n)), 31)
+
+def light_sample(config: Render, id: U32) -> U32:
+  light_sample_go(id)
+
 def shade(samples: U32 & U32 & U32 & U32) -> U32:
   (a, b, c, d) = samples
   U32.mul(U32.add(U32.add(a, b), U32.add(c, d)), 2)
@@ -97,6 +107,16 @@ def fused_range(config: Render, begin: U32, end: U32) -> U32:
 
 def fused(config: Render, pixels: U32) -> U32:
   fused_range(config, 0, pixels)
+
+def light_fused(config: Render, pixels: U32) -> U32:
+  X.transduce(X.comp2(X.comp5(
+    X.map(~U32, ~T.Range, ~pixel_samples),
+    X.cat(T.Range.adapter()),
+    X.map_with(~U32, ~U32, ~Render, ~light_sample, config),
+    X.partition4(~U32),
+    X.map(~(U32 & U32 & U32 & U32), ~U32, ~shade)),
+    X.filter(~U32, ~visible)),
+    X.sum_rf(), 0, T.range(pixels))
 
 # A tile contains consecutive pixels. Every leaf receives the same number of
 # pixels, though escape times still vary with image position.
@@ -138,9 +158,59 @@ def direct_loop(left: Nat, +pixel: U32, +config: Render,
 def direct(config: Render, pixels: U32) -> U32:
   direct_loop(U32.to_nat(pixels), 0, config, 0)
 
-def materialized(config: Render, pixels: U32) -> U32:
+def pixel_list(config: Render, pixels: U32) -> U32:
   List.foldl(~&1, ~U32, ~U32, ~add_visible,
     image_pixels(config, pixels), 0)
+
+# Deliberately materialize every stage boundary. X.into prepends, so reverse
+# each List to preserve encounter order before passing it to the next stage.
+def empty_ranges() -> List<T.Range>:
+  []
+
+def staged_ranges(pixels: U32) -> List<T.Range>:
+  List.reverse(&1, T.Range,
+    X.into(empty_ranges(), X.map(~U32, ~T.Range, ~pixel_samples),
+      T.range(pixels)))
+
+def staged_ids(ranges: List<T.Range>) -> List<U32>:
+  List.reverse(&1, U32,
+    X.into(empty_pixels(), X.cat(T.Range.adapter()), ranges))
+
+def staged_counts(config: Render, ids: List<U32>) -> List<U32>:
+  List.reverse(&1, U32,
+    X.into(empty_pixels(),
+      X.map_with(~U32, ~U32, ~Render, ~sample, config), ids))
+
+def staged_light_counts(config: Render, ids: List<U32>) -> List<U32>:
+  List.reverse(&1, U32,
+    X.into(empty_pixels(),
+      X.map_with(~U32, ~U32, ~Render, ~light_sample, config), ids))
+
+def empty_groups() -> List<(U32 & U32 & U32 & U32)>:
+  []
+
+def staged_groups(counts: List<U32>) -> List<(U32 & U32 & U32 & U32)>:
+  List.reverse(&1, (U32 & U32 & U32 & U32),
+    X.into(empty_groups(), X.partition4(~U32), counts))
+
+def staged_shades(groups: List<(U32 & U32 & U32 & U32)>) -> List<U32>:
+  List.reverse(&1, U32,
+    X.into(empty_pixels(),
+      X.map(~(U32 & U32 & U32 & U32), ~U32, ~shade), groups))
+
+def staged_visible(shades: List<U32>) -> List<U32>:
+  List.reverse(&1, U32,
+    X.into(empty_pixels(), X.filter(~U32, ~visible), shades))
+
+def fully_staged(config: Render, pixels: U32) -> U32:
+  List.foldl(~&1, ~U32, ~U32, ~U32.add,
+    staged_visible(staged_shades(staged_groups(staged_counts(config,
+      staged_ids(staged_ranges(pixels)))))), 0)
+
+def light_staged(config: Render, pixels: U32) -> U32:
+  List.foldl(~&1, ~U32, ~U32, ~U32.add,
+    staged_visible(staged_shades(staged_groups(staged_light_counts(config,
+      staged_ids(staged_ranges(pixels)))))), 0)
 
 def choose(mode: Nat, config: Render, pixels: U32) -> U32:
   match mode:
@@ -150,7 +220,10 @@ def choose(mode: Nat, config: Render, pixels: U32) -> U32:
     case 5n: tiled!(6n, config, 0, pixels)
     case 6n: tiled!(10n, config, 0, pixels)
     case 7n: tiled!(12n, config, 0, pixels)
-    case _: materialized(config, pixels)
+    case 8n: fully_staged(config, pixels)
+    case 9n: light_fused(config, pixels)
+    case 10n: light_staged(config, pixels)
+    case _: pixel_list(config, pixels)
 
 def parsed_nat(value: Maybe<&2, Nat>) -> Nat:
   match value:

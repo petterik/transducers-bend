@@ -33,17 +33,33 @@ On an M3 Max, one native CPU thread, Apple Clang 17 `-O3`
 `-ffp-contract=off`, 20 randomized process sessions gave these median
 **milliseconds for one checksum frame**:
 
-| Bend transducer | Direct Bend | Materialized Bend image List | Handwritten C |
-| ---: | ---: | ---: | ---: |
-| 37.41 | 37.41 | 38.20 | 15.64 |
+| Fused Bend | Direct Bend | Final pixel List only | Every stage materialized | Handwritten C |
+| ---: | ---: | ---: | ---: | ---: |
+| 37.40 | 37.43 | 38.28 | 51.72 | 15.64 |
 
 The fused pipeline tracks the handwritten Bend loop in this workload. It is
-2.39 times the handwritten C time. The materialized path is only 2.1% slower
-than the fused path because the 32-step orbit calculation
-dominates the List work. Nevertheless, native heap allocation calls inside
-the timed interval are **32 fused, 12 direct, and 262,175 materialized** at
-512×512. This distinguishes fusion from a speedup claim the workload does
-not support. See [raw CPU samples](julia-showcase-20260926.json).
+2.39 times the handwritten C time. The earlier benchmark called its
+"materialized" path a materialized pipeline, but that path fused the first
+five stages and built **only the final pixel List**. That label was misleading.
+The corrected staged path constructs separate Lists of sample ranges, sample
+IDs, sample counts, four-count tuples, shades, and filtered shades, restoring
+encounter order between stages. It is 38.3% slower than fusion at 512×512.
+Native heap allocation calls inside the timed interval are **32 fused, 12 direct,
+262,175 final-pixel-only, and 5,074,355 fully staged**. The 32-step orbit
+calculation still dominates total runtime.
+
+To isolate the traversal cost, the fixture also has a cheap numeric mapper
+with the **same source, `cat`, `partition4`, filter, and sum layout**. Its
+two-multiply/xor/shift calculation replaces the Julia orbit. At 512×512,
+the cheap fused path takes **0.18 ms**, while the fully staged path takes
+**15.19 ms** (84 times longer). These timings establish why the full-orbit
+materialization gap looks modest: arithmetic largely hides the cost of
+moving data through intermediate Lists. Replacing the cheap mapper with the
+Julia orbit adds roughly 37 ms to either path, while the cheap fully staged
+path already takes about 15 ms. That is evidence of an arithmetic bottleneck,
+not an exact additive breakdown: the mappers produce different shade
+distributions. This control has its own independently computed Python
+checksum. See [raw CPU samples](julia-showcase-20260926.json).
 
 ## CPU threads and GPU
 
@@ -60,11 +76,11 @@ computed frame**:
 
 | Width | Serial CPU | 8 CPU threads, 64 tiles | GPU, 64 tiles | GPU, 1,024 tiles | GPU, 4,096 tiles |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 256 | 10.29 | 2.02 | 4.53 | 0.66 | 0.52 |
-| 512 | 40.36 | 7.78 | 17.03 | 1.42 | 0.81 |
+| 256 | 9.55 | 1.99 | 4.57 | 0.67 | 0.52 |
+| 512 | 37.50 | 7.50 | 17.19 | 1.45 | 0.82 |
 
-At 512×512 with 4,096 GPU tiles, this is about **1.29 billion sample
-evaluations per second**, or 10 times the eight-thread CPU rate for this
+At 512×512 with 4,096 GPU tiles, this is about **1.27 billion sample
+evaluations per second**, or 9.1 times the eight-thread CPU rate for this
 kernel. Those samples have variable orbit lengths. A tile count of 64 leaves
 most of the GPU underused, so it is slower than eight CPU threads. See
 [raw parallel samples](julia-parallel-20260926.json) for all thread counts,

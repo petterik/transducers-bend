@@ -33,16 +33,19 @@ X.transduce(X.comp2(X.comp5(
 ```
 
 At 512×512, that is **1,048,576 complex-orbit samples per frame**. The
-transducer, direct Bend loop, materialized Bend image, and handwritten C
+transducer, direct Bend loop, two materialized Bend paths, and handwritten C
 renderer all produce the same checksum; the exported Bend image also matches
 C pixel for pixel. On an M3 Max, median single-thread CPU computation times
-were **37.41 ms fused Bend**, **37.41 ms direct Bend**, **38.20 ms materialized
-Bend**, and **15.64 ms handwritten C**. The fused path made 32 timed native
-heap allocation calls; materializing the pixel List made 262,175.
+were **37.40 ms fused Bend**, **37.43 ms direct Bend**, **38.28 ms when only
+final pixels are materialized**, **51.72 ms when every stage is materialized**,
+and **15.64 ms handwritten C**. The fully staged path made 5,074,355 timed
+native heap allocation calls, versus 32 for fusion. A cheap-mapper control
+with the same stage layout measures 0.18 ms fused versus 15.19 ms staged:
+the Julia orbit math hides most of the intermediate-data cost.
 
 Balanced tiles let Bend use CPU threads or the GPU. With eight distinct
-frames timed after a warm-up, 512×512 medians were **7.78 ms per frame on
-eight CPU threads** and **0.81 ms on the GPU with 4,096 tiles**. These are
+frames timed after a warm-up, 512×512 medians were **7.50 ms per frame on
+eight CPU threads** and **0.82 ms on the GPU with 4,096 tiles**. These are
 computed frames: image export, display, process startup, and shader
 compilation are outside the interval. The [full showcase and reproduction
 commands](bench/JULIA-SHOWCASE.md) include the C code, materialized control,

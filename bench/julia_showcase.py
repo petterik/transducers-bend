@@ -18,7 +18,8 @@ from public_array_map_filter_sum import instrument_allocations, timed_allocation
 ROOT = Path(__file__).resolve().parents[1]
 BEND = ROOT / "bench/julia_showcase.bend"
 MANUAL_C = ROOT / "bench/julia_showcase.c"
-NAMES = ["fused", "direct", "materialized", "manual_c",
+NAMES = ["fused", "direct", "pixel_list", "staged",
+         "light_fused", "light_staged", "manual_c",
          "tiled_1", "tiled_2", "tiled_4", "tiled_8"]
 
 
@@ -36,7 +37,8 @@ def timed(command):
 def command_for(name, bend_binary, c_binary, depth, frame):
     if name == "manual_c":
         return [c_binary, depth, frame]
-    modes = {"fused": 0, "direct": 1, "materialized": 3,
+    modes = {"fused": 0, "direct": 1, "pixel_list": 3,
+             "staged": 8, "light_fused": 9, "light_staged": 10,
              "tiled_1": 4, "tiled_2": 4, "tiled_4": 4, "tiled_8": 4}
     threads = int(name.rsplit("_", 1)[1]) if name.startswith("tiled_") else 1
     return [bend_binary, "--threads", threads, "--gpu", "off",
@@ -58,6 +60,21 @@ def write_gray_png(path, width, pixels):
         + png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, width, 8, 0, 0, 0, 0))
         + png_chunk(b"IDAT", zlib.compress(bytes(rows), 9))
         + png_chunk(b"IEND", b""))
+
+
+def light_checksum(depth):
+    total = 0
+    for pixel in range(1 << (2 * depth)):
+        counts = []
+        for sample_id in range(4 * pixel, 4 * pixel + 4):
+            a = sample_id * 2654435761 & 0xFFFFFFFF
+            b = a ^ (a >> 16)
+            c = b * 2246822507 & 0xFFFFFFFF
+            counts.append((c ^ (c >> 13)) & 31)
+        shade = 2 * sum(counts)
+        if shade >= 32:
+            total = (total + shade) & 0xFFFFFFFF
+    return total
 
 
 def verify_image(bend_binary, c_binary, depth, frame, output, want):
@@ -121,6 +138,7 @@ def main():
         for depth in args.depths:
             width = 1 << depth
             want = timed([c_binary, depth, args.frame])[1]
+            light_want = light_checksum(depth)
             commands = {name: command_for(name, bend_binary, c_binary,
                                           depth, args.frame) for name in NAMES}
             samples = {name: [] for name in NAMES}
@@ -129,18 +147,22 @@ def main():
                 random.Random(20260926 + depth * 1000 + session).shuffle(order)
                 for name in order:
                     elapsed, checksum = timed(commands[name])
-                    assert checksum == want, (depth, name, checksum, want)
+                    expected = light_want if name.startswith("light_") else want
+                    assert checksum == expected, (depth, name, checksum, expected)
                     samples[name].append(elapsed)
             allocs = {name: timed_allocations(alloc_binary, mode, depth,
-                                              args.frame, want)
+                                              args.frame,
+                                              light_want if name.startswith("light_") else want)
                       for name, mode in (("fused", 0), ("direct", 1),
-                                         ("materialized", 3))}
+                                         ("pixel_list", 3), ("staged", 8),
+                                         ("light_fused", 9), ("light_staged", 10))}
             medians = {name: statistics.median(values)
                        for name, values in samples.items()}
             report["results"].append({
                 "depth": depth, "width": width,
                 "pixels": width * width, "samples": 4 * width * width,
-                "checksum": want, "samples_us": samples,
+                "checksum": want, "light_checksum": light_want,
+                "samples_us": samples,
                 "median_us": medians,
                 "timed_bend_heap_alloc_calls": allocs,
             })
