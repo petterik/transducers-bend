@@ -40,10 +40,16 @@ separate field arrays. The field arrays match every frame and save about 4%
 of complete one-thread runtime. Simulation is only about 11% of that runtime;
 framebuffer work dominates.
 
-Changing these programs from one to [2, 4, or 8 CPU threads](bench/BULLET-THREAD-SCALING.md)
+Changing the original programs from one to [2, 4, or 8 CPU threads](bench/BULLET-THREAD-SCALING.md)
 does not improve the 120-frame time: the field-array medians stay at about
-393 ms. The stateful frame loop and framebuffer reductions have no explicit
-parallel calls, so additional workers have no independent tasks to run.
+393 ms. A [parallel frame-batch variant](bench/BULLET-PARALLEL-FRAMES.md)
+first advances the dependent game state in order, then renders eight independent
+frame snapshots with balanced parallel calls. On eight threads, its 120-frame
+median is **95.7 ms**, versus **393.3 ms** for the serial field-array version:
+**4.11× faster**. That is about **1,254 computed frames per second**, or
+**0.80 ms per frame averaged over the batch**. This is batch throughput; it
+does not measure the latency of rendering one frame or include video encoding
+and display.
 
 ## Transformation-heavy showcase: an animated starfield
 

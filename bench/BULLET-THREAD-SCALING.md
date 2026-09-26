@@ -1,7 +1,9 @@
 # Bullet Cathedral: CPU thread-count sweep
 
 Changing the native runtime from 1 to 2, 4, or 8 CPU threads **does not speed
-up the current Bullet Cathedral programs**. The complete 120-frame medians,
+up these original serial Bullet Cathedral programs**. A later
+[parallel frame-batch variant](BULLET-PARALLEL-FRAMES.md) does scale. The
+complete 120-frame medians for the original programs,
 in milliseconds, are:
 
 | Bullet layout | 1 thread | 2 threads | 4 threads | 8 threads |
@@ -26,12 +28,9 @@ into one affine framebuffer array, with drawing layers applied in sequence.
 The runtime therefore has one active computation to run at a time. Merely
 raising the worker count cannot split that computation automatically.
 
-This measurement says nothing about how a deliberately parallel renderer would
-scale. A useful next design is to compute the dependent world states in order,
-then render independent spatial tiles or frame snapshots with balanced parallel
-calls. Each tile should own its output pixels, and tile results can be joined
-afterward. That design would need its own correctness and performance checks,
-especially around repeated bullet scans, copying state, and shared `+` values.
+We subsequently implemented the frame-snapshot option, with balanced parallel
+render calls and independent framebuffers. It renders the same 120 frames in
+95.7 ms at eight threads; see the [follow-up measurements](BULLET-PARALLEL-FRAMES.md).
 
 ## Method
 
