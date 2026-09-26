@@ -12,6 +12,28 @@ other modules can add sources without changing this library.
 It lists every supported stage, source, destination, adapter, and extension
 point, and distinguishes them from implementation helpers.
 
+## Bullet Cathedral: a transducer bullet hell
+
+![Frame 96 of Bullet Cathedral, rendered by Bend transducers](bench/bullet-cathedral-frame-096.png)
+
+**[Watch the 120-frame animation](bench/bullet-cathedral.mp4).** A Bend
+transducer program generates up to 12,288 live bullets, resolves swept-circle
+collisions against 256 moving shield drones and a moving player, and renders
+every pixel of a 512×512 arena. Its fused stages expand each friendly bullet
+to nine nearby grid cells with `cat`, filter precise hits, update drone health,
+then expand glowing sprites into pixels and blend them into a flat Bend Array.
+The boss changes color, hits leave afterglows, and the HUD tracks damage and
+player shield. No input file or external art is required.
+
+On an M3 Max, one native CPU thread computed the complete 120-frame sequence
+in a **439 ms median** over 21 runs, including simulation, collision handling,
+RGB framebuffer generation, and pixel checksums. That is about **273 computed
+frames per second averaged over the sequence**; MP4 encoding and display are
+outside the timed interval. An independent exhaustive oracle checked 54
+million bullet–drone pairs and matched Bend's collision counters at every
+frame. See the [source, stills, performance samples, and reproduction
+steps](bench/BULLET-CATHEDRAL.md).
+
 ## Transformation-heavy showcase: an animated starfield
 
 ![A starfield frame rendered from Bend transducer pixels](bench/starfield-frame0.png)
