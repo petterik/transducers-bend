@@ -1,0 +1,112 @@
+{
+  "scope": "Warm one frame outside each timed sample; then compute distinct consecutive frames in one process. Times include GPU dispatch and cleanup, but exclude process startup, shader compilation, image output, and display.",
+  "compiler_commit": "1b4f641b9fea9b48fee37fc10b0a07977bba6e7d",
+  "library_commit": "6cec7d2c0360bdc172edb79e23a0128482276c5d",
+  "fixture_sha256": "b08520c75a07307c18386db8465602a8f7b38c421a05e0706c7afb7ca80f4257",
+  "manual_c_sha256": "40e9b56de1840db563d3541badf5faabe58f80c61e047005b3141d670be59123",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "sessions": 8,
+  "frames_per_session": 8,
+  "first_frame": 0,
+  "results": [
+    {
+      "depth": 10,
+      "width": 1024,
+      "pixels_per_frame": 1048576,
+      "samples_per_frame": 4194304,
+      "samples_us_per_frame": {
+        "cpu_serial": [
+          2543.25,
+          2543.375,
+          2544.25,
+          2541.25,
+          2544.625,
+          2541.0,
+          2544.0,
+          2548.625
+        ],
+        "cpu_tiled_1": [
+          2669.25,
+          2669.5,
+          2664.375,
+          2666.25,
+          2664.75,
+          2702.625,
+          2672.625,
+          2677.375
+        ],
+        "cpu_tiled_2": [
+          1403.625,
+          1408.875,
+          1401.75,
+          1401.75,
+          1404.75,
+          1405.125,
+          1398.5,
+          1404.125
+        ],
+        "cpu_tiled_4": [
+          737.625,
+          732.375,
+          744.25,
+          733.75,
+          736.625,
+          734.5,
+          745.0,
+          732.5
+        ],
+        "cpu_tiled_8": [
+          455.0,
+          444.25,
+          438.25,
+          439.75,
+          445.875,
+          444.125,
+          444.125,
+          430.5
+        ],
+        "gpu_tiles_64": [
+          3632.625,
+          3401.25,
+          3397.0,
+          3410.0,
+          3402.0,
+          3398.5,
+          3400.625,
+          3398.375
+        ],
+        "gpu_tiles_1024": [
+          820.5,
+          823.25,
+          678.0,
+          610.0,
+          603.5,
+          591.75,
+          599.25,
+          593.5
+        ],
+        "gpu_tiles_4096": [
+          798.125,
+          492.125,
+          489.375,
+          481.75,
+          487.5,
+          485.75,
+          487.5,
+          491.5
+        ]
+      },
+      "median_us_per_frame": {
+        "cpu_serial": 2543.6875,
+        "cpu_tiled_1": 2669.375,
+        "cpu_tiled_2": 1403.875,
+        "cpu_tiled_4": 735.5625,
+        "cpu_tiled_8": 444.125,
+        "gpu_tiles_64": 3400.9375,
+        "gpu_tiles_1024": 606.75,
+        "gpu_tiles_4096": 488.4375
+      },
+      "first_warm_checksum": 2865383
+    }
+  ]
+}

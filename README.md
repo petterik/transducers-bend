@@ -12,6 +12,31 @@ other modules can add sources without changing this library.
 It lists every supported stage, source, destination, adapter, and extension
 point, and distinguishes them from implementation helpers.
 
+## Transformation-heavy showcase: an animated starfield
+
+![A starfield frame rendered from Bend transducer pixels](bench/starfield-frame0.png)
+
+This no-input renderer computes four samples per pixel. Its public Bend
+pipeline maps pixel IDs to small ranges, flattens them with `cat`, computes
+sample brightness, groups each four values with `partition4`, averages them,
+filters dark pixels, and sums a checksum. A frame number scrolls the field.
+The arithmetic is short enough that moving intermediate data matters.
+
+At **512×512 pixels (1,048,576 samples)**, median one-thread computation
+times on an M3 Max were **0.64 ms fused Bend**, **0.58 ms direct Bend**,
+**0.58 ms handwritten C**, **3.73 ms when only final Bend pixels are
+materialized**, **7.77 ms with Array-backed Vec stages**, and **15.58 ms
+with every stage materialized as a Bend List**. The fused path made 32 timed
+native heap allocation calls versus about 5 million for the staged Lists.
+All checksums agree, and the Bend image matches C pixel for pixel.
+
+At 1024×1024, eight CPU threads computed a frame in **0.44 ms**; Metal with
+4,096 tiles took **0.49 ms**. These times exclude image export and display.
+The [full starfield report](bench/STARFIELD-SHOWCASE.md) includes the Bend,
+C, List, and Vec code paths, scaling measurements, GPU tile sensitivity,
+raw timings, and reproduction commands. The Julia-set renderer below remains
+the heavier arithmetic example.
+
 ## Visual showcase: a supersampled Julia set
 
 ![A Julia-set image rendered from Bend transducer pixels](bench/julia-showcase-frame0.png)
