@@ -38,6 +38,11 @@ def filter(~A: Data, ~predicate: A -> Bool) -> Xf<A, A,
   (R => down => T.filter(~A, ~R, ~predicate, ~down))>:
   Xf{R => down => config => config}
 
+def filter_with(~A: Data, ~C: Data,
+  ~predicate: C -> A -> Bool, setting: C) -> Xf<A, A,
+  (R => down => T.filter_with(~A, ~R, ~C, ~predicate, ~down))>:
+  Xf{R => down => config => (setting, config)}
+
 def remove(~A: Data, ~predicate: A -> Bool) -> Xf<A, A,
   (R => down => T.filter(~A, ~R,
     ~(x => Bool.not(predicate(x))), ~down))>:

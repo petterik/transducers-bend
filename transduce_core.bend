@@ -743,6 +743,27 @@ def map_with(~A: Type, ~B: Type, ~R: Type, ~C: Data,
       state, x),
     state => configured_finish(~B, ~R, ~C, ~down, state)}
 
+def filter_with_step(~A: Data, ~R: Type, ~C: Data,
+  ~predicate: C -> A -> Bool, ~down: Reducer<A, R>,
+  state: Configured<C, State(A, R, down)>, +x: A) ->
+  Control<Permit(A, R, down), Configured<C, State(A, R, down)>>:
+  match state:
+    case Configured{+local, inner}:
+      configured_wrap(~Permit(A, R, down), ~C,
+        ~State(A, R, down), local,
+        filter_choose(~A, ~R, ~down,
+          predicate(local, x), inner, x))
+
+def filter_with(~A: Data, ~R: Type, ~C: Data,
+  ~predicate: C -> A -> Bool,
+  ~down: Reducer<A, R>) -> Reducer<A, R>:
+  Reducer{Permit(A, R, down),
+    C & Config(A, R, down), Configured<C, State(A, R, down)>,
+    config => configured_start(~A, ~R, ~C, ~down, config),
+    state => x => filter_with_step(~A, ~R, ~C, ~predicate, ~down,
+      state, x),
+    state => configured_finish(~A, ~R, ~C, ~down, state)}
+
 # A zero width stops before the source runs. A partial group is emitted once
 # on completion, unless downstream has already stopped.
 type Partitioning<-A: Type, -K: Data, -S: Type> is Type:

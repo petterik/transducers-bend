@@ -60,3 +60,7 @@ python3 bench/bullet_parallel_frames_bench.py --frames 120 --sessions 20
 This experiment measures **batch throughput**, not a real-time presentation
 loop. Showing the rendered images on screen or encoding the movie would require
 additional work beyond this timed path.
+
+A follow-up [32-task tile experiment](BULLET-TILED32.md) split each of the eight
+frames into four tiles. It repeated bullet traversal and array copies, and the
+measured time was slower; 16 threads did not improve its runtime.

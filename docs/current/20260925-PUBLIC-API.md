@@ -74,6 +74,7 @@ can specialize without a per-item runtime closure.
 | `X.map_indexed(~A, ~B, ~f)` | Apply `f: Nat -> A -> B` with zero-based index. | `A, B: Type` |
 | `X.map_with(~A, ~B, ~C, ~f, setting)` | Apply `f: C -> A -> B` with owned runtime setting. | `C: Data`; `A, B: Type` |
 | `X.filter(~A, ~predicate)` | Keep inputs for which predicate is true. | `A: Data` |
+| `X.filter_with(~A, ~C, ~predicate, setting)` | Keep inputs for which `predicate: C -> A -> Bool` is true, using an owned runtime setting. | `A, C: Data` |
 | `X.remove(~A, ~predicate)` | Keep inputs for which predicate is false. | `A: Data` |
 | `X.keep(~A, ~B, ~f)` | Apply `f: A -> Maybe<B>` and emit `Some` values. | `A, B: Type` |
 | `X.keep_indexed(~A, ~B, ~f)` | Indexed `keep`, with zero-based `Nat` index. | `A, B: Type` |

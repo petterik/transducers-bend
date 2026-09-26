@@ -32,6 +32,9 @@ def even(x: U32) -> Bool:
 def add_offset(offset: U32, x: U32) -> U32:
   (offset + x : U32)
 
+def below(limit: U32, x: U32) -> Bool:
+  U32.is_lt(x, limit)
+
 def mixed() -> U32:
   X.transduce(X.comp5(
     X.map(~U32, ~U32, ~inc),
@@ -45,6 +48,11 @@ def configured() -> U32:
   X.transduce(X.map_with(~U32, ~U32, ~U32,
     ~add_offset, 7), X.sum_rf(), 0, three())
 
+def configured_filter() -> U32:
+  X.transduce(X.comp2(
+    X.filter_with(~U32, ~U32, ~below, 4),
+    X.take(~U32, 2n)), X.sum_rf(), 0, five())
+
 def removed() -> U32:
   X.transduce(X.remove(~U32, ~even), X.sum_rf(), 0, five())
 
@@ -56,6 +64,7 @@ def counted() -> Nat:
   X.transduce(X.map(~U32, ~Nat, ~U32.to_nat),
     X.count_nat_rf(), Unit{}, three())
 
-def main() -> U32 & U32 & U32 & U32 & Nat:
-  (mixed(), configured(), removed(), affine(), counted())
-#|(10, 27, 9, 6, 3n)
+def main() -> U32 & U32 & U32 & U32 & U32 & Nat:
+  (mixed(), configured(), configured_filter(),
+    removed(), affine(), counted())
+#|(10, 27, 3, 9, 6, 3n)

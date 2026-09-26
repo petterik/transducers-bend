@@ -51,6 +51,11 @@ median is **95.7 ms**, versus **393.3 ms** for the serial field-array version:
 does not measure the latency of rendering one frame or include video encoding
 and display.
 
+A [32-task tiled variant](bench/BULLET-TILED32.md) split each batch of eight
+frames into four horizontal tiles per frame. It matched all frame checksums,
+but took **115.1 ms at 16 threads**; the extra tasks did not beat the eight
+full-frame render tasks.
+
 ## Transformation-heavy showcase: an animated starfield
 
 ![A starfield frame rendered from Bend transducer pixels](bench/starfield-frame0.png)
