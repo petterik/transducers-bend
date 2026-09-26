@@ -1,0 +1,196 @@
+{
+  "description": "Simulation-only timing from source-identical builds with the bench dispatch changed to score_of(simulate(...))",
+  "sources_sha256": {
+    "generated": "e19ea23c892d9990b86b58aeea5cd1181994033210e839ebaf36545bf63e06fb",
+    "aos": "7ae32a8c0a9d782fcafe21f1aa8211bcc1889be40ff7b40f4ffe1ae839924b50",
+    "soa": "0fb93ae68a007a89a98dcef5b63bd00722e04131280d949efad7aa45a444372a"
+  },
+  "frames": 120,
+  "warmups_each": 3,
+  "random_seed": 20260927,
+  "orders": [
+    [
+      "soa",
+      "aos",
+      "generated"
+    ],
+    [
+      "soa",
+      "generated",
+      "aos"
+    ],
+    [
+      "aos",
+      "soa",
+      "generated"
+    ],
+    [
+      "generated",
+      "soa",
+      "aos"
+    ],
+    [
+      "soa",
+      "generated",
+      "aos"
+    ],
+    [
+      "soa",
+      "generated",
+      "aos"
+    ],
+    [
+      "soa",
+      "aos",
+      "generated"
+    ],
+    [
+      "generated",
+      "soa",
+      "aos"
+    ],
+    [
+      "aos",
+      "soa",
+      "generated"
+    ],
+    [
+      "soa",
+      "generated",
+      "aos"
+    ],
+    [
+      "aos",
+      "generated",
+      "soa"
+    ],
+    [
+      "aos",
+      "generated",
+      "soa"
+    ],
+    [
+      "aos",
+      "generated",
+      "soa"
+    ],
+    [
+      "soa",
+      "generated",
+      "aos"
+    ],
+    [
+      "generated",
+      "aos",
+      "soa"
+    ],
+    [
+      "soa",
+      "aos",
+      "generated"
+    ],
+    [
+      "aos",
+      "soa",
+      "generated"
+    ],
+    [
+      "aos",
+      "generated",
+      "soa"
+    ],
+    [
+      "generated",
+      "aos",
+      "soa"
+    ],
+    [
+      "aos",
+      "soa",
+      "generated"
+    ],
+    [
+      "generated",
+      "soa",
+      "aos"
+    ]
+  ],
+  "samples_us": {
+    "generated": [
+      44118,
+      44304,
+      44246,
+      44122,
+      44166,
+      44120,
+      44947,
+      44969,
+      44056,
+      44094,
+      44086,
+      44108,
+      44119,
+      44081,
+      44116,
+      44058,
+      44140,
+      44096,
+      44118,
+      44115,
+      44101
+    ],
+    "aos": [
+      56629,
+      56361,
+      56090,
+      56263,
+      56405,
+      56353,
+      56850,
+      56286,
+      56835,
+      56747,
+      56177,
+      56633,
+      56636,
+      56876,
+      56771,
+      56689,
+      56091,
+      56240,
+      56801,
+      56385,
+      56728
+    ],
+    "soa": [
+      37637,
+      37608,
+      37768,
+      37652,
+      37599,
+      37585,
+      37575,
+      37681,
+      37640,
+      37610,
+      37568,
+      37618,
+      37709,
+      37634,
+      37614,
+      37600,
+      37585,
+      37597,
+      37628,
+      37631,
+      37603
+    ]
+  },
+  "medians_us": {
+    "generated": 44118,
+    "aos": 56629,
+    "soa": 37614
+  },
+  "final_accepted_hits": 405,
+  "timing_note": "One CPU thread. Only simulation and collision resolution are timed; every framebuffer and pixel checksum is omitted from the bench dispatch. Compilation and process startup are excluded."
+}

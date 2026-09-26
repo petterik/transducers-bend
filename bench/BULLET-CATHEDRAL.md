@@ -96,13 +96,11 @@ checksums modulo 2³² equals the native benchmark checksum.
 The mutable data that persists is already split by use: one flat health array
 for the 256 drones and one flat RGB array for the 512×512 pixels. Bullets are
 recomputed from ID, spawn tick, and current frame; they do not live in an
-array of records. A structure-of-arrays bullet pool might be faster if future
-versions store and update bullets across frames, particularly when collision
-and rendering read different subsets of fields. It would also make spawning,
-deletion, and compaction more involved. For this generated workload, a stored
-AoS-to-SoA rewrite would add storage and copies rather than remove them.
-The current approach leaves the short-lived scalar record available for
-compiler specialization and C optimization.
+array of records. A [follow-up layout experiment](BULLET-LAYOUT-EXPERIMENT.md)
+stores each bullet field in a separate flat array for the duration of a frame.
+Despite building and cloning those arrays, it computes the same 120 frames
+about 4% faster. A persistent bullet pool could gain more from selective
+field reads, but would need explicit spawning, deletion, and compaction.
 
 ## Reproduce
 

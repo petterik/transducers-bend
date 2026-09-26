@@ -34,6 +34,12 @@ million bullet–drone pairs and matched Bend's collision counters at every
 frame. See the [source, stills, performance samples, and reproduction
 steps](bench/BULLET-CATHEDRAL.md).
 
+An [array-per-bullet-field experiment](bench/BULLET-LAYOUT-EXPERIMENT.md)
+compares this generated-bullet stream with stored arrays of records and seven
+separate field arrays. The field arrays match every frame and save about 4%
+of complete one-thread runtime. Simulation is only about 11% of that runtime;
+framebuffer work dominates.
+
 ## Transformation-heavy showcase: an animated starfield
 
 ![A starfield frame rendered from Bend transducer pixels](bench/starfield-frame0.png)
