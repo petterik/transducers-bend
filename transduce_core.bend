@@ -437,7 +437,48 @@ def step_control(~A: Type, ~R: Type, ~reducer: Reducer<A, R>,
     case Continue{state}: step(A, R, reducer, state, x)
     case Stop{permit, state}: Stop{permit, state}
 
-def source_array_loop(~A: Type, ~K: Data, ~S: Type,
+def source_array_checked(~A: Data, ~K: Data, ~S: Type,
+  checked: Checked<K, S>, xs: Array<A>) -> Checked<K, (Array<A> & S)>:
+  match checked:
+    case Ready{state}: Ready{(xs, state)}
+    case Halted{permit, state}: Halted{permit, (xs, state)}
+
+def source_array_step(~A: Data, ~K: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> Checked<K, S>,
+  got: Array<A> & A, state: S) -> Checked<K, (Array<A> & S)>:
+  (xs, value) = got
+  source_array_checked(~A, ~K, ~S, inspect(advance(state, value)), xs)
+
+def source_array_loop(~A: Data, ~K: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> Checked<K, S>,
+  remaining: Nat, +index: U32,
+  checked: Checked<K, (Array<A> & S)>) -> S:
+  match remaining checked:
+    case n Halted{permit, (xs, state)}: state
+    case 0n Ready{(xs, state)}: state
+    case 1n+p Ready{(xs, state)}:
+      source_array_loop(~A, ~K, ~S, ~advance, ~inspect,
+        p, U32.inc(index), source_array_step(~A, ~K, ~S,
+          ~advance, ~inspect, Array.get(A, xs, index), state))
+
+def source_array_sized(~A: Data, ~K: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> Checked<K, S>,
+  sized: Array<A> & U32, state: S) -> S:
+  (xs, count) = sized
+  source_array_loop(~A, ~K, ~S, ~advance, ~inspect,
+    U32.to_nat(count), 0,
+    source_array_checked(~A, ~K, ~S, inspect(state), xs))
+
+def source_array(~A: Data, ~K: Data, ~S: Type,
+  ~advance: S -> A -> S, ~inspect: S -> Checked<K, S>,
+  xs: Array<A>, state: S) -> S:
+  source_array_sized(~A, ~K, ~S, ~advance, ~inspect,
+    Array.size(A, xs), state)
+
+# An affine element cannot be read with Array.get: it would need to leave
+# a valid element in the owned Array after handing the old one downstream.
+# Keep the consuming structural drive as an explicit affine source.
+def source_array_affine_loop(~A: Type, ~K: Data, ~S: Type,
   ~advance: S -> A -> S, ~inspect: S -> Checked<K, S>,
   xs: Array<A>, checked: Checked<K, S>) -> S:
   match xs checked:
@@ -445,14 +486,14 @@ def source_array_loop(~A: Type, ~K: Data, ~S: Type,
     case ALeaf{x} Ready{state}: advance(state, x)
     case ANode{left, right} Halted{permit, state}: state
     case ANode{left, right} Ready{state}:
-      source_array_loop(~A, ~K, ~S, ~advance, ~inspect, right,
-        inspect(source_array_loop(~A, ~K, ~S, ~advance, ~inspect,
+      source_array_affine_loop(~A, ~K, ~S, ~advance, ~inspect, right,
+        inspect(source_array_affine_loop(~A, ~K, ~S, ~advance, ~inspect,
           left, Ready{state})))
 
-def source_array(~A: Type, ~K: Data, ~S: Type,
+def source_array_affine(~A: Type, ~K: Data, ~S: Type,
   ~advance: S -> A -> S, ~inspect: S -> Checked<K, S>,
   xs: Array<A>, state: S) -> S:
-  source_array_loop(~A, ~K, ~S, ~advance, ~inspect, xs, inspect(state))
+  source_array_affine_loop(~A, ~K, ~S, ~advance, ~inspect, xs, inspect(state))
 
 type Source<-A: Type, -X: Type,
   -Drive: @-K: Data -> @-S: Type -> @-advance: (S -> A -> S) ->
@@ -469,14 +510,24 @@ type SourceAdapter<-A: Type, -X: Type,
 def Source.allow_companion() -> Unit:
   Unit{}
 
-def Array.source(~A: Type, xs: Array<A>) ->
+def Array.source(~A: Data, xs: Array<A>) ->
   Source<A, Array<A>, (K => S => advance => inspect => ys => state =>
     source_array(~A, ~K, ~S, ~advance, ~inspect, ys, state))>:
   Source{xs}
 
-def Array.adapter(~A: Type) -> SourceAdapter<A, Array<A>,
+def Array.adapter(~A: Data) -> SourceAdapter<A, Array<A>,
   (K => S => advance => inspect => ys => state =>
     source_array(~A, ~K, ~S, ~advance, ~inspect, ys, state))>:
+  SourceAdapter{}
+
+def Array.affine_source(~A: Type, xs: Array<A>) ->
+  Source<A, Array<A>, (K => S => advance => inspect => ys => state =>
+    source_array_affine(~A, ~K, ~S, ~advance, ~inspect, ys, state))>:
+  Source{xs}
+
+def Array.affine_adapter(~A: Type) -> SourceAdapter<A, Array<A>,
+  (K => S => advance => inspect => ys => state =>
+    source_array_affine(~A, ~K, ~S, ~advance, ~inspect, ys, state))>:
   SourceAdapter{}
 
 def source_list_loop(~A: Type, ~K: Data, ~S: Type,

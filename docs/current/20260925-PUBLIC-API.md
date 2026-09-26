@@ -109,7 +109,8 @@ a List per window.
 | Collection | Raw source for `transduce`/`into` | Destination for `into` | Adapter for `cat` |
 | --- | --- | --- | --- |
 | `List<A>` | Yes, encounter order | Yes, **prepends**, so output order reverses | `T.List.adapter(~A)` |
-| `Array<A>` | Yes, indexed order | No general append destination | `T.Array.adapter(~A)` |
+| `Array<A: Data>` | Yes, indexed order via `Array.get` | No general append destination | `T.Array.adapter(~A)` |
+| `Array<A: Type>` with affine elements | Explicit `T.Array.affine_source(~A, xs)` | No general append destination | `T.Array.affine_adapter(~A)` |
 | `T.Range` | Yes; make with `T.range(end)` or `T.range_between(begin,end)` | No | `T.Range.adapter()` |
 | `String` | Yes, emits `Char` | No | `T.String.adapter()` |
 | `Vec.Vec<A>` | Yes, logical prefix in order | Yes, appends in order | `Vec.adapter(~A)` |
@@ -126,6 +127,14 @@ X.transduce(X.comp2(
   X.map(~U32, ~List<U32>, ~fragment),
   X.cat(T.List.adapter(~U32))), X.sum_rf(), 0, numbers())
 ```
+
+The raw Array companion reads its flat storage by index. Bend's `Array.get`
+requires `Data` elements because it returns the owned array along with a
+reusable element. For an Array of affine `Type` values, pass
+`T.Array.affine_source(~A, xs)` explicitly; its consuming drive visits the
+structural `ANode`/`ALeaf` view. Use `T.Array.affine_adapter(~A)` to flatten
+affine Array fragments with `cat`. The [indexed Array comparison](../../bench/PUBLIC-ARRAY-VS-C.md)
+measures the default path.
 
 Use `Vec.empty(~A, filler)` when a reusable filler is available;
 `Vec.with_capacity(~A, requested, filler)` returns `Maybe<Vec<A>>` for a

@@ -5,12 +5,106 @@ stage collections. It provides an owned reducer protocol, extensible
 source-owned reduction, map/filter/keep/take/drop and their predicate-based
 variants, indexed mapping and selection, partitioning and windows, mapcat/cat,
 adjacent deduplication and interposition, and sum/count/ordered-list consumers.
-Built-in sources are lists, balanced arrays, finite ranges, strings, and Vec;
+Built-in sources are lists, Bend arrays, finite ranges, strings, and Vec;
 other modules can add sources without changing this library.
 
 **Start with the [single-file public API guide](docs/current/20260925-PUBLIC-API.md).**
 It lists every supported stage, source, destination, adapter, and extension
 point, and distinguishes them from implementation helpers.
+
+## Showcase: map, filter, and sum a flat Array
+
+All five implementations use the same values at each tested size, up to
+1,048,576 `U32` elements. They apply the same two-multiply, two-xor
+transform, keep values whose low byte is below 96, and sum with `U32`
+wraparound. The input is built before timing. These are the processing cores;
+the shared helpers and complete programs are in the
+[Bend fixture](bench/public_array_map_filter_sum.bend) and
+[handwritten C fixture](bench/public_array_map_filter_sum.c).
+
+The **Bend transducer** says exactly which stages to compose. Its raw Array
+source reads the flat storage with indexed `Array.get`:
+
+```python
+def transducer(xs: Array<U32>) -> U32:
+  X.transduce(X.comp2(X.map(~U32, ~U32, ~transform),
+    X.filter(~U32, ~keep)), X.sum_rf(), 0, xs)
+```
+
+The **direct Bend** version performs the same operations in an indexed loop:
+
+```python
+def add_kept(acc: U32, x: U32, flag: Bool) -> U32:
+  match flag:
+    case True{}: U32.add(acc, x)
+    case False{}: acc
+
+def direct_step(got: Array<U32> & U32, acc: U32) -> Array<U32> & U32:
+  (xs, value) = got
+  +mapped = transform(value)
+  (xs, add_kept(acc, mapped, keep(mapped)))
+
+def direct_loop(left: Nat, pair: Array<U32> & U32, +index: U32) -> U32:
+  match left:
+    case 0n:
+      (xs, acc) = pair
+      acc
+    case 1n+p:
+      (xs, acc) = pair
+      direct_loop(p, direct_step(Array.get(U32, xs, index), acc),
+        U32.inc(index))
+```
+
+The **manual C** version uses the same transform and predicate in a pointer
+loop (`values` is a contiguous `uint32_t*`):
+
+```c
+uint32_t sum = 0;
+for (size_t i = 0; i < count; ++i) {
+  uint32_t mapped = transform(values[i]);
+  if ((mapped & UINT32_C(255)) < UINT32_C(96)) sum += mapped;
+}
+```
+
+For comparison, **materialized Bend** computes the same sum in two ways:
+
+```python
+def array_mask(xs: Array<U32>) -> U32:
+  mapped = Array.map(~U32, ~U32, ~transform, xs)
+  masked = Array.map(~U32, ~U32, ~mask, mapped)
+  sum_sized(Array.size(U32, masked))
+
+def list_materialized(xs: Array<U32>) -> U32:
+  mapped = Array.map(~U32, ~U32, ~transform, xs)
+  values = Array.to_list(~U32, mapped)
+  kept = filter_list(values)
+  List.foldl(~&1, ~U32, ~U32, ~U32.add, kept, 0)
+```
+
+The Array mask represents rejected values as zero, which is equivalent for
+this sum but retains every slot. The List path creates a compact filtered
+collection and also pays for Array-to-List conversion.
+
+On an M3 Max, one native CPU thread, Apple Clang 17 `-O3`, the medians of 36
+randomized runs were **microseconds**:
+
+| Elements | Bend transducer | Direct Bend | Manual C | Array mask | List filter |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 65,536 | 23 | 15 | 12 | 119 | 1,026 |
+| 262,144 | 89 | 61 | 45 | 461.5 | 4,091.5 |
+| 1,048,576 | 352 | 243 | 178 | 1,849.5 | 16,422 |
+
+All five paths matched an independent checksum. Traversal and input cleanup
+are timed; input construction, compilation, and process startup are not. The
+fused transducer made 10 timed native heap allocation calls at one million
+elements, compared with 9 for direct Bend and 3,539,023 for the List path.
+See the [methodology and raw samples](bench/PUBLIC-ARRAY-VS-C.md), and the
+[bounded Array walk proposal](docs/current/20260926-BOUNDED-ARRAY-WALK.md)
+for the remaining native optimization. Reproduce the current results with:
+
+```sh
+python3 bench/public_array_map_filter_sum.py --depths 16 18 20 --sessions 36 --output /tmp/public-array.json
+```
 
 ## Public transducer API
 
@@ -20,7 +114,9 @@ Stages compose with `comp2` through `comp5`. A stage value owns its runtime
 settings and is used once; wrap a stage constructor in a zero-argument function
 when it needs to be recreated. A source supplies its own reduction loop through
 a `.source` companion, and a destination supplies a reducer through `.destination`.
-Lists, Arrays, finite ranges, strings, `Vec`, and `VecMaybe` are built in.
+Lists, Arrays of `Data` elements, finite ranges, strings, `Vec`, and
+`VecMaybe` are built in. The Array source reads its flat storage by index;
+affine Array elements have an explicit consuming source.
 
 ```python
 import Base
@@ -192,7 +288,7 @@ python3 experiments/affine_xf/measure_opaque_source.py \
 ```
 
 `tests/run.py` uses the supported sibling compiler branch by default. The
-regular run keeps code-shape gates enabled and currently passes 50 JS/native
+regular run keeps code-shape gates enabled and currently passes 58 JS/native
 fixtures; `--semantic-only` skips only those code-shape gates. These scripts
 require Python 3, Bun, and a native compiler. They build in temporary
 directories and do not install dependencies.
@@ -211,7 +307,6 @@ pipelines can run inside caller-defined parallel batches; see [CPU/GPU
 measurements](bench/PARALLEL.md) and the [array mapcat benchmark](bench/wordscan/README.md).
 No allocation-free guarantee is made: JS still constructs state/control objects,
 and native layout/reuse depends on the compiler.
-On this machine, a public total Array fold matches handwritten native code.
 An independent branching fold also matches direct code in one layout, while
 mirroring call order can shift about 12% between the public and prototype
 paths. See the [Branch layout reassessment](docs/current/20260925-BRANCH-LAYOUT-REASSESSMENT.md);
@@ -224,6 +319,8 @@ records the measurements and reproduction steps.
 The repository is licensed under [MIT](LICENSE).
 
 - [CPU threads and Metal GPU performance](bench/PARALLEL.md)
+- [Public API CPU/GPU and handwritten C comparisons](bench/PUBLIC-RELEASE-COMPARISONS.md)
+- [Indexed Array source and Bend versus C comparison](bench/PUBLIC-ARRAY-VS-C.md)
 - [Generated range performance](bench/RANGE.md)
 - [Current design and work plan](docs/current/20260920-DESIGN-WORK-PLAN.md)
 - [Implementation repair plan](docs/current/20260920-IMPLEMENTATION-REPAIR-PLAN.md)

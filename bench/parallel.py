@@ -20,9 +20,15 @@ p.add_argument('--cases', nargs='+', default=['serial_full', 'serial_early', 'ba
 p.add_argument('--threads', nargs='*', type=int, default=[1, 2, 4, 8, 16], help='Empty list runs GPU only')
 p.add_argument('--gpu', action=argparse.BooleanOptionalAction, default=True)
 p.add_argument('--rounds', type=int, default=2, help='Interleaved process rounds; each discards its first sample')
-p.add_argument('--work', type=int, default=256, help='Nonlinear U32 rounds per mapped element')
+p.add_argument('--work', type=int, default=None,
+               help='Nonlinear U32 rounds per mapped element (legacy: 256, public: 8)')
+p.add_argument('--repeat', type=int, default=1,
+               help='Sequential independent batches per timed sample')
+p.add_argument('--api', choices=['legacy', 'public'], default='legacy',
+               help='Reducer API used for the library lane')
 a = p.parse_args()
-assert a.samples > 0 and a.rounds > 0 and a.work >= 0
+a.work = (8 if a.api == 'public' else 256) if a.work is None else a.work
+assert a.samples > 0 and a.rounds > 0 and a.work >= 0 and a.repeat > 0
 assert a.gpu or a.threads, 'Select at least one execution mode'
 assert all(t > 0 for t in a.threads)
 root = a.root.resolve()
@@ -30,7 +36,13 @@ out = a.out.resolve()
 out.mkdir(parents=True, exist_ok=True)
 env = {**os.environ, 'BEND_NO_TELEMETRY': '1', 'CLANG_MODULE_CACHE_PATH': '/tmp/bend-clang-modules'}
 source = (root/'bench/pipeline.bend').read_text().split('def main()')[0]
-source = source.replace('import ../transduce.bend as T', 'import ./'+os.path.relpath(root/'transduce.bend', out)+' as T')
+if a.api == 'public':
+    source = source.split('def pipeline()')[0] + 'def build(' + source.split('def build(', 1)[1]
+    source = source.replace('import ../transduce.bend as T',
+                            'import ./'+os.path.relpath(root/'xf.bend', out)+' as X')
+else:
+    source = source.replace('import ../transduce.bend as T',
+                            'import ./'+os.path.relpath(root/'transduce.bend', out)+' as T')
 source = source.replace('  (x + 1 : U32)\n', f'  work({a.work}n, x)\n', 1)
 value = 1
 for _ in range(a.work):
@@ -40,20 +52,33 @@ cases = {'serial_full': (0, 100000, 100000), 'serial_early': (0, 100000, 32),
          'batch_long_full_14': (14, 256, 256), 'batch_long_early_14': (14, 256, 8)}
 report = {'timing': 'IO.now milliseconds; excludes process/GPU startup, includes source construction and cleanup',
           'semantics': 'Independent list reductions; take resets at every leaf. Not a parallel global take.',
+          'api': a.api,
           'rounds': a.rounds, 'samples_per_round': a.samples, 'results': []}
 report['work_rounds'] = a.work
+report['repeat_batches'] = a.repeat
 report['platform'] = platform.platform()
 report['compiler_sha256'] = hashlib.sha256(((a.bend_main or root.parent/'bend/bend2/main.ts').resolve().parent/'comp.ts').read_bytes()).hexdigest()
 report['cpu_count'] = os.cpu_count()
 for case in a.cases:
     depth, count, take = cases[case]
-    expected = (value * min(count, take) * (1 << depth)) & 0xffffffff if value > 1 else 0
-    bodies = {'library': f'T.transduce(~T.over_list(~U32, ~U32, ~pipeline()), (1, ({take}n, 0)), xs)',
+    expected = (value * min(count, take) * (1 << depth) * a.repeat) & 0xffffffff if value > 1 else 0
+    library = (f'X.transduce(X.comp3(X.map(~U32, ~U32, ~transform), '
+               f'X.filter(~U32, ~(x => U32.is_gt(x, 1))), X.take(~U32, {take}n)), '
+               f'X.sum_rf(), 0, xs)' if a.api == 'public' else
+               f'T.transduce(~T.over_list(~U32, ~U32, ~pipeline()), (1, ({take}n, 0)), xs)')
+    bodies = {'library': library,
               'materialized': f'staged(xs, {take}n)', 'direct': f'direct(xs, Running{{{take}n, 0}})'}
     row = {'case': case, 'leaves': 1 << depth, 'elements_per_leaf': count, 'take_per_leaf': take,
            'expected': expected, 'builds': {}, 'samples_ms': {}, 'medians_ms': {}}
     for variant, body in bodies.items():
         stem = out/(case+'_'+variant)
+        frames_def = (f'''def frames(n: Nat, +acc: U32) -> U32:
+  match n:
+    case 0n: acc
+    case 1n+p: frames(p, U32.add(acc, batch!({depth}n)))
+
+''' if a.repeat > 1 else '')
+        answer_expr = f'frames({a.repeat}n, 0)' if a.repeat > 1 else f'batch!({depth}n)'
         code = source + f'''def leaf() -> U32:
   xs = build({count}n, [])
   {body}
@@ -66,6 +91,7 @@ def batch(+depth: Nat) -> U32:
       a b = batch(p) batch(p)
       (a + b : U32)
 
+{frames_def}
 def measure(n: Nat) -> IO(Unit):
   match n:
     case 0n:
@@ -73,7 +99,7 @@ def measure(n: Nat) -> IO(Unit):
     case 1n+p:
       do IO<Unit>:
         before : Nat <- IO.now()
-        answer : U32 = batch!({depth}n)
+        answer : U32 = {answer_expr}
         after : Nat <- IO.now()
         IO.print(U32.show(answer) ++ ":" ++ Nat.show(Nat.sub(after, before)))
         measure(p)
