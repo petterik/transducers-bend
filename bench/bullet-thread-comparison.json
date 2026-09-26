@@ -1,0 +1,407 @@
+{
+  "description": "CPU thread-count sweep of the existing sequential 120-frame Bullet Cathedral programs",
+  "sources_sha256": {
+    "generated": "e19ea23c892d9990b86b58aeea5cd1181994033210e839ebaf36545bf63e06fb",
+    "aos": "7ae32a8c0a9d782fcafe21f1aa8211bcc1889be40ff7b40f4ffe1ae839924b50",
+    "soa": "0fb93ae68a007a89a98dcef5b63bd00722e04131280d949efad7aa45a444372a"
+  },
+  "compiler_commit": "1b4f641b9fea9b48fee37fc10b0a07977bba6e7d",
+  "frames": 120,
+  "threads": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "warmups_per_condition": 2,
+  "sessions": 12,
+  "random_seed": 20260928,
+  "orders": [
+    [
+      "aos/4",
+      "aos/2",
+      "soa/2",
+      "generated/2",
+      "generated/4",
+      "aos/8",
+      "soa/8",
+      "generated/8",
+      "generated/1",
+      "aos/1",
+      "soa/1",
+      "soa/4"
+    ],
+    [
+      "generated/2",
+      "generated/4",
+      "soa/2",
+      "soa/8",
+      "generated/8",
+      "aos/4",
+      "aos/2",
+      "aos/1",
+      "soa/4",
+      "aos/8",
+      "generated/1",
+      "soa/1"
+    ],
+    [
+      "generated/2",
+      "soa/4",
+      "soa/2",
+      "aos/4",
+      "generated/4",
+      "soa/8",
+      "aos/2",
+      "aos/8",
+      "generated/8",
+      "generated/1",
+      "soa/1",
+      "aos/1"
+    ],
+    [
+      "soa/1",
+      "generated/1",
+      "soa/2",
+      "aos/1",
+      "aos/8",
+      "aos/2",
+      "aos/4",
+      "soa/8",
+      "soa/4",
+      "generated/2",
+      "generated/8",
+      "generated/4"
+    ],
+    [
+      "generated/8",
+      "soa/2",
+      "generated/4",
+      "aos/8",
+      "aos/4",
+      "aos/1",
+      "generated/2",
+      "soa/8",
+      "soa/1",
+      "aos/2",
+      "soa/4",
+      "generated/1"
+    ],
+    [
+      "generated/8",
+      "aos/1",
+      "generated/2",
+      "generated/4",
+      "aos/8",
+      "aos/2",
+      "soa/1",
+      "generated/1",
+      "soa/4",
+      "aos/4",
+      "soa/2",
+      "soa/8"
+    ],
+    [
+      "soa/1",
+      "generated/8",
+      "aos/4",
+      "aos/1",
+      "generated/1",
+      "aos/8",
+      "soa/4",
+      "aos/2",
+      "soa/8",
+      "generated/2",
+      "generated/4",
+      "soa/2"
+    ],
+    [
+      "aos/8",
+      "aos/2",
+      "soa/8",
+      "soa/4",
+      "generated/8",
+      "aos/4",
+      "soa/2",
+      "generated/2",
+      "generated/4",
+      "aos/1",
+      "generated/1",
+      "soa/1"
+    ],
+    [
+      "aos/4",
+      "generated/8",
+      "soa/8",
+      "generated/1",
+      "soa/1",
+      "aos/1",
+      "aos/8",
+      "soa/4",
+      "generated/4",
+      "generated/2",
+      "soa/2",
+      "aos/2"
+    ],
+    [
+      "soa/1",
+      "aos/8",
+      "generated/4",
+      "soa/4",
+      "generated/1",
+      "generated/2",
+      "aos/4",
+      "generated/8",
+      "soa/2",
+      "aos/1",
+      "soa/8",
+      "aos/2"
+    ],
+    [
+      "aos/2",
+      "generated/4",
+      "soa/2",
+      "soa/1",
+      "soa/8",
+      "aos/8",
+      "generated/2",
+      "generated/8",
+      "soa/4",
+      "aos/4",
+      "generated/1",
+      "aos/1"
+    ],
+    [
+      "aos/8",
+      "generated/4",
+      "aos/4",
+      "soa/1",
+      "soa/8",
+      "generated/8",
+      "soa/4",
+      "generated/1",
+      "soa/2",
+      "aos/1",
+      "generated/2",
+      "aos/2"
+    ]
+  ],
+  "samples_us": {
+    "generated": {
+      "1": [
+        410057,
+        409315,
+        411318,
+        408932,
+        410587,
+        409010,
+        409086,
+        410577,
+        409623,
+        409071,
+        409172,
+        409007
+      ],
+      "2": [
+        409083,
+        408738,
+        410134,
+        409188,
+        408927,
+        408953,
+        409531,
+        408901,
+        409188,
+        408710,
+        409259,
+        409582
+      ],
+      "4": [
+        409134,
+        409100,
+        408824,
+        409043,
+        409150,
+        408882,
+        410345,
+        409520,
+        409089,
+        409323,
+        409053,
+        411517
+      ],
+      "8": [
+        408938,
+        408794,
+        409051,
+        408770,
+        409414,
+        410301,
+        414304,
+        408975,
+        409153,
+        409339,
+        410196,
+        409975
+      ]
+    },
+    "aos": {
+      "1": [
+        416531,
+        416176,
+        417017,
+        414709,
+        415303,
+        415892,
+        415322,
+        414928,
+        414653,
+        416170,
+        415464,
+        415417
+      ],
+      "2": [
+        415384,
+        415532,
+        414698,
+        415473,
+        415492,
+        416378,
+        415735,
+        415303,
+        417561,
+        416727,
+        416103,
+        415807
+      ],
+      "4": [
+        415452,
+        415589,
+        415035,
+        415491,
+        415405,
+        415430,
+        414992,
+        415187,
+        415346,
+        415304,
+        415584,
+        414766
+      ],
+      "8": [
+        415636,
+        414993,
+        415083,
+        415562,
+        415201,
+        416887,
+        415506,
+        418349,
+        414786,
+        415089,
+        414559,
+        417647
+      ]
+    },
+    "soa": {
+      "1": [
+        394438,
+        393136,
+        394120,
+        392913,
+        392699,
+        393018,
+        393367,
+        394500,
+        392911,
+        394841,
+        392698,
+        392698
+      ],
+      "2": [
+        393379,
+        392631,
+        392954,
+        393154,
+        393530,
+        393084,
+        394896,
+        392826,
+        392800,
+        392861,
+        393822,
+        393009
+      ],
+      "4": [
+        392730,
+        393016,
+        393083,
+        392560,
+        395298,
+        393414,
+        392995,
+        392569,
+        393215,
+        392792,
+        393000,
+        392870
+      ],
+      "8": [
+        393606,
+        392863,
+        392917,
+        393703,
+        392935,
+        393248,
+        392923,
+        392547,
+        393821,
+        392968,
+        392942,
+        392727
+      ]
+    }
+  },
+  "medians_us": {
+    "generated": {
+      "1": 409243.5,
+      "2": 409135.5,
+      "4": 409117.0,
+      "8": 409246.0
+    },
+    "aos": {
+      "1": 415440.5,
+      "2": 415633.5,
+      "4": 415375.5,
+      "8": 415353.5
+    },
+    "soa": {
+      "1": 393077.0,
+      "2": 393046.5,
+      "4": 392997.5,
+      "8": 392938.5
+    }
+  },
+  "speedups_relative_to_one_thread": {
+    "generated": {
+      "1": 1.0,
+      "2": 1.0002639712271362,
+      "4": 1.0003092025019737,
+      "8": 0.999993891204801
+    },
+    "aos": {
+      "1": 1.0,
+      "2": 0.9995356485942544,
+      "4": 1.000156484915456,
+      "8": 1.0002094601345601
+    },
+    "soa": {
+      "1": 1.0,
+      "2": 1.0000775989609372,
+      "4": 1.0002022913631765,
+      "8": 1.0003524724607031
+    }
+  },
+  "checksum": 367602200,
+  "timing_note": "One native process per sample. The internal Bend clock times sequential simulation, collisions, RGB framebuffers, and checksums. Compilation, startup, export, and display are excluded. --gpu off is set for every run."
+}

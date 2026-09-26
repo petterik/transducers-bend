@@ -40,6 +40,11 @@ separate field arrays. The field arrays match every frame and save about 4%
 of complete one-thread runtime. Simulation is only about 11% of that runtime;
 framebuffer work dominates.
 
+Changing these programs from one to [2, 4, or 8 CPU threads](bench/BULLET-THREAD-SCALING.md)
+does not improve the 120-frame time: the field-array medians stay at about
+393 ms. The stateful frame loop and framebuffer reductions have no explicit
+parallel calls, so additional workers have no independent tasks to run.
+
 ## Transformation-heavy showcase: an animated starfield
 
 ![A starfield frame rendered from Bend transducer pixels](bench/starfield-frame0.png)
