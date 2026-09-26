@@ -1,0 +1,703 @@
+{
+  "scope": "Single 512x512 or 3840x2160 frame, repeated in one process; first sample discarded. Internal Bend times separate simulation replay, CPU scene binning, and CPU/Metal draw plus synchronization. Compilation, image export, and display excluded.",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "compiler_commit": "1b4f641b9fea9b48fee37fc10b0a07977bba6e7d",
+  "rounds": 3,
+  "samples_per_round": 3,
+  "results": [
+    {
+      "name": "512_4096",
+      "frame": 119,
+      "tile_depth": 6,
+      "tile_count": 4096,
+      "reference_checksum": 15014634,
+      "full_pixel_checks": [],
+      "source_sha256": "786b85ea47343c693f2cf123acf2e64c6d77c4c54cab1da4ae99eec0757f5b1e",
+      "samples": {
+        "cpu_1": [
+          {
+            "simulation_us": 44151,
+            "scene_us": 967,
+            "draw_us": 19480
+          },
+          {
+            "simulation_us": 44155,
+            "scene_us": 1027,
+            "draw_us": 19695
+          },
+          {
+            "simulation_us": 44142,
+            "scene_us": 1133,
+            "draw_us": 19830
+          },
+          {
+            "simulation_us": 44059,
+            "scene_us": 1029,
+            "draw_us": 19420
+          },
+          {
+            "simulation_us": 44077,
+            "scene_us": 1133,
+            "draw_us": 19664
+          },
+          {
+            "simulation_us": 44051,
+            "scene_us": 983,
+            "draw_us": 19775
+          },
+          {
+            "simulation_us": 44134,
+            "scene_us": 995,
+            "draw_us": 19403
+          },
+          {
+            "simulation_us": 44156,
+            "scene_us": 1019,
+            "draw_us": 19660
+          },
+          {
+            "simulation_us": 44295,
+            "scene_us": 1123,
+            "draw_us": 19820
+          }
+        ],
+        "cpu_8": [
+          {
+            "simulation_us": 44132,
+            "scene_us": 1014,
+            "draw_us": 3387
+          },
+          {
+            "simulation_us": 44072,
+            "scene_us": 999,
+            "draw_us": 3353
+          },
+          {
+            "simulation_us": 44132,
+            "scene_us": 1991,
+            "draw_us": 3439
+          },
+          {
+            "simulation_us": 44221,
+            "scene_us": 1022,
+            "draw_us": 3450
+          },
+          {
+            "simulation_us": 43747,
+            "scene_us": 1030,
+            "draw_us": 3499
+          },
+          {
+            "simulation_us": 44192,
+            "scene_us": 1844,
+            "draw_us": 3466
+          },
+          {
+            "simulation_us": 44253,
+            "scene_us": 995,
+            "draw_us": 3407
+          },
+          {
+            "simulation_us": 44067,
+            "scene_us": 1024,
+            "draw_us": 3467
+          },
+          {
+            "simulation_us": 44068,
+            "scene_us": 1760,
+            "draw_us": 3519
+          }
+        ],
+        "metal": [
+          {
+            "simulation_us": 44065,
+            "scene_us": 923,
+            "draw_us": 45602
+          },
+          {
+            "simulation_us": 44084,
+            "scene_us": 901,
+            "draw_us": 46490
+          },
+          {
+            "simulation_us": 44083,
+            "scene_us": 938,
+            "draw_us": 46730
+          },
+          {
+            "simulation_us": 44128,
+            "scene_us": 931,
+            "draw_us": 46253
+          },
+          {
+            "simulation_us": 44111,
+            "scene_us": 966,
+            "draw_us": 46684
+          },
+          {
+            "simulation_us": 43942,
+            "scene_us": 923,
+            "draw_us": 46870
+          },
+          {
+            "simulation_us": 44162,
+            "scene_us": 922,
+            "draw_us": 46086
+          },
+          {
+            "simulation_us": 44070,
+            "scene_us": 895,
+            "draw_us": 46659
+          },
+          {
+            "simulation_us": 44038,
+            "scene_us": 965,
+            "draw_us": 46715
+          }
+        ]
+      },
+      "median_us": {
+        "cpu_1": {
+          "simulation_us": 44142,
+          "scene_us": 1027,
+          "draw_us": 19664
+        },
+        "cpu_8": {
+          "simulation_us": 44132,
+          "scene_us": 1024,
+          "draw_us": 3450
+        },
+        "metal": {
+          "simulation_us": 44083,
+          "scene_us": 923,
+          "draw_us": 46659
+        }
+      }
+    },
+    {
+      "name": "512_16384",
+      "frame": 119,
+      "tile_depth": 7,
+      "tile_count": 16384,
+      "reference_checksum": 15014634,
+      "full_pixel_checks": [
+        {
+          "frame": 0,
+          "bytes": 2360636
+        },
+        {
+          "frame": 48,
+          "bytes": 2417015
+        },
+        {
+          "frame": 119,
+          "bytes": 2463261
+        }
+      ],
+      "source_sha256": "786b85ea47343c693f2cf123acf2e64c6d77c4c54cab1da4ae99eec0757f5b1e",
+      "samples": {
+        "cpu_1": [
+          {
+            "simulation_us": 44166,
+            "scene_us": 1999,
+            "draw_us": 16220
+          },
+          {
+            "simulation_us": 44199,
+            "scene_us": 2490,
+            "draw_us": 16882
+          },
+          {
+            "simulation_us": 44155,
+            "scene_us": 2165,
+            "draw_us": 17029
+          },
+          {
+            "simulation_us": 44230,
+            "scene_us": 2275,
+            "draw_us": 16456
+          },
+          {
+            "simulation_us": 44170,
+            "scene_us": 2062,
+            "draw_us": 16720
+          },
+          {
+            "simulation_us": 44177,
+            "scene_us": 2349,
+            "draw_us": 16996
+          },
+          {
+            "simulation_us": 44231,
+            "scene_us": 2013,
+            "draw_us": 16283
+          },
+          {
+            "simulation_us": 44227,
+            "scene_us": 2379,
+            "draw_us": 16801
+          },
+          {
+            "simulation_us": 44196,
+            "scene_us": 2201,
+            "draw_us": 17054
+          }
+        ],
+        "cpu_8": [
+          {
+            "simulation_us": 43988,
+            "scene_us": 1942,
+            "draw_us": 3031
+          },
+          {
+            "simulation_us": 44165,
+            "scene_us": 3617,
+            "draw_us": 3160
+          },
+          {
+            "simulation_us": 44119,
+            "scene_us": 4692,
+            "draw_us": 3943
+          },
+          {
+            "simulation_us": 44345,
+            "scene_us": 1979,
+            "draw_us": 3177
+          },
+          {
+            "simulation_us": 44146,
+            "scene_us": 3563,
+            "draw_us": 3072
+          },
+          {
+            "simulation_us": 44116,
+            "scene_us": 5384,
+            "draw_us": 3976
+          },
+          {
+            "simulation_us": 44120,
+            "scene_us": 2036,
+            "draw_us": 3048
+          },
+          {
+            "simulation_us": 44036,
+            "scene_us": 3746,
+            "draw_us": 3112
+          },
+          {
+            "simulation_us": 44255,
+            "scene_us": 4950,
+            "draw_us": 4097
+          }
+        ],
+        "metal": [
+          {
+            "simulation_us": 44095,
+            "scene_us": 1874,
+            "draw_us": 20301
+          },
+          {
+            "simulation_us": 44144,
+            "scene_us": 2274,
+            "draw_us": 20759
+          },
+          {
+            "simulation_us": 44049,
+            "scene_us": 2290,
+            "draw_us": 20617
+          },
+          {
+            "simulation_us": 44056,
+            "scene_us": 1803,
+            "draw_us": 20830
+          },
+          {
+            "simulation_us": 44198,
+            "scene_us": 2154,
+            "draw_us": 20959
+          },
+          {
+            "simulation_us": 45091,
+            "scene_us": 2808,
+            "draw_us": 19661
+          },
+          {
+            "simulation_us": 44134,
+            "scene_us": 2064,
+            "draw_us": 20339
+          },
+          {
+            "simulation_us": 44109,
+            "scene_us": 1908,
+            "draw_us": 21049
+          },
+          {
+            "simulation_us": 44026,
+            "scene_us": 2188,
+            "draw_us": 20830
+          }
+        ]
+      },
+      "median_us": {
+        "cpu_1": {
+          "simulation_us": 44196,
+          "scene_us": 2201,
+          "draw_us": 16801
+        },
+        "cpu_8": {
+          "simulation_us": 44120,
+          "scene_us": 3617,
+          "draw_us": 3160
+        },
+        "metal": {
+          "simulation_us": 44109,
+          "scene_us": 2154,
+          "draw_us": 20759
+        }
+      }
+    },
+    {
+      "name": "4k_16384",
+      "frame": 119,
+      "tile_depth": 7,
+      "tile_count": 16384,
+      "reference_checksum": 1849907794,
+      "full_pixel_checks": [],
+      "source_sha256": "243405189e82626d9461b5b6be02934667081584a0221bb745760168f134c8eb",
+      "samples": {
+        "cpu_1": [
+          {
+            "simulation_us": 37510,
+            "scene_us": 1415,
+            "draw_us": 258857
+          },
+          {
+            "simulation_us": 37560,
+            "scene_us": 1168,
+            "draw_us": 260154
+          },
+          {
+            "simulation_us": 37621,
+            "scene_us": 1244,
+            "draw_us": 263037
+          },
+          {
+            "simulation_us": 37623,
+            "scene_us": 1149,
+            "draw_us": 259198
+          },
+          {
+            "simulation_us": 37647,
+            "scene_us": 1398,
+            "draw_us": 260070
+          },
+          {
+            "simulation_us": 37455,
+            "scene_us": 1452,
+            "draw_us": 262529
+          },
+          {
+            "simulation_us": 37542,
+            "scene_us": 1124,
+            "draw_us": 259075
+          },
+          {
+            "simulation_us": 37624,
+            "scene_us": 1174,
+            "draw_us": 260423
+          },
+          {
+            "simulation_us": 37654,
+            "scene_us": 1217,
+            "draw_us": 262588
+          }
+        ],
+        "cpu_8": [
+          {
+            "simulation_us": 37595,
+            "scene_us": 1071,
+            "draw_us": 41914
+          },
+          {
+            "simulation_us": 37495,
+            "scene_us": 1071,
+            "draw_us": 42477
+          },
+          {
+            "simulation_us": 37483,
+            "scene_us": 1681,
+            "draw_us": 42916
+          },
+          {
+            "simulation_us": 37485,
+            "scene_us": 1092,
+            "draw_us": 42674
+          },
+          {
+            "simulation_us": 37616,
+            "scene_us": 1051,
+            "draw_us": 43114
+          },
+          {
+            "simulation_us": 37523,
+            "scene_us": 1843,
+            "draw_us": 42702
+          },
+          {
+            "simulation_us": 38289,
+            "scene_us": 1115,
+            "draw_us": 42725
+          },
+          {
+            "simulation_us": 37699,
+            "scene_us": 1082,
+            "draw_us": 42566
+          },
+          {
+            "simulation_us": 38354,
+            "scene_us": 1776,
+            "draw_us": 42475
+          }
+        ],
+        "metal": [
+          {
+            "simulation_us": 37743,
+            "scene_us": 1204,
+            "draw_us": 388206
+          },
+          {
+            "simulation_us": 37368,
+            "scene_us": 1061,
+            "draw_us": 385380
+          },
+          {
+            "simulation_us": 37844,
+            "scene_us": 1436,
+            "draw_us": 384825
+          },
+          {
+            "simulation_us": 37652,
+            "scene_us": 1002,
+            "draw_us": 387781
+          },
+          {
+            "simulation_us": 37613,
+            "scene_us": 1062,
+            "draw_us": 387968
+          },
+          {
+            "simulation_us": 37491,
+            "scene_us": 1118,
+            "draw_us": 384907
+          },
+          {
+            "simulation_us": 37793,
+            "scene_us": 1233,
+            "draw_us": 387488
+          },
+          {
+            "simulation_us": 37616,
+            "scene_us": 1072,
+            "draw_us": 394609
+          },
+          {
+            "simulation_us": 37477,
+            "scene_us": 1105,
+            "draw_us": 387992
+          }
+        ]
+      },
+      "median_us": {
+        "cpu_1": {
+          "simulation_us": 37621,
+          "scene_us": 1217,
+          "draw_us": 260154
+        },
+        "cpu_8": {
+          "simulation_us": 37595,
+          "scene_us": 1092,
+          "draw_us": 42674
+        },
+        "metal": {
+          "simulation_us": 37616,
+          "scene_us": 1105,
+          "draw_us": 387781
+        }
+      }
+    },
+    {
+      "name": "4k_65536",
+      "frame": 119,
+      "tile_depth": 8,
+      "tile_count": 65536,
+      "reference_checksum": 1849907794,
+      "full_pixel_checks": [
+        {
+          "frame": 96,
+          "bytes": 76626018
+        }
+      ],
+      "source_sha256": "243405189e82626d9461b5b6be02934667081584a0221bb745760168f134c8eb",
+      "samples": {
+        "cpu_1": [
+          {
+            "simulation_us": 37560,
+            "scene_us": 2730,
+            "draw_us": 185519
+          },
+          {
+            "simulation_us": 37452,
+            "scene_us": 2768,
+            "draw_us": 187644
+          },
+          {
+            "simulation_us": 37474,
+            "scene_us": 3076,
+            "draw_us": 189210
+          },
+          {
+            "simulation_us": 37829,
+            "scene_us": 2724,
+            "draw_us": 184838
+          },
+          {
+            "simulation_us": 37557,
+            "scene_us": 2708,
+            "draw_us": 186976
+          },
+          {
+            "simulation_us": 37510,
+            "scene_us": 2896,
+            "draw_us": 189063
+          },
+          {
+            "simulation_us": 37495,
+            "scene_us": 2757,
+            "draw_us": 184987
+          },
+          {
+            "simulation_us": 37509,
+            "scene_us": 2783,
+            "draw_us": 187742
+          },
+          {
+            "simulation_us": 37555,
+            "scene_us": 2956,
+            "draw_us": 188801
+          }
+        ],
+        "cpu_8": [
+          {
+            "simulation_us": 37400,
+            "scene_us": 2753,
+            "draw_us": 30768
+          },
+          {
+            "simulation_us": 37394,
+            "scene_us": 4074,
+            "draw_us": 30251
+          },
+          {
+            "simulation_us": 37455,
+            "scene_us": 5403,
+            "draw_us": 31305
+          },
+          {
+            "simulation_us": 37439,
+            "scene_us": 2778,
+            "draw_us": 30900
+          },
+          {
+            "simulation_us": 37471,
+            "scene_us": 4544,
+            "draw_us": 30331
+          },
+          {
+            "simulation_us": 37426,
+            "scene_us": 5353,
+            "draw_us": 31900
+          },
+          {
+            "simulation_us": 37516,
+            "scene_us": 2701,
+            "draw_us": 31107
+          },
+          {
+            "simulation_us": 37481,
+            "scene_us": 4524,
+            "draw_us": 30462
+          },
+          {
+            "simulation_us": 37337,
+            "scene_us": 5233,
+            "draw_us": 31634
+          }
+        ],
+        "metal": [
+          {
+            "simulation_us": 37400,
+            "scene_us": 2547,
+            "draw_us": 156306
+          },
+          {
+            "simulation_us": 38604,
+            "scene_us": 3303,
+            "draw_us": 136588
+          },
+          {
+            "simulation_us": 37775,
+            "scene_us": 3895,
+            "draw_us": 154754
+          },
+          {
+            "simulation_us": 37525,
+            "scene_us": 2534,
+            "draw_us": 158645
+          },
+          {
+            "simulation_us": 37425,
+            "scene_us": 2810,
+            "draw_us": 152430
+          },
+          {
+            "simulation_us": 37416,
+            "scene_us": 3010,
+            "draw_us": 132516
+          },
+          {
+            "simulation_us": 37719,
+            "scene_us": 2586,
+            "draw_us": 126016
+          },
+          {
+            "simulation_us": 37631,
+            "scene_us": 2924,
+            "draw_us": 100730
+          },
+          {
+            "simulation_us": 37544,
+            "scene_us": 3230,
+            "draw_us": 154189
+          }
+        ]
+      },
+      "median_us": {
+        "cpu_1": {
+          "simulation_us": 37510,
+          "scene_us": 2768,
+          "draw_us": 187644
+        },
+        "cpu_8": {
+          "simulation_us": 37439,
+          "scene_us": 4524,
+          "draw_us": 30900
+        },
+        "metal": {
+          "simulation_us": 37544,
+          "scene_us": 2924,
+          "draw_us": 152430
+        }
+      }
+    }
+  ]
+}

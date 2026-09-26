@@ -25,6 +25,24 @@ then expand glowing sprites into pixels and blend them into a flat Bend Array.
 The boss changes color, hits leave afterglows, and the HUD tracks damage and
 player shield. No input file or external art is required.
 
+To watch the CPU-rendered simulation at **1920×1080 for 30 minutes**, run:
+
+```sh
+python3 bench/bullet_cathedral_2k_native.py
+```
+
+The [native 2K player](bench/bullet_cathedral_2k_native.py) compiles one Bend
+executable, renders each 1920×1080 frame on one CPU thread, and presents it in
+a macOS window as soon as it is ready. There is no selected playback FPS; the
+window title and terminal report measured FPS. Each 240-frame shield wave
+restarts while the bullet clock continues. The run lasts 30 minutes by wall
+clock; close the window or press Escape to stop sooner. Use `--minutes 60` for
+an hour or `--window-width 1920` for a full-size window. It needs `bun`,
+`clang`, Python 3, macOS, and the sibling `../bend` checkout. Metal copies the
+finished CPU framebuffer to the window; all simulation and pixel rendering
+remain in Bend on the CPU. The older [ffplay stream](bench/bullet_cathedral_2k_live.py)
+and [512×512 player](bench/bullet_cathedral_live.py) remain available.
+
 On an M3 Max, one native CPU thread computed the complete 120-frame sequence
 in a **439 ms median** over 21 runs, including simulation, collision handling,
 RGB framebuffer generation, and pixel checksums. That is about **273 computed
@@ -62,6 +80,11 @@ At [3840×2160](bench/BULLET-4K-TILED16.md), two tiles per frame produce
 threads. Both renderers matched every 4K frame checksum. The two tiles have
 equal pixel counts, but the top tile carries more sprite work, which limits
 the gain from adding workers. [View frame 96 at full 4K resolution](bench/bullet-cathedral-4k-frame-096.png).
+
+A [CPU simulation plus Metal renderer experiment](bench/BULLET-GPU-COMPARISON.md)
+bins sprites into spatial tiles and runs one GPU call per frame. It matches the
+existing image, but the best tested 4K Metal draw takes **152 ms**, versus
+**31 ms** on eight CPU threads. The long 2K player uses CPU rendering.
 
 ## Transformation-heavy showcase: an animated starfield
 

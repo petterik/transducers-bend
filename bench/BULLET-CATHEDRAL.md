@@ -4,6 +4,44 @@
 
 **[Watch the 120-frame MP4](bullet-cathedral.mp4)** · [Bend source](bullet_cathedral.bend) · [all stills and checksums](bullet-cathedral-report.json)
 
+For a long 1920×1080 CPU run, launch this from the repository root:
+
+```sh
+python3 bench/bullet_cathedral_2k_native.py
+```
+
+It runs for 30 minutes by wall clock; `--minutes 60` extends it to an hour.
+Close the window or press Escape to stop sooner. The [2K Bend scene](bullet_cathedral_2k_frames.bend)
+keeps simulation and transducer rendering on one CPU thread. The
+[native loop](bullet_cathedral_2k_native.bend) advances one frame at a time
+and restarts the shield wave every 240 frames while the bullet clock continues.
+The [presentation effect](bullet_cathedral_present.c) copies the finished
+`Array<U32>` to a reusable Metal texture and into Bend's macOS window. It does
+no shading, collision work, or simulation. The program has no chosen playback
+FPS: it renders and presents each next frame when ready, synchronized to the
+display. The window title and terminal show measured FPS. No frames are saved
+to disk. The native 1920×1080 image appears in a 1280×720 window by default;
+`--window-width 1920` uses full size. The launcher needs `bun`, `clang`,
+Python 3, macOS, and the sibling `../bend` checkout.
+
+In a 30-second native-window run on the development M3 Max, the program
+presented 1,197 frames and crossed four shield-wave resets. After startup,
+most one-second samples were 38–40 FPS. The earlier
+[ffplay stream](bullet_cathedral_2k_live.py) remains available for comparison.
+
+The first streamed 2K frame contains exactly 2,073,600 pixels and its packed
+RGB checksum matches Bend's checksum for frame zero. An older 1,200-frame
+headless stream crossed five shield waves and averaged 33.1 frames/s,
+including FIFO transfer and Python reads. That measurement belongs to the
+separate `ffplay` path, not the native window above.
+
+The first 120 older 512×512 live-frame checksums match the MP4 export report exactly.
+In a 300-frame headless run on the development M3 Max, the generator averaged
+14.4 frames/s, including the RGB stream and checksum work. This is a CPU
+playback path; the 4K tiling and Metal rendering experiments are separate.
+The [Metal tiling experiment](BULLET-GPU-COMPARISON.md) found that the current
+pixel-gather shader is slower than eight CPU threads at both 512×512 and 4K.
+
 This is a complete, deterministic bullet-hell scene written in Bend. It needs no
 input file. A rotating boss emits four families of hostile bullets; the player
 ship moves and fires a curved fan; 256 moving shield drones occupy a 16×16
