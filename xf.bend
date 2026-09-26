@@ -116,6 +116,11 @@ def partition_all(~A: Type, width: Nat) -> Xf<A, List<A>,
   (R => down => T.partition_all(~A, ~R, ~down))>:
   Xf{R => down => config => (width, config)}
 
+# Full disjoint groups of four as tuples, without an intermediate List.
+def partition4(~A: Type) -> Xf<A, (A & A & A & A),
+  (R => down => T.partition4(~A, ~R, ~down))>:
+  Xf{R => down => config => config}
+
 # Adjacent equal keys form ordered List groups. A must be Data because the
 # key callback inspects each input before that input is placed in its group.
 def partition_by(~A: Data, ~K: Data,

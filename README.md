@@ -12,6 +12,42 @@ other modules can add sources without changing this library.
 It lists every supported stage, source, destination, adapter, and extension
 point, and distinguishes them from implementation helpers.
 
+## Visual showcase: a supersampled Julia set
+
+![A Julia-set image rendered from Bend transducer pixels](bench/julia-showcase-frame0.png)
+
+This self-contained renderer evaluates four samples per pixel, groups them
+without a per-pixel List, and reduces visible shades to a checksum. A frame
+number moves the Julia parameter, so it needs no input file. The pipeline is
+the full processing path:
+
+```bend
+X.transduce(X.comp2(X.comp5(
+  X.map(~U32, ~T.Range, ~pixel_samples),
+  X.cat(T.Range.adapter()),
+  X.map_with(~U32, ~U32, ~Render, ~sample, config),
+  X.partition4(~U32),
+  X.map(~(U32 & U32 & U32 & U32), ~U32, ~shade)),
+  X.filter(~U32, ~visible)),
+  X.sum_rf(), 0, T.range(pixels))
+```
+
+At 512×512, that is **1,048,576 complex-orbit samples per frame**. The
+transducer, direct Bend loop, materialized Bend image, and handwritten C
+renderer all produce the same checksum; the exported Bend image also matches
+C pixel for pixel. On an M3 Max, median single-thread CPU computation times
+were **37.41 ms fused Bend**, **37.41 ms direct Bend**, **38.20 ms materialized
+Bend**, and **15.64 ms handwritten C**. The fused path made 32 timed native
+heap allocation calls; materializing the pixel List made 262,175.
+
+Balanced tiles let Bend use CPU threads or the GPU. With eight distinct
+frames timed after a warm-up, 512×512 medians were **7.78 ms per frame on
+eight CPU threads** and **0.81 ms on the GPU with 4,096 tiles**. These are
+computed frames: image export, display, process startup, and shader
+compilation are outside the interval. The [full showcase and reproduction
+commands](bench/JULIA-SHOWCASE.md) include the C code, materialized control,
+tile-count sensitivity, checksums, and raw samples.
+
 ## Showcase: map, filter, and sum a flat Array
 
 All five implementations use the same values at each tested size, up to
@@ -237,7 +273,10 @@ for measured native costs.
 
 `partition_all` produces ordered List chunks and allocates those chunks. A
 consumer that retains chunks must pay that cost, and even a consuming fold may
-not remove it. `mapcat` over a List-producing callback similarly allocates the
+not remove it. `partition4` instead emits disjoint four-element tuples, drops
+an incomplete tail, and supports affine elements without constructing a List
+per group. The Julia showcase above uses it to combine four samples into one
+pixel. `mapcat` over a List-producing callback similarly allocates the
 fragment; a custom source can emit values directly. See the
 [public mapcat test](tests/mapcat_public.bend) and the
 [no-stop integration report](docs/current/20260925-NO-STOP-PUBLIC-INTEGRATION.md).

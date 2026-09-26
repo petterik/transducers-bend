@@ -1092,6 +1092,59 @@ def windows3(~A: Data, ~R: Type,
     state => x => windows3_step(~A, ~R, ~down, state, x),
     state => windows3_finish(~A, ~R, ~down, state)}
 
+# Disjoint groups of four. An incomplete tail is discarded. Unlike windows,
+# each input is moved into exactly one group, so affine elements are allowed.
+type Partition4Prefix<-A: Type> is Type:
+  Partition4Zero{}
+  Partition4One{first: A}
+  Partition4Two{first: A, second: A}
+  Partition4Three{first: A, second: A, third: A}
+
+type Partition4<-A: Type, -S: Type> is Type:
+  Partition4{prefix: Partition4Prefix<A>, inner: S}
+
+def partition4_control(~A: Type, ~K: Data, ~S: Type,
+  control: Control<K, S>) -> Control<K, Partition4<A, S>>:
+  match control:
+    case Continue{state}: Continue{Partition4{Partition4Zero{}, state}}
+    case Stop{permit, state}: Stop{permit, Partition4{Partition4Zero{}, state}}
+
+def partition4_step(~A: Type, ~R: Type,
+  ~down: Reducer<(A & A & A & A), R>,
+  grouping: Partition4<A, State((A & A & A & A), R, down)>, x: A) ->
+  Control<Permit((A & A & A & A), R, down),
+    Partition4<A, State((A & A & A & A), R, down)>>:
+  match grouping:
+    case Partition4{Partition4Zero{}, state}:
+      Continue{Partition4{Partition4One{x}, state}}
+    case Partition4{Partition4One{first}, state}:
+      Continue{Partition4{Partition4Two{first, x}, state}}
+    case Partition4{Partition4Two{first, second}, state}:
+      Continue{Partition4{Partition4Three{first, second, x}, state}}
+    case Partition4{Partition4Three{first, second, third}, state}:
+      partition4_control(~A, ~Permit((A & A & A & A), R, down),
+        ~State((A & A & A & A), R, down),
+        step((A & A & A & A), R, down, state,
+          (first, second, third, x)))
+
+def partition4_finish(~A: Type, ~R: Type,
+  ~down: Reducer<(A & A & A & A), R>,
+  grouping: Partition4<A, State((A & A & A & A), R, down)>) -> R:
+  match grouping:
+    case Partition4{prefix, state}:
+      finish((A & A & A & A), R, down, state)
+
+def partition4(~A: Type, ~R: Type,
+  ~down: Reducer<(A & A & A & A), R>) -> Reducer<A, R>:
+  Reducer{Permit((A & A & A & A), R, down),
+    Config((A & A & A & A), R, down),
+    Partition4<A, State((A & A & A & A), R, down)>,
+    config => partition4_control(~A, ~Permit((A & A & A & A), R, down),
+      ~State((A & A & A & A), R, down),
+      start((A & A & A & A), R, down, config)),
+    state => x => partition4_step(~A, ~R, ~down, state, x),
+    state => partition4_finish(~A, ~R, ~down, state)}
+
 def identity(~A: Type, ~R: Type,
   ~down: Reducer<A, R>) -> Reducer<A, R>:
   down

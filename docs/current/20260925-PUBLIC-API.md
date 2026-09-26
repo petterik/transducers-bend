@@ -85,6 +85,7 @@ can specialize without a per-item runtime closure.
 | `X.take_while(~A, ~predicate)` | Stop before the first failed predicate. | `A: Data` |
 | `X.drop_while(~A, ~predicate)` | Drop the initial matching run only. | `A: Data` |
 | `X.partition_all(~A, width)` | Ordered `List<A>` chunks, including one partial tail unless downstream stopped; zero stops initially. | `A: Type`; `width: Nat` |
+| `X.partition4(~A)` | Full disjoint `(A & A & A & A)` groups; discard an incomplete tail without constructing a List. | `A: Type` |
 | `X.partition_by(~A, ~K, ~key, ~equal)` | Ordered `List<A>` groups of adjacent equal keys. | `A, K: Data` |
 | `X.windows(~A, width)` | Full overlapping `List<A>` windows; no partial tail; zero stops initially. | `A: Data` |
 | `X.windows2(~A)` | Full adjacent `(A & A)` windows. | `A: Data` |
@@ -101,6 +102,8 @@ mapper that constructs a List or Vec still pays that construction cost.
 `partition_all` uses a List buffer and allocates observable chunks. It also
 supports affine elements. Earlier Array-chunk measurements on the supported
 compiler did not justify replacing this default with Array/Vec buffering.
+`partition4` moves each element into one tuple, supports affine elements,
+propagates downstream stopping, and drops a final group of one to three items.
 For common overlapping widths two and three, tuple windows avoid constructing
 a List per window.
 
