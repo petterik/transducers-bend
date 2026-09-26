@@ -57,3 +57,6 @@ The Bend clock includes sequential state updates, collision handling,
 tile rendering, and pixel checksums. It excludes compilation, process startup,
 video encoding, and display. The single-frame export path still uses the
 original full-frame renderer.
+
+At [3840×2160](BULLET-4K-TILED16.md), two larger tiles per frame did improve
+the batch time by 13.5% over eight full-frame tasks.

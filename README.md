@@ -56,6 +56,13 @@ frames into four horizontal tiles per frame. It matched all frame checksums,
 but took **115.1 ms at 16 threads**; the extra tasks did not beat the eight
 full-frame render tasks.
 
+At [3840×2160](bench/BULLET-4K-TILED16.md), two tiles per frame produce
+**16 render tasks**. Over 120 frames, the tiled variant took **2.277 s at
+16 threads**, compared with **2.634 s** for eight full-frame tasks at eight
+threads. Both renderers matched every 4K frame checksum. The two tiles have
+equal pixel counts, but the top tile carries more sprite work, which limits
+the gain from adding workers. [View frame 96 at full 4K resolution](bench/bullet-cathedral-4k-frame-096.png).
+
 ## Transformation-heavy showcase: an animated starfield
 
 ![A starfield frame rendered from Bend transducer pixels](bench/starfield-frame0.png)
