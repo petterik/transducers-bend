@@ -57,7 +57,7 @@ def main():
     parser.add_argument("--frames", type=int, default=120)
     parser.add_argument("--sessions", type=int, default=21)
     parser.add_argument("--output", type=Path,
-                        default=ROOT / "bench/bullet-cathedral-cross-language-20260927.json")
+                         default=ROOT / "bench/bullet-cathedral-iterator-cross-language-20260927.json")
     args = parser.parse_args()
     assert 1 <= args.frames <= 120 and args.sessions > 0
     with tempfile.TemporaryDirectory(prefix="bullet-cross-language-") as name:

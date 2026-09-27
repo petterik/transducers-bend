@@ -18,11 +18,11 @@
       "raw_o200k_base_tokens": 3513
     },
     "bench/bullet_cathedral_control.rs": {
-      "sha256": "1474ba5288ef5f1dff0fe6d7abc02032c271438db4c7071b9216504202ed4bd2",
-      "bytes": 9823,
-      "nonblank_noncomment_lines": 250,
-      "lexical_tokens": 3122,
-      "raw_o200k_base_tokens": 3320
+      "sha256": "4cfe980199ac14fc253c6eb8131254ca8f0f6739e0df8f01ada50fd29f4399ee",
+      "bytes": 10268,
+      "nonblank_noncomment_lines": 260,
+      "lexical_tokens": 3348,
+      "raw_o200k_base_tokens": 3498
     },
     "xf.bend": {
       "sha256": "40b02a7660718ac279d90865f7bc2163ad8e5594f78bcaa85369847e85f031c0",

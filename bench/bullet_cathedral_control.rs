@@ -97,29 +97,29 @@ fn bullet_at(frame: u32, id: u32) -> Bullet {
 fn step(world: &mut World, frame: u32) {
     let begin = (frame - frame.min(95)) * 128;
     let end = (frame + 1) * 128;
-    let mut events: Vec<Hit> = Vec::new();
-    let mut incoming = 0;
-    for id in begin..end {
-        let b = bullet_at(frame, id);
-        if b.friendly {
-            if !onscreen(b) { continue; }
+    let events: Vec<Hit> = (begin..end)
+        .map(|id| bullet_at(frame, id))
+        .filter(|b| b.friendly && onscreen(*b))
+        .flat_map(|b| {
             let cx = (b.x as u32) >> 5;
             let cy = (b.y as u32) >> 5;
-            for slot in 0u32..9 {
-                let tx = cx.wrapping_add(slot % 3).wrapping_sub(1);
-                let ty = cy.wrapping_add(slot / 3).wrapping_sub(1);
-                if tx >= 16 || ty >= 16 { continue; }
-                if swept(b, enemy_x(frame, tx, ty), enemy_y(frame, tx, ty),
-                         (b.radius + 7.0) * (b.radius + 7.0)) {
-                    events.push(Hit { target: (tx + ty * 16) as usize,
-                                      time: frame, x: b.x, y: b.y,
-                                      color: b.color });
-                }
-            }
-        } else if player_entered(frame, b) {
-            incoming += 1;
-        }
-    }
+            (0u32..9).map(move |slot| (
+                b,
+                cx.wrapping_add(slot % 3).wrapping_sub(1),
+                cy.wrapping_add(slot / 3).wrapping_sub(1),
+            ))
+        })
+        .filter(|(b, tx, ty)| {
+            *tx < 16 && *ty < 16 && swept(*b, enemy_x(frame, *tx, *ty),
+                enemy_y(frame, *tx, *ty), (b.radius + 7.0) * (b.radius + 7.0))
+        })
+        .map(|(b, tx, ty)| Hit { target: (tx + ty * 16) as usize,
+            time: frame, x: b.x, y: b.y, color: b.color })
+        .collect();
+    let incoming = (begin..end)
+        .map(|id| bullet_at(frame, id))
+        .filter(|b| !b.friendly && player_entered(frame, *b))
+        .count() as u32;
     for hit in events {
         if world.health[hit.target] > 0 {
             world.health[hit.target] -= 1;
@@ -132,25 +132,34 @@ fn step(world: &mut World, frame: u32) {
 #[inline] fn ink(pixels: &mut [u32], index: usize, color: u32) {
     pixels[index] = blend(pixels[index], color);
 }
-fn draw_sprite(pixels: &mut [u32], s: Sprite) {
+fn sprite_pixels(s: Sprite) -> impl Iterator<Item = (usize, u32)> {
     let width = s.radius * 2 + 1;
     let origin_x = s.x as u32;
     let origin_y = s.y as u32;
-    for slot in 0..width * width {
-        let x = origin_x.wrapping_add(slot % width).wrapping_sub(s.radius);
-        let y = origin_y.wrapping_add(slot / width).wrapping_sub(s.radius);
-        if x >= SIDE as u32 || y >= SIDE as u32 { continue; }
-        let dx = x as f32 - s.x;
-        let dy = y as f32 - s.y;
-        let r2 = s.radius as f32 * s.radius as f32;
-        if dx * dx + dy * dy > r2 { continue; }
-        let falloff = (1.0 - (dx * dx + dy * dy) / r2.max(1.0)).max(0.0);
-        let intensity = falloff * falloff;
-        let color = rgb((red(s.color) as f32 * intensity) as u32,
-                        (green(s.color) as f32 * intensity) as u32,
-                        (blue(s.color) as f32 * intensity) as u32);
-        ink(pixels, (x + y * SIDE as u32) as usize, color);
-    }
+    let r2 = s.radius as f32 * s.radius as f32;
+    (0..width * width)
+        .map(move |slot| {
+            let x = origin_x.wrapping_add(slot % width).wrapping_sub(s.radius);
+            let y = origin_y.wrapping_add(slot / width).wrapping_sub(s.radius);
+            let dx = x as f32 - s.x;
+            let dy = y as f32 - s.y;
+            (x, y, dx * dx + dy * dy)
+        })
+        .filter(move |&(x, y, d2)| x < SIDE as u32 && y < SIDE as u32 && d2 <= r2)
+        .map(move |(x, y, d2)| {
+            let falloff = (1.0 - d2 / r2.max(1.0)).max(0.0);
+            let intensity = falloff * falloff;
+            let color = rgb((red(s.color) as f32 * intensity) as u32,
+                            (green(s.color) as f32 * intensity) as u32,
+                            (blue(s.color) as f32 * intensity) as u32);
+            ((x + y * SIDE as u32) as usize, color)
+        })
+}
+fn draw_sprites(pixels: &mut [u32], sprites: impl Iterator<Item = Sprite>) {
+    let _ = sprites.flat_map(sprite_pixels).fold(pixels, |pixels, (index, color)| {
+        ink(pixels, index, color);
+        pixels
+    });
 }
 fn sky(index: u32) -> u32 {
     let x = index & 511;
@@ -166,31 +175,28 @@ fn sky(index: u32) -> u32 {
         25 + aura * 2 + line + star)
 }
 fn render(world: &World, frame: u32, pixels: &mut [u32]) -> u32 {
-    for (i, pixel) in pixels.iter_mut().enumerate() { *pixel = sky(i as u32); }
+    pixels.iter_mut().enumerate().for_each(|(i, pixel)| *pixel = sky(i as u32));
     let begin = (frame - frame.min(95)) * 128;
-    for id in begin..(frame + 1) * 128 {
-        let b = bullet_at(frame, id);
-        if onscreen(b) {
-            draw_sprite(pixels, Sprite { x: b.x, y: b.y, radius: 4,
-                                         color: b.color });
-        }
-    }
-    for i in 0..CELLS {
-        let hp = world.health[i];
-        if hp == 0 { continue; }
-        let cx = i as u32 & 15;
-        let cy = i as u32 >> 4;
-        draw_sprite(pixels, Sprite { x: enemy_x(frame, cx, cy),
-            y: enemy_y(frame, cx, cy), radius: 8,
-            color: rgb(hp * 24, hp * 52, 180) });
-    }
-    for h in world.accepted.iter().rev() {
-        let age = frame - h.time;
-        let power = 255 / (age + 1);
-        let s = Sprite { x: h.x, y: h.y, radius: 3 + age.min(10),
-                         color: rgb(power, power * 2 / 3, power / 3) };
-        if red(s.color) > 18 { draw_sprite(pixels, s); }
-    }
+    draw_sprites(pixels, (begin..(frame + 1) * 128)
+        .map(|id| bullet_at(frame, id))
+        .filter(|b| onscreen(*b))
+        .map(|b| Sprite { x: b.x, y: b.y, radius: 4, color: b.color }));
+    draw_sprites(pixels, world.health.iter().copied().enumerate()
+        .filter(|&(_, hp)| hp != 0)
+        .map(|(i, hp)| {
+            let cx = i as u32 & 15;
+            let cy = i as u32 >> 4;
+            Sprite { x: enemy_x(frame, cx, cy), y: enemy_y(frame, cx, cy),
+                radius: 8, color: rgb(hp * 24, hp * 52, 180) }
+        }));
+    draw_sprites(pixels, world.accepted.iter().rev()
+        .map(|h| {
+            let age = frame - h.time;
+            let power = 255 / (age + 1);
+            Sprite { x: h.x, y: h.y, radius: 3 + age.min(10),
+                color: rgb(power, power * 2 / 3, power / 3) }
+        })
+        .filter(|s| red(s.color) > 18));
     let core = if world.score >= 192 {16727887} else {16759065};
     let ship = if world.player_hp < 80 {16737792} else {16639};
     let ship_x = player_x(frame);
@@ -203,16 +209,20 @@ fn render(world: &World, frame: u32, pixels: &mut [u32]) -> u32 {
         Sprite {x: ship_x + 12.0, y: 489.0, radius: 7, color: 45055},
         Sprite {x: ship_x, y: 497.0, radius: 6, color: 65535},
     ];
-    for s in icons { draw_sprite(pixels, s); }
-    for i in 0u32..6144 {
-        let x = i & 511;
-        let y = i >> 9;
-        let boss = x >= 16 && x < 16 + world.score.min(220);
-        let player = x >= 290 && x < 290 + world.player_hp.min(206);
-        if (boss || player) && y >= 7 && y < 11 {
-            ink(pixels, i as usize, if x < 256 {16757920} else {45055});
-        }
-    }
+    draw_sprites(pixels, icons.iter().copied());
+    let _ = (0u32..6144)
+        .filter(|&i| {
+            let x = i & 511;
+            let y = i >> 9;
+            let boss = x >= 16 && x < 16 + world.score.min(220);
+            let player = x >= 290 && x < 290 + world.player_hp.min(206);
+            (boss || player) && y >= 7 && y < 11
+        })
+        .map(|i| (i as usize, if i & 511 < 256 {16757920} else {45055}))
+        .fold(&mut *pixels, |pixels, (index, color)| {
+            ink(pixels, index, color);
+            pixels
+        });
     pixels.iter().copied().fold(0u32, u32::wrapping_add)
 }
 pub fn main() {
