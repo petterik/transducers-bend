@@ -49,7 +49,8 @@ arena grid. Swept-circle collisions damage drones and the player. Drones have
 three health points, hits leave fading afterglows, the boss changes phase after
 192 accepted hits, and two bars display drone-hit progress and player shield.
 
-The simulation and every RGB pixel are computed by Bend transducers. The Python
+The simulation and sprite layers are computed by Bend transducers; the sky
+uses Bend's general sequential `Array.fill`. The Python
 exporter converts Bend's packed RGB `Array<U32>` output to PNG and MP4; it does
 not simulate, collide, shade, or draw the scene.
 
@@ -81,10 +82,11 @@ drone candidates rather than all 256. Accepted events are reduced into a flat
 `Array<U32>` of health values and a history of recent hit effects. Hostile
 bullets take a separate fused path to the moving player's collision circle.
 
-Rendering is another transducer program. A range of 262,144 pixel IDs builds
-the background in a flat framebuffer. Bullets, live drones, afterglows, the
-boss, and the player become `Sprite` values. The `SpritePixels` source expands
-each sprite to a bounded rectangle; `filter` clips the pixels to a circle and
+Rendering combines a bounded `Array.fill` over the 262,144 background pixels
+with transducer sprite passes in a flat framebuffer. Bullets, live drones,
+afterglows, the boss, and the player become `Sprite` values. The
+`SpritePixels` source expands each sprite to a bounded rectangle; `filter`
+clips the pixels to a circle and
 the screen; `map` computes a radial color; a reducer blends it into the
 framebuffer with indexed `Array.get` and `Array.set`. The HUD is another
 `map → filter → map → reduce` pass. The only stored output image is the flat
@@ -94,8 +96,10 @@ fused.
 
 ## Measured run
 
-On the development M3 Max, the native compiler generated C and Apple Clang 17
-compiled it with `-O3`. One CPU thread computed 120 sequential 512×512 frames
+The following run is a historical baseline from before bounded `Array.fill`
+and the native CPU division change. On the development M3 Max, the native
+compiler generated C and Apple Clang 17 compiled it with `-O3`. One CPU
+thread computed 120 sequential 512×512 frames
 in a **439.373 ms median** across 21 timed processes after three warmups.
 That is **about 273 computed frames per second averaged over the whole
 sequence**, which grows from a sparse opening to the full bullet field. The
@@ -112,6 +116,13 @@ This count covers all native heap allocation sites in the timed interval; it
 does not classify their causes. Raw samples and the instrumentation method are in
 [the benchmark JSON](bullet-cathedral-bench.json) and
 [benchmark script](bullet_cathedral_bench.py).
+
+The current matched Bend/C/Rust 120-frame run measured **269.027 ms Bend**,
+**242.650 ms C**, and **227.616 ms Rust** with a fresh framebuffer each
+frame. Every frame's pixel checksum, hit count, and player shield matched.
+The [cross-language report](../docs/current/20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md)
+and [renderer follow-up](../docs/current/20260927-BULLET-RENDERER-FOLLOWUP.md)
+contain the current samples and three optimization probes.
 
 ## Collision checks
 
@@ -142,7 +153,7 @@ field reads, but would need explicit spawning, deletion, and compaction.
 
 ## Reproduce
 
-Use the sibling `../bend` compiler fork at commit
+To reproduce the historical MP4 and benchmark, use the sibling `../bend` compiler fork at commit
 `1b4f641b9fea9b48fee37fc10b0a07977bba6e7d`. `bun`, `clang`, Python 3,
 and `ffmpeg` are needed to export the video; the oracle and benchmark do not
 need `ffmpeg`.

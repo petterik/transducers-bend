@@ -43,11 +43,11 @@ finished CPU framebuffer to the window; all simulation and pixel rendering
 remain in Bend on the CPU. The older [ffplay stream](bench/bullet_cathedral_2k_live.py)
 and [512×512 player](bench/bullet_cathedral_live.py) remain available.
 
-On an M3 Max, one native CPU thread computed the complete 120-frame sequence
-in a **439 ms median** over 21 runs, including simulation, collision handling,
-RGB framebuffer generation, and pixel checksums. That is about **273 computed
-frames per second averaged over the sequence**; MP4 encoding and display are
-outside the timed interval. An independent exhaustive oracle checked 54
+An earlier M3 Max run, before bounded `Array.fill` and a CPU division fix,
+computed the complete 120-frame sequence in a **439 ms median** on one native
+CPU thread. That was about **273 computed frames per second averaged over the
+sequence**; MP4 encoding and display were outside the timed interval. An
+independent exhaustive oracle checked 54
 million bullet–drone pairs and matched Bend's collision counters at every
 frame. See the [source, stills, performance samples, and reproduction
 steps](bench/BULLET-CATHEDRAL.md).
@@ -55,15 +55,22 @@ steps](bench/BULLET-CATHEDRAL.md).
 The current fork also has [matched handwritten C and Rust ports](docs/current/20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md)
 of this 512×512 scene. All three match every frame's pixel checksum, accepted
 hits, and player shield. In a fresh 21-session paired run with a new
-framebuffer each frame, the medians were 405.4 ms Bend, 242.7 ms C, and 227.8 ms
-Rust for 120 frames. The earlier 439 ms
-figure above is the historical Bend-only run under its own conditions.
+framebuffer each frame, the current medians are **269.027 ms Bend**,
+**242.650 ms C**, and **227.616 ms Rust** for 120 frames. Bend uses the
+general bounded `Array.fill` for its sequential sky pass, matching the
+framebuffer approach in C and Rust; sprite and simulation stages remain
+transducers. The compiler fork now uses ordinary native CPU division for
+`U32.div` and `U32.mod`, retaining its Metal workaround on device. The bullet
+pixel pipeline also carries squared distance from its filter to its color
+mapper, matching the C loop's reuse of that calculation. The
+[renderer follow-up](docs/current/20260927-BULLET-RENDERER-FOLLOWUP.md)
+measures each change and the remaining gap.
 
-An [array-per-bullet-field experiment](bench/BULLET-LAYOUT-EXPERIMENT.md)
+An earlier [array-per-bullet-field experiment](bench/BULLET-LAYOUT-EXPERIMENT.md)
 compares this generated-bullet stream with stored arrays of records and seven
 separate field arrays. The field arrays match every frame and save about 4%
-of complete one-thread runtime. Simulation is only about 11% of that runtime;
-framebuffer work dominates.
+of the then-current complete one-thread runtime. Simulation was about 11%
+of that run; framebuffer work dominated.
 
 Changing the original programs from one to [2, 4, or 8 CPU threads](bench/BULLET-THREAD-SCALING.md)
 does not improve the 120-frame time: the field-array medians stay at about

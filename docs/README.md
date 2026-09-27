@@ -29,6 +29,7 @@ Read these first for the current contract and measured limits:
 - [Array.walk integration](current/20260927-ARRAY-WALK-INTEGRATION.md) — local fork/library implementation, correctness checks, and matched Bend/C/Rust measurements.
 - [Upstream local regression](current/20260927-UPSTREAM-LOCAL-REGRESSION.md) — before/after sequential CPU and checker benchmarks in the sibling Bend suite.
 - [Bullet Cathedral cross-language comparison](current/20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md) — exact per-frame Bend/C/Rust results for the 512×512 scene.
+- [Bullet Cathedral renderer follow-up](current/20260927-BULLET-RENDERER-FOLLOWUP.md) — bounded `Array.fill`, native CPU quotient fix, paired probes, and remaining gap.
 - [Transducers blog post draft](current/20260927-TRANSDUCERS-BLOGPOST-DRAFT.md) — evidence-backed article text with links to code, proof boundaries, video, and raw measurements.
 - [Blog post claim ledger](current/20260927-BLOGPOST-CLAIM-LEDGER.md) — each headline and technical assertion tied to its evidence and scope.
 - [Traversal and indexed transducers](current/20260925-TRAVERSAL-INDEXED-TRANSDUCERS.md) — drop/while, indexed, take-nth, and cat contracts.

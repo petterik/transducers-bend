@@ -210,8 +210,10 @@ X.into(empty_hits(), X.comp2(X.comp5(
     X.map(~Candidate, ~Hit, ~as_hit))), active_ids(frame))
 ```
 
-The renderer uses another chain to expand sprites to bounded rectangles,
-clip to circles, calculate radial color, and blend into a flat framebuffer.
+The sky is a sequential `Array.fill`, matching the C and Rust framebuffer
+initialization. The renderer then uses another transducer chain to expand
+sprites to bounded rectangles, clip to circles, calculate radial color, and
+blend into that flat framebuffer.
 The framebuffer, accepted-hit history, and event Vec are intentional stored
 state. The pipeline does not materialize every candidate or pixel as a
 separate collection.
@@ -232,9 +234,9 @@ a theorem for arbitrary scenes.
 
 | 120 frames, one CPU thread | Bend | C | Rust |
 | --- | ---: | ---: | ---: |
-| Median internal time, fresh framebuffer | 405.4 ms | 242.7 ms | 227.8 ms |
-| Handwritten scene code lines | 567 | 230 | 250 |
-| Handwritten lexical tokens | 7,989 | 3,092 | 3,122 |
+| Median internal time, fresh framebuffer | 269.027 ms | 242.650 ms | 227.616 ms |
+| Handwritten scene code lines | 600 | 230 | 250 |
+| Handwritten lexical tokens | 8,379 | 3,092 | 3,122 |
 
 The timing includes initial scene setup, simulation, rendering, a fresh
 framebuffer each frame, pixel checksums, and cleanup, but no presentation.
@@ -244,16 +246,56 @@ almost the same for C and Rust on this fixture. C was compiled with
 includes each scene's CLI harness and excludes
 imported libraries and generated C. Bend's reusable `xf.bend` and
 `transduce_core.bend` are separate files used beyond this scene. On this
-showcase, C and Rust are faster and shorter by these measures. The
+showcase, C and Rust are faster and shorter by these measures. The gap to C
+is 26.377 ms over 120 frames. The
 [comparison report](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md) gives the
 raw samples and counting rule.
 
 The allocation counts point to a different scale of work from the tiny flat
-Array folds: 133,671 timed Bend native heap-allocation calls over 120 frames,
+Array folds: 133,791 timed Bend native heap-allocation calls over 120 frames,
 versus 1,126 Rust allocator calls in the fresh-buffer lane and 120 explicit
 framebuffer `malloc` calls in the fresh C scene. Those interfaces count
 different kinds of allocator requests, so I use them as observations rather
 than a normalized memory-cost ratio.
+
+The sky had been another `map → reduce` transducer over pixel IDs. C and
+Rust simply fill a framebuffer in index order. Giving Bend the same shape
+through a generic Base operation was both a fairer comparison and faster:
+
+```bend
+# Clojure: (mapv sky-color (range 262144))
+def background() -> Array<U32>:
+  Array.fill(~U32, ~sky_color, Array.new(U32, 18n, 0))
+```
+
+The bounded fill owns the Array, derives its size, and writes each index
+once. The compiler checks the span before using direct offsets. In a paired
+probe on the final scene, it reduced the complete run from 340.601 to
+268.982 ms. The sky plus checksum alone fell from 142.138 to 70.376 ms.
+
+The next bottleneck was less obvious. Bend's generated quotient macro used
+a Metal workaround on the CPU as well: halve the dividend, divide, double
+the quotient, and correct the odd bit. Sprite rectangles divide each pixel
+slot by their width and also take its remainder. The CPU now emits the
+ordinary unsigned quotient while the device keeps its workaround:
+
+```c
+#if DEVICE
+#define U32_QUO(a, b) \
+  ((a) / 2 / (b) * 2 + ((a) - (a) / 2 / (b) * 2 * (b) >= (b)))
+#else
+#define U32_QUO(a, b) ((a) / (b))
+#endif
+```
+
+That general compiler change reduced the final scene from 301.529 to
+268.901 ms in a paired probe. Finally, the bullet sprite pipeline carried
+its squared distance through `filter` into the color mapper, as the C loop
+already did, saving 8.7 ms. Trying that record in every sprite pass did
+not help the whole scene, so I kept it only for bullets. These are three
+separate ablations against the final source; their gains are not additive.
+The [renderer follow-up](20260927-BULLET-RENDERER-FOLLOWUP.md) has the raw
+paired probes and correctness checks.
 
 The live 1920×1080 Bend version presented roughly 38–40 FPS after startup on
 one CPU thread on my machine. That is a separate windowed measurement, not

@@ -30,11 +30,28 @@ per frame, like the Bend renderer:
 
 | Language | Median | Min–max | Relative to C |
 | --- | ---: | ---: | ---: |
-| Bend transducers | 405,404 | 404,678–407,515 | 1.67× |
-| Handwritten C, reuse | 242,775 | 242,313–245,495 | 1.00× |
-| Handwritten C, fresh | 242,730 | 242,295–243,388 | 1.00× |
-| Rust loops, reuse | 227,065 | 226,631–229,416 | 0.94× |
-| Rust loops, fresh | 227,807 | 227,353–229,248 | 0.94× |
+| Bend transducers and bounded fill | 269,027 | 268,581–271,129 | 1.11× |
+| Handwritten C, reuse | 242,476 | 242,299–244,834 | 1.00× |
+| Handwritten C, fresh | 242,650 | 242,249–244,712 | 1.00× |
+| Rust loops, reuse | 226,863 | 226,681–229,165 | 0.94× |
+| Rust loops, fresh | 227,616 | 227,287–229,842 | 0.94× |
+
+The Bend scene now initializes its sky with the general `Array.fill`, which
+matches the sequential framebuffer fill in C and Rust. The fork also emits
+ordinary unsigned quotient operations for native CPU code while retaining
+its existing Metal quotient workaround on device. In a
+[same-source paired probe](../../bench/bullet-cpu-quotient-probe-20260927.json),
+the latter change reduced Bend's 120-frame median from 301.529 to
+268.901 ms against the final source. The [renderer follow-up](20260927-BULLET-RENDERER-FOLLOWUP.md)
+records both changes and their correctness checks. The current Bend scene
+is 26.377 ms behind the fresh C lane and 41.411 ms behind the fresh Rust
+lane; this gap is still open. In the bullet sprite transducer, a measured
+pixel now carries its squared distance from the filter to the color mapper,
+as the C loop does. The
+[paired ablation](../../bench/bullet-metric-probe-20260927.json) measured
+277.806 ms when both stages calculated distance and 269.144 ms when the
+mapper reused it. The change remains within the composable transducer
+pipeline and preserved every frame's output.
 
 The interval includes initial World and framebuffer setup, simulation,
 collision handling, complete framebuffer construction, per-frame pixel
@@ -42,7 +59,7 @@ checksum, and cleanup. It excludes source compilation, process startup,
 window presentation, and PNG/MP4 encoding. The reuse lanes allocate one
 framebuffer at the start; the fresh lanes allocate and release one inside the
 interval for each frame. The fresh/reuse differences were small on this fixture. A separate
-allocation-count build found **133,671 Bend native heap-allocation calls**
+allocation-count build found **133,791 Bend native heap-allocation calls**
 inside the 120-frame clock. The C scene makes **1** explicit timed `malloc`
 calls with reuse or **120** with fresh buffers. A separate Rust global
 allocator meter counted **1,007** allocation/reallocation calls with reuse
@@ -64,7 +81,7 @@ and generated C:
 
 | Handwritten scene file | Code lines | Lexical tokens |
 | --- | ---: | ---: |
-| Bend | 567 | 7,989 |
+| Bend | 600 | 8,379 |
 | C | 230 | 3,092 |
 | Rust | 250 | 3,122 |
 
