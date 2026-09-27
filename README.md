@@ -52,6 +52,13 @@ million bullet–drone pairs and matched Bend's collision counters at every
 frame. See the [source, stills, performance samples, and reproduction
 steps](bench/BULLET-CATHEDRAL.md).
 
+The current fork also has [matched handwritten C and Rust ports](docs/current/20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md)
+of this 512×512 scene. All three match every frame's pixel checksum, accepted
+hits, and player shield. In a fresh 21-session paired run with a new
+framebuffer each frame, the medians were 405.4 ms Bend, 242.7 ms C, and 227.8 ms
+Rust for 120 frames. The earlier 439 ms
+figure above is the historical Bend-only run under its own conditions.
+
 An [array-per-bullet-field experiment](bench/BULLET-LAYOUT-EXPERIMENT.md)
 compares this generated-bullet stream with stored arrays of records and seven
 separate field arrays. The field arrays match every frame and save about 4%
@@ -161,7 +168,7 @@ the shared helpers and complete programs are in the
 [handwritten C fixture](bench/public_array_map_filter_sum.c).
 
 The **Bend transducer** says exactly which stages to compose. Its raw Array
-source reads the flat storage with indexed `Array.get`:
+source now uses bounded `Array.walk` to read the flat storage in order:
 
 ```python
 def transducer(xs: Array<U32>) -> U32:
@@ -223,8 +230,9 @@ The Array mask represents rejected values as zero, which is equivalent for
 this sum but retains every slot. The List path creates a compact filtered
 collection and also pays for Array-to-List conversion.
 
-On an M3 Max, one native CPU thread, Apple Clang 17 `-O3`, the medians of 36
-randomized runs were **microseconds**:
+The following table is the **2026-09-26 masked-read baseline** on an M3 Max,
+one native CPU thread, Apple Clang 17 `-O3`, with medians of 36 randomized
+runs in **microseconds**:
 
 | Elements | Bend transducer | Direct Bend | Manual C | Array mask | List filter |
 | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -236,12 +244,17 @@ All five paths matched an independent checksum. Traversal and input cleanup
 are timed; input construction, compilation, and process startup are not. The
 fused transducer made 10 timed native heap allocation calls at one million
 elements, compared with 9 for direct Bend and 3,539,023 for the List path.
-See the [methodology and raw samples](bench/PUBLIC-ARRAY-VS-C.md), and the
-[bounded Array walk proposal](docs/current/20260926-BOUNDED-ARRAY-WALK.md)
-for the remaining native optimization. Reproduce the current results with:
+See the [historical methodology and raw samples](bench/PUBLIC-ARRAY-VS-C.md).
+The integrated `Array.walk` path was measured again in 36 paired sessions
+against C and Rust at one million elements: **188.5 µs Bend**, **199 µs C**,
+and **195.5 µs Rust iterator**. Clang reported a width-four vectorized loop
+in the actual generated Bend C. The
+[integration report](docs/current/20260927-ARRAY-WALK-INTEGRATION.md)
+contains every size, source hash, and raw sample. Reproduce the current
+comparison with:
 
 ```sh
-python3 bench/public_array_map_filter_sum.py --depths 16 18 20 --sessions 36 --output /tmp/public-array.json
+python3 bench/public_array_map_filter_sum_rust.py --depths 16 18 20 --sessions 36 --output /tmp/public-array.json
 ```
 
 ## Public transducer API
