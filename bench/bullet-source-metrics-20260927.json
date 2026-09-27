@@ -1,5 +1,5 @@
 {
-  "scope": "Raw BPE counts include comments, whitespace and each scene's own CLI harness; code-line and lexical-token counts omit blank lines and comments according to bullet_cathedral_cross_language.py. Shared Bend libraries and proof artifacts are reported separately. Neither token measure is a measured GPT-6 prompt bill.",
+  "scope": "Five complete handwritten scene files: Bend transducers, Bend direct loops, C direct loops, Rust iterators, and Rust direct loops. Raw BPE counts include comments, whitespace and each scene's own CLI harness; code-line and lexical-token counts omit blank lines and comments according to bullet_cathedral_cross_language.py. Shared Bend libraries and proof artifacts are reported separately. Neither token measure is a measured GPT-6 prompt bill.",
   "tiktoken_version": "0.14.0",
   "encoding": "o200k_base",
   "files": {
@@ -9,6 +9,13 @@
       "nonblank_noncomment_lines": 600,
       "lexical_tokens": 8379,
       "raw_o200k_base_tokens": 8610
+    },
+    "bench/bullet_cathedral_direct.bend": {
+      "sha256": "1841b759e63d081c58b6dfb374bd15dd7abf1447343940a644b925d3696a4058",
+      "bytes": 25635,
+      "nonblank_noncomment_lines": 600,
+      "lexical_tokens": 7930,
+      "raw_o200k_base_tokens": 8443
     },
     "bench/bullet_cathedral_control.c": {
       "sha256": "46f62e9da8d6af92a7116f6da515d635696a0acc95687eba1d3eefc004497ca0",
@@ -23,6 +30,13 @@
       "nonblank_noncomment_lines": 260,
       "lexical_tokens": 3348,
       "raw_o200k_base_tokens": 3498
+    },
+    "bench/bullet_cathedral_loops.rs": {
+      "sha256": "b37a284399dacd923f67c9ef19707cbe2dd949d9ce691cabfb8b6bbea92381d4",
+      "bytes": 9830,
+      "nonblank_noncomment_lines": 250,
+      "lexical_tokens": 3122,
+      "raw_o200k_base_tokens": 3321
     },
     "xf.bend": {
       "sha256": "40b02a7660718ac279d90865f7bc2163ad8e5594f78bcaa85369847e85f031c0",

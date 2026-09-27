@@ -14,7 +14,9 @@ def main():
     import tiktoken
 
     encoder = tiktoken.get_encoding("o200k_base")
-    paths = (BEND, C, RUST, ROOT / "xf.bend", ROOT / "transduce_core.bend",
+    paths = (BEND, ROOT / "bench/bullet_cathedral_direct.bend", C, RUST,
+             ROOT / "bench/bullet_cathedral_loops.rs",
+             ROOT / "xf.bend", ROOT / "transduce_core.bend",
              ROOT / "proofs/list_map_fold_law.bend",
              ROOT / "proofs/no_stop_control_law.bend",
              ROOT / "proofs/api_stage_laws.bend")
@@ -28,7 +30,7 @@ def main():
             "raw_o200k_base_tokens": len(encoder.encode(contents)),
         }
     report = {
-        "scope": "Raw BPE counts include comments, whitespace and each scene's own CLI harness; code-line and lexical-token counts omit blank lines and comments according to bullet_cathedral_cross_language.py. Shared Bend libraries and proof artifacts are reported separately. Neither token measure is a measured GPT-6 prompt bill.",
+        "scope": "Five complete handwritten scene files: Bend transducers, Bend direct loops, C direct loops, Rust iterators, and Rust direct loops. Raw BPE counts include comments, whitespace and each scene's own CLI harness; code-line and lexical-token counts omit blank lines and comments according to bullet_cathedral_cross_language.py. Shared Bend libraries and proof artifacts are reported separately. Neither token measure is a measured GPT-6 prompt bill.",
         "tiktoken_version": tiktoken.__version__,
         "encoding": encoder.name,
         "files": files,
