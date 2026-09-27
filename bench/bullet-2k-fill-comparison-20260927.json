@@ -1,0 +1,179 @@
+{
+  "scope": "Same 1920x1080 Bend scene and CPU quotient compiler; sky transducer versus generic Array.fill.prefix over 2073600 active pixels in a 2097152-slot Array. One CPU thread, separate clang -O3 binaries, full simulation and checksum. Times cover the specified sequential frames. Both variants also checked for equal 120-frame cumulative checksums once.",
+  "frames": 24,
+  "full_check_frames": 120,
+  "sessions": 21,
+  "scene_sha256": "1fdec9cd898962e0a986069e4bd48c805f530fe67f46abda2c8509980a51dfa2",
+  "compiler_comp_ts_sha256": "f939a6285f04721c35882d688b0b71cb09bce96bb61ab8a12c664551e0c723c7",
+  "compiler_base_sha256": "57ca7a7db8fd89d25713f8dc36368368f7c3b9944e414449c09c44e74b8d8bf5",
+  "generated_c_sha256": {
+    "transducer_sky": "ad11457697f4b6d51f6d622702880b6c7d28e7c514418745c9b9dead14fb1c4d",
+    "bounded_prefix_fill": "5dd91eae51c8a16d83a1a759c7aed24ede2286e80bb7870fccc8a7cd0fabac52"
+  },
+  "checksums": {
+    "transducer_sky": 329857091,
+    "bounded_prefix_fill": 329857091
+  },
+  "full_checksums": {
+    "transducer_sky": 599039361,
+    "bounded_prefix_fill": 599039361
+  },
+  "spot_frames": [
+    0,
+    23,
+    95,
+    119
+  ],
+  "spot_checksums": {
+    "transducer_sky": [
+      2095911356,
+      1304116747,
+      994069744,
+      1777758943
+    ],
+    "bounded_prefix_fill": [
+      2095911356,
+      1304116747,
+      994069744,
+      1777758943
+    ]
+  },
+  "orders": [
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "bounded_prefix_fill",
+      "transducer_sky"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "bounded_prefix_fill",
+      "transducer_sky"
+    ],
+    [
+      "bounded_prefix_fill",
+      "transducer_sky"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "bounded_prefix_fill",
+      "transducer_sky"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "bounded_prefix_fill",
+      "transducer_sky"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "bounded_prefix_fill",
+      "transducer_sky"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "transducer_sky",
+      "bounded_prefix_fill"
+    ],
+    [
+      "bounded_prefix_fill",
+      "transducer_sky"
+    ],
+    [
+      "bounded_prefix_fill",
+      "transducer_sky"
+    ]
+  ],
+  "samples_us": {
+    "transducer_sky": [
+      269653,
+      269922,
+      269427,
+      270799,
+      270279,
+      270042,
+      269433,
+      268553,
+      267360,
+      268545,
+      269743,
+      270792,
+      269506,
+      269828,
+      283212,
+      281080,
+      270051,
+      268641,
+      268637,
+      268010,
+      271404
+    ],
+    "bounded_prefix_fill": [
+      217475,
+      218126,
+      218106,
+      216135,
+      218113,
+      217084,
+      217238,
+      217451,
+      216228,
+      217096,
+      216915,
+      217586,
+      217446,
+      217581,
+      224103,
+      224762,
+      218375,
+      215711,
+      216180,
+      216485,
+      216538
+    ]
+  },
+  "median_us": {
+    "transducer_sky": 269743,
+    "bounded_prefix_fill": 217446
+  }
+}

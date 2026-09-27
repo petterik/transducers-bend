@@ -45,6 +45,29 @@ the library suite passed **65/65**. A native Metal `Array.fill` fixture
 returned the same value as CPU. These checks support the implementation;
 they are not a proof of the C emitter.
 
+## The 1920×1080 player
+
+The windowed player uses a 2,097,152-slot Array for 2,073,600 visible
+pixels. Plain `Array.fill` would color the unused tail, changing its
+whole-Array checksum. The fork now also provides `Array.fill.prefix`
+(`4d27fef8`), which
+clamps a requested count to the Array size and uses the same bounded fill
+loop. The 2K scene fills only the visible prefix, leaving the tail zero.
+
+In a [21-session paired 2K probe](../../bench/bullet-2k-fill-comparison-20260927.json),
+24 sequential frames took **269.743 ms** with the old sky transducer and
+**217.446 ms** with prefix fill on one CPU thread, a **19.4% reduction**.
+The 120-frame cumulative checksums matched, as did individual checksums at
+frames 0, 23, 95, and 119. This is a headless measurement; the previous
+38–40 presented FPS observation has not been remeasured with this change.
+
+The native window entry previously failed Bend's template-growth check when
+it imported the 2K frame module. Both the old and new sky versions hit the
+same error. The launcher now assembles the existing frame and window code
+into one temporary Bend module before compiling; `--compile-only` verifies
+that build without opening a window. This changes module packaging, not
+simulation or rendering behavior.
+
 ## Where time and allocations remain
 
 The next root cause was the generated `U32_QUO` macro. Its original formula
@@ -137,4 +160,6 @@ python3 bench/bullet_alloc_sites.py
 python3 bench/bullet_nomask_probe.py --sessions 21
 python3 bench/bullet_cpu_quotient_probe.py --sessions 21
 python3 bench/bullet_metric_probe.py --sessions 21
+python3 bench/bullet_2k_fill_compare.py --sessions 21
+python3 bench/bullet_cathedral_2k_native.py --compile-only
 ```

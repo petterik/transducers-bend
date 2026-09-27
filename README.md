@@ -42,6 +42,10 @@ an hour or `--window-width 1920` for a full-size window. It needs `bun`,
 finished CPU framebuffer to the window; all simulation and pixel rendering
 remain in Bend on the CPU. The older [ffplay stream](bench/bullet_cathedral_2k_live.py)
 and [512×512 player](bench/bullet_cathedral_live.py) remain available.
+The current 2K sky uses bounded `Array.fill.prefix`; a
+[paired headless run](bench/bullet-2k-fill-comparison-20260927.json) reduced
+24-frame time from 269.743 to 217.446 ms with the same image checksums.
+Windowed FPS has not been remeasured after this change.
 
 An earlier M3 Max run, before bounded `Array.fill` and a CPU division fix,
 computed the complete 120-frame sequence in a **439 ms median** on one native

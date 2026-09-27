@@ -753,9 +753,16 @@ def sky(+index: U32) -> Ink:
 def sky_at(index: U32) -> Ink:
   sky(index)
 
+def sky_color_after(ink: Ink) -> U32:
+  match ink:
+    case Ink{index, color}: color
+
+def sky_color(index: U32) -> U32:
+  sky_color_after(sky(index))
+
 def background() -> Array<U32>:
-  X.transduce(X.map(~U32, ~Ink, ~sky_at), ink_rf(),
-    Array.new(U32, 21n, 0), T.range(2073600))
+  Array.fill.prefix(~U32, ~sky_color, 2073600,
+    Array.new(U32, 21n, 0))
 
 def draw_frame(world: Damage, pool: BulletPool,
   +frame: U32) -> Array<U32>:

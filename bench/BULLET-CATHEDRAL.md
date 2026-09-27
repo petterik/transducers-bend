@@ -24,10 +24,18 @@ to disk. The native 1920×1080 image appears in a 1280×720 window by default;
 `--window-width 1920` uses full size. The launcher needs `bun`, `clang`,
 Python 3, macOS, and the sibling `../bend` checkout.
 
-In a 30-second native-window run on the development M3 Max, the program
+In an earlier 30-second native-window run on the development M3 Max, the program
 presented 1,197 frames and crossed four shield-wave resets. After startup,
 most one-second samples were 38–40 FPS. The earlier
 [ffplay stream](bullet_cathedral_2k_live.py) remains available for comparison.
+
+The current 2K sky pass uses `Array.fill.prefix` so the unused tail of its
+power-of-two Array stays zero. In 21 paired one-thread headless runs of 24
+frames, it reduced the median from 269.743 to 217.446 ms while preserving
+the 120-frame cumulative checksum and sampled individual frames. See the
+[paired report](bullet-2k-fill-comparison-20260927.json). Windowed FPS has
+not been remeasured. `python3 bench/bullet_cathedral_2k_native.py
+--compile-only` verifies the native build without opening the window.
 
 The first streamed 2K frame contains exactly 2,073,600 pixels and its packed
 RGB checksum matches Bend's checksum for frame zero. An older 1,200-frame

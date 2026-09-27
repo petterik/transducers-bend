@@ -297,9 +297,14 @@ separate ablations against the final source; their gains are not additive.
 The [renderer follow-up](20260927-BULLET-RENDERER-FOLLOWUP.md) has the raw
 paired probes and correctness checks.
 
-The live 1920×1080 Bend version presented roughly 38–40 FPS after startup on
-one CPU thread on my machine. That is a separate windowed measurement, not
-the 512×512 headless comparison above.
+An earlier live 1920×1080 Bend version presented roughly 38–40 FPS after
+startup on one CPU thread on my machine. The current version uses
+`Array.fill.prefix` for its 2,073,600 visible sky pixels, preserving the
+zero tail in its 2,097,152-slot framebuffer. A paired 24-frame headless run
+fell from 269.743 to 217.446 ms, with matching 120-frame cumulative and
+sampled per-frame checksums. I have not remeasured windowed FPS after that
+change. These 2K figures have different timing boundaries from the 512×512
+C/Rust comparison above.
 
 ## Proofs and what they establish
 

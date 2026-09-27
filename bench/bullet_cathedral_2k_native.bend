@@ -2,6 +2,10 @@ import Base
 import ./bullet_cathedral_2k_frames.bend as B
 import ./bullet_cathedral_present.bend as P
 
+# Build through bullet_cathedral_2k_native.py. The current Bend checker rejects
+# this module's nested Array source specialization when compiled directly;
+# the launcher assembles the same definitions into one temporary module.
+
 # Bend computes each frame into its flat Array<U32>. A native effect presents
 # that finished array, then the next simulation tick starts immediately.
 def new_wave_if(reset: Bool, world: B.Damage) -> B.Damage:
