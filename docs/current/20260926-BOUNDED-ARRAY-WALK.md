@@ -1,9 +1,15 @@
 ---
 created_at: 2026-09-26
-status: proposed-compiler-optimization
+status: implemented-in-local-fork
 ---
 
 # Bounded Array walk for native transducer performance
+
+**Update (2026-09-27):** The operation and guarded native lowering now live
+in the local Bend fork. The library's Array source uses them. See the
+[integration report](20260927-ARRAY-WALK-INTEGRATION.md) for the actual tests,
+generated-code shape, and paired Bend/C/Rust results. The measurements below
+remain the historical generated-C probe.
 
 The public `Array.source` already reads by index, but the compiler lowers each
 `Array.get` through `blk_at(array, index, layout_shift)`. That masks the index
