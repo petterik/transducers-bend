@@ -5,9 +5,10 @@ status: source-size-and-proof-audit
 
 # What the showcase size and proofs establish
 
-The matched 512×512 Bullet Cathedral files contain 600 Bend, 230 C, and
-260 iterator-style Rust nonblank, noncomment code lines under the published complete-file
-rule. The Bend file uses `X.map`, `X.filter`, `X.cat`, `X.map_with`,
+The matched 512×512 Bullet Cathedral files contain 600 Bend transducer,
+600 Bend direct, 230 C direct, 260 Rust iterator, and 250 Rust direct
+nonblank, noncomment code lines under the complete-file rule. The Bend
+transducer file uses `X.map`, `X.filter`, `X.cat`, `X.map_with`,
 `X.map_indexed`, `X.keep`, `X.comp*`, `X.into`, and `X.transduce`. All are
 already implemented in [`xf.bend`](../../xf.bend) and
 [`transduce_core.bend`](../../transduce_core.bend). In particular,
@@ -24,14 +25,12 @@ boundaries from this version of [`bullet_cathedral.bend`](../../bench/bullet_cat
 | 631–720 | Frame assembly and CLI | 77 |
 
 Moving an application-specific source or renderer into the library would
-make the scene file shorter while leaving the same code to maintain. A
-reusable source abstraction might remove tens of scene lines, but the
-non-rendering parts alone are 338 lines. Therefore, library extraction of
-the current transducers cannot establish a full-scene code-size win against
-the 230-line C port. Achieving that honestly would require a larger Bend
-ergonomics or scene-design change, with the same behavior, checks, and
-complete-file accounting. The current article should present speed,
-composability, and checked laws as the verified benefits of this version.
+make one scene file shorter while leaving the same code to maintain. The
+direct Bend port removes the transducer pipelines and their custom source
+drivers, then adds explicit loops and Array state threading. It is exactly
+the same length as the transducer port under this rule. The size gap to C
+and Rust therefore persists in this direct implementation; extraction of
+the current transducers alone cannot establish a full-scene code-size win.
 
 ## Where the size difference comes from
 
@@ -41,41 +40,41 @@ files at their simulation, rendering, and driver boundaries gives a more
 useful view of the gap. These are descriptive source partitions, not a
 line-by-line allocation of causes:
 
-| Responsibility | Bend | C | Rust |
-| --- | ---: | ---: | ---: |
-| Scene types, simulation, collisions | 261 | 119 | 127 |
-| Rendering and frame assembly | 287 | 77 | 96 |
-| Driver and output | 52 | 34 | 37 |
-| **Complete file** | **600** | **230** | **260** |
+| Responsibility | Bend transducers | Bend direct | C direct | Rust iterators | Rust direct |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Scene types, simulation, collisions | 261 | 269 | 119 | 127 | 127 |
+| Rendering and frame assembly | 287 | 279 | 77 | 96 | 86 |
+| Driver and output | 52 | 52 | 34 | 37 | 37 |
+| **Complete file** | **600** | **600** | **230** | **260** | **250** |
 
-The largest difference is in rendering. C implements one `draw_sprite`
-loop and calls it for each layer. Rust implements one lazy `sprite_pixels`
-pipeline (`map → filter → map`), expands each layer with `flat_map`, and
-applies pixels with `fold`. Bend implements a `SpritePixels` source and
-reusable filter/map/reducer stages, then spells out distinct transducer
-chains in `draw_sprites`, `draw_bullets`, `draw_hits`, and `draw_drones`.
-Its special bullet chain carries squared distance from clipping into shading;
-a measured attempt to use that record for every sprite pass slowed the full
-scene. The Rust control shows that shared high-level pixel transformation
-need not be as long as this Bend implementation. The difference does not
-prove that Bend requires four separate renderers.
+The largest difference is in rendering. C and direct Rust implement one
+`draw_sprite` loop and call it for each layer. Iterator Rust implements one
+lazy `sprite_pixels` pipeline (`map → filter → map`), expands each layer
+with `flat_map`, and applies pixels with `fold`. Bend transducers implement
+a `SpritePixels` source and distinct chains in `draw_sprites`,
+`draw_bullets`, `draw_hits`, and `draw_drones`. Direct Bend replaces those
+chains with one shared sprite loop, but still needs recursive loop helpers,
+record matches, and owned Array threading. Its special transducer bullet
+chain carries squared distance from clipping into shading; a measured
+attempt to use that record for every transducer sprite pass slowed the
+whole scene. These are properties of the measured programs, not minimum
+program sizes for any language.
 
-Simulation has a similar, smaller effect. C generates each active bullet once
-in `step` and branches between friendly and hostile work. Bend's `hits` and
-`incoming` are separate transductions over the active ID range. The revised
-Rust control now makes the same two traversals with iterator adapters: it
-uses `flat_map` for nine nearby candidates, collects hit events, and counts
-hostile bullets separately. All three preserve the same per-frame results.
-The two custom Bend source drivers, `Nearby` and `SpritePixels`, account for
-64 of its 600 code lines; moving them to a scene helper module would change
-the location of those lines, not the total handwritten implementation.
+Simulation has a similar, smaller effect. C and direct Rust generate each
+active bullet once in `step` and branch between friendly and hostile work.
+Both Bend ports and iterator Rust make two traversals: one gathers friendly
+hits, and the other counts hostile player hits. The iterator Rust port uses
+`flat_map` for nine nearby candidates and collects hit events. All five
+preserve the same per-frame results. The two custom Bend transducer source
+drivers, `Nearby` and `SpritePixels`, account for 64 of its 600 code lines;
+moving them to a helper module would change their location, not erase them.
 
-The language also makes this design more explicit. The sibling fork's Bend guide
+The language also makes these designs more explicit. The sibling fork's Bend guide
 states that Bend does little inference, uses `match` for branches and
 structural recursion for repetition, and requires explicit reuse of affine
 values. In this file, that appears as `~` type arguments, `+` reuse marks,
-record matches, recursive source drivers, and helpers such as `ink_after` to
-thread an owned Array through `Array.get` and `Array.set`. Tail calls compile
+record matches, recursive source drivers or direct loops, and helpers such as
+`ink_after` to thread an owned Array through `Array.get` and `Array.set`. Tail calls compile
 to loops; the extra source syntax does not imply recursion overhead in the
 native loop. Bend also has infix arithmetic sugar, so the many explicit
 `U32.add` and `F32.mul` calls are partly a style choice. We have not measured
@@ -83,7 +82,7 @@ how much shortening that style would save, or whether it would retain the
 same type checking and runtime behavior in this file.
 
 The transducer standard library is **not the main missing piece** in this
-comparison: every public stage the scene uses, including `map_indexed`, is
+comparison: every public stage the transducer scene uses, including `map_indexed`, is
 already in the library. A clearer generic API for bounded, context-dependent
 sources might reduce adapter boilerplate, but a proposed `Tabulate` helper was
 too specific to promote to the transducer core. The remaining gap includes

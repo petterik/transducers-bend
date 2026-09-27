@@ -127,12 +127,13 @@ does not classify their causes. Raw samples and the instrumentation method are i
 [the benchmark JSON](bullet-cathedral-bench.json) and
 [benchmark script](bullet_cathedral_bench.py).
 
-The current matched Bend/C/iterator-Rust 120-frame run measured **269.385 ms Bend**,
-**242.912 ms C**, and **246.524 ms Rust** with a fresh framebuffer each
-frame. Every frame's pixel checksum, hit count, and player shield matched.
-The [iterator comparison](../docs/current/20260927-BULLET-CATHEDRAL-ITERATOR-COMPARISON.md)
-and [renderer follow-up](../docs/current/20260927-BULLET-RENDERER-FOLLOWUP.md)
-contain the current samples and earlier optimization probes, respectively.
+The current matched five-way 120-frame run measured **269.067 ms Bend
+transducers**, **277.063 ms direct Bend**, **242.621 ms C**, **246.035 ms
+iterator Rust**, and **227.742 ms direct Rust** with a fresh framebuffer
+each frame. Every frame's pixel checksum, hit count, and player shield
+matched. The [five-way report](bullet-cathedral-five-way-20260927.json) and
+[renderer follow-up](../docs/current/20260927-BULLET-RENDERER-FOLLOWUP.md)
+contain the samples and earlier optimization probes, respectively.
 
 ## Collision checks
 

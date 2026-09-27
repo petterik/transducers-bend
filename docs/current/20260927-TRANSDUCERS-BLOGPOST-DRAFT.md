@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-27
-status: evidence-backed-draft
+status: part-one-evidence-backed-draft
 ---
 
 # Fusing transducers in Bend until a million items look like a C loop
@@ -35,12 +35,6 @@ already gives programmers generic `map`, `filter`, and `fold` with strong
 optimization opportunities. I chose the word *transducer* because I came to
 this idea from Clojure. The interesting part here is making the same style of
 source-independent composition work in Bend's type and ownership model.
-
-The Rust showcase control below uses that style too. It maps and filters
-bullets, expands collision candidates and sprite pixels with `flat_map`,
-collects hit events, and folds pixels into the framebuffer. C supplies the
-direct-loop comparison; Rust tests whether Bend's high-level composition
-can compete with a mature high-level iterator API.
 
 ## Why decouple the transformation?
 
@@ -193,206 +187,6 @@ List. It did not allocate one stage object per element; it did still allocate
 elsewhere in the run. [Raw samples and exact flags](20260927-ARRAY-WALK-INTEGRATION.md)
 are available.
 
-## Bullet Cathedral
-
-I used the library for a bullet-hell scene: 256 moving shield drones in a
-16×16 grid, up to 12,288 active bullets, swept-circle collision checks, hit
-history, and a 512×512 CPU framebuffer. A bullet is generated from its ID as
-the source is driven rather than stored in a bullet collection. The friendly
-path expands each bullet to at most nine nearby drone cells:
-
-```bend
-# Clojure: (into [] (comp (map bullet-at) (filter onscreen)
-#   (filter friendly) (map near) cat (filter valid-cell)
-#   (filter hit?) (map as-hit)) active-ids)
-X.into(empty_hits(), X.comp2(X.comp5(
-  X.map_with(~U32, ~Bullet, ~U32, ~bullet_at, frame),
-  X.filter(~Bullet, ~onscreen),
-  X.filter(~Bullet, ~friendly),
-  X.map(~Bullet, ~Nearby, ~near),
-  X.cat(Nearby.adapter())),
-  X.comp3(X.filter(~Candidate, ~valid_cell),
-    X.filter(~Candidate, ~hit),
-    X.map(~Candidate, ~Hit, ~as_hit))), active_ids(frame))
-```
-
-Rust's iterator version follows the same shape: its hit pipeline uses
-`map → filter → flat_map → filter → map → collect`. The renderer shares one
-pixel iterator across all sprite layers:
-
-```rust
-let _ = sprites.flat_map(sprite_pixels).fold(pixels, |pixels, (index, color)| {
-    ink(pixels, index, color);
-    pixels
-});
-```
-
-The sky is a sequential `Array.fill`, matching the C and Rust framebuffer
-initialization. The renderer then uses another transducer chain to expand
-sprites to bounded rectangles, clip to circles, calculate radial color, and
-blend into that flat framebuffer.
-The framebuffer, accepted-hit history, and event Vec are intentional stored
-state. The pipeline does not materialize every candidate or pixel as a
-separate collection.
-
-![Bullet Cathedral at frame 96](../../bench/bullet-cathedral-frame-096.png)
-
-[Watch the 120-frame video](../../bench/bullet-cathedral.mp4).
-
-For the 512×512 scene I also wrote [C](../../bench/bullet_cathedral_control.c)
-and [Rust](../../bench/bullet_cathedral_control.rs) controls. All three
-implementations produced the **same checksum, accepted-hit count, and shield
-value on every one of 120 frames**. The independent all-drone oracle checked
-54,018,048 bullet–drone pairs; all 76,049 geometric overlaps were in the
-nine-cell search. A separate [geometry argument](../../proofs/bullet_cathedral_geometry.md)
-shows why the scene's bullet and drone motion bounds make the nine cells
-sufficient. The oracle is an exhaustive test of this deterministic run, not
-a theorem for arbitrary scenes.
-
-| 120 frames, one CPU thread | Bend | C | Rust |
-| --- | ---: | ---: | ---: |
-| Median internal time, fresh framebuffer | 269.385 ms | 242.912 ms | 246.524 ms |
-| Handwritten scene code lines | 600 | 230 | 260 |
-| Raw source tokens, `o200k_base` | 8,610 | 3,513 | 3,498 |
-| Code-only lexical tokens | 8,379 | 3,092 | 3,348 |
-
-The timing includes initial scene setup, simulation, rendering, a fresh
-framebuffer each frame, pixel checksums, and cleanup, but no presentation.
-Reusing a framebuffer measured almost the same for C and Rust on this
-fixture. C was compiled with `-ffp-contract=off` to match Bend's F32
-rounding exactly. Bend took **1.11× C time and 1.09× Rust time**. That is
-close enough for my main question about whether a generic pipeline can run
-in the same performance range as direct loops; it is not a tie or a claim
-that this workload is equally fast in every language. The
-[iterator comparison](20260927-BULLET-CATHEDRAL-ITERATOR-COMPARISON.md) records
-the matched per-frame checks and all timing samples. An earlier
-[direct-loop comparison](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md) measured
-a 227.616 ms Rust median with a different Rust implementation; it is a
-useful style ablation, not the Rust column in this table.
-
-This Bend scene has **2.6× the C
-lines** and **2.5× the C raw source tokens** under the stated rule. The
-counts include each file's CLI harness and exclude imported libraries and
-generated C. The raw token row uses `tiktoken` 0.14.0's `o200k_base` on the
-files including comments and whitespace. It is a reproducible prompt-size
-proxy, not a bill for a particular model. The lexical row strips comments
-and blank lines before counting identifiers, number runs, and punctuation.
-The [source metrics](../../bench/bullet-source-metrics-20260927.json) include
-hashes and the exact counts.
-
-The reusable Bend library is another **208 lines / 4,493 raw tokens** in
-`xf.bend` and **966 lines / 15,092 raw tokens** in
-`transduce_core.bend` under these rules. Those modules contain facilities
-for other programs too, so adding all their tokens to this one scene would
-overcharge it; leaving them invisible would hide the implementation cost.
-The fork's compiler changes are a further shared cost. C and Rust use their
-standard libraries, which are likewise absent from the handwritten-file
-counts. The three checked Bend proof artifacts add **103 code lines / 1,357
-raw tokens**; they prove reusable local laws, not the entire scene. This
-showcase establishes no code-size win for Bend. The
-[size and proof audit](20260927-SHOWCASE-SIZE-AND-PROOFS.md) separates
-the existing library stages from the scene-specific code.
-
-Why is Bend larger? The rendering and frame-assembly section is 287 code
-lines in Bend, versus 77 in C and 96 in Rust. C uses one `draw_sprite`
-loop. Rust shares one lazy pixel pipeline across layers, expanding sprites
-with `flat_map` and applying ink with `fold`. Bend uses a reducible pixel
-source and spells out separate transducer chains for bullets, drones, hit
-flashes, and icons. Its simulation and collision section is 261 lines,
-versus 119 and 127. The Rust and Bend versions both traverse active bullets
-once for friendly hits and again for hostile player hits, whereas C branches
-inside one loop. The Rust control therefore gives the code-size comparison
-a second high-level, compositional implementation.
-
-The language contributes real ceremony too. Bend's guide describes its
-limited inference, structural recursion in place of loop syntax, `match`
-in place of `if`, and explicit reuse of affine values. Here that means
-type arguments, record matches, recursive source drivers, and helpers to
-thread owned Arrays through reads and writes. Tail recursion compiles to
-loops. Some apparent verbosity is author style: Bend supports infix
-arithmetic, though I often wrote `U32.add` and `F32.mul` explicitly. I
-have not measured a shorter rewrite of this scene.
-
-The existing transducer library already supplies every public stage used
-here, including `map_indexed`. The two scene-specific source drivers
-(`Nearby` and `SpritePixels`) occupy 64 code lines; relocating them would
-not erase their implementation. A better general source API might shorten
-that part, but missing library functions do not explain a 370-line gap to
-C or a 340-line gap to Rust. The [size audit](20260927-SHOWCASE-SIZE-AND-PROOFS.md)
-shows the partitions and source boundaries. Line and token counts measure
-source size, not how hard a version is to understand or maintain.
-
-For safety, the C port uses raw framebuffer pointers and manually guards
-pixel and hit-history bounds. The Rust port has **no `unsafe` block** and
-uses safe `Vec`/slice access. Bend brings typed ownership and a proof
-language into the same source language as the renderer. For example, the
-checked `Control<Empty, U32>` law rules out a live `Stop` branch and proves
-agreement with a total List fold; other checked laws cover map/fold fusion
-and individual stage behavior. These are useful guarantees about reusable
-pieces of the pipeline. All three ports passed the same per-frame
-differential checks, and the scene has a geometry argument plus an
-exhaustive oracle for this run. The entire showcase, its compiler output,
-and its runtime remain outside the machine-checked proof boundary. Safe
-Rust also supplies a strong memory-safety baseline, so the distinct Bend
-advantage I can demonstrate here is the ability to express and check these
-semantic laws alongside high-level transformations.
-
-The allocation counts point to a different scale of work from the tiny flat
-Array folds: 133,791 timed Bend native heap-allocation calls over 120 frames,
-versus 1,126 Rust allocator calls in the fresh-buffer lane and 120 explicit
-framebuffer `malloc` calls in the fresh C scene. Those interfaces count
-different kinds of allocator requests, so I use them as observations rather
-than a normalized memory-cost ratio.
-
-The sky had been another `map → reduce` transducer over pixel IDs. C and
-Rust simply fill a framebuffer in index order. Giving Bend the same shape
-through a generic Base operation was both a fairer comparison and faster:
-
-```bend
-# Clojure: (mapv sky-color (range 262144))
-def background() -> Array<U32>:
-  Array.fill(~U32, ~sky_color, Array.new(U32, 18n, 0))
-```
-
-The bounded fill owns the Array, derives its size, and writes each index
-once. The compiler checks the span before using direct offsets. In a paired
-probe on the final scene, it reduced the complete run from 340.601 to
-268.982 ms. The sky plus checksum alone fell from 142.138 to 70.376 ms.
-
-The next bottleneck was less obvious. Bend's generated quotient macro used
-a Metal workaround on the CPU as well: halve the dividend, divide, double
-the quotient, and correct the odd bit. Sprite rectangles divide each pixel
-slot by their width and also take its remainder. The CPU now emits the
-ordinary unsigned quotient while the device keeps its workaround:
-
-```c
-#if DEVICE
-#define U32_QUO(a, b) \
-  ((a) / 2 / (b) * 2 + ((a) - (a) / 2 / (b) * 2 * (b) >= (b)))
-#else
-#define U32_QUO(a, b) ((a) / (b))
-#endif
-```
-
-That general compiler change reduced the final scene from 301.529 to
-268.901 ms in a paired probe. Finally, the bullet sprite pipeline carried
-its squared distance through `filter` into the color mapper, as the C loop
-already did, saving 8.7 ms. Trying that record in every sprite pass did
-not help the whole scene, so I kept it only for bullets. These are three
-separate ablations against the final source; their gains are not additive.
-The [renderer follow-up](20260927-BULLET-RENDERER-FOLLOWUP.md) has the raw
-paired probes and correctness checks.
-
-An earlier live 1920×1080 Bend version presented roughly 38–40 FPS after
-startup on one CPU thread on my machine. The current version uses
-`Array.fill.prefix` for its 2,073,600 visible sky pixels, preserving the
-zero tail in its 2,097,152-slot framebuffer. A paired 24-frame headless run
-fell from 269.743 to 217.446 ms, with matching 120-frame cumulative and
-sampled per-frame checksums. I have not remeasured windowed FPS after that
-change. These 2K figures have different timing boundaries from the 512×512
-C/Rust comparison above: they cover only the first 24 frames and have no
-2K C or Rust control. Their elapsed totals cannot rank the languages.
-
 ## Proofs and what they establish
 
 Bend checked source-level laws for this work. Two prove, by induction over a
@@ -404,13 +198,10 @@ driver agrees with a total fold. A further proof uses the actual `T.map`,
 single-step behavior. The exact statements and commands are in
 [`proofs/`](../../proofs/README.md).
 
-I also have a bounds argument for `Array.walk`, a mathematical argument for
-Bullet Cathedral's collision and index bounds, and an independent exhaustive
-oracle for this animation. The complete transducer API, Bullet Cathedral
-geometry, generated C, and native runtime are **not** covered by
-machine-checked end-to-end theorems. No machine-checked proof accompanies
-the C or Rust controls. The evidence is useful when kept at its actual
-scope.
+There is also a bounds argument for `Array.walk`. The complete transducer
+API, generated C, and native runtime are **not** covered by machine-checked
+end-to-end theorems. The [second post](20260927-BULLET-CATHEDRAL-BLOGPOST-DRAFT.md)
+handles the separate showcase argument and its checks.
 
 ## What happened to existing Bend programs?
 
@@ -430,13 +221,16 @@ raw times. It is not the upstream M4 cluster performance gate.
 
 The small Array pipelines show that generic Bend stages can fuse into a
 plain vectorized traversal, reaching C and Rust iterator time for these
-fixtures. The larger scene runs about 11% slower than C and 9% slower than
-iterator-style Rust with a composed renderer, while requiring substantially
-more Bend source by lines and tokens. The value I found is reusable
-transformation logic at roughly
-direct-loop runtime. The current cost is source-level ceremony and shared
-library/compiler machinery. The checked laws, geometry argument, and tests
-make parts of the reasoning explicit; the proof boundary remains open.
+fixtures. This gives me confidence in the mechanism for these simple cases.
+It does not tell me how much of a larger program's time or source size will
+come from the pipeline, its data structures, or the language itself. The
+checked laws and tests make parts of the reasoning explicit; the proof
+boundary remains open.
+
+I built Bullet Cathedral to ask that larger question. The
+[second post](20260927-BULLET-CATHEDRAL-BLOGPOST-DRAFT.md) compares Bend
+transducers, Bend direct loops, C direct loops, Rust iterators, and Rust
+direct loops on the same deterministic 120-frame scene.
 
 This is an experiment in a Bend fork. To the Bend developers: thank you for
 making a language interesting enough to try this in. If any of these changes
@@ -456,14 +250,10 @@ in the reports linked above.
 python3 tests/run.py
 python3 bench/public_array_map_inc_sum.py --output bench/public-array-map-inc-sum-20260927.json
 python3 bench/public_array_map_filter_sum_rust.py --depths 16 18 20 --sessions 36 --output bench/public-array-map-filter-sum-rust-integrated-20260927.json
-python3 bench/bullet_cathedral_cross_language.py --frames 120 --sessions 21 --output bench/bullet-cathedral-iterator-cross-language-20260927.json
-python3 -m pip install 'tiktoken==0.14.0'
-python3 bench/bullet_source_metrics.py
 bun ../bend/bend2/main.ts proofs/list_map_fold_law.bend
 bun ../bend/bend2/main.ts proofs/no_stop_control_law.bend
 bun ../bend/bend2/main.ts proofs/api_stage_laws.bend
 ```
 
-The cross-language runner checks all 120 frame triples before taking timed
-samples. The local upstream regression scripts and reports are linked in
-their [comparison note](20260927-UPSTREAM-LOCAL-REGRESSION.md).
+The local upstream regression scripts and reports are linked in their
+[comparison note](20260927-UPSTREAM-LOCAL-REGRESSION.md).

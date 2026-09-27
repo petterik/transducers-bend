@@ -1,6 +1,6 @@
 ---
 created_at: 2026-09-27
-status: execution-in-progress
+status: two-part-drafts-with-five-way-evidence
 ---
 
 # Transducers in Bend: implementation, evidence, and blog post plan
@@ -11,27 +11,28 @@ The required `Array.walk` promotion is implemented in the local fork and
 library. The [integration report](20260927-ARRAY-WALK-INTEGRATION.md) records
 64/64 library tests, 1470/1470 fork gate cases, a Metal run, vectorized
 generated C, and paired Bend/C/Rust flat-Array measurements. The
-[512×512 iterator comparison](20260927-BULLET-CATHEDRAL-ITERATOR-COMPARISON.md)
+[512×512 five-way comparison](../../bench/bullet-cathedral-five-way-20260927.json)
 has exact agreement on every frame and 21-session timing. The
 [local upstream comparison](20260927-UPSTREAM-LOCAL-REGRESSION.md) covers all
 16 sequential, eight-thread CPU, and Metal runtime benchmarks and five
-checker benchmarks. An
-[evidence-backed article draft](20260927-TRANSDUCERS-BLOGPOST-DRAFT.md) is
+checker benchmarks. The
+[part-one transducer draft](20260927-TRANSDUCERS-BLOGPOST-DRAFT.md) and
+[part-two showcase draft](20260927-BULLET-CATHEDRAL-BLOGPOST-DRAFT.md) are
 available.
 
-For the showcase, use performance as a feasibility result: the composed
-Bend program took 1.11× C and 1.09× iterator Rust time on the matched
-512×512 run.
+For the showcase, use performance as a feasibility result: Bend transducers
+took 269.067 ms, direct Bend 277.063 ms, C 242.621 ms, iterator Rust
+246.035 ms, and direct Rust 227.742 ms on the matched 512×512 run.
 The more revealing comparison is handwritten size, source complexity,
-safety obligations, and the shared library cost. The current Bend scene
-is longer than both controls. Use a named tokenizer for prompt-size
+safety obligations, and the shared library cost. Both Bend scenes are 600
+code lines and longer than C and Rust. Use a named tokenizer for prompt-size
 estimates and distinguish those from lexical tokens. Treat code clarity
 as a source-reading judgment, not a measured score. State exact proof and
 memory-safety boundaries, including that the Rust control uses safe code.
 Keep Clojure as the source of the transducer vocabulary; a Clojure runtime
 port would answer a different question and is not needed as a slow foil.
 The [source metrics](../../bench/bullet-source-metrics-20260927.json) and
-[iterator comparison](20260927-BULLET-CATHEDRAL-ITERATOR-COMPARISON.md)
+[five-way report](../../bench/bullet-cathedral-five-way-20260927.json)
 carry the evidence.
 
 Open gates remain: broader machine-checked proofs of the public API and
@@ -41,11 +42,12 @@ its media. The draft states those boundaries explicitly.
 
 ## Goal
 
-Tell the story of building reusable, source-independent transformations in
-Bend, making their composition compile efficiently, and testing the result
-against direct Bend, C, and Rust. The post should teach the mechanism and
-show what the generated program actually does. Its performance headline must
-come from the completed implementation and measurements.
+Part one tells the story of reusable, source-independent transformations in
+Bend and how their composition compiles into efficient flat loops. Part two
+uses Bullet Cathedral to compare whole-program runtime, source size, and
+proof boundaries across Bend transducers, Bend direct loops, C direct loops,
+Rust iterators, and Rust direct loops. Each performance headline comes from
+completed measurements.
 
 Promoting the bounded `Array.walk` from a generated-C probe into the Bend fork
 and this library is **required work for this post**. The [proposal](20260926-BOUNDED-ARRAY-WALK.md)

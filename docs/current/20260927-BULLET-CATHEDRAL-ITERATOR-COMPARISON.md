@@ -5,6 +5,12 @@ status: iterator-rust-comparison-verified
 
 # Bullet Cathedral with Rust iterator pipelines
 
+This is the earlier three-way comparison. The
+[current five-way comparison](20260927-BULLET-CATHEDRAL-BLOGPOST-DRAFT.md)
+adds a direct Bend port and an archived direct-loop Rust port, and measures
+all five in shuffled sessions. This report remains a valid measurement of
+the same Bend, C, and iterator Rust source hashes.
+
 The [Rust control](../../bench/bullet_cathedral_control.rs) now uses
 `Iterator::map`, `filter`, `flat_map`, `collect`, and `fold` for the scene's
 main transformations. It generates friendly hit events by mapping active IDs
