@@ -101,3 +101,88 @@ an explicit floating-point boundary. None is an end-to-end machine-checked
 proof of the Bullet Cathedral program or either port. The oracle and
 all-frame differential checks are tests. No machine-checked proof
 accompanies the C or Rust source here.
+
+## Why the times differ so far
+
+All three programs produce the same 120 frame triples, but the native paths
+are different. Bend expresses the sprite passes as composed `map`, `cat`,
+`filter`, and `map` transducers over reducible sprite rectangles. Its
+reducer reads and updates an owned Array. C and Rust use a handwritten
+`draw_sprite` loop over a direct framebuffer; Rust indexes a `Vec<u32>` and
+C indexes a `uint32_t *`. This is a comparison of these three implementations
+and compilers, not a general ranking of the languages.
+
+Three earlier Bend costs have direct paired measurements in the
+[renderer follow-up](20260927-BULLET-RENDERER-FOLLOWUP.md): replacing the
+transducer sky with generic bounded `Array.fill` saved **71.619 ms** per
+120 frames; using ordinary CPU unsigned division instead of the Metal
+workaround saved **32.628 ms** in a same-source probe; carrying squared
+distance between the bullet filter and mapper saved **8.662 ms**. These
+probes use different baselines and should not be summed as an exact
+decomposition. They explain improvements already included in the 269.027 ms
+Bend result, not its remaining 26.377 ms gap to fresh C.
+
+For that remaining gap, cumulative prefixes put Bend **7.216 ms** behind C
+with only sky, simulation, and checksum, then **26.389 ms** behind C through
+the full render. The prefix binaries are compiled separately, and their
+medians are not isolated layer timers. The C generated from the
+[Bend source](../../bench/bullet_cathedral.bend)
+still contains `f32_to_u32` checks and general quotient/remainder arithmetic
+in its sprite pixel source, and `blk_at` lookups for both Array read and
+write. Clang may hoist or remove some of this after inlining; the source
+alone cannot assign a runtime cost to each check. A deliberately unsafe
+[mask-removal probe](../../bench/bullet-nomask-probe-20260927.json) improved
+the current scene by only **3.749 ms**, and a larger Clang inline threshold
+by about **1.494 ms**. Neither accounts for most of the remaining gap.
+Bend made **133,791** timed native heap-allocation calls; the hit-layer
+ablation added **121,164** of them, but that prefix added relatively
+little time. Allocation count is not a measured explanation for the main
+pixel-work gap.
+
+The C–Rust gap is more localized. A new [paired render-prefix probe](../../bench/bullet-c-rust-phase-probe-20260927.json)
+found **63.244 ms C vs 62.713 ms Rust** for sky plus simulation and
+checksum, but **230.755 ms C vs 212.201 ms Rust** through the bullet pass.
+The complete scene in that same probe was **242.891 ms C vs 228.015 ms
+Rust**. The gaps after later prefixes are not monotonic, another reason
+not to subtract rows as independent layer costs.
+
+The native assembly gives one concrete reason the bullet paths differ:
+Clang keeps C's `draw_sprite` as one outlined function with variable radius
+and integer division in its pixel loop. Rust inlines its fixed-radius bullet
+and drone calls; the bullet loop has constant 81 iterations and replaces
+division by nine with constant-width arithmetic. In a
+[same-source Rust ablation](../../bench/bullet-rust-inline-sprite-probe-20260927.json),
+`#[inline(never)]` on `draw_sprite` raised the 120-frame median from
+**227.591 to 250.246 ms** while preserving every frame triple. This shows
+that Rust's inlining matters greatly for this build. It does not prove that
+inlining alone explains its lead over C: forcing the whole C function inline
+[slowed C](../../bench/bullet-c-inline-sprite-probe-20260927.json) from
+**242.779 to 252.117 ms**, and duplicating only its fixed-radius bullet
+and drone loops [slowed it further](../../bench/bullet-c-fixed-sprite-probe-20260927.json)
+from **242.488 to 264.425 ms**. These edits change optimization and code
+layout together, so the C regression has not been isolated further. The C
+and Rust sprite loops both emit hardware `fmaxnm` for
+the sprite maximum operation, so a C math-library call is not the cause.
+
+The original builds used Clang's default CPU target for Bend and C but
+`target-cpu=native` for Rust. A [paired target probe](../../bench/bullet-target-cpu-probe-20260927.json)
+found that targeting Apple M3 improved C by a median **0.547 ms** within
+sessions; changing Rust from generic to Apple M3 improved it by **1.997 ms**.
+Rust still led C by about 15 ms in that probe. Absolute times in that
+session were higher than the headline run, so only its paired differences
+should be used for this question. The CPU-target flag does not explain the
+ranking.
+
+The strongest current conclusion is therefore narrower than a full
+26 ms plus 15 ms accounting: Bend's residual is associated with its
+generated generic sprite and Array update path; Rust's advantage over this
+C port first appears in sprite rendering, and its current inlining is
+important. The exact instruction-level cost of each remaining operation
+has not been isolated. The separate 1920×1080 Bend-only 217.446 ms probe
+uses 24 frames and cannot be placed in this 512×512 ranking.
+
+Reproduce the additional probes with `python3` and their linked scripts:
+`bench/bullet_target_cpu_probe.py`, `bench/bullet_c_rust_phase_probe.py`,
+`bench/bullet_c_inline_sprite_probe.py`,
+`bench/bullet_rust_inline_sprite_probe.py`, and
+`bench/bullet_c_fixed_sprite_probe.py` (all default to 21 sessions).

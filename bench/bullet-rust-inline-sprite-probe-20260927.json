@@ -1,0 +1,59 @@
+{
+  "scope": "120 sequential 512x512 frames, one CPU thread, fresh framebuffer; same Rust scene except inline(never) on draw_sprite; all per-frame outputs equal",
+  "sessions": 21,
+  "compiler_flags": "rustc -C opt-level=3 -C target-cpu=native",
+  "samples_us": {
+    "rust_original": [
+      227422,
+      227758,
+      228407,
+      227591,
+      227557,
+      227372,
+      227424,
+      227581,
+      227996,
+      227390,
+      227892,
+      227676,
+      227377,
+      227996,
+      227817,
+      227297,
+      227637,
+      227563,
+      227704,
+      229015,
+      227343
+    ],
+    "rust_noinline": [
+      249923,
+      250882,
+      253777,
+      250479,
+      250280,
+      250031,
+      250003,
+      250070,
+      250204,
+      250221,
+      250258,
+      249960,
+      250620,
+      251604,
+      250380,
+      249859,
+      250253,
+      250112,
+      250246,
+      250018,
+      250820
+    ]
+  },
+  "median_us": {
+    "rust_original": 227591,
+    "rust_noinline": 250246
+  },
+  "source_sha256": "1474ba5288ef5f1dff0fe6d7abc02032c271438db4c7071b9216504202ed4bd2",
+  "variant_sha256": "1b4450e24a13a42b3e99d406784803cf26742e16f2c0d74a8281056a6df273e4"
+}

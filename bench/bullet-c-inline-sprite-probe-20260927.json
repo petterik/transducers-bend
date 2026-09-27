@@ -1,0 +1,89 @@
+{
+  "scope": "120 sequential 512x512 frames, one CPU thread, fresh framebuffer; same C scene except always_inline on draw_sprite; same per-frame checksums, scores, and shield as C and Rust",
+  "sessions": 21,
+  "compiler_flags": {
+    "c": "clang -O3 -ffp-contract=off",
+    "rust": "rustc -C opt-level=3 -C target-cpu=native"
+  },
+  "samples_us": {
+    "c_original": [
+      243787,
+      243168,
+      242799,
+      243940,
+      243048,
+      242619,
+      242525,
+      242534,
+      242998,
+      242565,
+      242567,
+      243515,
+      244544,
+      242218,
+      242661,
+      242779,
+      242691,
+      242986,
+      242240,
+      242865,
+      242571
+    ],
+    "c_inline": [
+      252233,
+      255324,
+      252214,
+      252632,
+      251752,
+      251869,
+      251784,
+      251591,
+      255127,
+      252847,
+      252180,
+      252068,
+      252117,
+      252588,
+      251753,
+      252036,
+      252703,
+      251678,
+      252376,
+      251662,
+      251624
+    ],
+    "rust": [
+      227753,
+      228288,
+      229340,
+      228466,
+      227691,
+      227568,
+      228179,
+      227684,
+      227905,
+      227875,
+      228013,
+      228343,
+      227435,
+      227758,
+      228053,
+      227710,
+      229705,
+      227831,
+      227794,
+      227902,
+      227485
+    ]
+  },
+  "median_us": {
+    "c_original": 242779,
+    "c_inline": 252117,
+    "rust": 227875
+  },
+  "sources_sha256": {
+    "bullet_cathedral_control.c": "46f62e9da8d6af92a7116f6da515d635696a0acc95687eba1d3eefc004497ca0",
+    "bullet_cathedral_control.rs": "1474ba5288ef5f1dff0fe6d7abc02032c271438db4c7071b9216504202ed4bd2"
+  },
+  "c_variant_sha256": "125d3d55520abf2375699885f19189507f8cee54e2f170e60317b25f97a8b373"
+}

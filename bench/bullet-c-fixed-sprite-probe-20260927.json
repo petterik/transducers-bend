@@ -1,0 +1,89 @@
+{
+  "scope": "120 sequential 512x512 frames, one CPU thread, fresh framebuffer; C has duplicate fixed-radius inline sprite loops for bullet radius 4 and drone radius 8, but all per-frame outputs match",
+  "sessions": 21,
+  "compiler_flags": {
+    "c": "clang -O3 -ffp-contract=off",
+    "rust": "rustc -C opt-level=3 -C target-cpu=native"
+  },
+  "samples_us": {
+    "c_original": [
+      242338,
+      246580,
+      242457,
+      242585,
+      242926,
+      243220,
+      242684,
+      242331,
+      242618,
+      243877,
+      242158,
+      242484,
+      242451,
+      242316,
+      242488,
+      242447,
+      243063,
+      242129,
+      242603,
+      242391,
+      243012
+    ],
+    "c_fixed": [
+      265574,
+      264173,
+      264588,
+      264713,
+      264249,
+      264229,
+      265950,
+      264275,
+      264347,
+      266272,
+      268930,
+      264563,
+      264370,
+      264425,
+      264320,
+      264271,
+      264674,
+      264360,
+      266948,
+      264389,
+      264516
+    ],
+    "rust": [
+      227668,
+      227541,
+      227404,
+      228096,
+      227968,
+      227816,
+      227979,
+      227373,
+      227590,
+      227890,
+      227368,
+      227619,
+      227757,
+      227661,
+      227566,
+      227609,
+      227561,
+      227493,
+      228104,
+      227420,
+      229517
+    ]
+  },
+  "median_us": {
+    "c_original": 242488,
+    "c_fixed": 264425,
+    "rust": 227619
+  },
+  "sources_sha256": {
+    "bullet_cathedral_control.c": "46f62e9da8d6af92a7116f6da515d635696a0acc95687eba1d3eefc004497ca0",
+    "bullet_cathedral_control.rs": "1474ba5288ef5f1dff0fe6d7abc02032c271438db4c7071b9216504202ed4bd2"
+  },
+  "c_variant_sha256": "49d09e8833e928a54f4b4d4f9b28433562940622d0049acfa34988c571b6dfd8"
+}
