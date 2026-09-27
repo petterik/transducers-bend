@@ -304,7 +304,8 @@ zero tail in its 2,097,152-slot framebuffer. A paired 24-frame headless run
 fell from 269.743 to 217.446 ms, with matching 120-frame cumulative and
 sampled per-frame checksums. I have not remeasured windowed FPS after that
 change. These 2K figures have different timing boundaries from the 512×512
-C/Rust comparison above.
+C/Rust comparison above: they cover only the first 24 frames and have no
+2K C or Rust control. Their elapsed totals cannot rank the languages.
 
 ## Proofs and what they establish
 

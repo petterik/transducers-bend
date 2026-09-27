@@ -34,7 +34,9 @@ power-of-two Array stays zero. In 21 paired one-thread headless runs of 24
 frames, it reduced the median from 269.743 to 217.446 ms while preserving
 the 120-frame cumulative checksum and sampled individual frames. See the
 [paired report](bullet-2k-fill-comparison-20260927.json). Windowed FPS has
-not been remeasured. `python3 bench/bullet_cathedral_2k_native.py
+not been remeasured. This compares two Bend sky implementations over the
+first 24 frames; it is separate from the 120-frame 512×512 C/Rust comparison.
+`python3 bench/bullet_cathedral_2k_native.py
 --compile-only` verifies the native build without opening the window.
 
 The first streamed 2K frame contains exactly 2,073,600 pixels and its packed

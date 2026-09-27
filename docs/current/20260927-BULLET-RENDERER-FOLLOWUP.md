@@ -60,6 +60,10 @@ In a [21-session paired 2K probe](../../bench/bullet-2k-fill-comparison-20260927
 The 120-frame cumulative checksums matched, as did individual checksums at
 frames 0, 23, 95, and 119. This is a headless measurement; the previous
 38–40 presented FPS observation has not been remeasured with this change.
+It is **Bend versus Bend**, at a different resolution and frame count from
+the 512×512 Bend/C/Rust table above. The 217.446 ms total cannot be compared
+with those 120-frame totals to rank the languages. No 2K C or Rust control
+was measured here.
 
 The native window entry previously failed Bend's template-growth check when
 it imported the 2K frame module. Both the old and new sky versions hit the

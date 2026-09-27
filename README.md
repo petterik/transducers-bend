@@ -45,7 +45,8 @@ and [512×512 player](bench/bullet_cathedral_live.py) remain available.
 The current 2K sky uses bounded `Array.fill.prefix`; a
 [paired headless run](bench/bullet-2k-fill-comparison-20260927.json) reduced
 24-frame time from 269.743 to 217.446 ms with the same image checksums.
-Windowed FPS has not been remeasured after this change.
+This is a Bend-only 1920×1080 result for the first 24 frames; it is not a
+C/Rust comparison. Windowed FPS has not been remeasured after this change.
 
 An earlier M3 Max run, before bounded `Array.fill` and a CPU division fix,
 computed the complete 120-frame sequence in a **439 ms median** on one native
