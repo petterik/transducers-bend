@@ -270,7 +270,9 @@ The fork's compiler changes are a further shared cost. C and Rust use their
 standard libraries, which are likewise absent from the handwritten-file
 counts. The three checked Bend proof artifacts add **103 code lines / 1,357
 raw tokens**; they prove reusable local laws, not the entire scene. This
-showcase establishes no code-size win for Bend.
+showcase establishes no code-size win for Bend. The
+[size and proof audit](20260927-SHOWCASE-SIZE-AND-PROOFS.md) separates
+the existing library stages from the scene-specific code.
 
 Complexity has more than one surface here. The Bend pipeline makes the
 transformation stages visible and reuses the same `map`, `filter`, and `cat`
