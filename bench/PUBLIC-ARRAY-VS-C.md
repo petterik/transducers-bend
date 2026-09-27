@@ -1,5 +1,11 @@
 # Indexed Array source and map/filter/sum comparison (2026-09-26)
 
+**Historical masked-read baseline.** The 2026-09-27 fork now includes
+`Array.walk` and a guarded unmasked native read for its bounded traversal.
+The [integration report](../docs/current/20260927-ARRAY-WALK-INTEGRATION.md)
+has current 36-session comparisons against direct Bend, C, and Rust. The
+figures in this file describe the earlier fork revision.
+
 Bend's `Array` has a structural `ANode`/`ALeaf` type, but its native storage
 is a flat block. The public `Array.source` now calls `Array.get` at successive
 indexes. It no longer matches tree constructors for ordinary `Data` elements.
@@ -64,6 +70,4 @@ direct Bend remains visible here; the comparison does not claim parity with
 handwritten C.
 
 The [bounded Array walk proposal](../docs/current/20260926-BOUNDED-ARRAY-WALK.md)
-records a generated-C probe that reaches manual C speed by removing only the
-redundant index mask in this source walk. The production compiler still emits
-the masked read measured above.
+records the generated-C probe that preceded the integrated implementation.

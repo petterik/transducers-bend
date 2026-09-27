@@ -1,0 +1,4 @@
+Fork local gate, after the integrated Array.walk and one-element fixture:
+Command: python3 experiments/affine_xf/run_local_bend_gate.py --output /tmp/bend-array-walk-gate-final2.json --workers 4
+Fork HEAD before edits: 1b4f641b9fea9b48fee37fc10b0a07977bba6e7d
+Result: PASS: 1470 / 1470

@@ -1,0 +1,14 @@
+{
+  "description": "One-thread native Bend, sequential simulation and 512x512 RGB rendering",
+  "source_sha256": "e19ea23c892d9990b86b58aeea5cd1181994033210e839ebaf36545bf63e06fb",
+  "compiler_commit": "1b4f641b9fea9b48fee37fc10b0a07977bba6e7d",
+  "frames": 120,
+  "warmups": 0,
+  "samples_us": [
+    405697
+  ],
+  "median_us": 405697,
+  "checksum": 367602200,
+  "timed_heap_allocations": 133671,
+  "timing_note": "Each native process performs one sequential run; the internal Bend clock times simulation, framebuffer construction, and pixel checksums. Compilation, startup, text/PNG/MP4 encoding, and display are excluded."
+}

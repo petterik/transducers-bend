@@ -1,0 +1,752 @@
+{
+  "scope": "Local M3 Max, parallel mode, --threads 8 --gpu off; separate executable builds; process wall time includes startup; paired outputs; no M4 cluster pin comparison",
+  "baseline": "/private/tmp/bend-baseline-20260927",
+  "current": "/Users/petter/Github/petterik/bend",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "runs": 2,
+  "runtime_mode": "parallel",
+  "timeout_seconds": 60,
+  "compiler_sha256": {
+    "baseline": "9acba55c668cc93238d0f6a269c84689885d3fb5d9f3eaff9adc04fbbf238134",
+    "current": "9ebe1291c607ec3ea9085a8f0b470f72c5865b024e70fa17df63579999c4bbbf"
+  },
+  "runtime": {
+    "bfs": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.7296811660053208,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6315171249443665,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.5490189580013976,
+            "exit": 0,
+            "stdout": "651176970",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.5503686249721795,
+            "exit": 0,
+            "stdout": "651176970",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.5504158749245107,
+            "exit": 0,
+            "stdout": "651176970",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.5506657499354333,
+            "exit": 0,
+            "stdout": "651176970",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "editdist": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6860413750400767,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6855905409902334,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.30339879204984754,
+            "exit": 0,
+            "stdout": "2229810577",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.30680416605900973,
+            "exit": 0,
+            "stdout": "2229810577",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.3049081249628216,
+            "exit": 0,
+            "stdout": "2229810577",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.30671958392485976,
+            "exit": 0,
+            "stdout": "2229810577",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "gameoflife": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6435585840372369,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6484569169115275,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 1.1406884168973193,
+            "exit": 0,
+            "stdout": "2016151040",
+            "stderr": ""
+          },
+          {
+            "seconds": 1.1429816670715809,
+            "exit": 0,
+            "stdout": "2016151040",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 1.1426839580526575,
+            "exit": 0,
+            "stdout": "2016151040",
+            "stderr": ""
+          },
+          {
+            "seconds": 1.1434127080719918,
+            "exit": 0,
+            "stdout": "2016151040",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "hashmap": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6429274589754641,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6470836659427732,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.4465645420132205,
+            "exit": 0,
+            "stdout": "1307803744",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.44418870797380805,
+            "exit": 0,
+            "stdout": "1307803744",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.44656579091679305,
+            "exit": 0,
+            "stdout": "1307803744",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.45009925006888807,
+            "exit": 0,
+            "stdout": "1307803744",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "kmeans": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.7098558330908418,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.7083613339345902,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.42322295799385756,
+            "exit": 0,
+            "stdout": "1616398086",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.41672291699796915,
+            "exit": 0,
+            "stdout": "1616398086",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.40408383309841156,
+            "exit": 0,
+            "stdout": "1616398086",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.4224003329873085,
+            "exit": 0,
+            "stdout": "1616398086",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "lexer": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6464063749881461,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6516971669625491,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.3452215000288561,
+            "exit": 0,
+            "stdout": "2401049475",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.34667729202192277,
+            "exit": 0,
+            "stdout": "2401049475",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.3462786249583587,
+            "exit": 0,
+            "stdout": "2401049475",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.34586204192601144,
+            "exit": 0,
+            "stdout": "2401049475",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "mandelbrot": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6706657080212608,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6651416670065373,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.7152400420745835,
+            "exit": 0,
+            "stdout": "3101455856",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.7175927079515532,
+            "exit": 0,
+            "stdout": "3101455856",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.7156069169286638,
+            "exit": 0,
+            "stdout": "3101455856",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.7173465830273926,
+            "exit": 0,
+            "stdout": "3101455856",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "merkle": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.7092111250385642,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.7075615409994498,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.777722500031814,
+            "exit": 0,
+            "stdout": "3104235417",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.7829424999654293,
+            "exit": 0,
+            "stdout": "3104235417",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.783763415995054,
+            "exit": 0,
+            "stdout": "3104235417",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.7824974999530241,
+            "exit": 0,
+            "stdout": "3104235417",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "nbody": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.8832122921012342,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6996415829053149,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.9458392079686746,
+            "exit": 0,
+            "stdout": "3516450380",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.9487072500633076,
+            "exit": 0,
+            "stdout": "3516450380",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.9471249170601368,
+            "exit": 0,
+            "stdout": "3516450380",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.9480906249955297,
+            "exit": 0,
+            "stdout": "3516450380",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "queens": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6704631249886006,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6660501250298694,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.8344900839729235,
+            "exit": 0,
+            "stdout": "2063750025",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.8317192080430686,
+            "exit": 0,
+            "stdout": "2063750025",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.831976541900076,
+            "exit": 0,
+            "stdout": "2063750025",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.8323091669008136,
+            "exit": 0,
+            "stdout": "2063750025",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "raytrace": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.723276500008069,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.7446366669610143,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.7425265000201762,
+            "exit": 0,
+            "stdout": "1924309504",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.7436720000114292,
+            "exit": 0,
+            "stdout": "1924309504",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.7452371249673888,
+            "exit": 0,
+            "stdout": "1924309504",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.7514968339819461,
+            "exit": 0,
+            "stdout": "1924309504",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "symreg": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6613357909955084,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6651193340076134,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.6420480420347303,
+            "exit": 0,
+            "stdout": "2383953211",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.6461587499361485,
+            "exit": 0,
+            "stdout": "2383953211",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.6436918750405312,
+            "exit": 0,
+            "stdout": "2383953211",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.6440690839663148,
+            "exit": 0,
+            "stdout": "2383953211",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "terrain": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6845798339927569,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6880724580259994,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.35297424998134375,
+            "exit": 0,
+            "stdout": "2572468224",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.35535020800307393,
+            "exit": 0,
+            "stdout": "2572468224",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.35457187495194376,
+            "exit": 0,
+            "stdout": "2572468224",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.3551092919660732,
+            "exit": 0,
+            "stdout": "2572468224",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "tree-bitonic": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6417885839473456,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.644259124994278,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 1.1676669170847163,
+            "exit": 0,
+            "stdout": "3787129428",
+            "stderr": ""
+          },
+          {
+            "seconds": 1.2271302080480382,
+            "exit": 0,
+            "stdout": "3787129428",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 1.1925939590437338,
+            "exit": 0,
+            "stdout": "3787129428",
+            "stderr": ""
+          },
+          {
+            "seconds": 1.2421954589663073,
+            "exit": 0,
+            "stdout": "3787129428",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "tree-matmul": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.7053187090205029,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.713728041970171,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.5811957919504493,
+            "exit": 0,
+            "stdout": "3797651056",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.5840807920321822,
+            "exit": 0,
+            "stdout": "3797651056",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.5815589589765295,
+            "exit": 0,
+            "stdout": "3797651056",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.5783390830038115,
+            "exit": 0,
+            "stdout": "3797651056",
+            "stderr": ""
+          }
+        ]
+      }
+    },
+    "tree-radix": {
+      "builds": {
+        "baseline": {
+          "seconds": 0.6519426249433309,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        },
+        "current": {
+          "seconds": 0.6746427499456331,
+          "exit": 0,
+          "stdout": "",
+          "stderr": "bend 2.0.29 is available: run bend update"
+        }
+      },
+      "runs": {
+        "baseline": [
+          {
+            "seconds": 0.6551703329896554,
+            "exit": 0,
+            "stdout": "1998173798",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.6600805420894176,
+            "exit": 0,
+            "stdout": "1998173798",
+            "stderr": ""
+          }
+        ],
+        "current": [
+          {
+            "seconds": 0.6621489169774577,
+            "exit": 0,
+            "stdout": "1998173798",
+            "stderr": ""
+          },
+          {
+            "seconds": 0.6559843339491636,
+            "exit": 0,
+            "stdout": "1998173798",
+            "stderr": ""
+          }
+        ]
+      }
+    }
+  },
+  "checker": {}
+}
