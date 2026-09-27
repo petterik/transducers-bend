@@ -263,9 +263,11 @@ the 512×512 headless comparison above.
 
 Bend checked source-level laws for this work. Two prove, by induction over a
 List, that `map` followed by a left fold agrees with sending each mapped
-value directly to the fold, and that two maps compose into one. Another uses the library's actual
-`Control<Empty, U32>` type and proves a no-stop List driver agrees with a
-total fold. The exact statements and commands are in
+value directly to the fold, and that two maps compose into one. Another uses
+the library's actual `Control<Empty, U32>` type and proves a no-stop List
+driver agrees with a total fold. A further proof uses the actual `T.map`,
+`T.filter`, `T.step`, and `T.sum` constructors to establish their local
+single-step behavior. The exact statements and commands are in
 [`proofs/`](../../proofs/README.md).
 
 I also have a bounds argument for `Array.walk`, a mathematical argument for
@@ -322,6 +324,7 @@ python3 bench/public_array_map_filter_sum_rust.py --depths 16 18 20 --sessions 3
 python3 bench/bullet_cathedral_cross_language.py --frames 120 --sessions 21
 bun ../bend/bend2/main.ts proofs/list_map_fold_law.bend
 bun ../bend/bend2/main.ts proofs/no_stop_control_law.bend
+bun ../bend/bend2/main.ts proofs/api_stage_laws.bend
 ```
 
 The cross-language runner checks all 120 frame triples before taking timed

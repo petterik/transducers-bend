@@ -5,9 +5,10 @@ Run each proof with the sibling fork's checker:
 ```sh
 bun ../bend/bend2/main.ts proofs/list_map_fold_law.bend
 bun ../bend/bend2/main.ts proofs/no_stop_control_law.bend
+bun ../bend/bend2/main.ts proofs/api_stage_laws.bend
 ```
 
-Both commands returned `{==}` on the 2026-09-27 local fork.
+All three commands returned `{==}` on the 2026-09-27 local fork.
 
 - `list_map_fold_law.bend` proves by induction that mapping a pure `List<U32>`
   and then folding gives the same result as feeding each mapped value directly
@@ -19,6 +20,11 @@ Both commands returned `{==}` on the 2026-09-27 local fork.
   `T.Control<Empty, U32>` type. Its `Stop` branch eliminates an impossible
   `Empty` permit, and induction proves that its List driver agrees with a
   total fold for arbitrary static U32 steps.
+- `api_stage_laws.bend` uses the library's actual `T.map`, `T.filter`,
+  `T.step`, and `T.sum` constructors. It proves one `map` step forwards
+  the mapped U32 value, an always-true filter forwards its input, and an
+  always-false filter keeps the accumulator. These are local stage laws,
+  not an end-to-end proof of `X.transduce`.
 
 The public `X.transduce` lifecycle, `Array.walk` bounds lowering, stop
 propagation through `cat`, and Bullet Cathedral's collision geometry remain
