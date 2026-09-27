@@ -6,7 +6,7 @@ status: source-size-and-proof-audit
 # What the showcase size and proofs establish
 
 The matched 512×512 Bullet Cathedral files contain 600 Bend, 230 C, and
-250 Rust nonblank, noncomment code lines under the published complete-file
+260 iterator-style Rust nonblank, noncomment code lines under the published complete-file
 rule. The Bend file uses `X.map`, `X.filter`, `X.cat`, `X.map_with`,
 `X.map_indexed`, `X.keep`, `X.comp*`, `X.into`, and `X.transduce`. All are
 already implemented in [`xf.bend`](../../xf.bend) and
@@ -32,6 +32,64 @@ the 230-line C port. Achieving that honestly would require a larger Bend
 ergonomics or scene-design change, with the same behavior, checks, and
 complete-file accounting. The current article should present speed,
 composability, and checked laws as the verified benefits of this version.
+
+## Where the size difference comes from
+
+The complete-file comparison includes the scene's command-line driver in
+each language and excludes imported libraries and generated C. Splitting the
+files at their simulation, rendering, and driver boundaries gives a more
+useful view of the gap. These are descriptive source partitions, not a
+line-by-line allocation of causes:
+
+| Responsibility | Bend | C | Rust |
+| --- | ---: | ---: | ---: |
+| Scene types, simulation, collisions | 261 | 119 | 127 |
+| Rendering and frame assembly | 287 | 77 | 96 |
+| Driver and output | 52 | 34 | 37 |
+| **Complete file** | **600** | **230** | **260** |
+
+The largest difference is in rendering. C implements one `draw_sprite`
+loop and calls it for each layer. Rust implements one lazy `sprite_pixels`
+pipeline (`map → filter → map`), expands each layer with `flat_map`, and
+applies pixels with `fold`. Bend implements a `SpritePixels` source and
+reusable filter/map/reducer stages, then spells out distinct transducer
+chains in `draw_sprites`, `draw_bullets`, `draw_hits`, and `draw_drones`.
+Its special bullet chain carries squared distance from clipping into shading;
+a measured attempt to use that record for every sprite pass slowed the full
+scene. The Rust control shows that shared high-level pixel transformation
+need not be as long as this Bend implementation. The difference does not
+prove that Bend requires four separate renderers.
+
+Simulation has a similar, smaller effect. C generates each active bullet once
+in `step` and branches between friendly and hostile work. Bend's `hits` and
+`incoming` are separate transductions over the active ID range. The revised
+Rust control now makes the same two traversals with iterator adapters: it
+uses `flat_map` for nine nearby candidates, collects hit events, and counts
+hostile bullets separately. All three preserve the same per-frame results.
+The two custom Bend source drivers, `Nearby` and `SpritePixels`, account for
+64 of its 600 code lines; moving them to a scene helper module would change
+the location of those lines, not the total handwritten implementation.
+
+The language also makes this design more explicit. The sibling fork's Bend guide
+states that Bend does little inference, uses `match` for branches and
+structural recursion for repetition, and requires explicit reuse of affine
+values. In this file, that appears as `~` type arguments, `+` reuse marks,
+record matches, recursive source drivers, and helpers such as `ink_after` to
+thread an owned Array through `Array.get` and `Array.set`. Tail calls compile
+to loops; the extra source syntax does not imply recursion overhead in the
+native loop. Bend also has infix arithmetic sugar, so the many explicit
+`U32.add` and `F32.mul` calls are partly a style choice. We have not measured
+how much shortening that style would save, or whether it would retain the
+same type checking and runtime behavior in this file.
+
+The transducer standard library is **not the main missing piece** in this
+comparison: every public stage the scene uses, including `map_indexed`, is
+already in the library. A clearer generic API for bounded, context-dependent
+sources might reduce adapter boilerplate, but a proposed `Tabulate` helper was
+too specific to promote to the transducer core. The remaining gap includes
+application logic and the current language's explicit syntax. The 103 lines
+of machine-checked transducer laws are reported separately; they are not
+inside the 600-line scene.
 
 ## Machine-checked transducer laws
 

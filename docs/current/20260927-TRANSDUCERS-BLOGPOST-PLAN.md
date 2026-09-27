@@ -11,7 +11,7 @@ The required `Array.walk` promotion is implemented in the local fork and
 library. The [integration report](20260927-ARRAY-WALK-INTEGRATION.md) records
 64/64 library tests, 1470/1470 fork gate cases, a Metal run, vectorized
 generated C, and paired Bend/C/Rust flat-Array measurements. The
-[512×512 cross-language showcase](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md)
+[512×512 iterator comparison](20260927-BULLET-CATHEDRAL-ITERATOR-COMPARISON.md)
 has exact agreement on every frame and 21-session timing. The
 [local upstream comparison](20260927-UPSTREAM-LOCAL-REGRESSION.md) covers all
 16 sequential, eight-thread CPU, and Metal runtime benchmarks and five
@@ -20,7 +20,8 @@ checker benchmarks. An
 available.
 
 For the showcase, use performance as a feasibility result: the composed
-Bend program took 1.11× C and 1.18× Rust time on the matched 512×512 run.
+Bend program took 1.11× C and 1.09× iterator Rust time on the matched
+512×512 run.
 The more revealing comparison is handwritten size, source complexity,
 safety obligations, and the shared library cost. The current Bend scene
 is longer than both controls. Use a named tokenizer for prompt-size
@@ -30,7 +31,7 @@ memory-safety boundaries, including that the Rust control uses safe code.
 Keep Clojure as the source of the transducer vocabulary; a Clojure runtime
 port would answer a different question and is not needed as a slow foil.
 The [source metrics](../../bench/bullet-source-metrics-20260927.json) and
-[cross-language report](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md)
+[iterator comparison](20260927-BULLET-CATHEDRAL-ITERATOR-COMPARISON.md)
 carry the evidence.
 
 Open gates remain: broader machine-checked proofs of the public API and

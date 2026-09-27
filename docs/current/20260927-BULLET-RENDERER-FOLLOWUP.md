@@ -5,6 +5,10 @@ status: bounded-fill-cpu-quotient-and-bullet-metric-verified-remaining-gap-open
 
 # Bullet Cathedral renderer: three measured changes and the remaining gap
 
+The Rust figures in this optimization history use the earlier direct-loop
+control. The [current iterator-style Rust comparison](20260927-BULLET-CATHEDRAL-ITERATOR-COMPARISON.md)
+uses the same Bend scene and different Rust source.
+
 The 512×512, one-thread showcase now uses the generic `Array.fill` for its
 sequential sky pass. It still uses transducers for bullets, drones, hit
 effects, icons, and the HUD. `Array.fill` owns a `Data` Array, derives its
@@ -34,7 +38,7 @@ Before the CPU quotient change, its fresh-buffer medians were **311.389 ms
 Bend**, **242.763 ms C**, and **227.844 ms Rust** over 120 frames. The
 next comparison after that change measured **277.951 ms Bend**,
 **242.499 ms C**, and **227.564 ms Rust**. A further bullet-stage change
-brings the [current comparison](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md)
+brings the [then-current direct-loop comparison](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md)
 to **269.027 ms Bend**, **242.650 ms C**, and **227.616 ms Rust**. Bend
 remains **26.377 ms** behind C and **41.411 ms** behind Rust in this
 one-thread comparison.

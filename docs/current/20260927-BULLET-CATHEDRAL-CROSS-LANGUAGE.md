@@ -5,6 +5,15 @@ status: 512px-comparison-verified
 
 # Bullet Cathedral in Bend, C, and Rust
 
+**Historical direct-loop Rust comparison.** The Rust file linked below has
+since been rewritten to use iterator pipelines, so its current contents do
+not match the Rust source hash in this report. The
+[current iterator comparison](20260927-BULLET-CATHEDRAL-ITERATOR-COMPARISON.md)
+is the source for the article's Rust timing and code-size figures. The raw
+report here preserves the earlier measurements and hashes.
+The direct-loop Rust source can be retrieved with
+`git show 80328fd372ada737d66081b9056dd897ca6775e3:bench/bullet_cathedral_control.rs`.
+
 The [Bend scene](../../bench/bullet_cathedral.bend),
 [handwritten C port](../../bench/bullet_cathedral_control.c), and
 [Rust port](../../bench/bullet_cathedral_control.rs) compute the same

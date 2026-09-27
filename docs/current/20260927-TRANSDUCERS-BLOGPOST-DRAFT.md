@@ -36,6 +36,12 @@ optimization opportunities. I chose the word *transducer* because I came to
 this idea from Clojure. The interesting part here is making the same style of
 source-independent composition work in Bend's type and ownership model.
 
+The Rust showcase control below uses that style too. It maps and filters
+bullets, expands collision candidates and sprite pixels with `flat_map`,
+collects hit events, and folds pixels into the framebuffer. C supplies the
+direct-loop comparison; Rust tests whether Bend's high-level composition
+can compete with a mature high-level iterator API.
+
 ## Why decouple the transformation?
 
 [Clojure introduced transducers in 1.7](https://clojure.org/news/2015/06/30/clojure-17).
@@ -210,6 +216,17 @@ X.into(empty_hits(), X.comp2(X.comp5(
     X.map(~Candidate, ~Hit, ~as_hit))), active_ids(frame))
 ```
 
+Rust's iterator version follows the same shape: its hit pipeline uses
+`map → filter → flat_map → filter → map → collect`. The renderer shares one
+pixel iterator across all sprite layers:
+
+```rust
+let _ = sprites.flat_map(sprite_pixels).fold(pixels, |pixels, (index, color)| {
+    ink(pixels, index, color);
+    pixels
+});
+```
+
 The sky is a sequential `Array.fill`, matching the C and Rust framebuffer
 initialization. The renderer then uses another transducer chain to expand
 sprites to bounded rectangles, clip to circles, calculate radial color, and
@@ -234,22 +251,24 @@ a theorem for arbitrary scenes.
 
 | 120 frames, one CPU thread | Bend | C | Rust |
 | --- | ---: | ---: | ---: |
-| Median internal time, fresh framebuffer | 269.027 ms | 242.650 ms | 227.616 ms |
-| Handwritten scene code lines | 600 | 230 | 250 |
-| Raw source tokens, `o200k_base` | 8,610 | 3,513 | 3,320 |
-| Code-only lexical tokens | 8,379 | 3,092 | 3,122 |
+| Median internal time, fresh framebuffer | 269.385 ms | 242.912 ms | 246.524 ms |
+| Handwritten scene code lines | 600 | 230 | 260 |
+| Raw source tokens, `o200k_base` | 8,610 | 3,513 | 3,498 |
+| Code-only lexical tokens | 8,379 | 3,092 | 3,348 |
 
 The timing includes initial scene setup, simulation, rendering, a fresh
 framebuffer each frame, pixel checksums, and cleanup, but no presentation.
 Reusing a framebuffer measured almost the same for C and Rust on this
 fixture. C was compiled with `-ffp-contract=off` to match Bend's F32
-rounding exactly. Bend took **1.11× C time and 1.18× Rust time**. That is
+rounding exactly. Bend took **1.11× C time and 1.09× Rust time**. That is
 close enough for my main question about whether a generic pipeline can run
 in the same performance range as direct loops; it is not a tie or a claim
 that this workload is equally fast in every language. The
-[comparison report](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md) explains
-the measured gaps and the remaining uncertainty. In particular, changing
-inlining in the controls does not produce a simple C/Rust parity switch.
+[iterator comparison](20260927-BULLET-CATHEDRAL-ITERATOR-COMPARISON.md) records
+the matched per-frame checks and all timing samples. An earlier
+[direct-loop comparison](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md) measured
+a 227.616 ms Rust median with a different Rust implementation; it is a
+useful style ablation, not the Rust column in this table.
 
 This Bend scene has **2.6× the C
 lines** and **2.5× the C raw source tokens** under the stated rule. The
@@ -274,15 +293,34 @@ showcase establishes no code-size win for Bend. The
 [size and proof audit](20260927-SHOWCASE-SIZE-AND-PROOFS.md) separates
 the existing library stages from the scene-specific code.
 
-Complexity has more than one surface here. The Bend pipeline makes the
-transformation stages visible and reuses the same `map`, `filter`, and `cat`
-machinery across sources. Its current syntax also asks for adapters, small
-helper functions, type arguments, and ownership annotations. Bend's guide
-describes its deliberately limited inference and the resulting verbosity.
-The C and Rust ports express this fixed scene with shorter direct loops;
-Rust already has reusable iterator adapters of its own. A reader can judge the pipeline's
-clarity from the source examples, but line and token counts do not measure
-how hard a version is to understand or maintain.
+Why is Bend larger? The rendering and frame-assembly section is 287 code
+lines in Bend, versus 77 in C and 96 in Rust. C uses one `draw_sprite`
+loop. Rust shares one lazy pixel pipeline across layers, expanding sprites
+with `flat_map` and applying ink with `fold`. Bend uses a reducible pixel
+source and spells out separate transducer chains for bullets, drones, hit
+flashes, and icons. Its simulation and collision section is 261 lines,
+versus 119 and 127. The Rust and Bend versions both traverse active bullets
+once for friendly hits and again for hostile player hits, whereas C branches
+inside one loop. The Rust control therefore gives the code-size comparison
+a second high-level, compositional implementation.
+
+The language contributes real ceremony too. Bend's guide describes its
+limited inference, structural recursion in place of loop syntax, `match`
+in place of `if`, and explicit reuse of affine values. Here that means
+type arguments, record matches, recursive source drivers, and helpers to
+thread owned Arrays through reads and writes. Tail recursion compiles to
+loops. Some apparent verbosity is author style: Bend supports infix
+arithmetic, though I often wrote `U32.add` and `F32.mul` explicitly. I
+have not measured a shorter rewrite of this scene.
+
+The existing transducer library already supplies every public stage used
+here, including `map_indexed`. The two scene-specific source drivers
+(`Nearby` and `SpritePixels`) occupy 64 code lines; relocating them would
+not erase their implementation. A better general source API might shorten
+that part, but missing library functions do not explain a 370-line gap to
+C or a 340-line gap to Rust. The [size audit](20260927-SHOWCASE-SIZE-AND-PROOFS.md)
+shows the partitions and source boundaries. Line and token counts measure
+source size, not how hard a version is to understand or maintain.
 
 For safety, the C port uses raw framebuffer pointers and manually guards
 pixel and hit-history bounds. The Rust port has **no `unsafe` block** and
@@ -392,9 +430,10 @@ raw times. It is not the upstream M4 cluster performance gate.
 
 The small Array pipelines show that generic Bend stages can fuse into a
 plain vectorized traversal, reaching C and Rust iterator time for these
-fixtures. The larger scene runs about 11% slower than C and 18% slower than
-Rust with a composed renderer, while requiring substantially more Bend source by lines
-and tokens. The value I found is reusable transformation logic at roughly
+fixtures. The larger scene runs about 11% slower than C and 9% slower than
+iterator-style Rust with a composed renderer, while requiring substantially
+more Bend source by lines and tokens. The value I found is reusable
+transformation logic at roughly
 direct-loop runtime. The current cost is source-level ceremony and shared
 library/compiler machinery. The checked laws, geometry argument, and tests
 make parts of the reasoning explicit; the proof boundary remains open.
@@ -417,7 +456,7 @@ in the reports linked above.
 python3 tests/run.py
 python3 bench/public_array_map_inc_sum.py --output bench/public-array-map-inc-sum-20260927.json
 python3 bench/public_array_map_filter_sum_rust.py --depths 16 18 20 --sessions 36 --output bench/public-array-map-filter-sum-rust-integrated-20260927.json
-python3 bench/bullet_cathedral_cross_language.py --frames 120 --sessions 21
+python3 bench/bullet_cathedral_cross_language.py --frames 120 --sessions 21 --output bench/bullet-cathedral-iterator-cross-language-20260927.json
 python3 -m pip install 'tiktoken==0.14.0'
 python3 bench/bullet_source_metrics.py
 bun ../bend/bend2/main.ts proofs/list_map_fold_law.bend
