@@ -1,0 +1,153 @@
+{
+  "scope": "Same Bend scene with bounded fill and native CPU quotient; only the bullet pixel pipeline differs. Two separate clang -O3 binaries, 120 sequential frames and one CPU thread.",
+  "frames": 120,
+  "sessions": 21,
+  "scene_sha256": "c59eea413e7e143fc101fbff8e52dd3899a348b45ce7f23644c707abd1bc82ed",
+  "compiler_comp_ts_sha256": "f939a6285f04721c35882d688b0b71cb09bce96bb61ab8a12c664551e0c723c7",
+  "generated_c_sha256": {
+    "measured_bullets": "877eb1d10848e1c0539b8acfde837246556e9a20f3ae47ffaa2ee405246a24e3",
+    "repeated_bullets": "da88ca0629c56d6096d3e85e8462935a157b14a2973e9a71f869537eca763c78"
+  },
+  "checksums": {
+    "measured_bullets": 367602200,
+    "repeated_bullets": 367602200
+  },
+  "orders": [
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "repeated_bullets",
+      "measured_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "repeated_bullets",
+      "measured_bullets"
+    ],
+    [
+      "repeated_bullets",
+      "measured_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "repeated_bullets",
+      "measured_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "repeated_bullets",
+      "measured_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "repeated_bullets",
+      "measured_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "measured_bullets",
+      "repeated_bullets"
+    ],
+    [
+      "repeated_bullets",
+      "measured_bullets"
+    ],
+    [
+      "repeated_bullets",
+      "measured_bullets"
+    ]
+  ],
+  "samples_us": {
+    "measured_bullets": [
+      269416,
+      268905,
+      272682,
+      269493,
+      269288,
+      271228,
+      269583,
+      269352,
+      268675,
+      268749,
+      268995,
+      268620,
+      269550,
+      268989,
+      269144,
+      269459,
+      268895,
+      268799,
+      268865,
+      268901,
+      269431
+    ],
+    "repeated_bullets": [
+      277456,
+      278724,
+      277636,
+      278548,
+      277623,
+      277869,
+      277510,
+      277683,
+      277713,
+      278569,
+      277484,
+      279837,
+      277806,
+      277955,
+      278657,
+      278600,
+      277441,
+      277843,
+      277722,
+      277465,
+      277835
+    ]
+  },
+  "median_us": {
+    "measured_bullets": 269144,
+    "repeated_bullets": 277806
+  }
+}

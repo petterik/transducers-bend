@@ -1,0 +1,774 @@
+{
+  "scope": "Static generated-C heap_alloc call sites, instrumented in one native CPU run. Sites in shared runtime helpers aggregate all callers. Counts are not allocation bytes or time.",
+  "frames": 120,
+  "checksum": 367602200,
+  "instrumented_elapsed_us": 269071,
+  "timed_heap_allocations": 133791,
+  "source_sha256": "c59eea413e7e143fc101fbff8e52dd3899a348b45ce7f23644c707abd1bc82ed",
+  "generated_c_sha256": "877eb1d10848e1c0539b8acfde837246556e9a20f3ae47ffaa2ee405246a24e3",
+  "sites": [
+    {
+      "site": 0,
+      "generated_c_line": 1182,
+      "enclosing_function": "OUTLINE Term rfc_wrap(Env e, Term t, u32 cnt) {",
+      "statement": "Loc r =heap_alloc(e, 0);",
+      "timed_calls": 62472
+    },
+    {
+      "site": 1,
+      "generated_c_line": 1382,
+      "enclosing_function": "INLINE Term term_word(Env e, Term w) {",
+      "statement": "Loc n =heap_alloc(e, w); \\",
+      "timed_calls": 2598
+    },
+    {
+      "site": 2,
+      "generated_c_line": 1545,
+      "enclosing_function": "INLINE Loc task_node(Env e, Fid fid, Term cont, u32 idx, u32 rem) {",
+      "statement": "Loc loc =heap_alloc(e, cls_fit(ar + 2));",
+      "timed_calls": 1
+    },
+    {
+      "site": 3,
+      "generated_c_line": 4678,
+      "enclosing_function": "INLINE Term spin_60(Env e, THR Term* o, u32 r0, Term r1, u32 r2, u32 r3, u32 r4, Term r5, u32 r6, u32 r7, u32 r8, u32 r9, u32 r10) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(5));",
+      "timed_calls": 405
+    },
+    {
+      "site": 4,
+      "generated_c_line": 4684,
+      "enclosing_function": "INLINE Term spin_60(Env e, THR Term* o, u32 r0, Term r1, u32 r2, u32 r3, u32 r4, Term r5, u32 r6, u32 r7, u32 r8, u32 r9, u32 r10) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 405
+    },
+    {
+      "site": 5,
+      "generated_c_line": 10787,
+      "enclosing_function": "INLINE Term spin_189(Env e, THR Term* o, u32 r0, u32 r1, Term r2, Term r3, u32 r4) {",
+      "statement": "u64 _nd_2 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 6,
+      "generated_c_line": 10790,
+      "enclosing_function": "INLINE Term spin_189(Env e, THR Term* o, u32 r0, u32 r1, Term r2, Term r3, u32 r4) {",
+      "statement": "u64 _nd_3 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 7,
+      "generated_c_line": 11498,
+      "enclosing_function": "INLINE Term spin_205(Env e, THR Term* o, u32 r0, u32 r1) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 8,
+      "generated_c_line": 11602,
+      "enclosing_function": "INLINE Term spin_214(Env e, THR Term* o, u32 r0) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 120
+    },
+    {
+      "site": 9,
+      "generated_c_line": 11650,
+      "enclosing_function": "INLINE Term spin_218(Env e, THR Term* o, u32 r0) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 120
+    },
+    {
+      "site": 10,
+      "generated_c_line": 11705,
+      "enclosing_function": "INLINE Term spin_222(Env e, THR Term* o, u32 r0) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 360
+    },
+    {
+      "site": 11,
+      "generated_c_line": 11914,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(4));",
+      "timed_calls": 120
+    },
+    {
+      "site": 12,
+      "generated_c_line": 11919,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(4));",
+      "timed_calls": 120
+    },
+    {
+      "site": 13,
+      "generated_c_line": 11924,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_2 =heap_alloc(e, cls_fit(4));",
+      "timed_calls": 120
+    },
+    {
+      "site": 14,
+      "generated_c_line": 11929,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_3 =heap_alloc(e, cls_fit(4));",
+      "timed_calls": 120
+    },
+    {
+      "site": 15,
+      "generated_c_line": 11934,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_4 =heap_alloc(e, cls_fit(4));",
+      "timed_calls": 120
+    },
+    {
+      "site": 16,
+      "generated_c_line": 11939,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_5 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 17,
+      "generated_c_line": 11942,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_6 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 18,
+      "generated_c_line": 11945,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_7 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 19,
+      "generated_c_line": 11948,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_8 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 20,
+      "generated_c_line": 11951,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_9 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 21,
+      "generated_c_line": 11954,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_10 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 22,
+      "generated_c_line": 11957,
+      "enclosing_function": "INLINE Term spin_235(Env e, THR Term* o, u32 r0, u32 r1, u32 r2) {",
+      "statement": "u64 _nd_11 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 23,
+      "generated_c_line": 12395,
+      "enclosing_function": "INLINE Term spin_258(Env e, THR Term* o, Term r0) {",
+      "statement": "u64 _nd_1 = _sp_1 >= HEAP_OFF ? _sp_1 :heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 24,
+      "generated_c_line": 12491,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 25,
+      "generated_c_line": 12554,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 240
+    },
+    {
+      "site": 26,
+      "generated_c_line": 12648,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 27,
+      "generated_c_line": 12742,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 28,
+      "generated_c_line": 12836,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 29,
+      "generated_c_line": 12899,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 30,
+      "generated_c_line": 12962,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 31,
+      "generated_c_line": 13056,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 32,
+      "generated_c_line": 13153,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 33,
+      "generated_c_line": 13250,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 34,
+      "generated_c_line": 13313,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 35,
+      "generated_c_line": 13410,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 36,
+      "generated_c_line": 13473,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 37,
+      "generated_c_line": 13567,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 38,
+      "generated_c_line": 13661,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 39,
+      "generated_c_line": 13758,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 40,
+      "generated_c_line": 13876,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(5));",
+      "timed_calls": 30111
+    },
+    {
+      "site": 41,
+      "generated_c_line": 13882,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 30111
+    },
+    {
+      "site": 42,
+      "generated_c_line": 13933,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 43,
+      "generated_c_line": 13996,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 44,
+      "generated_c_line": 14059,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 240
+    },
+    {
+      "site": 45,
+      "generated_c_line": 14159,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 46,
+      "generated_c_line": 14222,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 47,
+      "generated_c_line": 14316,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 48,
+      "generated_c_line": 14416,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 49,
+      "generated_c_line": 14479,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 50,
+      "generated_c_line": 14554,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 = _sp_0 >= HEAP_OFF ? _sp_0 :heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 51,
+      "generated_c_line": 14568,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 = _sp_1 >= HEAP_OFF ? _sp_1 :heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 52,
+      "generated_c_line": 14597,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_2 = _sp_1 >= HEAP_OFF ? _sp_1 :heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 53,
+      "generated_c_line": 14600,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_3 = _sp_2 >= HEAP_OFF ? _sp_2 :heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 54,
+      "generated_c_line": 14629,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_4 = _sp_1 >= HEAP_OFF ? _sp_1 :heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 55,
+      "generated_c_line": 14632,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_5 = _sp_2 >= HEAP_OFF ? _sp_2 :heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 56,
+      "generated_c_line": 14710,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 57,
+      "generated_c_line": 14773,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 58,
+      "generated_c_line": 14870,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 59,
+      "generated_c_line": 14934,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 60,
+      "generated_c_line": 14937,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_2 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 61,
+      "generated_c_line": 15276,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 62,
+      "generated_c_line": 15594,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 63,
+      "generated_c_line": 15938,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 360
+    },
+    {
+      "site": 64,
+      "generated_c_line": 16302,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 65,
+      "generated_c_line": 16499,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 66,
+      "generated_c_line": 16593,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 67,
+      "generated_c_line": 16693,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 68,
+      "generated_c_line": 16756,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 120
+    },
+    {
+      "site": 69,
+      "generated_c_line": 16833,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(5));",
+      "timed_calls": 120
+    },
+    {
+      "site": 70,
+      "generated_c_line": 16839,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(5));",
+      "timed_calls": 120
+    },
+    {
+      "site": 71,
+      "generated_c_line": 17572,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 72,
+      "generated_c_line": 18152,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(5));",
+      "timed_calls": 120
+    },
+    {
+      "site": 73,
+      "generated_c_line": 18158,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(5));",
+      "timed_calls": 120
+    },
+    {
+      "site": 74,
+      "generated_c_line": 18456,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(4));",
+      "timed_calls": 120
+    },
+    {
+      "site": 75,
+      "generated_c_line": 18523,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(4));",
+      "timed_calls": 120
+    },
+    {
+      "site": 76,
+      "generated_c_line": 18880,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 77,
+      "generated_c_line": 19007,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 78,
+      "generated_c_line": 19014,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 79,
+      "generated_c_line": 19508,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 = _sp_0 >= HEAP_OFF ? _sp_0 :heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 80,
+      "generated_c_line": 19672,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 81,
+      "generated_c_line": 19694,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 = _sp_0 >= HEAP_OFF ? _sp_0 :heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 82,
+      "generated_c_line": 19953,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 2
+    },
+    {
+      "site": 83,
+      "generated_c_line": 20068,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_0 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 84,
+      "generated_c_line": 20100,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_10 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 85,
+      "generated_c_line": 20134,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_1 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 86,
+      "generated_c_line": 20239,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_2 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 1
+    },
+    {
+      "site": 87,
+      "generated_c_line": 20254,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_3 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 1
+    },
+    {
+      "site": 88,
+      "generated_c_line": 20256,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_4 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 1
+    },
+    {
+      "site": 89,
+      "generated_c_line": 20296,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_5 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 1
+    },
+    {
+      "site": 90,
+      "generated_c_line": 20311,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_6 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 1
+    },
+    {
+      "site": 91,
+      "generated_c_line": 20447,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_7 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 92,
+      "generated_c_line": 20595,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_8 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 93,
+      "generated_c_line": 20631,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_9 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 94,
+      "generated_c_line": 20644,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_11 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 95,
+      "generated_c_line": 20731,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_12 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 96,
+      "generated_c_line": 20746,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_13 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 97,
+      "generated_c_line": 20748,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_14 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 98,
+      "generated_c_line": 20788,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_15 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 99,
+      "generated_c_line": 20803,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_16 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 100,
+      "generated_c_line": 20939,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_17 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 101,
+      "generated_c_line": 20975,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_18 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 102,
+      "generated_c_line": 20987,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_19 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 0
+    },
+    {
+      "site": 103,
+      "generated_c_line": 20999,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_20 =heap_alloc(e, cls_fit(1));",
+      "timed_calls": 1
+    },
+    {
+      "site": 104,
+      "generated_c_line": 21012,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "u64 _nd_21 =heap_alloc(e, cls_fit(2));",
+      "timed_calls": 0
+    },
+    {
+      "site": 105,
+      "generated_c_line": 21046,
+      "enclosing_function": "static Reply work_loop(Env e, Stk sp, Term t, u32 seq) {",
+      "statement": "Loc l =heap_alloc(e, 0);",
+      "timed_calls": 0
+    },
+    {
+      "site": 106,
+      "generated_c_line": 22113,
+      "enclosing_function": "static Term io_node(Env e, u64 cid, Term a, Term b) {",
+      "statement": "Loc l =heap_alloc(e, 1);",
+      "timed_calls": 0
+    },
+    {
+      "site": 107,
+      "generated_c_line": 22149,
+      "enclosing_function": "static Term io_str(Env e, const char* p, u64 n) {",
+      "statement": "Loc  l =heap_alloc(e, 1);",
+      "timed_calls": 0
+    },
+    {
+      "site": 108,
+      "generated_c_line": 22169,
+      "enclosing_function": "static Term io_box(Env e, u64 cid, Term v) {",
+      "statement": "Loc l =heap_alloc(e, 0);",
+      "timed_calls": 0
+    }
+  ]
+}

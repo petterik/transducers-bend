@@ -33,6 +33,10 @@ type SpritePixels is Data:
 type PixelSample is Data:
   PixelSample{sprite: Sprite, x: U32, y: U32}
 
+type MeasuredPixel is Data:
+  MeasuredPixel{x: U32, y: U32, color: U32,
+    distance2: F32, radius2: F32}
+
 type Ink is Data:
   Ink{index: U32, color: U32}
 
@@ -368,6 +372,23 @@ def covered(sample: PixelSample) -> Bool:
             F32.is_le(F32.add(F32.mul(dx, dx), F32.mul(dy, dy)),
               F32.mul(U32.to_f32(radius), U32.to_f32(radius))))
 
+def measure_pixel(sample: PixelSample) -> MeasuredPixel:
+  match sample:
+    case PixelSample{sprite, +x, +y}:
+      match sprite:
+        case Sprite{+cx, +cy, +radius, color}:
+          +dx = F32.sub(U32.to_f32(x), cx)
+          +dy = F32.sub(U32.to_f32(y), cy)
+          MeasuredPixel{x, y, color,
+            F32.add(F32.mul(dx, dx), F32.mul(dy, dy)),
+            F32.mul(U32.to_f32(radius), U32.to_f32(radius))}
+
+def covered_measured(sample: MeasuredPixel) -> Bool:
+  match sample:
+    case MeasuredPixel{+x, +y, color, +distance2, +radius2}:
+      Bool.and(Bool.and(U32.is_lt(x, 512), U32.is_lt(y, 512)),
+        F32.is_le(distance2, radius2))
+
 def red(color: U32) -> U32:
   U32.and(U32.shrn(color, 16n), 255)
 
@@ -404,6 +425,17 @@ def pixel_ink(sample: PixelSample) -> Ink:
             rgb(scale_channel(red(color), intensity),
               scale_channel(green(color), intensity),
               scale_channel(blue(color), intensity))}
+
+def pixel_ink_measured(sample: MeasuredPixel) -> Ink:
+  match sample:
+    case MeasuredPixel{+x, +y, +color, +distance2, +radius2}:
+      +falloff = F32.max(0.0,
+        F32.sub(1.0, F32.div(distance2, F32.max(radius2, 1.0))))
+      +intensity = F32.mul(falloff, falloff)
+      Ink{U32.add(x, U32.mul(y, 512)),
+        rgb(scale_channel(red(color), intensity),
+          scale_channel(green(color), intensity),
+          scale_channel(blue(color), intensity))}
 
 def ink_after(got: Array<U32> & U32, index: U32, color: U32) ->
   T.Control<Empty, Array<U32>>:
@@ -445,8 +477,9 @@ def draw_bullets(framebuffer: Array<U32>, +frame: U32) -> Array<U32>:
     X.map(~Bullet, ~Sprite, ~bullet_sprite),
     X.map(~Sprite, ~SpritePixels, ~sprite_pixels),
     X.cat(SpritePixels.adapter())),
-    X.comp2(X.filter(~PixelSample, ~covered),
-      X.map(~PixelSample, ~Ink, ~pixel_ink))),
+    X.comp3(X.map(~PixelSample, ~MeasuredPixel, ~measure_pixel),
+      X.filter(~MeasuredPixel, ~covered_measured),
+      X.map(~MeasuredPixel, ~Ink, ~pixel_ink_measured))),
     ink_rf(), framebuffer, active_ids(frame))
 
 def hit_sprite_go(+frame: U32, hit: Hit) -> Sprite:
@@ -585,9 +618,15 @@ def sky(+index: U32) -> Ink:
 def sky_at(index: U32) -> Ink:
   sky(index)
 
+def sky_color_after(ink: Ink) -> U32:
+  match ink:
+    case Ink{index, color}: color
+
+def sky_color(index: U32) -> U32:
+  sky_color_after(sky(index))
+
 def background() -> Array<U32>:
-  X.transduce(X.map(~U32, ~Ink, ~sky_at), ink_rf(),
-    Array.new(U32, 18n, 0), T.range(262144))
+  Array.fill(~U32, ~sky_color, Array.new(U32, 18n, 0))
 
 def draw_frame(world: Damage, +frame: U32) -> Array<U32>:
   match world:

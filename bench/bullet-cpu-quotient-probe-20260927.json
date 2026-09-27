@@ -1,0 +1,153 @@
+{
+  "scope": "Same Bend scene and generated C, two separate clang -O3 binaries, one CPU thread; only U32_QUO macro differs. All sequential frames, full simulation, fresh framebuffer, checksum and cleanup are timed internally.",
+  "frames": 120,
+  "sessions": 21,
+  "scene_sha256": "c59eea413e7e143fc101fbff8e52dd3899a348b45ce7f23644c707abd1bc82ed",
+  "compiler_comp_ts_sha256": "f939a6285f04721c35882d688b0b71cb09bce96bb61ab8a12c664551e0c723c7",
+  "generated_c_sha256": {
+    "cpu_quotient": "877eb1d10848e1c0539b8acfde837246556e9a20f3ae47ffaa2ee405246a24e3",
+    "metal_quotient_on_cpu": "97d4039db33dd0555032138b29ac1abcca5775d15451aac2edf603e1f8fe9132"
+  },
+  "checksums": {
+    "cpu_quotient": 367602200,
+    "metal_quotient_on_cpu": 367602200
+  },
+  "orders": [
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "metal_quotient_on_cpu",
+      "cpu_quotient"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "metal_quotient_on_cpu",
+      "cpu_quotient"
+    ],
+    [
+      "metal_quotient_on_cpu",
+      "cpu_quotient"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "metal_quotient_on_cpu",
+      "cpu_quotient"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "metal_quotient_on_cpu",
+      "cpu_quotient"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "metal_quotient_on_cpu",
+      "cpu_quotient"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "cpu_quotient",
+      "metal_quotient_on_cpu"
+    ],
+    [
+      "metal_quotient_on_cpu",
+      "cpu_quotient"
+    ],
+    [
+      "metal_quotient_on_cpu",
+      "cpu_quotient"
+    ]
+  ],
+  "samples_us": {
+    "cpu_quotient": [
+      268780,
+      268813,
+      268579,
+      269140,
+      268901,
+      268674,
+      268889,
+      269628,
+      269322,
+      268722,
+      268903,
+      268695,
+      269117,
+      268821,
+      268715,
+      268997,
+      268650,
+      270991,
+      269230,
+      269001,
+      269479
+    ],
+    "metal_quotient_on_cpu": [
+      302232,
+      301406,
+      301312,
+      301814,
+      301527,
+      301447,
+      301643,
+      302577,
+      301882,
+      303141,
+      301186,
+      301618,
+      301618,
+      301220,
+      301487,
+      301743,
+      301529,
+      301446,
+      302095,
+      301260,
+      301266
+    ]
+  },
+  "median_us": {
+    "cpu_quotient": 268901,
+    "metal_quotient_on_cpu": 301529
+  }
+}

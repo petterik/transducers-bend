@@ -1,0 +1,254 @@
+{
+  "scope": "Separate generated Bend C binaries, one CPU thread, 120 sequential frames; same simulation and checksum, original transducer background versus generic bounded Array.fill. Full scene and background-only cumulative ablation; order shuffled by session.",
+  "frames": 120,
+  "sessions": 21,
+  "source_sha256": "c59eea413e7e143fc101fbff8e52dd3899a348b45ce7f23644c707abd1bc82ed",
+  "compiler_comp_ts_sha256": "f939a6285f04721c35882d688b0b71cb09bce96bb61ab8a12c664551e0c723c7",
+  "compiler_base_sha256": "ee98e4cbd6e41f2f8ada99557f720a2b1e26b3f9a11bf6c649207992681d9520",
+  "generated_c_sha256": {
+    "original_full": "97e4e6b1b43c50a194f57e95541d799bbfe47fd4d632a12421f3e2c934d54002",
+    "fill_full": "877eb1d10848e1c0539b8acfde837246556e9a20f3ae47ffaa2ee405246a24e3",
+    "original_background": "2ffbf6a408a2787e3e75045414fc1b2c3c6d22e4f8dbe1a6ac8c84172dc96baa",
+    "fill_background": "89bc6c4d4b0e97fabd07a37676c824b9197b82a84af70a66d1e69eda5943f553"
+  },
+  "orders": [
+    [
+      "fill_full",
+      "original_full",
+      "fill_background",
+      "original_background"
+    ],
+    [
+      "original_full",
+      "fill_full",
+      "original_background",
+      "fill_background"
+    ],
+    [
+      "original_background",
+      "original_full",
+      "fill_full",
+      "fill_background"
+    ],
+    [
+      "original_background",
+      "fill_background",
+      "original_full",
+      "fill_full"
+    ],
+    [
+      "fill_background",
+      "original_full",
+      "fill_full",
+      "original_background"
+    ],
+    [
+      "fill_background",
+      "original_background",
+      "fill_full",
+      "original_full"
+    ],
+    [
+      "fill_full",
+      "original_background",
+      "fill_background",
+      "original_full"
+    ],
+    [
+      "fill_full",
+      "original_background",
+      "original_full",
+      "fill_background"
+    ],
+    [
+      "original_background",
+      "fill_background",
+      "original_full",
+      "fill_full"
+    ],
+    [
+      "fill_full",
+      "original_full",
+      "fill_background",
+      "original_background"
+    ],
+    [
+      "original_background",
+      "fill_full",
+      "original_full",
+      "fill_background"
+    ],
+    [
+      "fill_full",
+      "original_full",
+      "original_background",
+      "fill_background"
+    ],
+    [
+      "original_background",
+      "original_full",
+      "fill_full",
+      "fill_background"
+    ],
+    [
+      "fill_full",
+      "original_background",
+      "original_full",
+      "fill_background"
+    ],
+    [
+      "fill_full",
+      "fill_background",
+      "original_background",
+      "original_full"
+    ],
+    [
+      "fill_full",
+      "fill_background",
+      "original_full",
+      "original_background"
+    ],
+    [
+      "original_background",
+      "fill_background",
+      "original_full",
+      "fill_full"
+    ],
+    [
+      "fill_background",
+      "fill_full",
+      "original_full",
+      "original_background"
+    ],
+    [
+      "fill_full",
+      "original_background",
+      "original_full",
+      "fill_background"
+    ],
+    [
+      "original_full",
+      "fill_background",
+      "original_background",
+      "fill_full"
+    ],
+    [
+      "fill_background",
+      "original_background",
+      "fill_full",
+      "original_full"
+    ]
+  ],
+  "checksums": {
+    "original_full": 367602200,
+    "fill_full": 367602200,
+    "original_background": 2226259136,
+    "fill_background": 2226259136
+  },
+  "timed_heap_allocations": {
+    "original_full": 133791,
+    "fill_full": 133791,
+    "original_background": 6627,
+    "fill_background": 6627
+  },
+  "samples_us": {
+    "original_full": [
+      340388,
+      340497,
+      340601,
+      342013,
+      340591,
+      340486,
+      340538,
+      340495,
+      345451,
+      341171,
+      340460,
+      340593,
+      340980,
+      341549,
+      340376,
+      341706,
+      340763,
+      341031,
+      340416,
+      340607,
+      340961
+    ],
+    "fill_full": [
+      269941,
+      269349,
+      268779,
+      268856,
+      269267,
+      269484,
+      268718,
+      268946,
+      269527,
+      269745,
+      269574,
+      269323,
+      268596,
+      268982,
+      268521,
+      268614,
+      269555,
+      270248,
+      268750,
+      268947,
+      268549
+    ],
+    "original_background": [
+      142120,
+      142069,
+      142723,
+      142065,
+      142581,
+      142153,
+      141991,
+      142816,
+      142027,
+      142602,
+      144562,
+      142008,
+      142096,
+      142104,
+      142138,
+      142707,
+      142024,
+      142641,
+      142189,
+      142069,
+      142657
+    ],
+    "fill_background": [
+      70366,
+      70308,
+      70327,
+      70376,
+      70344,
+      71301,
+      70357,
+      70433,
+      70971,
+      70367,
+      70491,
+      70310,
+      70381,
+      70398,
+      70387,
+      70359,
+      70539,
+      71263,
+      70320,
+      70485,
+      70287
+    ]
+  },
+  "median_us": {
+    "original_full": 340601,
+    "fill_full": 268982,
+    "original_background": 142138,
+    "fill_background": 70376
+  }
+}

@@ -1,0 +1,341 @@
+{
+  "scope": "Cumulative render stages; each separately compiled program runs the same sequential simulation, then each frame builds the selected layers and checksums its framebuffer. One native CPU thread; process startup excluded. Differences between medians are indicative, not isolated within one executable.",
+  "source_sha256": "c59eea413e7e143fc101fbff8e52dd3899a348b45ce7f23644c707abd1bc82ed",
+  "compiler_commit": "bd749c7c7dd22f0965d0870a50d5316d58b5d735",
+  "frames": 120,
+  "sessions": 21,
+  "orders": [
+    [
+      "hud",
+      "icons",
+      "background",
+      "drones",
+      "hits",
+      "bullets"
+    ],
+    [
+      "bullets",
+      "background",
+      "hits",
+      "drones",
+      "icons",
+      "hud"
+    ],
+    [
+      "background",
+      "bullets",
+      "hud",
+      "drones",
+      "icons",
+      "hits"
+    ],
+    [
+      "background",
+      "icons",
+      "drones",
+      "bullets",
+      "hud",
+      "hits"
+    ],
+    [
+      "icons",
+      "hits",
+      "background",
+      "drones",
+      "hud",
+      "bullets"
+    ],
+    [
+      "icons",
+      "hud",
+      "bullets",
+      "background",
+      "hits",
+      "drones"
+    ],
+    [
+      "hud",
+      "bullets",
+      "hits",
+      "icons",
+      "drones",
+      "background"
+    ],
+    [
+      "hits",
+      "icons",
+      "drones",
+      "hud",
+      "bullets",
+      "background"
+    ],
+    [
+      "icons",
+      "hud",
+      "drones",
+      "bullets",
+      "background",
+      "hits"
+    ],
+    [
+      "drones",
+      "background",
+      "hits",
+      "icons",
+      "bullets",
+      "hud"
+    ],
+    [
+      "bullets",
+      "hits",
+      "icons",
+      "background",
+      "drones",
+      "hud"
+    ],
+    [
+      "icons",
+      "bullets",
+      "drones",
+      "background",
+      "hits",
+      "hud"
+    ],
+    [
+      "bullets",
+      "hud",
+      "drones",
+      "background",
+      "hits",
+      "icons"
+    ],
+    [
+      "drones",
+      "background",
+      "bullets",
+      "hits",
+      "hud",
+      "icons"
+    ],
+    [
+      "bullets",
+      "drones",
+      "background",
+      "hits",
+      "hud",
+      "icons"
+    ],
+    [
+      "drones",
+      "hits",
+      "hud",
+      "bullets",
+      "background",
+      "icons"
+    ],
+    [
+      "hud",
+      "hits",
+      "bullets",
+      "icons",
+      "background",
+      "drones"
+    ],
+    [
+      "background",
+      "hits",
+      "drones",
+      "hud",
+      "bullets",
+      "icons"
+    ],
+    [
+      "hud",
+      "icons",
+      "background",
+      "hits",
+      "bullets",
+      "drones"
+    ],
+    [
+      "drones",
+      "bullets",
+      "icons",
+      "background",
+      "hits",
+      "hud"
+    ],
+    [
+      "icons",
+      "background",
+      "hud",
+      "hits",
+      "drones",
+      "bullets"
+    ]
+  ],
+  "checksums": {
+    "background": 2226259136,
+    "bullets": 2774171692,
+    "drones": 2412871340,
+    "hits": 4241134454,
+    "icons": 3520524107,
+    "hud": 367602200
+  },
+  "timed_heap_allocations": {
+    "background": 6627,
+    "bullets": 7707,
+    "drones": 8667,
+    "hits": 129831,
+    "icons": 133191,
+    "hud": 133791
+  },
+  "samples_us": {
+    "background": [
+      70474,
+      70360,
+      70396,
+      70287,
+      70320,
+      70447,
+      70286,
+      70361,
+      70991,
+      70357,
+      70245,
+      70424,
+      70480,
+      70456,
+      70353,
+      70421,
+      70542,
+      70334,
+      70339,
+      70377,
+      70359
+    ],
+    "bullets": [
+      243001,
+      243502,
+      245273,
+      242751,
+      243200,
+      242294,
+      243001,
+      245059,
+      242312,
+      242550,
+      243030,
+      243046,
+      242286,
+      242765,
+      242771,
+      242650,
+      244287,
+      242648,
+      242305,
+      242536,
+      242668
+    ],
+    "drones": [
+      257950,
+      258084,
+      258592,
+      257690,
+      257946,
+      260057,
+      258006,
+      258407,
+      257906,
+      257815,
+      258291,
+      257906,
+      258109,
+      259636,
+      257937,
+      258039,
+      258513,
+      257912,
+      258144,
+      257740,
+      257931
+    ],
+    "hits": [
+      270057,
+      264997,
+      265169,
+      265773,
+      265816,
+      265243,
+      265685,
+      265059,
+      265218,
+      267338,
+      265181,
+      265124,
+      265183,
+      265513,
+      265719,
+      265165,
+      265389,
+      265096,
+      265096,
+      265805,
+      266518
+    ],
+    "icons": [
+      269133,
+      269050,
+      269106,
+      269914,
+      268981,
+      270489,
+      268715,
+      269633,
+      269470,
+      270247,
+      269807,
+      269224,
+      269936,
+      269835,
+      269463,
+      268858,
+      269223,
+      269129,
+      268869,
+      269765,
+      269483
+    ],
+    "hud": [
+      268745,
+      268539,
+      269106,
+      268740,
+      269488,
+      269072,
+      269633,
+      272158,
+      269330,
+      269155,
+      268713,
+      268561,
+      269337,
+      269222,
+      268622,
+      268717,
+      269444,
+      268739,
+      268736,
+      268819,
+      271321
+    ]
+  },
+  "median_us": {
+    "background": 70361,
+    "bullets": 242765,
+    "drones": 258006,
+    "hits": 265243,
+    "icons": 269463,
+    "hud": 269072
+  }
+}

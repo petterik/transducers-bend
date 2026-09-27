@@ -1,0 +1,146 @@
+{
+  "scope": "Unsafe probe only: globally replacing blk_at wraparound with a direct offset changes the Array contract and can access out of bounds. Matching this deterministic checksum does not make the replacement safe. One native CPU thread; 21 shuffled paired runs; process startup excluded.",
+  "frames": 120,
+  "sessions": 21,
+  "checksum": 367602200,
+  "source_sha256": "c59eea413e7e143fc101fbff8e52dd3899a348b45ce7f23644c707abd1bc82ed",
+  "generated_c_sha256": "877eb1d10848e1c0539b8acfde837246556e9a20f3ae47ffaa2ee405246a24e3",
+  "orders": [
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "unsafe_global_nomask",
+      "normal"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "unsafe_global_nomask",
+      "normal"
+    ],
+    [
+      "unsafe_global_nomask",
+      "normal"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "unsafe_global_nomask",
+      "normal"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "unsafe_global_nomask",
+      "normal"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "unsafe_global_nomask",
+      "normal"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "normal",
+      "unsafe_global_nomask"
+    ],
+    [
+      "unsafe_global_nomask",
+      "normal"
+    ],
+    [
+      "unsafe_global_nomask",
+      "normal"
+    ]
+  ],
+  "samples_us": {
+    "normal": [
+      269617,
+      268850,
+      268955,
+      268712,
+      268985,
+      268471,
+      269352,
+      268534,
+      269589,
+      268589,
+      269047,
+      268739,
+      268855,
+      268992,
+      268692,
+      269232,
+      268683,
+      271664,
+      269611,
+      268744,
+      269313
+    ],
+    "unsafe_global_nomask": [
+      265522,
+      265445,
+      264818,
+      264933,
+      264857,
+      264978,
+      265964,
+      264879,
+      266301,
+      265243,
+      264852,
+      264812,
+      265542,
+      264642,
+      264742,
+      264802,
+      265304,
+      265646,
+      265299,
+      265334,
+      265206
+    ]
+  },
+  "median_us": {
+    "normal": 268955,
+    "unsafe_global_nomask": 265206
+  }
+}
