@@ -19,6 +19,20 @@ checker benchmarks. An
 [evidence-backed article draft](20260927-TRANSDUCERS-BLOGPOST-DRAFT.md) is
 available.
 
+For the showcase, use performance as a feasibility result: the composed
+Bend program took 1.11× C and 1.18× Rust time on the matched 512×512 run.
+The more revealing comparison is handwritten size, source complexity,
+safety obligations, and the shared library cost. The current Bend scene
+is longer than both controls. Use a named tokenizer for prompt-size
+estimates and distinguish those from lexical tokens. Treat code clarity
+as a source-reading judgment, not a measured score. State exact proof and
+memory-safety boundaries, including that the Rust control uses safe code.
+Keep Clojure as the source of the transducer vocabulary; a Clojure runtime
+port would answer a different question and is not needed as a slow foil.
+The [source metrics](../../bench/bullet-source-metrics-20260927.json) and
+[cross-language report](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md)
+carry the evidence.
+
 Open gates remain: broader machine-checked proofs of the public API and
 showcase; C/Rust ports
 of the separate 1920×1080 live variant; and final review of the article and
@@ -207,11 +221,13 @@ iterator overhead. Separate pure simulation/render computation, headless
 frame throughput, and actual window presentation. Record one-thread and
 explicitly parallel variants separately.
 
-Count handwritten source lines and tokens with one documented rule that
-excludes generated Bend C and common harness code. Show showcase code, reused
-library code, and proof code as separate counts. State precisely that these
-C and Rust implementations have no accompanying machine-checked proofs;
-neither language is inherently unprovable. Report timing, allocation, and
+Count complete handwritten scene files with one documented rule, including
+each file's own CLI harness so the boundary is objective. Exclude generated
+Bend C and report reusable library code separately. Provide both lexical
+code-token counts and raw source tokens under a named BPE tokenizer, without
+presenting either as an exact model bill. Show proof code separately. State
+precisely that these C and Rust implementations have no accompanying
+machine-checked proofs; neither language is inherently unprovable. Report timing, allocation, and
 memory observations beside correctness and code size, with source hashes and
 compiler flags.
 

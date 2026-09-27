@@ -1,0 +1,63 @@
+{
+  "scope": "Raw BPE counts include comments, whitespace and each scene's own CLI harness; code-line and lexical-token counts omit blank lines and comments according to bullet_cathedral_cross_language.py. Shared Bend libraries and proof artifacts are reported separately. Neither token measure is a measured GPT-6 prompt bill.",
+  "tiktoken_version": "0.14.0",
+  "encoding": "o200k_base",
+  "files": {
+    "bench/bullet_cathedral.bend": {
+      "sha256": "c59eea413e7e143fc101fbff8e52dd3899a348b45ce7f23644c707abd1bc82ed",
+      "bytes": 25690,
+      "nonblank_noncomment_lines": 600,
+      "lexical_tokens": 8379,
+      "raw_o200k_base_tokens": 8610
+    },
+    "bench/bullet_cathedral_control.c": {
+      "sha256": "46f62e9da8d6af92a7116f6da515d635696a0acc95687eba1d3eefc004497ca0",
+      "bytes": 9622,
+      "nonblank_noncomment_lines": 230,
+      "lexical_tokens": 3092,
+      "raw_o200k_base_tokens": 3513
+    },
+    "bench/bullet_cathedral_control.rs": {
+      "sha256": "1474ba5288ef5f1dff0fe6d7abc02032c271438db4c7071b9216504202ed4bd2",
+      "bytes": 9823,
+      "nonblank_noncomment_lines": 250,
+      "lexical_tokens": 3122,
+      "raw_o200k_base_tokens": 3320
+    },
+    "xf.bend": {
+      "sha256": "40b02a7660718ac279d90865f7bc2163ad8e5594f78bcaa85369847e85f031c0",
+      "bytes": 11545,
+      "nonblank_noncomment_lines": 208,
+      "lexical_tokens": 4541,
+      "raw_o200k_base_tokens": 4493
+    },
+    "transduce_core.bend": {
+      "sha256": "d7096b4b2cea0b630fbce19bcc259e6fcb53e9937730f2aad6cbf5212cdf99c3",
+      "bytes": 45933,
+      "nonblank_noncomment_lines": 966,
+      "lexical_tokens": 15464,
+      "raw_o200k_base_tokens": 15092
+    },
+    "proofs/list_map_fold_law.bend": {
+      "sha256": "ef3f2b5f30a9399db7cd3b1d4499c508b230a930eb377c0de2219ffecf0d4c07",
+      "bytes": 1469,
+      "nonblank_noncomment_lines": 43,
+      "lexical_tokens": 536,
+      "raw_o200k_base_tokens": 562
+    },
+    "proofs/no_stop_control_law.bend": {
+      "sha256": "9d223cb55f37d283f64362bab448d72694c80fbd0918f4ed8f7a0de52044d817",
+      "bytes": 1078,
+      "nonblank_noncomment_lines": 29,
+      "lexical_tokens": 361,
+      "raw_o200k_base_tokens": 387
+    },
+    "proofs/api_stage_laws.bend": {
+      "sha256": "396154eb30a0bf5880a0abd1b61fe60df15134602b683f5c4aa28dfeaced375d",
+      "bytes": 1083,
+      "nonblank_noncomment_lines": 31,
+      "lexical_tokens": 371,
+      "raw_o200k_base_tokens": 408
+    }
+  }
+}

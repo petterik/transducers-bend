@@ -236,20 +236,66 @@ a theorem for arbitrary scenes.
 | --- | ---: | ---: | ---: |
 | Median internal time, fresh framebuffer | 269.027 ms | 242.650 ms | 227.616 ms |
 | Handwritten scene code lines | 600 | 230 | 250 |
-| Handwritten lexical tokens | 8,379 | 3,092 | 3,122 |
+| Raw source tokens, `o200k_base` | 8,610 | 3,513 | 3,320 |
+| Code-only lexical tokens | 8,379 | 3,092 | 3,122 |
 
 The timing includes initial scene setup, simulation, rendering, a fresh
 framebuffer each frame, pixel checksums, and cleanup, but no presentation.
-Reusing a framebuffer measured
-almost the same for C and Rust on this fixture. C was compiled with
-`-ffp-contract=off` to match Bend's F32 rounding exactly. The code count
-includes each scene's CLI harness and excludes
-imported libraries and generated C. Bend's reusable `xf.bend` and
-`transduce_core.bend` are separate files used beyond this scene. On this
-showcase, C and Rust are faster and shorter by these measures. The gap to C
-is 26.377 ms over 120 frames. The
-[comparison report](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md) gives the
-raw samples and counting rule.
+Reusing a framebuffer measured almost the same for C and Rust on this
+fixture. C was compiled with `-ffp-contract=off` to match Bend's F32
+rounding exactly. Bend took **1.11× C time and 1.18× Rust time**. That is
+close enough for my main question about whether a generic pipeline can run
+in the same performance range as direct loops; it is not a tie or a claim
+that this workload is equally fast in every language. The
+[comparison report](20260927-BULLET-CATHEDRAL-CROSS-LANGUAGE.md) explains
+the measured gaps and the remaining uncertainty. In particular, changing
+inlining in the controls does not produce a simple C/Rust parity switch.
+
+This Bend scene has **2.6× the C
+lines** and **2.5× the C raw source tokens** under the stated rule. The
+counts include each file's CLI harness and exclude imported libraries and
+generated C. The raw token row uses `tiktoken` 0.14.0's `o200k_base` on the
+files including comments and whitespace. It is a reproducible prompt-size
+proxy, not a bill for a particular model. The lexical row strips comments
+and blank lines before counting identifiers, number runs, and punctuation.
+The [source metrics](../../bench/bullet-source-metrics-20260927.json) include
+hashes and the exact counts.
+
+The reusable Bend library is another **208 lines / 4,493 raw tokens** in
+`xf.bend` and **966 lines / 15,092 raw tokens** in
+`transduce_core.bend` under these rules. Those modules contain facilities
+for other programs too, so adding all their tokens to this one scene would
+overcharge it; leaving them invisible would hide the implementation cost.
+The fork's compiler changes are a further shared cost. C and Rust use their
+standard libraries, which are likewise absent from the handwritten-file
+counts. The three checked Bend proof artifacts add **103 code lines / 1,357
+raw tokens**; they prove reusable local laws, not the entire scene. This
+showcase establishes no code-size win for Bend.
+
+Complexity has more than one surface here. The Bend pipeline makes the
+transformation stages visible and reuses the same `map`, `filter`, and `cat`
+machinery across sources. Its current syntax also asks for adapters, small
+helper functions, type arguments, and ownership annotations. Bend's guide
+describes its deliberately limited inference and the resulting verbosity.
+The C and Rust ports express this fixed scene with shorter direct loops;
+Rust already has reusable iterator adapters of its own. A reader can judge the pipeline's
+clarity from the source examples, but line and token counts do not measure
+how hard a version is to understand or maintain.
+
+For safety, the C port uses raw framebuffer pointers and manually guards
+pixel and hit-history bounds. The Rust port has **no `unsafe` block** and
+uses safe `Vec`/slice access. Bend brings typed ownership and a proof
+language into the same source language as the renderer. For example, the
+checked `Control<Empty, U32>` law rules out a live `Stop` branch and proves
+agreement with a total List fold; other checked laws cover map/fold fusion
+and individual stage behavior. These are useful guarantees about reusable
+pieces of the pipeline. All three ports passed the same per-frame
+differential checks, and the scene has a geometry argument plus an
+exhaustive oracle for this run. The entire showcase, its compiler output,
+and its runtime remain outside the machine-checked proof boundary. Safe
+Rust also supplies a strong memory-safety baseline, so the distinct Bend
+advantage I can demonstrate here is the ability to express and check these
+semantic laws alongside high-level transformations.
 
 The allocation counts point to a different scale of work from the tiny flat
 Array folds: 133,791 timed Bend native heap-allocation calls over 120 frames,
@@ -344,12 +390,12 @@ raw times. It is not the upstream M4 cluster performance gate.
 
 The small Array pipelines show that generic Bend stages can fuse into a
 plain vectorized traversal, reaching C and Rust iterator time for these
-fixtures. The larger scene shows the limit just as clearly: writing the
-simulation and renderer with reusable transducers did not automatically
-make it as fast or as short as the direct ports. I still like the programming
-model. New sources, stages, and destinations reuse each other, and the
-compiler optimizations that made it viable are general enough to help other
-Bend code.
+fixtures. The larger scene runs about 11% slower than C and 18% slower than
+Rust with a composed renderer, while requiring substantially more Bend source by lines
+and tokens. The value I found is reusable transformation logic at roughly
+direct-loop runtime. The current cost is source-level ceremony and shared
+library/compiler machinery. The checked laws, geometry argument, and tests
+make parts of the reasoning explicit; the proof boundary remains open.
 
 This is an experiment in a Bend fork. To the Bend developers: thank you for
 making a language interesting enough to try this in. If any of these changes
@@ -370,6 +416,8 @@ python3 tests/run.py
 python3 bench/public_array_map_inc_sum.py --output bench/public-array-map-inc-sum-20260927.json
 python3 bench/public_array_map_filter_sum_rust.py --depths 16 18 20 --sessions 36 --output bench/public-array-map-filter-sum-rust-integrated-20260927.json
 python3 bench/bullet_cathedral_cross_language.py --frames 120 --sessions 21
+python3 -m pip install 'tiktoken==0.14.0'
+python3 bench/bullet_source_metrics.py
 bun ../bend/bend2/main.ts proofs/list_map_fold_law.bend
 bun ../bend/bend2/main.ts proofs/no_stop_control_law.bend
 bun ../bend/bend2/main.ts proofs/api_stage_laws.bend

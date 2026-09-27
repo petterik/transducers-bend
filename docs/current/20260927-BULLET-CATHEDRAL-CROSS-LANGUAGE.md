@@ -79,11 +79,11 @@ then counts identifiers, digit runs, and individual nonspace punctuation.
 Counts **include each file's own CLI harness** and exclude imported libraries
 and generated C:
 
-| Handwritten scene file | Code lines | Lexical tokens |
-| --- | ---: | ---: |
-| Bend | 600 | 8,379 |
-| C | 230 | 3,092 |
-| Rust | 250 | 3,122 |
+| Handwritten scene file | Code lines | Lexical tokens | Raw `o200k_base` tokens |
+| --- | ---: | ---: | ---: |
+| Bend | 600 | 8,379 | 8,610 |
+| C | 230 | 3,092 | 3,513 |
+| Rust | 250 | 3,122 | 3,320 |
 
 The Bend scene imports a reusable transducer library. `xf.bend` is 208 code
 lines / 4,541 tokens and `transduce_core.bend` is 966 code lines / 15,464
@@ -91,10 +91,16 @@ tokens under the same rule. Those files serve far more than this scene, so
 adding all of them to one showcase would answer a different code-size
 question. The table nevertheless shows that this particular declarative Bend
 scene is longer than the direct C and Rust ports by this count; it does not
-support a code-size win claim.
+support a code-size win claim. The raw BPE column counts whole UTF-8 files,
+including comments and harnesses, with `tiktoken` 0.14.0's `o200k_base`. It
+is a named prompt-size proxy rather than the exact token bill for a model.
+The [source metrics report](../../bench/bullet-source-metrics-20260927.json)
+records file hashes and the separate reusable-library counts.
 
-The two small [Bend proof artifacts](../../proofs/README.md) establish a
-List map/fold law and a no-stop Control law. The
+The three [Bend proof artifacts](../../proofs/README.md) establish List
+map/fold and map-composition laws, a no-stop Control law, and local
+`T.map`/`T.filter` step laws. Together they add **103 code lines / 1,357 raw
+`o200k_base` tokens**, counted separately from the scene and libraries. The
 [scene geometry argument](../../proofs/bullet_cathedral_geometry.md)
 derives nine-cell coverage and index bounds from the current constants, with
 an explicit floating-point boundary. None is an end-to-end machine-checked
